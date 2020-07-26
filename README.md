@@ -81,4 +81,4 @@ To deploy this software on production you need to
 
 Everyone is very welcome to contribute on the codebase of Rahat. Please reach us in Gitter in case of any query/feedback/suggestion.
 
-For more information on the contributing procedure, see [Contribution](https://lab.rumsan.net/esatya/cash-aid/-/blob/stage/CONTRIBUTING.md)
+For more information on the contributing procedure, see [Contribution](https://github.com/esatya/rahat-agency/blob/master/CONTRIBUTING.md)
