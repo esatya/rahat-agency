@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../_layouts/head %>
+    <link href="/css/plugins/dataTables/datatables.min.css" rel="stylesheet" />
+    <style>
+      .alignstatus {
+        align-self: center;
+      }
+    </style>
+  </head>
+
+  <body class="md-skin">
+    <% include ../_layouts/header %>
+    <div id="wrapper">
+      <% include ../_layouts/sidebar %>
+      <div id="page-wrapper" class="gray-bg">
+        <% include ../_layouts/search %>
+        <div class="wrapper wrapper-content">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                  Settings
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% include ../_layouts/footer %>
+      </div>
+    </div>
+    <% include ../_layouts/foot %>
+    <script></script>
+  </body>
+</html>

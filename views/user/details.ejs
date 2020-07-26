@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../_layouts/head %>
+    <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+    <style>
+      .select2-container--default .select2-selection--single {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-left: 1px solid;
+        border-right: 1px solid;
+        border-radius: 1px;
+      }
+
+      .select2-container .select2-selection--single {
+        height: 30px;
+      }
+    </style>
+    <script>
+      var userId = "<%= data.user_id%>";
+    </script>
+  </head>
+
+  <body class="md-skin">
+    <% include ../_layouts/header %>
+    <div id="wrapper">
+      <% include ../_layouts/sidebar %>
+      <div id="page-wrapper" class="gray-bg">
+        <% include ../_layouts/search %>
+        <div class="wrapper wrapper-content animated fadeInRight">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="ibox">
+                <div class="ibox-title">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <h2>
+                        User Details
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  id="UserDetailsPanel"
+                  class="ibox-content"
+                  style="padding-top: 0px; min-height: 400px;"
+                >
+                  <form action="" method="post">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group form-group--float">
+                          <label><b>Name</b></label>
+                          <input
+                            type="text"
+                            name="name"
+                            value=""
+                            class="form-control"
+                            data-validation="required"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group form-group--float">
+                          <label><b>Email</b></label>
+                          <input
+                            type="email"
+                            name="email"
+                            value=""
+                            class="form-control"
+                            data-validation="email required"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label><b>Phone</b></label>
+                          <input
+                            type="number"
+                            value=""
+                            name="phone"
+                            class="form-control"
+                            data-validation="length alphanumeric required"
+                            data-validation-length="7-15"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label><b>Gender</b></label>
+                          <select class="form-control" name="gender">
+                            <option value="">Select Option</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label><b>Date of Birth</b></label>
+                          <input
+                            type="date"
+                            value=""
+                            name="dob"
+                            class="form-control"
+                            data-validation="length alphanumeric required"
+                            data-validation-length="7-15"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group row">
+                      <div class="col-sm-4 col-sm-offset-2">
+                        <button class="btn btn-white btn-sm" type="cancel">Cancel</button>
+                        <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="ibox">
+                <div class="ibox-title">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <h2>
+                        User Roles
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="ibox-content"
+                  style="padding-top: 0px; min-height: 380px;"
+                  id="UserRolePanel"
+                >
+                  <div style="padding: 0px 15px 0px 15px; width: 100%;">
+                    <select class="select2" style="border: 1px solid #ccc;"> </select>
+                  </div>
+
+                  <div class="table-responsive">
+                    <table
+                      class="table table-striped table-bordered table-hover"
+                      style="display: none;"
+                      id="UserRoleTable"
+                    >
+                      <thead>
+                        <tr>
+                          <th>Roles</th>
+                          <th width="10" style="text-align: center;">Action</th>
+                        </tr>
+                      </thead>
+                    </table>
+
+                    <!-- <table
+                      id="role-table"
+                      class="table table-striped table-bordered table-hover table-panel"
+                    >
+                      <thead>
+                        <tr>
+                          <th>Roles</th>
+                          <th width="10" style="text-align:center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody class="roles"></tbody>
+                    </table> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% include ../_layouts/foot %>
+    <script
+      type="text/javascript"
+      language="javascript"
+      src="/js/plugins/datatables/datatables.min.js"
+    ></script>
+    <script src="/js/plugins/select2/select2.min.js"></script>
+    <script src="/js/app/user.details.js"></script>
+  </body>
+</html>
