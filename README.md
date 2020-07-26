@@ -32,7 +32,7 @@ To run this software on your machine locally you need to have the following pack
 
 ## Installing
 
-To setup this software on your machine locally, first clone this repository to your local machine and create a folder named ‘config’ on root of this repository. You need to add three files here
+To setup this software on your machine locally, first clone this repository to your local machine and create a folder named ‘config’ on root of this repository. You need to add three files [here](https://gist.github.com/myanzik/26e88aa18979fdf3e745b4ab2cce768a)
 
 -   Local.json
     
