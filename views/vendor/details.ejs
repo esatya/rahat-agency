@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../_layouts/head %>
+    <link href="/css/plugins/datatables/datatables.min.css" rel="stylesheet" />
+    <link href="/css/plugins/select2/select2.min.css" rel="stylesheet" />
+    <style>
+      .select2-container--default .select2-selection--single {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-left: 1px solid;
+        border-right: 1px solid;
+        border-radius: 1px;
+      }
+
+      .select2-container .select2-selection--single {
+        height: 30px;
+      }
+    </style>
+    <script>
+      var aidId = "<%= data.aid_id%>";
+    </script>
+  </head>
+
+  <body class="md-skin">
+    <% include ../_layouts/header %>
+    <div id="wrapper">
+      <% include ../_layouts/sidebar %>
+      <div id="page-wrapper" class="gray-bg">
+        <% include ../_layouts/search %>
+        <div class="wrapper wrapper-content animated fadeInRight">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="ibox">
+                <div class="ibox-title">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <h2>
+                        Agency Details
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  id="AgencyDetailsPanel"
+                  class="ibox-content"
+                  style="padding-top: 0px; min-height: 400px;"
+                >
+                  <form action="" method="post">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group form-group--float">
+                          <label><b>Agency Name</b></label>
+                          <input
+                            type="text"
+                            name="name"
+                            value=""
+                            class="form-control"
+                            data-validation="required"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group form-group--float">
+                          <label><b>Email</b></label>
+                          <input
+                            type="email"
+                            name="email"
+                            value=""
+                            class="form-control"
+                            data-validation="email required"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group form-group--float">
+                          <label><b>Ethereum Address</b></label>
+                          <input
+                            type="text"
+                            name="eth_address"
+                            value=""
+                            class="form-control"
+                            data-validation="ethereum address required"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label><b>Phone</b></label>
+                          <input
+                            type="number"
+                            value=""
+                            name="phone"
+                            class="form-control"
+                            data-validation="length alphanumeric required"
+                            data-validation-length="7-15"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div id="tokenDetail" class="form-group row">
+                      <label class="col-sm-2 col-form-label"><b>Token Details</b></label>
+
+                      <div class="col-sm-6">
+                        <div class="input-group m-b">
+                          <div class="input-group-prepend">
+                            <span class="input-group-addon">Token Name</span>
+                          </div>
+                          <input name="tokenName" type="text" placeholder="" class="form-control" />
+                        </div>
+                        <div class="input-group m-b">
+                          <div class="input-group-prepend">
+                            <span class="input-group-addon">Symbol</span>
+                          </div>
+                          <input name="symbol" type="text" placeholder="" class="form-control" />
+                        </div>
+                        <div class="input-group m-b">
+                          <div class="input-group-prepend">
+                            <span class="input-group-addon">Supply</span>
+                          </div>
+                          <input name="supply" type="number" placeholder="" class="form-control" />
+                        </div>
+
+                        <button id="deployToken" class="btn btn-primary btn-sm" type="submit">
+                          Deploy Token
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group row">
+                      <div class="col-sm-4 col-sm-offset-2">
+                        <button class="btn btn-white btn-sm" type="cancel">Cancel</button>
+                        <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% include ../_layouts/foot %>
+    <script
+      type="text/javascript"
+      language="javascript"
+      src="/js/plugins/datatables/datatables.min.js"
+    ></script>
+    <script src="/js/plugins/select2/select2.min.js"></script>
+    <script src="/js/app/agency.details.js"></script>
+  </body>
+</html>

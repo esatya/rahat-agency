@@ -1,0 +1,13 @@
+{
+  "server_account": {
+    "privateKey": "0x8A104251F94EBA07CB8C2A4407CA3E975C037A35A6FDDC81AC4BCFD49CE6BB32",
+    "address": "0xcDEe632FB1Ba1B3156b36cc0bDabBfd821305e06"
+  },
+  "client_account": {
+    "privateKey": "0x934B87166A28D2C4F0E8DBFD4C92CCF8ADE53092934E204388921476DFCB76E5",
+    "address": "0x11B4c96Ce7e32e1739d697da1C77B292AF21f8aD"
+  },
+  "endpoint": "http://localhost:7545",
+  "adminPrivateKey": "0xdaaa363fa80d7fbe5e7b97a88f71c2efc4ecebac196ac90ccc9d06433a04bbee",
+  "adminAddress": "0xDC05495d15CF3f82e022c38FfB241897e1ee2c80"
+}
