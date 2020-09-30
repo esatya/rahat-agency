@@ -1,0 +1,8 @@
+module.exports = {
+  LIST: "LIST_USERS",
+  ADD: "ADD_USER",
+  REMOVE: "REMOVE_USER",
+  UPDATE: "UPDATE_USER",
+  GET: "GET_USER",
+  VERIFY_TOKEN: "VERIFY_TOKEN",
+};

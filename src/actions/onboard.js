@@ -1,0 +1,5 @@
+module.exports = {
+  LIST: "LIST_ONBOARD",
+  SET_LOADING: "SET_LOADING",
+  RESET_LOADING: "RESET_LOADING"
+};
