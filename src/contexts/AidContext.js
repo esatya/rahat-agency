@@ -14,7 +14,7 @@ const initialState = {
     currentPage: 1,
     totalPages: 0,
   },
-  balance: 0,
+  balance: { total: 0, available: 0 },
   aid_details: null,
   loading: false,
 };
@@ -22,10 +22,6 @@ const initialState = {
 export const AidContext = createContext(initialState);
 export const AidContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(aidReduce, initialState);
-
-  async function getProjectCapital(aidId, contract_addr) {
-    return Service.getProjectCapital(aidId, contract_addr);
-  }
 
   function getAidDetails(aidId) {
     return new Promise((resolve, reject) => {
@@ -52,8 +48,20 @@ export const AidContextProvider = ({ children }) => {
     return res;
   }
 
+  async function getProjectCapital(aidId, contract_addr) {
+    let res = await Service.getProjectCapital(aidId, contract_addr);
+    dispatch({ type: ACTION.PROJECT_CAPITAL, res });
+    return res;
+  }
+
   async function getAidBalance(aidId, rahatAdminContractAddr) {
     let res = await Service.loadAidBalance(aidId, rahatAdminContractAddr);
+    let _capital = await Service.getProjectCapital(
+      aidId,
+      rahatAdminContractAddr
+    );
+    dispatch({ type: ACTION.PROJECT_CAPITAL, res: _capital });
+    dispatch({ type: ACTION.AVAILABLE_BALANCE, res });
     return res;
   }
 
