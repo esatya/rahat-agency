@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { Pie } from "react-chartjs-2";
 
 import { AidContext } from "../../../contexts/AidContext";
@@ -6,20 +6,19 @@ import { AppContext } from "../../../contexts/AppSettingsContext";
 import { useToasts } from "react-toast-notifications";
 
 export default function TokenDetails(props) {
-  const { getAidBalance, getProjectCapital } = useContext(AidContext);
+  const { getAidBalance, getProjectCapital, balance } = useContext(AidContext);
   const { appSettings } = useContext(AppContext);
   const { addToast } = useToasts();
 
-  const projectId = props.aidId;
+  const { available, total } = balance;
 
-  const [availableBalance, setAvailableBalance] = useState(null);
-  const [projectCapital, setProjectCapital] = useState(null);
+  const projectId = props.aidId;
 
   const pieData = {
     labels: ["Available Tokens", "Used Tokens"],
     datasets: [
       {
-        data: [availableBalance, projectCapital - availableBalance],
+        data: [available, total - available],
         backgroundColor: ["#2dce89", "#5e72e4", "#23b7e5"],
         hoverBackgroundColor: ["#2dce89", "#5e72e4", "#23b7e5"],
       },
@@ -29,11 +28,9 @@ export default function TokenDetails(props) {
   const loadProjectCapital = () => {
     const { rahat_admin } = appSettings.agency.contracts;
     getProjectCapital(projectId, rahat_admin)
-      .then((d) => {
-        setProjectCapital(d);
-      })
+      .then()
       .catch(() => {
-        addToast("Internal server error.", {
+        addToast("Failed to fetch project capital.", {
           appearance: "error",
           autoDismiss: true,
         });
@@ -45,10 +42,9 @@ export default function TokenDetails(props) {
       const { rahat_admin } = appSettings.agency.contracts;
       getAidBalance(projectId, rahat_admin)
         .then((d) => {
-          setAvailableBalance(d);
           loadProjectCapital(projectId, rahat_admin);
         })
-        .catch();
+        .catch(() => {});
     }
   };
 
@@ -59,7 +55,7 @@ export default function TokenDetails(props) {
       <div style={{ margin: 5 }}>
         <h4>
           <span className="ml-3 badge badge-dark">
-            Project Capital : {projectCapital || 0}
+            Project Capital : {total}
           </span>
         </h4>
       </div>
