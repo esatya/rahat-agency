@@ -17,8 +17,9 @@ export default class Step2 extends Component {
   }
 
   async handleLoadAddressClick() {
-    let signer = await getSigner();
-    console.log("SIgner==>", signer);
+    let { signer } = await getSigner();
+    const _address = await signer.getAddress();
+    this.setState({ eth_address: _address });
   }
 
   isValidated() {
@@ -131,11 +132,10 @@ export default class Step2 extends Component {
 
                   <InputGroupAddon addonType="append">
                     <Button
-                      style={{ display: "none" }}
+                      className="btn btn-warning"
                       onClick={this.handleLoadAddressClick}
-                      color="primary"
                     >
-                      Load Address
+                      Get metamask account
                     </Button>
                   </InputGroupAddon>
                 </InputGroup>
