@@ -54,18 +54,26 @@ export async function changeProjectStatus(aidId, status) {
 
 // Get Project Balance
 export async function loadAidBalance(aidId, contract_address) {
-  const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
-  const myContract = mapTestContract(contract);
-  const data = await myContract.getProjectBalance(aidId);
-  return data.toNumber();
+  try {
+    const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
+    const myContract = mapTestContract(contract);
+    const data = await myContract.getProjectBalance(aidId);
+    return data.toNumber();
+  } catch {
+    return 0;
+  }
 }
 
 export async function getProjectCapital(aidId, contract_address) {
-  const hashId = ethers.utils.solidityKeccak256(["string"], [aidId]);
-  const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
-  const myContract = mapTestContract(contract);
-  const data = await myContract.projectCapital(hashId);
-  return data.toNumber();
+  try {
+    const hashId = ethers.utils.solidityKeccak256(["string"], [aidId]);
+    const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
+    const myContract = mapTestContract(contract);
+    const data = await myContract.projectCapital(hashId);
+    return data.toNumber();
+  } catch {
+    return 0;
+  }
 }
 
 export function vendorsByAid(aidId, query) {

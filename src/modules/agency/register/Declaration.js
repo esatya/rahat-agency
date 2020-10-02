@@ -59,7 +59,7 @@ export default class Step4 extends Component {
         serverWallet: res.data.address,
         onProgress: true,
         progressMsg:
-          "Please transfer 5 ethers to following account to continue setup...",
+          "Please transfer 5 ethers to the account address given below to continue setup...",
       });
     } catch (err) {
       this.setState({
