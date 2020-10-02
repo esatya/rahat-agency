@@ -57,7 +57,8 @@ export default function AidDetails(props) {
     const { rahat_admin } = appSettings.agency.contracts;
     setLoading();
     addProjectBudget(projectId, inputTokens, rahat_admin)
-      .then(() => {
+      .then((d) => {
+        setProjectDetails(d);
         setInputToken(null);
         resetLoading();
         addToast("Token balance added to the project.", {

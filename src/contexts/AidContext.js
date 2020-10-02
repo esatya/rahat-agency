@@ -37,9 +37,12 @@ export const AidContextProvider = ({ children }) => {
   }
 
   async function addProjectBudget(aidId, supplyToken, contract_addr) {
-    await Service.addProjectBudget(aidId, supplyToken, contract_addr);
+    let d = await Service.addProjectBudget(aidId, supplyToken, contract_addr);
     let balance = await Service.loadAidBalance(aidId, contract_addr);
-    if (balance) dispatch({ type: ACTION.GET_BALANCE, res: balance });
+    if (balance) {
+      dispatch({ type: ACTION.GET_BALANCE, res: balance });
+      return d;
+    }
   }
 
   async function changeProjectStatus(aidId, status) {
@@ -55,14 +58,20 @@ export const AidContextProvider = ({ children }) => {
   }
 
   async function getAidBalance(aidId, rahatAdminContractAddr) {
-    let res = await Service.loadAidBalance(aidId, rahatAdminContractAddr);
+    let _available = await Service.loadAidBalance(
+      aidId,
+      rahatAdminContractAddr
+    );
     let _capital = await Service.getProjectCapital(
       aidId,
       rahatAdminContractAddr
     );
-    dispatch({ type: ACTION.PROJECT_CAPITAL, res: _capital });
-    dispatch({ type: ACTION.AVAILABLE_BALANCE, res });
-    return res;
+    dispatch({ type: ACTION.PROJECT_CAPITAL, res: _capital ? _capital : 0 });
+    dispatch({
+      type: ACTION.AVAILABLE_BALANCE,
+      res: _available ? _available : 0,
+    });
+    return _available;
   }
 
   function setLoading() {
