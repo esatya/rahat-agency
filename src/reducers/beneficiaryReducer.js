@@ -4,21 +4,21 @@ export default (state, action) => {
   switch (action.type) {
     case `${ACTION.LIST}`:
       return {
-        ...state, // beneficiary_list, aid
-        list: action.data.data,
+        ...state,
+        list: action.res.data,
         pagination: {
-          limit: parseInt(action.data.limit),
-          start: parseInt(action.data.start),
-          total: parseInt(action.data.total),
-          page: parseInt(action.data.page),
+          limit: parseInt(action.res.limit),
+          start: parseInt(action.res.start),
+          total: parseInt(action.res.total),
+          currentPage: parseInt(action.res.page),
+          totalPages: Math.ceil(action.res.total / action.res.limit),
         },
-        query: { name: action.data.name, phone: action.data.phone },
       };
 
     case `${ACTION.LIST_AID}`:
       return {
         ...state,
-        aids: action.data.aids,
+        projectList: action.data.projectList,
       };
 
     case `${ACTION.SET_AID}`:
