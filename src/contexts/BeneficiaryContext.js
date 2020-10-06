@@ -6,10 +6,9 @@ import ACTION from "../actions/beneficiary";
 
 const initialState = {
   list: [],
-  pagination: { limit: 10, start: 0, total: 0, page: 0 },
-  query: { name: "", phone: "" },
+  pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 },
   aid: {},
-  aids: [],
+  projectList: [],
   beneficiary: {},
   tokenBalance: 0,
 };
@@ -43,8 +42,8 @@ export const BeneficiaryContextProvider = ({ children }) => {
   }
 
   async function listAid() {
-    const d = await AidService.listAid({ start: 0, limit: 20 });
-    dispatch({ type: ACTION.LIST_AID, data: { aids: d.data } });
+    const d = await AidService.listAid({ start: 0, limit: 50 });
+    dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
   }
 
   function setAid(aid) {
@@ -87,43 +86,15 @@ export const BeneficiaryContextProvider = ({ children }) => {
     return d;
   };
 
-  function listBeneficiary(params) {
-    return new Promise((resolve, reject) => {
-      if (!params)
-        params = {
-          ...state.pagination,
-          aid: state.aid,
-          ...state.query,
-        };
-
-      if (!params.aid) {
-        setAid(null);
-        Service.listBeneficiary(params).then((d) => {
-          let pg = parseInt(d.total / d.limit);
-          if (d.total - pg * d.limit > 0) {
-            pg = pg + 1;
-          }
-          dispatch({
-            type: ACTION.LIST,
-            data: { ...d, page: pg, name: params.name, phone: params.phone },
-          });
-          resolve(d);
-        });
-      } else {
-        setAid({ _id: params.aid });
-        Service.listByAid(params.aid, params).then((d) => {
-          let pg = parseInt(d.total / d.limit);
-          if (d.total - pg * d.limit > 0) {
-            pg = pg + 1;
-          }
-          dispatch({
-            type: ACTION.LIST,
-            data: { ...d, page: pg, name: params.name, phone: params.phone },
-          });
-          resolve(d);
-        });
-      }
-    });
+  async function listBeneficiary(params) {
+    let res = await Service.listBeneficiary(params);
+    if (res) {
+      dispatch({
+        type: ACTION.LIST,
+        res,
+      });
+      return res;
+    }
   }
 
   const importBeneficiary = async () => {
@@ -140,9 +111,8 @@ export const BeneficiaryContextProvider = ({ children }) => {
     <BeneficiaryContext.Provider
       value={{
         aid: state.aid,
-        aids: state.aids,
+        projectList: state.projectList,
         list: state.list,
-        query: state.query,
         pagination: state.pagination,
         tokenBalance: state.tokenBalance,
         beneficiary_detail: state.beneficiary,
