@@ -17,13 +17,11 @@ export const BeneficiaryContext = createContext(initialState);
 export const BeneficiaryContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(beneficiaryReduce, initialState);
 
-  const issueTokens = async (event, projectId, contractAddress) => {
-    const formData = new FormData(event.target);
-    let payload = {
-      claimable: +formData.get("claimable"),
-      phone: +state.beneficiary.phone,
-      projectId,
-    };
+  async function getAvailableBalance(proejctId, rahatAdminContractAddr) {
+    return AidService.loadAidBalance(proejctId, rahatAdminContractAddr);
+  }
+
+  const issueTokens = async (payload, contractAddress) => {
     await AidService.issueBeneficiaryToken(payload, contractAddress);
     let balance = await Service.getBeneficiaryBalance(
       payload.phone,
@@ -44,6 +42,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
   async function listAid() {
     const d = await AidService.listAid({ start: 0, limit: 50 });
     dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
+    return d;
   }
 
   function setAid(aid) {
@@ -124,6 +123,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
         setBeneficiary,
         listBeneficiary,
         importBeneficiary,
+        getAvailableBalance,
         getBeneficiaryDetails,
         getBeneficiaryBalance,
       }}
