@@ -46,7 +46,7 @@ var AppRoutes = [
     component: AgencyDetails,
   },
   {
-    path: "/beneficiaries/:id/:aid/:project_id",
+    path: "/beneficiaries/:id",
     name: "Beneficiary",
     component: BeneficiaryDetails,
   },
