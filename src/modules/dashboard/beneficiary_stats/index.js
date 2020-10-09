@@ -2,26 +2,35 @@ import React from "react";
 import { Bar } from "react-chartjs-2";
 import { Card, CardBody, CardTitle } from "reactstrap";
 
-const barData = {
-  labels: [
-    "Humla Rahat",
-    "Jumla Rahat",
-    "Covid Rahat",
-    "Solukhumbu Landslide Rahat",
-    "Flood Victims Help",
-    "Remote Child Education",
-  ],
+let _labels = [];
+let _data = [];
+
+let barData = {
+  labels: [],
   datasets: [
     {
       label: "Beneficiaries",
       backgroundColor: "#4fc3f7",
       borderColor: "#4fc3f7",
-      data: [20, 60, 55, 75, 80, 100],
+      data: [],
     },
   ],
 };
 
-const Index = () => {
+const Index = (props) => {
+  const { data } = props;
+  if(data && data.length){
+    _labels = [];
+    _data = [];
+    for(let d of data) {
+      _labels.push(d.name);
+      _data.push(d.count)
+    }
+  }
+
+  barData.labels = _labels;
+  barData.datasets[0].data = _data;
+ 
   return (
     <div>
       <Card>

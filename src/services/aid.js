@@ -22,9 +22,19 @@ export async function addProjectBudget(aidId, supplyToken, contract_addr) {
   const res = await myContract.setProjectBudget(aidId, supplyToken);
   let d = await res.wait();
   if (d) {
+    await tokenAllocate( aidId, supplyToken, d.transactionHash)
     let project = await changeProjectStatus(aidId, "active");
     return project;
   }
+}
+
+async function tokenAllocate(projectId, tokens, txHash){
+  return axios.patch(
+    `${API.PROJECTS}/${projectId}/token`,
+    { amount: tokens, txhash:txHash },
+    {
+      headers: { access_token },
+    })
 }
 
 export async function issueBeneficiaryToken(payload, contract_addr) {
