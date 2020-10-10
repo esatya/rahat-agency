@@ -4,7 +4,7 @@ import { Row, Col, Card, CardBody, CardTitle, CardSubtitle } from "reactstrap";
 
 import Statistics from "../statistics";
 
-const Stats = () => {
+const Stats = (props) => {
   return (
     <Card>
       <CardBody className="border-bottom">
@@ -18,7 +18,7 @@ const Stats = () => {
               textColor="orange"
               icon="wallet"
               title="Vendors"
-              subtitle="50"
+              subtitle={props.vendors || 0}
             />
           </Col>
           <Col md="6" sm="12" lg="4">
@@ -26,14 +26,14 @@ const Stats = () => {
               textColor="primary"
               icon="basket"
               title="Projects"
-              subtitle="20"
+              subtitle={props.projects || 0}
             />
           </Col>
           <Col md="6" sm="12" lg="4">
             <Statistics
               icon="account-box"
               title="Beneficiaries"
-              subtitle="500"
+              subtitle={props.beneficiaries || 0}
             />
           </Col>
         </Row>

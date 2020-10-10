@@ -19,6 +19,7 @@ import {
   ModalHeader,
   ModalFooter,
 } from "reactstrap";
+import Swal from "sweetalert2";
 
 import { BeneficiaryContext } from "../../../contexts/BeneficiaryContext";
 import { AppContext } from "../../../contexts/AppSettingsContext";
@@ -74,17 +75,19 @@ export default function DetailsForm(props) {
   const handleIssueToken = (e) => {
     e.preventDefault();
     if (!selectedProject || !inputTokens) {
-      addToast("Project and input tokens are required!", {
-        appearance: "error",
-        autoDismiss: true,
-      });
+      Swal.fire({
+        icon: 'error',
+        title: 'Attention',
+        text: 'Project and input token is required!',
+      })
       return;
     }
     if (inputTokens > availableBalance) {
-      addToast("Input balance can not be greater than available balance!", {
-        appearance: "error",
-        autoDismiss: true,
-      });
+      Swal.fire({
+        icon: 'error',
+        title: 'Attention',
+        text: 'Input balance can not be greater than available balance!',
+      })
       return;
     }
     const payload = {
@@ -99,12 +102,12 @@ export default function DetailsForm(props) {
     setLoading(true);
     issueTokens(payload, contractAddress)
       .then(() => {
+        toggleModal();
         addToast(`${payload.claimable} tokens assigned to beneficiary.`, {
           appearance: "success",
           autoDismiss: true,
         });
         getBalance(payload.phone);
-        toggleModal();
         setLoading(false);
         resetTokenIssueForm();
       })
@@ -118,12 +121,14 @@ export default function DetailsForm(props) {
 
   const toggleModal = () => {
     setModal((prevState) => !prevState);
+    resetTokenIssueForm();
   };
 
   const resetTokenIssueForm = () => {
     setInputTokens(null);
     setAvailableBalance("");
     setSelectedProject(null);
+    setShowAlert(false);
   };
 
   const getBalance = (phone) => {

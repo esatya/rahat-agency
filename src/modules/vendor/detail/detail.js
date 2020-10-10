@@ -6,7 +6,6 @@ import {
   CardBody,
   Row,
   Col,
-  FormGroup,
   Input,
   ButtonGroup,
   Button,
@@ -148,8 +147,7 @@ export default function DetailsForm(props) {
                       Current balance: {vendorBalance || 0}
                     </p>
                   </div>
-                </div>
-                <FormGroup style={{ margin: 10 }}>
+                  <div className="ml-auto" style={{padding:5}}>
                   {vendor_status !== "new" ? (
                     <ButtonGroup>
                       <Button
@@ -176,7 +174,8 @@ export default function DetailsForm(props) {
                       Approve
                     </Button>
                   )}
-                </FormGroup>
+                  </div>
+                </div>
                 <div className="details-table px-4">
                   <Table responsive borderless size="sm" className="mt-4">
                     <tbody>
