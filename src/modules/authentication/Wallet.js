@@ -1,20 +1,20 @@
-import React, { useRef, useEffect, useState, useContext } from "react";
-import { useQRCode } from "react-qrcodes";
-import ethers from "ethers";
-import { useToasts } from "react-toast-notifications";
+import React, { useRef, useEffect, useState, useContext } from 'react';
+import { useQRCode } from 'react-qrcodes';
+import ethers from 'ethers';
+import { useToasts } from 'react-toast-notifications';
 
-import { UserContext } from "../../contexts/UserContext";
+import { UserContext } from '../../contexts/UserContext';
 
 const API_SERVER = process.env.REACT_APP_API_SERVER;
-const WSS_SERVER = API_SERVER.replace("http", "ws");
+const WSS_SERVER = API_SERVER.replace('http', 'ws');
 
 const Wallet = () => {
   const { addToast } = useToasts();
 
   const ws = useRef(null);
   const [qroptions, setQrOptions] = useState({});
-  const [clientId, setclientId] = useState("");
-  const [token, settoken] = useState("");
+  const [clientId, setclientId] = useState('');
+  const [token, settoken] = useState('');
 
   const { loginUsingMetamask } = useContext(UserContext);
 
@@ -24,10 +24,10 @@ const Wallet = () => {
       const payload = { id: clientId, signature: _sign };
       await loginUsingMetamask(payload);
     } catch (e) {
-      let error_msg = "Something went wrong on server!";
+      let error_msg = 'Something went wrong on server!';
       if (e.code === 4001) error_msg = e.message;
       addToast(error_msg, {
-        appearance: "error",
+        appearance: 'error',
         autoDismiss: true,
       });
     }
@@ -49,21 +49,21 @@ const Wallet = () => {
   const [inputRef] = useQRCode({
     text: JSON.stringify(qroptions),
     options: {
-      level: "M",
+      level: 'M',
       margin: 7,
       scale: 1,
       width: 250,
       color: {
-        dark: "#010599FF",
-        light: "#FFBF60FF",
+        dark: '#010599FF',
+        light: '#FFBF60FF',
       },
     },
   });
 
   const generateQR = (token) => {
     const data = {
-      name: "Rumsan Office",
-      action: "login",
+      name: 'Rumsan Office',
+      action: 'login',
       token: token.toString(), // client ID
       callbackUrl: `${API_SERVER}/api/v1/auth/wallet`,
     };
@@ -81,19 +81,19 @@ const Wallet = () => {
     if (!ws.current) return;
 
     ws.current.onopen = () => {
-      ws.current.send(JSON.stringify({ action: "get_token" }));
+      ws.current.send(JSON.stringify({ action: 'get_token' }));
     };
 
     ws.current.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.data && data.data.token) settoken(data.data.token.toString());
-      if (data.action === "welcome") {
+      if (data.action === 'welcome') {
         let tokenId = data.id.toString();
         setclientId(tokenId);
         generateQR(data.id);
       }
 
-      if (data.action === "access-granted") {
+      if (data.action === 'access-granted') {
         window.location.replace(`/passport-control?token=${data.accessToken}`);
       }
     };
@@ -105,7 +105,7 @@ const Wallet = () => {
         <div className="error-body text-center">
           <h4 className="text-dark font-24">Rahat Authentication</h4>
           <div className="mt-4">
-            <div style={{ padding: 15, display: "none" }}>
+            <div style={{ padding: 15, display: 'none' }}>
               <canvas ref={inputRef} />
             </div>
             {clientId ? (
@@ -113,7 +113,7 @@ const Wallet = () => {
                 <i className="fab fa-ethereum"></i> Login Using Metamask
               </button>
             ) : (
-              "Initializing..."
+              'Initializing...'
             )}
           </div>
           <div className="text-center" style={{ marginTop: 10 }}>
@@ -122,9 +122,6 @@ const Wallet = () => {
               <b>Signup Now</b>
             </a>
           </div>
-          {/* <Button color="danger">
-            <i aria-hidden="true" className="fab fa-google"></i>
-          </Button> */}
         </div>
       </div>
     </>

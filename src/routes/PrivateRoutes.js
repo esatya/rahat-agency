@@ -1,7 +1,7 @@
-import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import React from 'react';
+import { Route, Redirect } from 'react-router-dom';
 
-import { getUser } from "../utils/sessionManager";
+import { getUser } from '../utils/sessionManager';
 
 export const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -14,7 +14,7 @@ export const PrivateRoute = ({ component: Component, ...rest }) => (
       ) : (
         <Redirect
           to={{
-            pathname: "/setup",
+            pathname: '/auth/wallet',
             state: { from: props.location },
           }}
         />
