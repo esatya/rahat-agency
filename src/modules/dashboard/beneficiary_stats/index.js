@@ -1,6 +1,6 @@
-import React from "react";
-import { Bar } from "react-chartjs-2";
-import { Card, CardBody, CardTitle } from "reactstrap";
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Card, CardBody, CardTitle } from 'reactstrap';
 
 let _labels = [];
 let _data = [];
@@ -9,9 +9,9 @@ let barData = {
   labels: [],
   datasets: [
     {
-      label: "Beneficiaries",
-      backgroundColor: "#4fc3f7",
-      borderColor: "#4fc3f7",
+      label: 'Beneficiaries',
+      backgroundColor: '#4fc3f7',
+      borderColor: '#4fc3f7',
       data: [],
     },
   ],
@@ -19,18 +19,18 @@ let barData = {
 
 const Index = (props) => {
   const { data } = props;
-  if(data && data.length){
+  if (data && data.length) {
     _labels = [];
     _data = [];
-    for(let d of data) {
+    for (let d of data) {
       _labels.push(d.name);
-      _data.push(d.count)
+      _data.push(d.count);
     }
   }
 
   barData.labels = _labels;
   barData.datasets[0].data = _data;
- 
+
   return (
     <div>
       <Card>
@@ -38,7 +38,7 @@ const Index = (props) => {
           <CardTitle>Beneficiaries by project</CardTitle>
           <div
             className="chart-wrapper"
-            style={{ width: "100%", margin: "0 auto", height: 350 }}
+            style={{ width: '100%', margin: '0 auto', height: 350 }}
           >
             <Bar
               data={barData}
@@ -47,8 +47,8 @@ const Index = (props) => {
                 legend: {
                   display: true,
                   labels: {
-                    fontFamily: "Nunito Sans, sans-sarif",
-                    fontColor: "#8898aa",
+                    fontFamily: 'Nunito Sans, sans-sarif',
+                    fontColor: '#8898aa',
                   },
                 },
                 scales: {
@@ -56,8 +56,8 @@ const Index = (props) => {
                     {
                       gridLines: { display: false },
                       ticks: {
-                        fontFamily: "Nunito Sans, sans-sarif",
-                        fontColor: "#8898aa",
+                        fontFamily: 'Nunito Sans, sans-sarif',
+                        fontColor: '#8898aa',
                       },
                     },
                   ],
@@ -65,8 +65,8 @@ const Index = (props) => {
                     {
                       gridLines: { display: false },
                       ticks: {
-                        fontFamily: "Nunito Sans, sans-sarif",
-                        fontColor: "#8898aa",
+                        fontFamily: 'Nunito Sans, sans-sarif',
+                        fontColor: '#8898aa',
                       },
                     },
                   ],
