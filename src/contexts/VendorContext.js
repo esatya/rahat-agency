@@ -1,16 +1,17 @@
-import React, { createContext, useReducer } from "react";
-import vendorReduce from "../reducers/vendorReducer";
-import * as Service from "../services/vendor";
-import * as AidService from "../services/aid";
-import ACTION from "../actions/vendor";
+import React, { createContext, useReducer } from 'react';
+import vendorReduce from '../reducers/vendorReducer';
+import * as Service from '../services/vendor';
+import * as AidService from '../services/aid';
+import ACTION from '../actions/vendor';
 
 const initialState = {
   list: [],
   pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 },
-  aid: "",
+  aid: '',
   aids: [],
   vendor: {},
   loading: false,
+  transactionHistory: [],
 };
 
 export const VendorContext = createContext(initialState);
@@ -39,8 +40,8 @@ export const VendorContextProvider = ({ children }) => {
         total: 0,
         data: [],
         page: 0,
-        name: "",
-        phone: "",
+        name: '',
+        phone: '',
       },
     });
   }
@@ -73,12 +74,12 @@ export const VendorContextProvider = ({ children }) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     let payload = {
-      name: formData.get("name"),
-      phone: formData.get("phone"),
-      wallet_address: formData.get("ethaddress"),
-      email: formData.get("email"),
-      address: formData.get("address"),
-      govt_id: formData.get("govt_id"),
+      name: formData.get('name'),
+      phone: formData.get('phone'),
+      wallet_address: formData.get('ethaddress'),
+      email: formData.get('email'),
+      address: formData.get('address'),
+      govt_id: formData.get('govt_id'),
     };
 
     return new Promise((resolve, reject) => {
@@ -111,6 +112,17 @@ export const VendorContextProvider = ({ children }) => {
     }
   }
 
+  async function getVendorTransactions(vendorId) {
+    let res = await Service.vendorTransactions(vendorId);
+    if (res) {
+      dispatch({
+        type: ACTION.VENDOR_TX,
+        data: res,
+      });
+      return res;
+    }
+  }
+
   return (
     <VendorContext.Provider
       value={{
@@ -120,6 +132,7 @@ export const VendorContextProvider = ({ children }) => {
         vendor: state.vendor,
         loading: state.loading,
         pagination: state.pagination,
+        transactionHistory: state.transactionHistory,
         listVendor,
         listAid,
         setAid,
@@ -132,6 +145,7 @@ export const VendorContextProvider = ({ children }) => {
         getVendorDetails,
         changeVendorStatus,
         getVendorBalance,
+        getVendorTransactions,
       }}
     >
       {children}
