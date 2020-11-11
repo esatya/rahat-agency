@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useToasts } from "react-toast-notifications";
+import React, { useContext, useEffect, useState } from 'react';
+import { useToasts } from 'react-toast-notifications';
 
 import {
   Card,
@@ -10,12 +10,16 @@ import {
   ButtonGroup,
   Button,
   Table,
-} from "reactstrap";
-import Swal from "sweetalert2";
+  ListGroupItem,
+  ListGroup,
+  CardSubtitle,
+  CardTitle,
+} from 'reactstrap';
+import Swal from 'sweetalert2';
 
-import { VendorContext } from "../../../contexts/VendorContext";
-import { AppContext } from "../../../contexts/AppSettingsContext";
-import profilePhoto from "../../../assets/images/users/1.jpg";
+import { VendorContext } from '../../../contexts/VendorContext';
+import { AppContext } from '../../../contexts/AppSettingsContext';
+import profilePhoto from '../../../assets/images/users/1.jpg';
 
 export default function DetailsForm(props) {
   const vendorId = props.params.id;
@@ -26,18 +30,21 @@ export default function DetailsForm(props) {
     approveVendor,
     changeVendorStatus,
     getVendorBalance,
+    getVendorTransactions,
+    transactionHistory,
   } = useContext(VendorContext);
   const { appSettings } = useContext(AppContext);
-  const [vendorBalance, setVendorBalance] = useState("");
+  const [vendorBalance, setVendorBalance] = useState('');
 
   const loadVendorDetails = () => {
     getVendorDetails(vendorId)
       .then((d) => {
+        getVendorTransactions(vendorId);
         getBalance(d.wallet_address);
       })
       .catch(() => {
-        addToast("Something went wrong on server!", {
-          appearance: "error",
+        addToast('Something went wrong on server!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       });
@@ -50,8 +57,8 @@ export default function DetailsForm(props) {
         let d = await getVendorBalance(token, wallet);
         setVendorBalance(d);
       } catch {
-        addToast("Invalid vendor wallet address!", {
-          appearance: "error",
+        addToast('Invalid vendor wallet address!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       }
@@ -60,24 +67,24 @@ export default function DetailsForm(props) {
 
   const handleChangeStatus = async (status) => {
     let swal = await Swal.fire({
-      title: "Are you sure?",
+      title: 'Are you sure?',
       text: `Vendor will be marked as ${status}`,
-      icon: "warning",
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes',
     });
     if (swal.isConfirmed) {
       try {
         await changeVendorStatus(vendorId, status);
         addToast(`Vendor marked as ${status}`, {
-          appearance: "success",
+          appearance: 'success',
           autoDismiss: true,
         });
       } catch (e) {
-        addToast("Something went wrong on server!", {
-          appearance: "error",
+        addToast('Something went wrong on server!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       }
@@ -91,37 +98,37 @@ export default function DetailsForm(props) {
     let contract_addr = appSettings.agency.contracts.rahat;
     let wallet = vendor.wallet_address;
     let payload = {
-      status: "active",
+      status: 'active',
       wallet_address: wallet,
       contract_address: contract_addr,
     };
     try {
       let swal = await Swal.fire({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: `You want to approve this vendor!`,
-        icon: "warning",
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes",
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
       });
       if (swal.isConfirmed) {
         await approveVendor(vendorId, payload);
-        addToast("Vendor approved successfully.", {
-          appearance: "success",
+        addToast('Vendor approved successfully.', {
+          appearance: 'success',
           autoDismiss: true,
         });
       }
     } catch {
-      addToast("Invalid vendor wallet address!", {
-        appearance: "error",
+      addToast('Invalid vendor wallet address!', {
+        appearance: 'error',
         autoDismiss: true,
       });
     }
   };
 
   const vendor_status =
-    vendor && vendor.agencies ? vendor.agencies[0].status : "new";
+    vendor && vendor.agencies ? vendor.agencies[0].status : 'new';
 
   return (
     <>
@@ -141,39 +148,41 @@ export default function DetailsForm(props) {
                   </div>
                   <div>
                     <h5 className="message-title mb-0">
-                      {vendor ? vendor.name : ""}
+                      {vendor ? vendor.name : ''}
                     </h5>
                     <p className="mb-0">
                       Current balance: {vendorBalance || 0}
                     </p>
                   </div>
-                  <div className="ml-auto" style={{padding:5}}>
-                  {vendor_status !== "new" ? (
-                    <ButtonGroup>
+                  <div className="ml-auto" style={{ padding: 5 }}>
+                    {vendor_status !== 'new' ? (
+                      <ButtonGroup>
+                        <Button
+                          onClick={() => handleChangeStatus('active')}
+                          disabled={
+                            vendor_status === 'suspended' ? false : true
+                          }
+                          color="success"
+                        >
+                          Activate
+                        </Button>
+                        <Button
+                          onClick={() => handleChangeStatus('suspended')}
+                          disabled={vendor_status === 'active' ? false : true}
+                          color="danger"
+                        >
+                          Suspend
+                        </Button>
+                      </ButtonGroup>
+                    ) : (
                       <Button
-                        onClick={() => handleChangeStatus("active")}
-                        disabled={vendor_status === "suspended" ? false : true}
-                        color="success"
+                        onClick={handleVendorApprove}
+                        className="btn"
+                        color="info"
                       >
-                        Activate
+                        Approve
                       </Button>
-                      <Button
-                        onClick={() => handleChangeStatus("suspended")}
-                        disabled={vendor_status === "active" ? false : true}
-                        color="danger"
-                      >
-                        Suspend
-                      </Button>
-                    </ButtonGroup>
-                  ) : (
-                    <Button
-                      onClick={handleVendorApprove}
-                      className="btn"
-                      color="info"
-                    >
-                      Approve
-                    </Button>
-                  )}
+                    )}
                   </div>
                 </div>
                 <div className="details-table px-4">
@@ -190,7 +199,7 @@ export default function DetailsForm(props) {
                             defaultValue={
                               vendor && vendor.agencies
                                 ? vendor.agencies[0].status
-                                : ""
+                                : ''
                             }
                           />
                         </td>
@@ -203,7 +212,7 @@ export default function DetailsForm(props) {
                             type="text"
                             name="phone"
                             id="phone"
-                            defaultValue={vendor ? vendor.phone : ""}
+                            defaultValue={vendor ? vendor.phone : ''}
                           />
                         </td>
                       </tr>
@@ -215,7 +224,7 @@ export default function DetailsForm(props) {
                             type="text"
                             name="email"
                             id="email"
-                            defaultValue={vendor ? vendor.email : ""}
+                            defaultValue={vendor ? vendor.email : ''}
                           />
                         </td>
                       </tr>
@@ -227,7 +236,7 @@ export default function DetailsForm(props) {
                             type="text"
                             name="govt_id"
                             id="govt_id"
-                            defaultValue={vendor ? vendor.govt_id : ""}
+                            defaultValue={vendor ? vendor.govt_id : ''}
                           />
                         </td>
                       </tr>
@@ -239,7 +248,7 @@ export default function DetailsForm(props) {
                             type="text"
                             name="wallet_address"
                             id="wallet_address"
-                            defaultValue={vendor ? vendor.wallet_address : ""}
+                            defaultValue={vendor ? vendor.wallet_address : ''}
                           />
                         </td>
                       </tr>
@@ -252,7 +261,7 @@ export default function DetailsForm(props) {
                             name="address"
                             id="address"
                             defaultValue={
-                              vendor && vendor.address ? vendor.address : ""
+                              vendor && vendor.address ? vendor.address : ''
                             }
                           />
                         </td>
@@ -261,6 +270,45 @@ export default function DetailsForm(props) {
                   </Table>
                 </div>
               </div>
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col md="12">
+          <Card>
+            <CardBody>
+              <CardTitle>Transaction history</CardTitle>
+              {transactionHistory.length > 0 && (
+                <CardSubtitle>
+                  {transactionHistory.length} transactions found.
+                </CardSubtitle>
+              )}
+
+              <ListGroup flush className="search-listing">
+                {transactionHistory && transactionHistory.length
+                  ? transactionHistory.map((tx) => {
+                      return (
+                        <ListGroupItem
+                          key={tx.blockNumber}
+                          className="pl-0 border-top-0 border-bottom-0"
+                        >
+                          <h6 className="mb-0">
+                            <span className="text-cyan font-medium p-0">
+                              {tx.value.toNumber()} ethers transferred
+                            </span>
+                          </h6>
+                          <p className="mb-0">From: {tx.from}</p>
+                          <p className="mb-0">
+                            To: &nbsp;
+                            {tx.to}
+                          </p>
+                        </ListGroupItem>
+                      );
+                    })
+                  : 'No transactions available.'}
+              </ListGroup>
             </CardBody>
           </Card>
         </Col>
