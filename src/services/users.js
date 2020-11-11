@@ -1,18 +1,18 @@
-import API from "../constants/api";
-import axios from "axios";
+import API from '../constants/api';
+import axios from 'axios';
 import {
   saveUser,
   saveUserToken,
   saveUserPermissions,
   getUserToken,
-  getUser,
-} from "../utils/sessionManager";
+} from '../utils/sessionManager';
 
 const access_token = getUserToken();
-const user = getUser();
 
-export async function dashboardStats(){
-  let res = await axios.get(`${API.AGENCY}/${user.agency}/dashboards`,{ headers: {access_token} });
+export async function dashboardStats() {
+  let res = await axios.get(`${API.APP}/dashboards`, {
+    headers: { access_token },
+  });
   return res.data;
 }
 

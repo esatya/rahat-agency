@@ -1,10 +1,10 @@
-import ACTION from "../actions/vendor";
+import ACTION from '../actions/vendor';
 
 export default (state, action) => {
   switch (action.type) {
     case `${ACTION.LIST}`:
       return {
-        ...state, 
+        ...state,
         list: action.data.data,
         pagination: {
           limit: parseInt(action.data.limit),
@@ -15,6 +15,9 @@ export default (state, action) => {
         },
         query: { name: action.data.name, phone: action.data.phone },
       };
+
+    case `${ACTION.VENDOR_TX}`:
+      return { ...state, transactionHistory: action.data };
 
     case `${ACTION.LIST_AID}`:
       return {
