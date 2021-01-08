@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
 
@@ -10,8 +11,6 @@ import {
   ButtonGroup,
   Button,
   Table,
-  ListGroupItem,
-  ListGroup,
   CardSubtitle,
   CardTitle,
 } from 'reactstrap';
@@ -20,6 +19,7 @@ import Swal from 'sweetalert2';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/1.jpg';
+const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 
 export default function DetailsForm(props) {
   const vendorId = props.params.id;
@@ -285,30 +285,38 @@ export default function DetailsForm(props) {
                   {transactionHistory.length} transactions found.
                 </CardSubtitle>
               )}
-
-              <ListGroup flush className="search-listing">
-                {transactionHistory && transactionHistory.length
-                  ? transactionHistory.map((tx) => {
+                        <Table className="no-wrap v-middle" responsive>
+										<thead>
+											<tr className="border-0">
+												<th className="border-0">From</th>
+												<th className="border-0">To</th>
+												<th className="border-0">Value</th>
+												<th className="border-0">Blockchain Tx</th>
+											</tr>
+										</thead>
+										<tbody>
+										{transactionHistory && transactionHistory.length
+                  ? transactionHistory.map((tx, index) => {
                       return (
-                        <ListGroupItem
-                          key={tx.blockNumber}
-                          className="pl-0 border-top-0 border-bottom-0"
-                        >
-                          <h6 className="mb-0">
-                            <span className="text-cyan font-medium p-0">
-                              {tx.value} tokens {tx.tag}
-                            </span>
-                          </h6>
-                          <p className="mb-0">From: {tx.from}</p>
-                          <p className="mb-0">
-                            To: &nbsp;
-                            {tx.to}
-                          </p>
-                        </ListGroupItem>
-                      );
-                    })
-                  : 'No transactions available.'}
-              </ListGroup>
+														<tr key={index}>
+															<td>{tx.from || ''}</td>
+															<td>{tx.to || '-'}</td>
+															<td>{tx.value || '-'}</td>
+															<td>
+																<a href={EXPLORER_URL+'/tx/'+tx.transactionHash} target="_blank" rel="noopener noreferrer">
+																	Verify
+																</a>
+															</td>
+														</tr>
+													)
+												})
+											: (
+												<tr>
+													<td colSpan={4}>No data available.</td>
+												</tr>
+											)}
+										</tbody>
+									</Table>
             </CardBody>
           </Card>
         </Col>
