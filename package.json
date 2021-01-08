@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "add": "^2.0.6",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chart.js": "^2.9.3",
     "ethers": "^5.0.13",
     "feather-icons-react": "^0.4.1",
