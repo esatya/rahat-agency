@@ -4,6 +4,7 @@ import ethers from 'ethers';
 import { useToasts } from 'react-toast-notifications';
 
 import { UserContext } from '../../contexts/UserContext';
+import Logo from '../../assets/images/logo-dark.png';
 
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');
@@ -103,7 +104,8 @@ const Wallet = () => {
     <>
       <div className="error-box">
         <div className="error-body text-center">
-          <h4 className="text-dark font-24">Rahat Authentication</h4>
+          <img src={Logo} height="auto" alt="rahat logo"></img>
+          <h4 className="text-white font-24">Rahat Authentication</h4>
           <div className="mt-4">
             <div style={{ padding: 15, display: 'none' }}>
               <canvas ref={inputRef} />
@@ -117,8 +119,8 @@ const Wallet = () => {
             )}
           </div>
           <div className="text-center" style={{ marginTop: 10 }}>
-            <p>New Agency?</p>
-            <a href="/setup" className="text-info ml-1">
+            <p className="text-white">New Agency?</p>
+            <a href="/setup" className="text-white ml-1">
               <b>Setup Now</b>
             </a>
           </div>
