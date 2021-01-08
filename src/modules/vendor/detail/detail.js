@@ -296,7 +296,7 @@ export default function DetailsForm(props) {
                         >
                           <h6 className="mb-0">
                             <span className="text-cyan font-medium p-0">
-                              {tx.value.toNumber()} ethers transferred
+                              {tx.value} tokens {tx.tag}
                             </span>
                           </h6>
                           <p className="mb-0">From: {tx.from}</p>
