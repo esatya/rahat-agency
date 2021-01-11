@@ -1,7 +1,7 @@
-import React, { createContext, useReducer } from 'react';
-import institutionReduce from '../reducers/institutionReducer';
-import * as Service from '../services/institution';
-import ACTION from '../actions/institution';
+import React, { createContext, useReducer } from "react";
+import institutionReduce from "../reducers/institutionReducer";
+import * as Service from "../services/institution";
+import ACTION from "../actions/institution";
 
 const initialState = {
   institution: [],
@@ -39,9 +39,9 @@ export const InstitutionContextProvider = ({ children }) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     let payload = {
-      name: formData.get('name'),
-      phone: formData.get('phone'),
-      address: formData.get('address'),
+      name: formData.get("name"),
+      phone: formData.get("phone"),
+      address: formData.get("address"),
     };
 
     return new Promise((resolve, reject) => {
@@ -57,7 +57,6 @@ export const InstitutionContextProvider = ({ children }) => {
 
   async function listInstitution(params) {
     let res = await Service.list(params);
-    console.log(res);
     if (res) {
       dispatch({
         type: ACTION.LIST_SUCCESS,

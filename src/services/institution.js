@@ -49,7 +49,7 @@ export function add(payload) {
         headers: { access_token: access_token },
       })
       .then((res) => {
-        if (res.statusText === 'OK') {
+        if (res.statusText === "OK") {
           resolve(res.data);
         }
         reject(res.data);
@@ -63,10 +63,7 @@ export function add(payload) {
 export function update(institutionId, payload) {
   return new Promise((resolve, reject) => {
     axios
-      .put(
-        `${API.BANK}/${institutionId}`,
-        payload
-      )
+      .put(`${API.BANK}/${institutionId}`, payload)
       .then((res) => {
         if (res.statusText === "OK") {
           resolve(res.data);

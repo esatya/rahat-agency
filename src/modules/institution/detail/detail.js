@@ -1,7 +1,6 @@
-
-import React, { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useToasts } from 'react-toast-notifications';
+import React, { useState, useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 
 import {
   Card,
@@ -11,12 +10,12 @@ import {
   Col,
   Input,
   Form,
-  FormGroup, 
-  Label, 
-  InputGroup
-} from 'reactstrap';
+  FormGroup,
+  Label,
+  InputGroup,
+} from "reactstrap";
 
-import { InstitutionContext } from '../../../contexts/InstitutionContext';
+import { InstitutionContext } from "../../../contexts/InstitutionContext";
 import Loading from "../../global/Loading";
 
 export default function DetailsForm(props) {
@@ -34,18 +33,21 @@ export default function DetailsForm(props) {
   const loadInstitutionDetails = () => {
     setLoading();
     getInstitutionDetails(institutionId)
-      .then(d=>{setInstitutionDetails(d); resetLoading();})
+      .then((d) => {
+        setInstitutionDetails(d);
+        resetLoading();
+      })
       .catch(() => {
-        addToast('Something went wrong on server!', {
-          appearance: 'error',
+        addToast("Something went wrong on server!", {
+          appearance: "error",
           autoDismiss: true,
         });
       });
-      resetLoading();
+    resetLoading();
   };
 
   useEffect(loadInstitutionDetails, []);
-  
+
   return (
     <>
       <Row>
@@ -63,8 +65,15 @@ export default function DetailsForm(props) {
                       readOnly
                       type="text"
                       name="name"
-                      defaultValue={institution_details ? institution_details.name : ""}
-                      onChange={e => setInstitutionDetails({ ...institution_details, name: e.target.value })}
+                      defaultValue={
+                        institution_details ? institution_details.name : ""
+                      }
+                      onChange={(e) =>
+                        setInstitutionDetails({
+                          ...institution_details,
+                          name: e.target.value,
+                        })
+                      }
                     />
                   </InputGroup>
                 </FormGroup>
@@ -75,25 +84,38 @@ export default function DetailsForm(props) {
                       readOnly
                       type="text"
                       name="address"
-                      defaultValue={institution_details ? institution_details.address : ""}
-                      onChange={e => setInstitutionDetails({ ...institution_details, address: e.target.value })}
-
+                      defaultValue={
+                        institution_details ? institution_details.address : ""
+                      }
+                      onChange={(e) =>
+                        setInstitutionDetails({
+                          ...institution_details,
+                          address: e.target.value,
+                        })
+                      }
                     />
                   </InputGroup>
                 </FormGroup>
-                  <FormGroup>
+                <FormGroup>
                   <Label>Primary Contact</Label>
                   <InputGroup>
                     <Input
                       readOnly
                       type="text"
-                      name="phone"   
-                      defaultValue={institution_details ? institution_details.phone : ""}
-                      onChange={e => setInstitutionDetails({ ...institution_details, phone: e.target.value })}
+                      name="phone"
+                      defaultValue={
+                        institution_details ? institution_details.phone : ""
+                      }
+                      onChange={(e) =>
+                        setInstitutionDetails({
+                          ...institution_details,
+                          phone: e.target.value,
+                        })
+                      }
                     />
                   </InputGroup>
                 </FormGroup>
-                 <div className="border-top pt-3 mt-3">
+                <div className="border-top pt-3 mt-3">
                   {loading ? (
                     <Loading />
                   ) : (

@@ -20,10 +20,10 @@ import {
   Table,
   Row,
   Col,
-  CustomInput
+  CustomInput,
 } from "reactstrap";
 
-const searchOptions = { PHONE: "phone", NAME: "name",  };
+const searchOptions = { PHONE: "phone", NAME: "name" };
 
 const Institution = () => {
   const { addToast } = useToasts();
@@ -106,7 +106,7 @@ const Institution = () => {
     <div className="main">
       <div className="transaction-table-container">
         <Card>
-        <CardTitle className="mb-0 p-3 border-bottom bg-light">
+          <CardTitle className="mb-0 p-3 border-bottom bg-light">
             <Row>
               <Col md="4">
                 <i className="mdi mdi-currency-usd mr-2"></i>Institutions List
@@ -130,11 +130,11 @@ const Institution = () => {
                     <option value="name">By Name</option>
                   </CustomInput>
                   <div style={{ display: "inline-flex" }}>
-                  <Input
-                        placeholder={filter.searchPlaceholder}
-                        onChange={handleSearchInputChange}
-                        style={{ width: "100%" }}
-                      />
+                    <Input
+                      placeholder={filter.searchPlaceholder}
+                      onChange={handleSearchInputChange}
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 </div>
               </Col>
@@ -162,14 +162,12 @@ const Institution = () => {
                   institution.map((e, i) => (
                     <tr key={e._id}>
                       <td>
-                          <div className="d-flex no-block align-items-center">
-                            <h5 className="mb-0 font-16 font-medium">
-                              {e.name}
-                            </h5>
-                          </div>
-                        </td>
-                      <td>{e.phone || 'N/A'}</td>
-                      <td>{e.address || 'N/A'}</td>
+                        <div className="d-flex no-block align-items-center">
+                          <h5 className="mb-0 font-16 font-medium">{e.name}</h5>
+                        </div>
+                      </td>
+                      <td>{e.phone || "N/A"}</td>
+                      <td>{e.address || "N/A"}</td>
                       <td className="blue-grey-text  text-darken-4 font-medium">
                         <Link
                           className="btn btn-secondary"
@@ -182,7 +180,9 @@ const Institution = () => {
                   ))
                 ) : (
                   <tr>
-                    <td style={{textAlign:'center'}} colSpan={4}>No data available</td>
+                    <td style={{ textAlign: "center" }} colSpan={4}>
+                      No data available
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -238,7 +238,7 @@ const Institution = () => {
                   appearance: "success",
                   autoDismiss: true,
                 });
-                fetchList({})
+                fetchList({});
                 toggle();
               })
               .catch((err) =>
