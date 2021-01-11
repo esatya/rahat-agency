@@ -119,8 +119,8 @@ const Wallet = () => {
             )}
           </div>
           <div className="text-center" style={{ marginTop: 10 }}>
-            <p className="text-grey">New Agency?</p>
-            <a href="/setup" className="text-grey setup-link ml-1">
+            <p className="text-white">New Agency?</p>
+            <a href="/setup" className="btn btn-info setup-link ml-1">
               <b>Setup Now</b>
             </a>
           </div>
