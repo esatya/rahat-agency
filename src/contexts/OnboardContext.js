@@ -7,7 +7,7 @@ const initialState = {
   data: [],
   pagination: { total: 0, limit: 20, start: 0, currentPage: 1, totalPages: 0 },
   query: { agency: "" },
-  loading: false
+  loading: false,
 };
 
 export const OnboardContext = createContext(initialState);
@@ -26,16 +26,16 @@ export const OnboardContextProvider = ({ children }) => {
     if (!query)
       query = {
         ...state.pagination,
-        ...state.query
+        ...state.query,
       };
 
     return new Promise((resolve, reject) => {
       Service.list(query)
-        .then(d => {
+        .then((d) => {
           dispatch({ type: ACTION.LIST, data: d });
           resolve(d);
         })
-        .catch(err => {
+        .catch((err) => {
           reject(err);
         });
     });
@@ -54,7 +54,7 @@ export const OnboardContextProvider = ({ children }) => {
         list,
         setLoading,
         resetLoading,
-        issue
+        issue,
       }}
     >
       {children}

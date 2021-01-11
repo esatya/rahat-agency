@@ -1,11 +1,11 @@
-import API from '../constants/api';
-import axios from 'axios';
+import API from "../constants/api";
+import axios from "axios";
 import {
   saveUser,
   saveUserToken,
   saveUserPermissions,
   getUserToken,
-} from '../utils/sessionManager';
+} from "../utils/sessionManager";
 
 const access_token = getUserToken();
 

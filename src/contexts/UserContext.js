@@ -4,14 +4,14 @@ import * as Service from "../services/users";
 
 const initialState = {
   user_info: {},
-  dashboardStats: null
+  dashboardStats: null,
 };
 
 export const UserContext = createContext(initialState);
 export const UserContextProvider = ({ children }) => {
   const [state] = useReducer(userReduce, initialState);
 
-  async function getDashboardStats(){
+  async function getDashboardStats() {
     let d = await Service.dashboardStats();
     return d;
   }
