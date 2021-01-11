@@ -9,6 +9,8 @@ const AgencyDetails = lazy(() => import("../modules/agency/details"));
 const AidList = lazy(() => import("../modules/aid/list"));
 const AidDetails = lazy(() => import("../modules/aid/details"));
 const AgencyProfile = lazy(() => import("../modules/agency/profile"));
+const InstitutionList = lazy(() => import("../modules/institution"));
+const InstitutionDetails = lazy(() => import("../modules/institution/detail/index"));
 const VendorDetails = lazy(() => import("../modules/vendor/detail/index"));
 const BeneficiaryDetails = lazy(() =>
   import("../modules/beneficary/detail/index")
@@ -79,6 +81,18 @@ var AppRoutes = [
     name: "Vendors",
     icon: "anchor",
     component: Vendor,
+    showInSidebar: true,
+  },
+  {
+    path: "/institutions/:id",
+    name: "Financial Institution",
+    component: InstitutionDetails,
+  },
+  {
+    path: "/institutions",
+    name: "Financial Institutions",
+    icon: "dollar-sign",
+    component: InstitutionList,
     showInSidebar: true,
   },
   {
