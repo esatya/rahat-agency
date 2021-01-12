@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { BeneficiaryContext } from "../../contexts/BeneficiaryContext";
-import { useToasts } from "react-toast-notifications";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from 'react';
+import { BeneficiaryContext } from '../../contexts/BeneficiaryContext';
+import { useToasts } from 'react-toast-notifications';
+import { Link } from 'react-router-dom';
 import {
   Card,
   CardBody,
@@ -20,18 +20,18 @@ import {
   Form,
   Row,
   Col,
-} from "reactstrap";
-import displayPic from "../../assets/images/users/1.jpg";
+} from 'reactstrap';
+import displayPic from '../../assets/images/users/1.jpg';
 
-const searchOptions = { PHONE: "phone", NAME: "name", PROJECT: "project" };
+const searchOptions = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
 
 const Beneficiary = () => {
   const { addToast } = useToasts();
   const [model, setModel] = useState(false);
 
   const [filter, setFilter] = useState({
-    searchPlaceholder: "Enter phone number...",
-    searchBy: "phone",
+    searchPlaceholder: 'Enter phone number...',
+    searchBy: 'phone',
   });
 
   const {
@@ -47,19 +47,19 @@ const Beneficiary = () => {
     let { value } = e.target;
     if (value === searchOptions.NAME) {
       setFilter({
-        searchPlaceholder: "Enter name...",
+        searchPlaceholder: 'Enter name...',
         searchBy: searchOptions.NAME,
       });
     }
     if (value === searchOptions.PROJECT) {
       setFilter({
-        searchPlaceholder: "Select project...",
+        searchPlaceholder: 'Select project...',
         searchBy: searchOptions.PROJECT,
       });
     }
     if (value === searchOptions.PHONE) {
       setFilter({
-        searchPlaceholder: "Enter phone number...",
+        searchPlaceholder: 'Enter phone number...',
         searchBy: searchOptions.PHONE,
       });
     }
@@ -87,8 +87,8 @@ const Beneficiary = () => {
     listBeneficiary(params)
       .then()
       .catch(() => {
-        addToast("Something went wrong!", {
-          appearance: "error",
+        addToast('Something went wrong!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       });
@@ -98,8 +98,8 @@ const Beneficiary = () => {
     listAid()
       .then()
       .catch(() => {
-        addToast("Something went wrong!", {
-          appearance: "error",
+        addToast('Something went wrong!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       });
@@ -109,7 +109,7 @@ const Beneficiary = () => {
   useEffect(fetchProjectList, []);
 
   const handlePagination = (current_page) => {
-    let _start = current_page * pagination.limit - 1;
+    let _start = (current_page - 1) * pagination.limit;
     return fetchList({ start: _start, limit: pagination.limit });
   };
 
@@ -125,8 +125,8 @@ const Beneficiary = () => {
               <Col md="6">
                 <div
                   style={{
-                    float: "right",
-                    display: "flex",
+                    float: 'right',
+                    display: 'flex',
                   }}
                 >
                   <CustomInput
@@ -134,14 +134,14 @@ const Beneficiary = () => {
                     id="exampleCustomSelect"
                     name="customSelect"
                     defaultValue=""
-                    style={{ width: "auto" }}
+                    style={{ width: 'auto' }}
                     onChange={handleFilterChange}
                   >
                     <option value="phone">Search By Phone</option>
                     <option value="name">By Name</option>
                     <option value="project">By Project</option>
                   </CustomInput>
-                  <div style={{ display: "inline-flex" }}>
+                  <div style={{ display: 'inline-flex' }}>
                     {filter.searchBy === searchOptions.PROJECT ? (
                       <CustomInput
                         type="select"
@@ -165,7 +165,7 @@ const Beneficiary = () => {
                       <Input
                         placeholder={filter.searchPlaceholder}
                         onChange={handleSearchInputChange}
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                       />
                     )}
                   </div>
@@ -210,12 +210,12 @@ const Beneficiary = () => {
                               <h5 className="mb-0 font-16 font-medium">
                                 {d.name}
                               </h5>
-                              <span>{d.email ? d.email : "-"}</span>
+                              <span>{d.email ? d.email : '-'}</span>
                             </div>
                           </div>
                         </td>
                         <td>{d.phone}</td>
-                        <td>{d.govt_id ? d.govt_id : "-"}</td>
+                        <td>{d.govt_id ? d.govt_id : '-'}</td>
                         <td>{d.address}</td>
                         <td className="blue-grey-text  text-darken-4 font-medium">
                           <Link
@@ -240,9 +240,9 @@ const Beneficiary = () => {
             {pagination.totalPages > 1 ? (
               <Pagination
                 style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "50px",
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: '50px',
                 }}
               >
                 <PaginationItem>
@@ -272,7 +272,7 @@ const Beneficiary = () => {
                 </PaginationItem>
               </Pagination>
             ) : (
-              ""
+              ''
             )}
           </CardBody>
         </Card>
@@ -284,8 +284,8 @@ const Beneficiary = () => {
             e.preventDefault();
             addBeneficiary(e)
               .then((d) => {
-                addToast("Beneficiary Added successfully", {
-                  appearance: "success",
+                addToast('Beneficiary Added successfully', {
+                  appearance: 'success',
                   autoDismiss: true,
                 });
                 fetchList();
@@ -293,7 +293,7 @@ const Beneficiary = () => {
               })
               .catch((err) =>
                 addToast(err.message, {
-                  appearance: "error",
+                  appearance: 'error',
                   autoDismiss: true,
                 })
               );
@@ -307,9 +307,9 @@ const Beneficiary = () => {
           <ModalBody>
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -349,9 +349,9 @@ const Beneficiary = () => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -380,9 +380,9 @@ const Beneficiary = () => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -413,9 +413,9 @@ const Beneficiary = () => {
 
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
