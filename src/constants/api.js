@@ -5,6 +5,7 @@ module.exports = {
   AGENCY: API_PATH + "/agency",
   APP: API_PATH + "/app",
   BENEFICARIES: API_PATH + "/beneficiaries",
+  INSTITUTIONS: API_PATH + "/institutions",
   METAMASK_LOGIN: API_PATH + "/auth/wallet",
   ONBOARD: API_PATH + "/onboard",
   PROJECTS: API_PATH + "/projects",
