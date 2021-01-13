@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { VendorContext } from "../../contexts/VendorContext";
-import { useToasts } from "react-toast-notifications";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from 'react';
+import { VendorContext } from '../../contexts/VendorContext';
+import { useToasts } from 'react-toast-notifications';
+import { Link } from 'react-router-dom';
 
 import {
   Card,
@@ -20,27 +20,22 @@ import {
   Table,
   Row,
   Col,
-  CustomInput
-} from "reactstrap";
+  CustomInput,
+} from 'reactstrap';
 
-import displayPic from "../../assets/images/users/1.jpg";
+import displayPic from '../../assets/images/users/1.jpg';
 
-const searchOptions = { PHONE: "phone", NAME: "name",  };
+const searchOptions = { PHONE: 'phone', NAME: 'name' };
 
 const Vendor = () => {
   const { addToast } = useToasts();
   const [model, setModel] = useState(false);
   const [filter, setFilter] = useState({
-    searchPlaceholder: "Enter phone number...",
-    searchBy: "phone",
+    searchPlaceholder: 'Enter phone number...',
+    searchBy: 'phone',
   });
 
-  const {
-    listVendor,
-    list,
-    pagination,
-    addVendor,
-  } = useContext(VendorContext);
+  const { listVendor, list, pagination, addVendor } = useContext(VendorContext);
 
   const toggle = () => setModel(!model);
 
@@ -49,8 +44,8 @@ const Vendor = () => {
     listVendor(params)
       .then()
       .catch(() => {
-        addToast("Something went wrong!", {
-          appearance: "error",
+        addToast('Something went wrong!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       });
@@ -62,13 +57,13 @@ const Vendor = () => {
     let { value } = e.target;
     if (value === searchOptions.NAME) {
       setFilter({
-        searchPlaceholder: "Enter name...",
+        searchPlaceholder: 'Enter name...',
         searchBy: searchOptions.NAME,
       });
     }
     if (value === searchOptions.PHONE) {
       setFilter({
-        searchPlaceholder: "Enter phone number...",
+        searchPlaceholder: 'Enter phone number...',
         searchBy: searchOptions.PHONE,
       });
     }
@@ -87,7 +82,7 @@ const Vendor = () => {
   };
 
   const handlePagination = (current_page) => {
-    let _start = current_page * pagination.limit - 1;
+    let _start = (current_page - 1) * pagination.limit;
     return fetchList({ start: _start, limit: pagination.limit });
   };
 
@@ -95,7 +90,7 @@ const Vendor = () => {
     <div className="main">
       <div className="transaction-table-container">
         <Card>
-        <CardTitle className="mb-0 p-3 border-bottom bg-light">
+          <CardTitle className="mb-0 p-3 border-bottom bg-light">
             <Row>
               <Col md="4">
                 <i className="mdi mdi-border-right mr-2"></i>Vendors List
@@ -103,8 +98,8 @@ const Vendor = () => {
               <Col md="6">
                 <div
                   style={{
-                    float: "right",
-                    display: "flex",
+                    float: 'right',
+                    display: 'flex',
                   }}
                 >
                   <CustomInput
@@ -113,17 +108,17 @@ const Vendor = () => {
                     name="customSelect"
                     defaultValue=""
                     onChange={handleFilterChange}
-                    style={{ width: "auto" }}
+                    style={{ width: 'auto' }}
                   >
                     <option value="phone">Search By Phone</option>
                     <option value="name">By Name</option>
                   </CustomInput>
-                  <div style={{ display: "inline-flex" }}>
-                  <Input
-                        placeholder={filter.searchPlaceholder}
-                        onChange={handleSearchInputChange}
-                        style={{ width: "100%" }}
-                      />
+                  <div style={{ display: 'inline-flex' }}>
+                    <Input
+                      placeholder={filter.searchPlaceholder}
+                      onChange={handleSearchInputChange}
+                      style={{ width: '100%' }}
+                    />
                   </div>
                 </div>
               </Col>
@@ -151,23 +146,23 @@ const Vendor = () => {
                   list.map((e, i) => (
                     <tr key={e._id}>
                       <td>
-                          <div className="d-flex no-block align-items-center">
-                            <div className="mr-2">
-                              <img
-                                src={displayPic}
-                                alt="user"
-                                className="rounded-circle"
-                                width="45"
-                              />
-                            </div>
-                            <div className="">
-                              <h5 className="mb-0 font-16 font-medium">
-                                {e.name}
-                              </h5>
-                              <span>{e.email ? e.email : "-"}</span>
-                            </div>
+                        <div className="d-flex no-block align-items-center">
+                          <div className="mr-2">
+                            <img
+                              src={displayPic}
+                              alt="user"
+                              className="rounded-circle"
+                              width="45"
+                            />
                           </div>
-                        </td>
+                          <div className="">
+                            <h5 className="mb-0 font-16 font-medium">
+                              {e.name}
+                            </h5>
+                            <span>{e.email ? e.email : '-'}</span>
+                          </div>
+                        </div>
+                      </td>
                       <td>{e.phone}</td>
                       <td>{e.address}</td>
                       <td className="blue-grey-text  text-darken-4 font-medium">
@@ -182,19 +177,20 @@ const Vendor = () => {
                   ))
                 ) : (
                   <tr>
-                    <td style={{textAlign:'center'}} colSpan={4}>No data available</td>
+                    <td style={{ textAlign: 'center' }} colSpan={4}>
+                      No data available
+                    </td>
                   </tr>
                 )}
               </tbody>
             </Table>
 
-         
             {pagination.totalPages > 1 ? (
               <Pagination
                 style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "50px",
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: '50px',
                 }}
               >
                 <PaginationItem>
@@ -224,7 +220,7 @@ const Vendor = () => {
                 </PaginationItem>
               </Pagination>
             ) : (
-              ""
+              ''
             )}
           </CardBody>
         </Card>
@@ -236,16 +232,16 @@ const Vendor = () => {
             e.preventDefault();
             addVendor(e)
               .then(() => {
-                addToast("Vendor Added Successfully", {
-                  appearance: "success",
+                addToast('Vendor Added Successfully', {
+                  appearance: 'success',
                   autoDismiss: true,
                 });
-                fetchList({})
+                fetchList({});
                 toggle();
               })
               .catch((err) =>
                 addToast(err.message, {
-                  appearance: "error",
+                  appearance: 'error',
                   autoDismiss: true,
                 })
               );
@@ -284,9 +280,9 @@ const Vendor = () => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -315,9 +311,9 @@ const Vendor = () => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
