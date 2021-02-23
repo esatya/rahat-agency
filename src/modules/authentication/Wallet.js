@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { useQRCode } from 'react-qrcodes';
-import ethers from 'ethers';
+import {ethers} from 'ethers';
 import { useToasts } from 'react-toast-notifications';
 
 import { UserContext } from '../../contexts/UserContext';

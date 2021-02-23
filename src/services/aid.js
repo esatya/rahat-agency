@@ -1,6 +1,6 @@
 import axios from "axios";
 import qs from "query-string";
-import ethers from "ethers";
+import {ethers} from "ethers";
 
 import { getUserToken } from "../utils/sessionManager";
 import API from "../constants/api";
