@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import ethers from "ethers";
+import {ethers} from "ethers";
 import QRCode from "qrcode.react";
 
 import API from "../../../constants/api";
@@ -38,7 +38,7 @@ export default class Step4 extends Component {
     this.interval = setInterval(this.checkAccountBalance, 2000);
   }
 
-  checkAccountBalance = async () => {
+async checkAccountBalance() {
     if (this.state.serverWallet) {
       let { signer } = await getSigner();
       let balance = await signer.provider.getBalance(this.state.serverWallet);
@@ -126,7 +126,7 @@ export default class Step4 extends Component {
     };
   }
 
-  isValidated = async () => {
+ async isValidated (){
     const userInput = this._grabUserInput();
     const validateNewInput = this._validateData(userInput); // run the new input against the validator
     let isDataValid = false;
