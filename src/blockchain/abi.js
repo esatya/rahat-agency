@@ -1,4 +1,4 @@
-import ethers from "ethers";
+import {ethers} from "ethers";
 
 export const getAbi = (contractName) => {
   const contractJson = require(`../blockchain/build/${contractName}`);
