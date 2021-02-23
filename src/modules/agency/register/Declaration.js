@@ -22,21 +22,27 @@ export default class Step4 extends Component {
       serverWallet: null,
       progressMsg: "",
       onProgress: false,
-    };
-    this.state = {
       acceptTerms: true,
     };
+  
     this._validateOnDemand = true; // this flag enables onBlur validation as user fills forms
 
     this.validationCheck = this.validationCheck.bind(this);
     this.isValidated = this.isValidated.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+ 
   }
 
   componentDidMount() {
     this.setupWallet();
-    this.interval = setInterval(this.checkAccountBalance, 2000);
+    setTimeout(() => {
+      this.interval = setInterval(this.checkAccountBalance.bind(this), 2000);
+    }, (2000));
+
   }
+  componentWillUnmount() {
+    clearInterval(this.interval);
+}
 
 async checkAccountBalance() {
     if (this.state.serverWallet) {
