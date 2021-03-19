@@ -1,6 +1,12 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, {
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+  useContext,
+} from 'react';
 import { useQRCode } from 'react-qrcodes';
-import {ethers} from 'ethers';
+import { ethers } from 'ethers';
 import { useToasts } from 'react-toast-notifications';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -15,7 +21,7 @@ const Wallet = () => {
   const ws = useRef(null);
   const [qroptions, setQrOptions] = useState({});
   const [clientId, setclientId] = useState('');
-  const [token, settoken] = useState('');
+  const [token, setToken] = useState('');
 
   const { loginUsingMetamask } = useContext(UserContext);
 
@@ -54,22 +60,19 @@ const Wallet = () => {
       margin: 7,
       scale: 1,
       width: 250,
-      color: {
-        dark: '#010599FF',
-        light: '#FFBF60FF',
-      },
     },
   });
 
-  const generateQR = (token) => {
+  const generateQR = useCallback((id, token) => {
     const data = {
       name: 'Rumsan Office',
       action: 'login',
-      token: token.toString(), // client ID
+      id: id,
+      token: token,
       callbackUrl: `${API_SERVER}/api/v1/auth/wallet`,
     };
     setQrOptions(data);
-  };
+  }, []);
 
   useEffect(() => {
     ws.current = new WebSocket(WSS_SERVER);
@@ -87,18 +90,23 @@ const Wallet = () => {
 
     ws.current.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      if (data.data && data.data.token) settoken(data.data.token.toString());
+      if (data.data && data.data.token) {
+        console.log('Listening==>', data);
+        const { id, token } = data.data;
+        setclientId(id.toString());
+        setToken(token.toString());
+        generateQR(id, token);
+      }
       if (data.action === 'welcome') {
-        let tokenId = data.id.toString();
-        setclientId(tokenId);
-        generateQR(data.id);
+        let clientId = data.id.toString();
+        setclientId(clientId);
       }
 
       if (data.action === 'access-granted') {
         window.location.replace(`/passport-control?token=${data.accessToken}`);
       }
     };
-  }, []);
+  }, [generateQR]);
 
   return (
     <>
@@ -107,9 +115,11 @@ const Wallet = () => {
           <img src={Logo} height="auto" alt="rahat logo"></img>
           <h4 className="text-grey font-24">Rahat Authentication</h4>
           <div className="mt-4">
-            <div style={{ padding: 15, display: 'none' }}>
+            <span>Scan QR Code to Login</span>
+            <div style={{ padding: 15 }}>
               <canvas ref={inputRef} />
             </div>
+            <p style={{ color: '#fff' }}>----------OR---------- </p>
             {clientId ? (
               <button onClick={handleMetamaskLogin} className="btn btn-warning">
                 <i className="fab fa-ethereum"></i> Login Using Metamask
