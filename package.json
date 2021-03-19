@@ -11,21 +11,21 @@
     "eject": "react-scripts eject"
   },
   "keywords": [],
-	"author": {
-		"email": "team@esatya.io",
-		"name": "eSatya Team"
-	},
-	"maintainers": [
-		{
-			"email": "team@esatya.io",
-			"name": "eSatya Team"
-		}
-	],
-	"license": "TBD",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/esatya/rahat-agency.git"
-	},
+  "author": {
+    "email": "team@esatya.io",
+    "name": "eSatya Team"
+  },
+  "maintainers": [
+    {
+      "email": "team@esatya.io",
+      "name": "eSatya Team"
+    }
+  ],
+  "license": "TBD",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/esatya/rahat-agency.git"
+  },
   "devDependencies": {
     "axios-mock-adapter": "^1.18.1",
     "lodash": "^4.17.19",
