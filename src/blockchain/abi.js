@@ -1,4 +1,5 @@
 import {ethers} from "ethers";
+const NODE_URL = process.env.REACT_APP_BLOCKCHAIN_NODE;
 
 export const getAbi = (contractName) => {
   const contractJson = require(`../blockchain/build/${contractName}`);
@@ -6,9 +7,17 @@ export const getAbi = (contractName) => {
 };
 
 export const getSigner = async () => {
+  let signer;
+  let provider;
+  if(window.ethereum){
   window.ethereum.enable();
-  const signer = new ethers.providers.Web3Provider(window.ethereum).getSigner();
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = new ethers.providers.Web3Provider(window.ethereum).getSigner();
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  }
+  else{
+  signer = new ethers.providers.JsonRpcProvider(NODE_URL).getSigner();
+  provider = new ethers.providers.JsonRpcProvider(NODE_URL);
+  }
   return { provider, signer };
 };
 

@@ -3,8 +3,7 @@ import axios from "axios";
 import { getUserToken } from "../utils/sessionManager";
 import API from "../constants/api";
 import CONTRACT from "../constants/contracts";
-import { getContract } from "../blockchain/abi";
-
+import { getContractByProvider } from "../blockchain/abi";
 const access_token = getUserToken();
 
 const mapTestContract = (contract) => ({
@@ -12,12 +11,12 @@ const mapTestContract = (contract) => ({
 });
 
 export async function getBeneficiaryBalance(phone, contract_address) {
-  const contract = await getContract(contract_address, CONTRACT.RAHAT);
+  const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
   const myContract = mapTestContract(contract);
   const data = await myContract.tokenBalance(phone);
   if (!data) return "No balance!";
   return data.toNumber();
-}
+  }
 
 export async function listBeneficiary(params) {
   const res = await axios({

@@ -5,7 +5,7 @@ import {ethers} from "ethers";
 import { getUserToken } from "../utils/sessionManager";
 import API from "../constants/api";
 import CONTRACT from "../constants/contracts";
-import { getContract } from "../blockchain/abi";
+import { getContract,getContractByProvider } from "../blockchain/abi";
 
 const access_token = getUserToken();
 
@@ -70,7 +70,7 @@ export async function loadAidBalance(aidId, contract_address) {
     const myContract = mapTestContract(contract);
     const data = await myContract.getProjectBalance(aidId);
     return data.toNumber();
-  } catch {
+  } catch(e) {
     return 0;
   }
 }
@@ -78,7 +78,7 @@ export async function loadAidBalance(aidId, contract_address) {
 export async function getProjectCapital(aidId, contract_address) {
   try {
     const hashId = ethers.utils.solidityKeccak256(["string"], [aidId]);
-    const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
+    const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
     const myContract = mapTestContract(contract);
     const data = await myContract.projectCapital(hashId);
     return data.toNumber();
