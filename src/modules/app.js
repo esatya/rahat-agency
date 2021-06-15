@@ -1,17 +1,18 @@
-import React from "react";
-import indexRoutes from "../routes";
-import { Router, Route, Switch } from "react-router-dom";
-import { ToastProvider } from "react-toast-notifications";
+import React from 'react';
+import indexRoutes from '../routes';
+import { Router, Route, Switch } from 'react-router-dom';
+import { ToastProvider } from 'react-toast-notifications';
 
-import { History } from "../utils/History";
-import { PrivateRoute } from "../routes/PrivateRoutes";
-import { AppContextProvider } from "../contexts/AppSettingsContext";
-import { UserContextProvider } from "../contexts/UserContext";
-import { AidContextProvider } from "../contexts/AidContext";
+import { History } from '../utils/History';
+import { PrivateRoute } from '../routes/PrivateRoutes';
+import { AppContextProvider } from '../contexts/AppSettingsContext';
+import { UserContextProvider } from '../contexts/UserContext';
+import { AidContextProvider } from '../contexts/AidContext';
 
-import AgencyRegistration from "../modules/agency/register";
-import AuthWallet from "../modules/authentication/Wallet";
-import PassportControl from "../modules/passport";
+import AgencyRegistration from '../modules/agency/register';
+import AuthWallet from '../modules/authentication/Wallet';
+import PassportControl from '../modules/passport';
+import RestoreWallet from './wallet/googleRestore';
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
             <Router history={History}>
               <Switch>
                 <Route exact path="/auth/wallet" component={AuthWallet} />
+                <Route exact path="/wallet/restore" component={RestoreWallet} />
                 <Route path="/passport-control" component={PassportControl} />
                 <Route path="/setup" component={AgencyRegistration} />
                 {indexRoutes.map((prop, key) => {
