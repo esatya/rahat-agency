@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Form,
   Button,
@@ -6,32 +6,36 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from "reactstrap";
-import PropTypes from "prop-types";
+} from 'reactstrap';
+import PropTypes from 'prop-types';
 
 export default function CustomModal(props) {
+  const { open, toggle, title, handleSubmit, className, children, hideFooter } =
+    props;
   return (
     <>
       <Modal
-        isOpen={props.open}
-        toggle={props.toggle.bind(null)}
-        className={props.className || ""}
+        isOpen={open}
+        toggle={toggle.bind(null)}
+        className={className || ''}
       >
-        <Form onSubmit={props.handleSubmit}>
-          <ModalHeader toggle={props.toggle.bind(null)}>
-            {props.title || "Modal Title"}
+        <Form onSubmit={handleSubmit}>
+          <ModalHeader toggle={toggle.bind(null)}>
+            {title || 'Modal Title'}
           </ModalHeader>
-          <ModalBody>
-            {props.children || "No child elements supplied."}
-          </ModalBody>
-          <ModalFooter>
-            <Button type="submit" color="primary">
-              Submit
-            </Button>
-            <Button color="secondary" onClick={props.toggle.bind(null)}>
-              Cancel
-            </Button>
-          </ModalFooter>
+          <ModalBody>{children || 'No child elements supplied.'}</ModalBody>
+          {hideFooter ? (
+            ''
+          ) : (
+            <ModalFooter>
+              <Button type="submit" color="primary">
+                Submit
+              </Button>
+              <Button color="secondary" onClick={toggle.bind(null)}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          )}
         </Form>
       </Modal>
     </>

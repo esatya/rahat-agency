@@ -36,8 +36,6 @@ export default {
 
   async clearAll() {
     await db.data.clear();
-    await db.assets.clear();
-    await db.documents.clear();
   },
 
   saveNetwork(network) {

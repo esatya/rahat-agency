@@ -12,7 +12,6 @@ import { AidContextProvider } from '../contexts/AidContext';
 import AgencyRegistration from '../modules/agency/register';
 import AuthWallet from '../modules/authentication/Wallet';
 import PassportControl from '../modules/passport';
-import RestoreWallet from './wallet/googleRestore';
 
 const App = () => {
   return (
@@ -23,7 +22,6 @@ const App = () => {
             <Router history={History}>
               <Switch>
                 <Route exact path="/auth/wallet" component={AuthWallet} />
-                <Route exact path="/wallet/restore" component={RestoreWallet} />
                 <Route path="/passport-control" component={PassportControl} />
                 <Route path="/setup" component={AgencyRegistration} />
                 {indexRoutes.map((prop, key) => {
