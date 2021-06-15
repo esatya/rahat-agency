@@ -1,8 +1,10 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useCallback } from 'react';
 
 import * as Service from '../services/appSettings';
 import appReduce from '../reducers/appSettingsReducer';
 import ACTION from '../actions/appSettings';
+import { APP_CONSTANTS } from '../constants';
+import DataService from '../services/db';
 
 const initialState = {
   settings: {
@@ -26,6 +28,15 @@ export const AppContext = createContext(initialState);
 export const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReduce, initialState);
 
+  const initApp = useCallback(async () => {
+    //TODO: in future check version and add action if the version is different.
+    DataService.save('version', APP_CONSTANTS.VERSION);
+    let data = await DataService.initAppData();
+    if (!data.wallet) localStorage.removeItem('address');
+    dispatch({ type: ACTION.SET_WALLET, data: data.wallet });
+    return data;
+  }, [dispatch]);
+
   function getAppSettings() {
     return new Promise((resolve, reject) => {
       Service.getSettings()
@@ -48,6 +59,7 @@ export const AppContextProvider = ({ children }) => {
         appSettings: state.appSettings,
         wallet: state.wallet,
         network: state.network,
+        initApp,
         setWallet,
         getAppSettings,
       }}

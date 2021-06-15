@@ -1,24 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {
-  Button,
-  Card,
-  CardBody,
-  Row,
-  Col,
-  FormGroup,
-  Label,
-  InputGroup,
-  Input,
-} from 'reactstrap';
+import { Card, CardBody, Row, Col } from 'reactstrap';
 import { useHistory, Redirect } from 'react-router-dom';
 import { gapi } from 'gapi-script';
+import Swal from 'sweetalert2';
 
 import { GFile, GFolder } from '../../utils/google';
 import { AppContext } from '../../contexts/AppSettingsContext';
 import { BACKUP } from '../../constants';
 import UserImg from '../../assets/images/user.svg';
 import Wallet from '../../utils/blockchain/wallet';
-import ModalWrapper from '../global/CustomModal';
 import DataService from '../../services/db';
 
 const DISCOVERY_DOCS = [
@@ -47,11 +37,6 @@ export default function GoogleRestore() {
     },
   ];
 
-  const [showPasscodeModal, setPasscodeModal] = useState(false);
-  const [passcode, setPasscode] = useState('');
-  const [confirmPasscode, setConfirmPasscode] = useState('');
-  const [showRestoreBtn, setShowRestoreBtn] = useState(true);
-
   const { setWallet } = useContext(AppContext);
   const [loading, setLoading] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -67,24 +52,6 @@ export default function GoogleRestore() {
 
   const [currentAction, setCurrentAction] = useState({});
 
-  const togglePasscodeModal = () => setPasscodeModal(!showPasscodeModal);
-
-  const handlePasscodeChange = (e) => setPasscode(e.target.value);
-
-  const handleConfirmPassword = (e) => {
-    const { value } = e.target;
-    setConfirmPasscode(value);
-    if (value.length === 6) {
-      if (value === passcode) {
-        let _currentAction = Actions.find((a) => a.hash === '#choose-account');
-        togglePasscodeModal();
-        setCurrentAction(_currentAction);
-        setErrorMsg('');
-        setShowRestoreBtn(false);
-      } else setErrorMsg('Passcode is incorrect!');
-    }
-  };
-
   const changeAction = (hash) => {
     setErrorMsg(null);
     let selectedAction = Actions.find((a) => a.hash === hash);
@@ -97,6 +64,7 @@ export default function GoogleRestore() {
     history.listen((location) => {
       changeAction(location.hash);
     });
+    changeAction(history.location.hash);
     gapi.load('client:auth2', initClient);
   };
 
@@ -114,12 +82,12 @@ export default function GoogleRestore() {
         updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
       })
       .catch((e) => {
-        alert(
+        Swal.fire(
           'Warning',
           'You have blocked third-party cookies for this site or app. You must allow them for Google login to work.',
           'warning'
         ).then((e) => {
-          history.push('/');
+          history.push('/wallet/restore');
         });
       });
   };
@@ -143,9 +111,9 @@ export default function GoogleRestore() {
   };
 
   const fetchWalletList = async () => {
-    let existingWallet = null;
+    let existingWallet = await DataService.getWallet();
     if (existingWallet) {
-      alert(
+      Swal.fire(
         'Warning',
         'You have already setup a wallet. Please backup and remove it before restoring another wallet from Google Drive.',
         'warning'
@@ -168,9 +136,11 @@ export default function GoogleRestore() {
     setErrorMsg(null);
     setLoading('Fetching wallet data. Please wait...');
     try {
+      console.log('SELECTED==>', selectedWallet);
       const gFile = new GFile(gapi);
       let walletData = await gFile.downloadFile(selectedWallet.id);
       currentWallet = JSON.parse(walletData);
+      console.log('currentWallet==>', currentWallet);
       if (!currentWallet.name)
         throw Error('Not a valid wallet. Please select another wallet.');
       setSelectedWallet(Object.assign(selectedWallet, { data: currentWallet }));
@@ -190,19 +160,18 @@ export default function GoogleRestore() {
     setErrorMsg(null);
     setLoading('Unlocking and restoring wallet.');
     try {
-      const passcode = 'temp_passcode';
+      const passcode = await DataService.get('temp_passcode');
+      if (!passcode) return alert('Passcode must be set first');
       const wallet = await Wallet.loadFromJson(
         passphrase,
         selectedWallet.data.wallet
       );
-      const passcodeWallet = await wallet.encrypt(passcode);
-      //   await DataService.clearAll();
-      //   await DataService.saveWallet(passcodeWallet);
-      //   await DataService.saveAddress(wallet.address);
-      //   await DataService.save('backup_wallet', selectedWallet.data.wallet);
-
+      const encryptedWallet = await wallet.encrypt(passcode);
+      await DataService.clearAll();
+      await DataService.saveWallet(encryptedWallet);
+      await DataService.saveAddress(wallet.address);
+      await DataService.save('backup_wallet', selectedWallet.data.wallet);
       setWallet(wallet);
-      //   await DataService.remove('temp_passcode');
       history.push('/');
     } catch (e) {
       console.log(e);
@@ -231,59 +200,12 @@ export default function GoogleRestore() {
 
   useEffect(loadGapiClient, []);
 
-  console.log('Current Action==>', currentAction);
-
   return (
     <>
-      <ModalWrapper
-        toggle={togglePasscodeModal}
-        open={showPasscodeModal}
-        title="Set your passcode"
-        hideFooter={true}
-      >
-        <FormGroup>
-          {errorMsg && <Label style={{ color: 'red' }}>{errorMsg}</Label>}
-          {passcode.length < 6 && (
-            <InputGroup>
-              <Input
-                type="number"
-                name="passcode"
-                value={passcode || ''}
-                placeholder="Enter 6 digit passcode"
-                onChange={handlePasscodeChange}
-              />
-            </InputGroup>
-          )}
-          {passcode && passcode.length > 5 && (
-            <InputGroup>
-              <Input
-                type="number"
-                name="confirmPasscode"
-                value={confirmPasscode || ''}
-                placeholder="Confirm passcode"
-                onChange={handleConfirmPassword}
-              />
-            </InputGroup>
-          )}
-        </FormGroup>
-      </ModalWrapper>
       <Row>
         <Col xs="12" md="12">
           <Card style={{ padding: 100 }}>
             <CardBody>
-              {showRestoreBtn && (
-                <div className="button-group">
-                  <Button
-                    className="btn"
-                    onClick={togglePasscodeModal}
-                    color="success"
-                    size="lg"
-                    block
-                  >
-                    Restore wallet from google
-                  </Button>
-                </div>
-              )}
               <div className="error-body text-center">
                 <div section="choose-account">
                   {currentAction.hash === '#choose-account' && (
@@ -291,6 +213,7 @@ export default function GoogleRestore() {
                       <div className="text-center wide-block p-3">
                         <div className="avatar">
                           <img
+                            style={{ maxWidth: 100, maxHeight: 100 }}
                             src={gUser.image}
                             alt="avatar"
                             className="imaged w64 rounded"
@@ -362,7 +285,7 @@ export default function GoogleRestore() {
                                 );
                               })
                             : showInfo(
-                                'There are no wallet backed up in your Google Drive.'
+                                'There is no wallet backed up in your Google Drive.'
                               )}
                         </div>
                       </div>
@@ -387,7 +310,7 @@ export default function GoogleRestore() {
                   {currentAction.hash === '#enter-passphrase' && (
                     <div className="section full mt-2 mb-3">
                       {!selectedWallet.id && (
-                        <Redirect to="/google/restore#choose-account" />
+                        <Redirect to="/wallet/restore#choose-account" />
                       )}
                       <div className="wide-block p-2">
                         <div className="section full">

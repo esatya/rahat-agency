@@ -21,6 +21,7 @@ const BeneficiaryDetails = lazy(() =>
 const Settings = lazy(() => import('../modules/settings'));
 const Onboard = lazy(() => import('../modules/onboard'));
 const GoogleRestore = lazy(() => import('../modules/wallet/googleRestore'));
+const SetupPasscode = lazy(() => import('../modules/wallet/setupPasscode'));
 
 var AppRoutes = [
   {
@@ -55,7 +56,12 @@ var AppRoutes = [
     component: BeneficiaryDetails,
   },
   {
-    path: '/wallet/restore',
+    path: '/wallet/set_passcode',
+    name: 'Wallet',
+    component: SetupPasscode,
+  },
+  {
+    path: '/google/restore',
     name: 'Google Restore',
     component: GoogleRestore,
   },
