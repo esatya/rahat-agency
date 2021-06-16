@@ -29,7 +29,6 @@ export const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReduce, initialState);
 
   const initApp = useCallback(async () => {
-    //TODO: in future check version and add action if the version is different.
     DataService.save('version', APP_CONSTANTS.VERSION);
     let data = await DataService.initAppData();
     if (!data.wallet) localStorage.removeItem('address');

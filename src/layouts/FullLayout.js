@@ -1,47 +1,53 @@
-import React, { useState, useEffect, Suspense, useContext } from "react";
-import { Route, Switch, Redirect } from "react-router-dom";
+import React, { useState, useEffect, Suspense, useContext } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom';
 
-import Header from "./layout-components/header/Header";
-import Sidebar from "./layout-components/sidebar/Sidebar";
-import Footer from "./layout-components/footer/Footer";
-import AppRoutes from "../routes/Router";
-import Spinner from "../modules/spinner";
-import { AppContext } from "../contexts/AppSettingsContext";
+import Header from './layout-components/header/Header';
+import Sidebar from './layout-components/sidebar/Sidebar';
+import Footer from './layout-components/footer/Footer';
+import AppRoutes from '../routes/Router';
+import Spinner from '../modules/spinner';
+import { AppContext } from '../contexts/AppSettingsContext';
 
 export default (props) => {
   const [width, setWidth] = useState(window.innerWidth);
 
-  const { settings } = useContext(AppContext);
+  const { settings, initApp } = useContext(AppContext);
 
   const SidebarRoutes = AppRoutes.filter((d) => {
     return d.showInSidebar === true;
   });
 
   useEffect(() => {
+    (async () => {
+      initApp();
+    })();
+  }, [initApp]);
+
+  useEffect(() => {
     const updateDimensions = () => {
-      let element = document.getElementById("main-wrapper");
+      let element = document.getElementById('main-wrapper');
       setWidth(window.innerWidth);
       switch (settings.activeSidebarType) {
-        case "full":
-        case "iconbar":
+        case 'full':
+        case 'iconbar':
           if (width < 1170) {
-            element.setAttribute("data-sidebartype", "mini-sidebar");
-            element.classList.add("mini-sidebar");
+            element.setAttribute('data-sidebartype', 'mini-sidebar');
+            element.classList.add('mini-sidebar');
           } else {
             element.setAttribute(
-              "data-sidebartype",
+              'data-sidebartype',
               settings.activeSidebarType
             );
-            element.classList.remove("mini-sidebar");
+            element.classList.remove('mini-sidebar');
           }
           break;
 
-        case "overlay":
+        case 'overlay':
           if (width < 767) {
-            element.setAttribute("data-sidebartype", "mini-sidebar");
+            element.setAttribute('data-sidebartype', 'mini-sidebar');
           } else {
             element.setAttribute(
-              "data-sidebartype",
+              'data-sidebartype',
               settings.activeSidebarType
             );
           }
@@ -50,14 +56,14 @@ export default (props) => {
         default:
       }
     };
-    if (document.readyState === "complete") {
+    if (document.readyState === 'complete') {
       updateDimensions();
     }
-    window.addEventListener("load", updateDimensions.bind(null));
-    window.addEventListener("resize", updateDimensions.bind(null));
+    window.addEventListener('load', updateDimensions.bind(null));
+    window.addEventListener('resize', updateDimensions.bind(null));
     return () => {
-      window.removeEventListener("load", updateDimensions.bind(null));
-      window.removeEventListener("resize", updateDimensions.bind(null));
+      window.removeEventListener('load', updateDimensions.bind(null));
+      window.removeEventListener('resize', updateDimensions.bind(null));
     };
   }, [settings.activeSidebarType, width]);
 
