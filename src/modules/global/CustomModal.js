@@ -18,6 +18,7 @@ export default function CustomModal(props) {
         isOpen={open}
         toggle={toggle.bind(null)}
         className={className || ''}
+        centered
       >
         <Form onSubmit={handleSubmit}>
           <ModalHeader toggle={toggle.bind(null)}>
