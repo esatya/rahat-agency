@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from 'react';
 import {
   Nav,
   NavItem,
@@ -10,17 +10,17 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-} from "reactstrap";
+} from 'reactstrap';
 
-import { AppContext } from "../../../contexts/AppSettingsContext";
-import { getUser, logoutUser } from "../../../utils/sessionManager";
-import { History } from "../../../utils/History";
+import { AppContext } from '../../../contexts/AppSettingsContext';
+import { getUser, logoutUser } from '../../../utils/sessionManager';
+import { History } from '../../../utils/History';
 
 /*--------------------------------------------------------------------------------*/
 /* Import images which are need for the HEADER                                    */
 /*--------------------------------------------------------------------------------*/
-import logotext from "../../../assets/images/logo-dark.png";
-import profilephoto from "../../../assets/images/users/1.jpg";
+import logotext from '../../../assets/images/logo-dark.png';
+import profilephoto from '../../../assets/images/users/1.jpg';
 
 export default () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +45,7 @@ export default () => {
   };
 
   const showMobilemenu = () => {
-    document.getElementById("main-wrapper").classList.toggle("show-sidebar");
+    document.getElementById('main-wrapper').classList.toggle('show-sidebar');
   };
 
   const handleLogout = () => {
@@ -53,25 +53,25 @@ export default () => {
   };
 
   const sidebarHandler = () => {
-    let element = document.getElementById("main-wrapper");
+    let element = document.getElementById('main-wrapper');
     switch (settings.activeSidebarType) {
-      case "full":
-      case "iconbar":
-        element.classList.toggle("mini-sidebar");
-        if (element.classList.contains("mini-sidebar")) {
-          element.setAttribute("data-sidebartype", "mini-sidebar");
+      case 'full':
+      case 'iconbar':
+        element.classList.toggle('mini-sidebar');
+        if (element.classList.contains('mini-sidebar')) {
+          element.setAttribute('data-sidebartype', 'mini-sidebar');
         } else {
-          element.setAttribute("data-sidebartype", settings.activeSidebarType);
+          element.setAttribute('data-sidebartype', settings.activeSidebarType);
         }
         break;
 
-      case "overlay":
-      case "mini-sidebar":
-        element.classList.toggle("full");
-        if (element.classList.contains("full")) {
-          element.setAttribute("data-sidebartype", "full");
+      case 'overlay':
+      case 'mini-sidebar':
+        element.classList.toggle('full');
+        if (element.classList.contains('full')) {
+          element.setAttribute('data-sidebartype', 'full');
         } else {
-          element.setAttribute("data-sidebartype", settings.activeSidebarType);
+          element.setAttribute('data-sidebartype', settings.activeSidebarType);
         }
         break;
       default:
@@ -79,18 +79,22 @@ export default () => {
   };
 
   const handleProfileLink = () => {
-    History.push("/profile");
+    History.push('/profile');
+  };
+
+  const handleMyWalletLink = () => {
+    History.push('/wallet');
   };
 
   if (appSettings && appSettings.isSetup === false)
-    window.location.replace("/setup");
+    window.location.replace('/setup');
 
   return (
     <header className="topbar navbarbg" data-navbarbg={settings.activeNavbarBg}>
       <Navbar
         className={
-          "top-navbar " +
-          (settings.activeNavbarBg === "skin6" ? "navbar-light" : "navbar-dark")
+          'top-navbar ' +
+          (settings.activeNavbarBg === 'skin6' ? 'navbar-light' : 'navbar-dark')
         }
         expand="md"
       >
@@ -183,18 +187,18 @@ export default () => {
                   <div className="ml-2">
                     <h4 className="mb-0">
                       {currentUser && currentUser.name
-                        ? currentUser.name.first + " " + currentUser.name.last
-                        : ""}
+                        ? currentUser.name.first + ' ' + currentUser.name.last
+                        : ''}
                     </h4>
                     <p className=" mb-0">
                       {currentUser && currentUser.email
                         ? currentUser.email
-                        : ""}
+                        : ''}
                     </p>
                   </div>
                 </div>
-                <DropdownItem onClick={handleProfileLink}>
-                  <i className="ti-wallet mr-1 ml-1" /> My Balance
+                <DropdownItem onClick={handleMyWalletLink}>
+                  <i className="ti-wallet mr-1 ml-1" /> My Wallet
                 </DropdownItem>
 
                 <DropdownItem divider />

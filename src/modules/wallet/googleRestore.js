@@ -10,6 +10,7 @@ import { BACKUP } from '../../constants';
 import UserImg from '../../assets/images/user.svg';
 import Wallet from '../../utils/blockchain/wallet';
 import DataService from '../../services/db';
+import GrowSpinner from '../global/GrowSpinner';
 
 const DISCOVERY_DOCS = [
   'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
@@ -136,11 +137,9 @@ export default function GoogleRestore() {
     setErrorMsg(null);
     setLoading('Fetching wallet data. Please wait...');
     try {
-      console.log('SELECTED==>', selectedWallet);
       const gFile = new GFile(gapi);
       let walletData = await gFile.downloadFile(selectedWallet.id);
       currentWallet = JSON.parse(walletData);
-      console.log('currentWallet==>', currentWallet);
       if (!currentWallet.name)
         throw Error('Not a valid wallet. Please select another wallet.');
       setSelectedWallet(Object.assign(selectedWallet, { data: currentWallet }));
@@ -158,10 +157,19 @@ export default function GoogleRestore() {
 
   const restoreWallet = async () => {
     setErrorMsg(null);
-    setLoading('Unlocking and restoring wallet.');
+    setLoading('Unlocking and restoring wallet.Please wait...');
     try {
       const passcode = await DataService.get('temp_passcode');
-      if (!passcode) return alert('Passcode must be set first');
+      if (!passcode) {
+        setPassphrase('');
+        Swal.fire('Warning', 'Passcode must be set first', 'warning').then(
+          () => {
+            history.push('/wallet');
+          }
+        );
+        return;
+      }
+
       const wallet = await Wallet.loadFromJson(
         passphrase,
         selectedWallet.data.wallet
@@ -172,9 +180,9 @@ export default function GoogleRestore() {
       await DataService.saveAddress(wallet.address);
       await DataService.save('backup_wallet', selectedWallet.data.wallet);
       setWallet(wallet);
+      await DataService.remove('temp_passcode');
       history.push('/');
     } catch (e) {
-      console.log(e);
       setPassphrase('');
       setErrorMsg('Backup passphrase is incorrect. Please try again.');
     }
@@ -183,17 +191,11 @@ export default function GoogleRestore() {
 
   const showInfo = (msg) => {
     if (loading) return <div className="text-center p3">Loading...</div>;
-    return (
-      <div className="text-center p-3">
-        {/* {isLoading && (
-				<span className="spinner-border spinner-border-sm mr-05" role="status" aria-hidden="true"></span>
-			)} */}
-        {msg}
-      </div>
-    );
+    return <div className="text-center p-3">{msg}</div>;
   };
 
   const handleBackButton = (e) => {
+    e.preventDefault();
     if (history.action === 'POP') return history.push('/google/restore');
     history.goBack();
   };
@@ -205,8 +207,24 @@ export default function GoogleRestore() {
       <Row>
         <Col xs="12" md="12">
           <Card style={{ padding: 100 }}>
+            {history.location.hash !== '' && !loading && (
+              <div className="mr-2">
+                <a
+                  href="#back"
+                  title="Go Back"
+                  className={'display-5 text-primary'}
+                  onClick={(e) => handleBackButton(e)}
+                >
+                  <i className="mdi mdi-arrow-left"></i>
+                </a>
+              </div>
+            )}
+
             <CardBody>
-              <div className="error-body text-center">
+              <div className="text-center">
+                <div style={{ marginBottom: 20 }}>
+                  <h6>{loading ? loading : currentAction.label}</h6>
+                </div>
                 <div section="choose-account">
                   {currentAction.hash === '#choose-account' && (
                     <div className="text-center section full mt-2 mb-3">
@@ -317,6 +335,7 @@ export default function GoogleRestore() {
                           <div className="form-group boxed">
                             <div className="input-wrapper">
                               <input
+                                disabled={loading ? true : false}
                                 type="text"
                                 value={passphrase}
                                 onChange={(e) => setPassphrase(e.target.value)}
@@ -336,21 +355,32 @@ export default function GoogleRestore() {
                         </div>
                       </div>
 
-                      <div className="text-center mt-3">
-                        {passphrase.length > 4 && (
-                          <button
-                            className="btn btn-primary"
-                            id="btnMnemonic"
-                            onClick={(e) => restoreWallet()}
-                            disabled={loading ? 'true' : ''}
-                          >
-                            Unlock and restore wallet
-                          </button>
-                        )}
-                      </div>
+                      {loading ? (
+                        <GrowSpinner />
+                      ) : (
+                        <div className="text-center mt-3">
+                          {passphrase.length > 4 && (
+                            <button
+                              className="btn btn-primary"
+                              id="btnMnemonic"
+                              onClick={(e) => restoreWallet()}
+                            >
+                              Unlock and restore wallet
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
+
+                {errorMsg && (
+                  <div className="text-center">
+                    <span className="text-danger">
+                      <b>Error</b>: {errorMsg}
+                    </span>
+                  </div>
+                )}
               </div>
             </CardBody>
           </Card>

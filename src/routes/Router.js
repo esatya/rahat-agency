@@ -56,7 +56,7 @@ var AppRoutes = [
     component: BeneficiaryDetails,
   },
   {
-    path: '/wallet/set_passcode',
+    path: '/wallet/',
     name: 'Wallet',
     component: SetupPasscode,
   },
