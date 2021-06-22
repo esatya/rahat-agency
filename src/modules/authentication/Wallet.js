@@ -28,9 +28,7 @@ const Wallet = () => {
   const [token, setToken] = useState('');
 
   const { loginUsingMetamask } = useContext(UserContext);
-  const { setTempIdentity, setWallet, setHasWallet, tempIdentity } = useContext(
-    AppContext
-  );
+  const { setTempIdentity, tempIdentity } = useContext(AppContext);
 
   const handleMetamaskLogin = async () => {
     try {
@@ -72,26 +70,6 @@ const Wallet = () => {
   const signMessage = async () => {
     const wallet = await getSigner();
     return wallet.signMessage(token);
-  };
-
-  // const getRandomWalletKeys = () => {
-  //   const randomChars = getRandomString(128);
-  //   const entropy = Buffer.from(randomChars, 'utf-8');
-  //   const identity = EthCrypto.createIdentity(entropy);
-  //   const wallet = identity;
-  //   return wallet;
-  // };
-
-  const decryptAndSetWallet = async (encrytedWallet) => {
-    const decrypted = await EthCrypto.decryptWithPrivateKey(
-      tempIdentity.privateKey, // privateKey
-      encrytedWallet // encrypted-data
-    );
-    const wallet = new ethers.Wallet(decrypted);
-    await DataService.savePrivateKey(decrypted);
-    DataService.saveAddress(wallet.address);
-    setWallet(wallet);
-    setHasWallet(true);
   };
 
   const [inputRef] = useQRCode({
@@ -140,7 +118,6 @@ const Wallet = () => {
     ws.current.onmessage = async (e) => {
       const data = JSON.parse(e.data);
       if (data.data && data.data.token) {
-        console.log('Listening==>', data);
         const { id, token } = data.data;
         setclientId(id.toString());
         setToken(token.toString());
@@ -151,14 +128,19 @@ const Wallet = () => {
         setclientId(clientId);
       }
       if (data.encryptedWallet) {
-        await decryptAndSetWallet(data.encryptedWallet);
+        const encWalletData = EthCrypto.cipher.parse(data.encryptedWallet);
+        const decrypted = await EthCrypto.decryptWithPrivateKey(
+          tempIdentity.privateKey, // privateKey
+          encWalletData // encrypted-data
+        );
+        await DataService.saveWallet(decrypted);
       }
 
       if (data.action === 'access-granted') {
         window.location.replace(`/passport-control?token=${data.accessToken}`);
       }
     };
-  }, [decryptAndSetWallet, generateQR]);
+  }, [generateQR, tempIdentity.privateKey]);
 
   return (
     <>

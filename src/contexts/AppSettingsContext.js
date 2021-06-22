@@ -18,7 +18,7 @@ const initialState = {
     activeLayout: 'full',
   },
   appSettings: { title: 'App Details' },
-  tempIdentity: null,
+  tempIdentity: '',
   wallet: null,
   hasWallet: false,
 };
