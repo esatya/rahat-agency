@@ -36,6 +36,8 @@
     "add": "^2.0.6",
     "axios": "^0.21.1",
     "chart.js": "^2.9.3",
+    "dexie": "^3.0.3",
+    "eth-crypto": "^1.9.0",
     "ethers": "^5.0.13",
     "feather-icons-react": "^0.4.1",
     "history": "4.7.2",
