@@ -19,7 +19,9 @@ import Swal from 'sweetalert2';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/1.jpg';
+import IdPhoto from '../../../assets/images/id-icon-1.png';
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function DetailsForm(props) {
   const vendorId = props.params.id;
@@ -140,7 +142,7 @@ export default function DetailsForm(props) {
                 <div className="d-flex align-items-center p-4 border-bottom">
                   <div className="mr-3">
                     <img
-                      src={profilePhoto}
+                      src={vendor.photo? `${IPFS_GATEWAY}/ipfs/${vendor.photo}` : profilePhoto}
                       alt="user"
                       className="rounded-circle"
                       width="50"
@@ -269,6 +271,19 @@ export default function DetailsForm(props) {
                     </tbody>
                   </Table>
                 </div>
+
+                 <div className="text-center">
+                
+                    <img
+                      src={vendor.govt_id_image? `${IPFS_GATEWAY}/ipfs/${vendor.govt_id_image}` : IdPhoto}
+                      alt="user"
+                      className="img-fluid"
+                      height="auto"
+                      width="38%"
+                    />
+                   </div>           
+
+
               </div>
             </CardBody>
           </Card>
@@ -291,6 +306,7 @@ export default function DetailsForm(props) {
 												<th className="border-0">From</th>
 												<th className="border-0">To</th>
 												<th className="border-0">Value</th>
+                        <th className="border-0">Type</th>
 												<th className="border-0">Blockchain Tx</th>
 											</tr>
 										</thead>
@@ -302,6 +318,7 @@ export default function DetailsForm(props) {
 															<td>{tx.from || ''}</td>
 															<td>{tx.to || '-'}</td>
 															<td>{tx.value || '-'}</td>
+                              <td>{(tx.tag === 'sent' && tx.to===appSettings.agency.contracts.rahat_admin?'redeem':tx.tag) || '-'}</td>
 															<td>
 																<a href={EXPLORER_URL+'/tx/'+tx.transactionHash} target="_blank" rel="noopener noreferrer">
 																	Verify
