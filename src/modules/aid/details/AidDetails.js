@@ -21,10 +21,10 @@ export default function AidDetails(props) {
   const { appSettings } = useContext(AppContext);
   const [inputTokens, setInputToken] = useState("");
   const [projectDetails, setProjectDetails] = useState(null);
-  const [projectBalance, setProjectBalance] = useState(null);
   const projectId = props.aidId;
 
   const {
+    balance,
     getAidDetails,
     loading,
     setLoading,
@@ -57,7 +57,8 @@ export default function AidDetails(props) {
     const { rahat_admin } = appSettings.agency.contracts;
     setLoading();
     addProjectBudget(projectId, inputTokens, rahat_admin)
-      .then(() => {
+      .then((d) => {
+        setProjectDetails(d);
         setInputToken(null);
         resetLoading();
         addToast("Token balance added to the project.", {
@@ -79,13 +80,6 @@ export default function AidDetails(props) {
 
   const handleTokenSubmit = (e) => {
     e.preventDefault();
-    let totalSupply = appSettings.agency.token.supply;
-    let availabeSupply = totalSupply - projectBalance;
-    if (inputTokens > availabeSupply)
-      return addToast(`Input balance must be less than ${availabeSupply}.`, {
-        appearance: "error",
-        autoDismiss: true,
-      });
     Swal.fire({
       title: "Are you sure?",
       text: `${inputTokens} token balance will be added!`,
@@ -104,15 +98,8 @@ export default function AidDetails(props) {
   const loadBalance = () => {
     const { rahat_admin } = appSettings.agency.contracts;
     getAidBalance(projectId, rahat_admin)
-      .then((d) => {
-        setProjectBalance(d);
-      })
-      .catch(() => {
-        addToast("Internal server error.", {
-          appearance: "error",
-          autoDismiss: true,
-        });
-      });
+      .then()
+      .catch(() => {});
   };
 
   useEffect(loadAidDetails, []);
@@ -130,11 +117,13 @@ export default function AidDetails(props) {
     if (result.isConfirmed) {
       try {
         let d = await changeProjectStatus(projectId, status);
-        if (d)
+        if (d) {
+          setProjectDetails(d);
           addToast(`Project marked as ${status}.`, {
             appearance: "success",
             autoDismiss: true,
           });
+        }
       } catch {
         addToast("Something went wrong on server!", {
           appearance: "error",
@@ -143,6 +132,8 @@ export default function AidDetails(props) {
       }
     }
   };
+
+  const { available } = balance;
 
   return (
     <>
@@ -192,7 +183,7 @@ export default function AidDetails(props) {
               readOnly
               type="number"
               name="token_balance"
-              defaultValue={projectBalance}
+              value={available}
             />
           </InputGroup>
         </FormGroup>
