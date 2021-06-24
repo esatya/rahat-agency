@@ -1,11 +1,11 @@
 import axios from "axios";
 import qs from "query-string";
-import ethers from "ethers";
+import {ethers} from "ethers";
 
 import { getUserToken } from "../utils/sessionManager";
 import API from "../constants/api";
 import CONTRACT from "../constants/contracts";
-import { getContract } from "../blockchain/abi";
+import { getContract,getContractByProvider } from "../blockchain/abi";
 
 const access_token = getUserToken();
 
@@ -22,9 +22,20 @@ export async function addProjectBudget(aidId, supplyToken, contract_addr) {
   const res = await myContract.setProjectBudget(aidId, supplyToken);
   let d = await res.wait();
   if (d) {
+    await tokenAllocate(aidId, supplyToken, d.transactionHash);
     let project = await changeProjectStatus(aidId, "active");
     return project;
   }
+}
+
+async function tokenAllocate(projectId, tokens, txHash) {
+  return axios.patch(
+    `${API.PROJECTS}/${projectId}/token`,
+    { amount: tokens, txhash: txHash },
+    {
+      headers: { access_token },
+    }
+  );
 }
 
 export async function issueBeneficiaryToken(payload, contract_addr) {
@@ -54,18 +65,26 @@ export async function changeProjectStatus(aidId, status) {
 
 // Get Project Balance
 export async function loadAidBalance(aidId, contract_address) {
-  const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
-  const myContract = mapTestContract(contract);
-  const data = await myContract.getProjectBalance(aidId);
-  return data.toNumber();
+  try {
+    const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
+    const myContract = mapTestContract(contract);
+    const data = await myContract.getProjectBalance(aidId);
+    return data.toNumber();
+  } catch(e) {
+    return 0;
+  }
 }
 
 export async function getProjectCapital(aidId, contract_address) {
-  const hashId = ethers.utils.solidityKeccak256(["string"], [aidId]);
-  const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
-  const myContract = mapTestContract(contract);
-  const data = await myContract.projectCapital(hashId);
-  return data.toNumber();
+  try {
+    const hashId = ethers.utils.solidityKeccak256(["string"], [aidId]);
+    const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
+    const myContract = mapTestContract(contract);
+    const data = await myContract.projectCapital(hashId);
+    return data.toNumber();
+  } catch {
+    return 0;
+  }
 }
 
 export function vendorsByAid(aidId, query) {

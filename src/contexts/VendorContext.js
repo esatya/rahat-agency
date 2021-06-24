@@ -6,12 +6,12 @@ import ACTION from "../actions/vendor";
 
 const initialState = {
   list: [],
-  pagination: { limit: 10, start: 0, total: 0, page: 0 },
-  query: { name: "", phone: "" },
+  pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 },
   aid: "",
   aids: [],
   vendor: {},
   loading: false,
+  transactionHistory: [],
 };
 
 export const VendorContext = createContext(initialState);
@@ -101,28 +101,26 @@ export const VendorContextProvider = ({ children }) => {
     dispatch({ type: ACTION.RESET_LOADING });
   }
 
-  function listVendor(params) {
-    return new Promise((resolve, reject) => {
-      if (!params)
-        params = {
-          ...state.pagination,
-          aid: state.aid,
-          ...state.query,
-        };
-
-      setAid(params.aid);
-      Service.list(params).then((d) => {
-        let pg = parseInt(d.total / d.limit);
-        if (d.total - pg * d.limit > 0) {
-          pg = pg + 1;
-        }
-        dispatch({
-          type: ACTION.LIST,
-          data: { ...d, page: pg, name: params.name, phone: params.phone },
-        });
-        resolve(d);
+  async function listVendor(params) {
+    let res = await Service.list(params);
+    if (res) {
+      dispatch({
+        type: ACTION.LIST,
+        data: res,
       });
-    });
+      return res;
+    }
+  }
+
+  async function getVendorTransactions(vendorId) {
+    let res = await Service.vendorTransactions(vendorId);
+    if (res) {
+      dispatch({
+        type: ACTION.VENDOR_TX,
+        data: res,
+      });
+      return res;
+    }
   }
 
   return (
@@ -130,11 +128,11 @@ export const VendorContextProvider = ({ children }) => {
       value={{
         list: state.list,
         aid: state.aid,
-        query: state.query,
         aids: state.aids,
         vendor: state.vendor,
         loading: state.loading,
         pagination: state.pagination,
+        transactionHistory: state.transactionHistory,
         listVendor,
         listAid,
         setAid,
@@ -147,6 +145,7 @@ export const VendorContextProvider = ({ children }) => {
         getVendorDetails,
         changeVendorStatus,
         getVendorBalance,
+        getVendorTransactions,
       }}
     >
       {children}

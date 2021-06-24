@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from "react";
-import { useToasts } from "react-toast-notifications";
+import React, { useContext, useEffect } from 'react';
+import { useToasts } from 'react-toast-notifications';
 
 import {
   Table,
@@ -8,9 +8,9 @@ import {
   Pagination,
   PaginationItem,
   PaginationLink,
-} from "reactstrap";
+} from 'reactstrap';
 
-import { AidContext } from "../../../contexts/AidContext";
+import { AidContext } from '../../../contexts/AidContext';
 
 export default function BeneficiaryList(props) {
   const { aidId } = props;
@@ -33,7 +33,8 @@ export default function BeneficiaryList(props) {
   // };
 
   const handlePagination = (current_page) => {
-    let _start = current_page * beneficiary_pagination.limit - 1;
+    let _start = (current_page - 1) * beneficiary_pagination.limit;
+
     return loadBeneficiaryByAid({
       start: _start,
       limit: beneficiary_pagination.limit,
@@ -45,8 +46,8 @@ export default function BeneficiaryList(props) {
     beneficiaryByAid(aidId, query)
       .then()
       .catch(() => {
-        addToast("Something went wrong!", {
-          appearance: "error",
+        addToast('Something went wrong!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       });
@@ -92,9 +93,9 @@ export default function BeneficiaryList(props) {
             {beneficiary_pagination.totalPages > 1 ? (
               <Pagination
                 style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "50px",
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: '50px',
                 }}
               >
                 <PaginationItem>
@@ -130,7 +131,7 @@ export default function BeneficiaryList(props) {
                 </PaginationItem>
               </Pagination>
             ) : (
-              ""
+              ''
             )}
           </CardBody>
         </Card>

@@ -42,6 +42,18 @@ export default (state, action) => {
         },
       };
 
+    case ACTION.AVAILABLE_BALANCE:
+      return {
+        ...state,
+        balance: { ...state.balance, available: action.res },
+      };
+
+    case ACTION.PROJECT_CAPITAL:
+      return {
+        ...state,
+        balance: { ...state.balance, total: action.res },
+      };
+
     case `${ACTION.GET_BALANCE}`:
       return {
         ...state,

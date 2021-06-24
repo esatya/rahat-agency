@@ -3,7 +3,7 @@ import axios from "axios";
 import API from "../constants/api";
 import { getUserToken } from "../utils/sessionManager";
 import CONTRACT from "../constants/contracts";
-import { getContract } from "../blockchain/abi";
+import { getContract,getContractByProvider } from "../blockchain/abi";
 
 const access_token = getUserToken();
 
@@ -13,7 +13,7 @@ const mapTestContract = (contract) => ({
 });
 
 export async function getVendorBalance(contract_address, wallet_addr) {
-  const contract = await getContract(contract_address, CONTRACT.AIDTOKEN);
+  const contract = await getContractByProvider(contract_address, CONTRACT.AIDTOKEN);
   const myContract = mapTestContract(contract);
   const data = await myContract.balanceOf(wallet_addr);
   if (!data) return "Vendor not found!";
@@ -58,6 +58,15 @@ export async function get(id) {
     headers: {
       access_token,
     },
+  });
+  return res.data;
+}
+
+export async function vendorTransactions(vendorId) {
+  const res = await axios({
+    url: `${API.VENDORS}/${vendorId}/transactions`,
+    method: "get",
+    headers: { access_token },
   });
   return res.data;
 }

@@ -1,17 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useToasts } from "react-toast-notifications";
+import Select from "react-select";
+import { Link } from "react-router-dom";
 
 import {
   Card,
   CardBody,
-  CardTitle,
   Row,
   Col,
-  Form,
   Input,
   Button,
   Table,
+  FormGroup,
+  Label,
+  InputGroup,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
 } from "reactstrap";
+import Swal from "sweetalert2";
 
 import { BeneficiaryContext } from "../../../contexts/BeneficiaryContext";
 import { AppContext } from "../../../contexts/AppSettingsContext";
@@ -21,19 +29,107 @@ export default function DetailsForm(props) {
   const { addToast } = useToasts();
   const [tokenBalance, setTokenBalance] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [projectOptions, setProjectOptions] = useState([]);
+  const [inputTokens, setInputTokens] = useState(null);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [availableBalance, setAvailableBalance] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
 
   const beneficiaryId = props.params.id;
-  const aidName = props.params.aid;
-  const projectId = props.params.project_id;
 
   const {
     issueTokens,
     beneficiary_detail,
     getBeneficiaryDetails,
     getBeneficiaryBalance,
+    listAid,
+    getAvailableBalance,
   } = useContext(BeneficiaryContext);
 
   const { appSettings } = useContext(AppContext);
+
+  const handleTokenChange = (e) => {
+    setInputTokens(e.target.value);
+  };
+
+  const handleSelectProject = async (e) => {
+    try {
+      setLoading(true);
+      setSelectedProject(e.value);
+      const { rahat_admin } = appSettings.agency.contracts;
+      let d = await getAvailableBalance(e.value, rahat_admin);
+      setAvailableBalance(d);
+      setShowAlert(true);
+      setLoading(false);
+    } catch {
+      setShowAlert(false);
+      addToast("Failed to fetch availabe balance!", {
+        appearance: "error",
+        autoDismiss: true,
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleIssueToken = (e) => {
+    e.preventDefault();
+    if (!selectedProject || !inputTokens) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Attention',
+        text: 'Project and input token is required!',
+      })
+      return;
+    }
+    if (inputTokens > availableBalance) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Attention',
+        text: 'Input balance can not be greater than available balance!',
+      })
+      return;
+    }
+    const payload = {
+      claimable: +inputTokens,
+      phone: +beneficiary_detail.phone,
+      projectId: selectedProject,
+    };
+    submitIssueTokenDetails(payload);
+  };
+
+  const submitIssueTokenDetails = (payload) => {
+    setLoading(true);
+    issueTokens(payload, contractAddress)
+      .then(() => {
+        toggleModal();
+        addToast(`${payload.claimable} tokens assigned to beneficiary.`, {
+          appearance: "success",
+          autoDismiss: true,
+        });
+        getBalance(payload.phone);
+        setLoading(false);
+        resetTokenIssueForm();
+      })
+      .catch((err) => {
+        addToast(err.message, {
+          appearance: "error",
+          autoDismiss: true,
+        });
+      });
+  };
+
+  const toggleModal = () => {
+    setModal((prevState) => !prevState);
+    resetTokenIssueForm();
+  };
+
+  const resetTokenIssueForm = () => {
+    setInputTokens(null);
+    setAvailableBalance("");
+    setSelectedProject(null);
+    setShowAlert(false);
+  };
 
   const getBalance = (phone) => {
     getBeneficiaryBalance(+phone, contractAddress)
@@ -61,6 +157,35 @@ export default function DetailsForm(props) {
       });
   };
 
+  const fetchProjectList = () => {
+    listAid()
+      .then((d) => {
+        sanitizeProjectOptions(d.data);
+      })
+      .catch(() => {
+        addToast("Something went wrong!", {
+          appearance: "error",
+          autoDismiss: true,
+        });
+      });
+  };
+
+  const sanitizeProjectOptions = (data) => {
+    let options = [];
+    if (data && data.length) {
+      for (let d of data) {
+        let obj = {};
+        obj.value = d._id;
+        obj.label = d.name;
+        options.push(obj);
+      }
+      setProjectOptions(options);
+      return;
+    }
+    setProjectOptions(options);
+  };
+
+  useEffect(fetchProjectList, []);
   useEffect(loadBeneficiaryDetails, []);
 
   const contractAddress =
@@ -68,11 +193,88 @@ export default function DetailsForm(props) {
 
   return (
     <>
+      <Modal isOpen={modal} toggle={toggleModal.bind(null)}>
+        <ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <Label>Project *</Label>
+            <Select
+              onChange={handleSelectProject}
+              closeMenuOnSelect={true}
+              defaultValue={[]}
+              options={projectOptions}
+              placeholder="--Select Project--"
+            />
+            <br />
+            <Label>Tokens *</Label>
+            <InputGroup>
+              <Input
+                type="number"
+                name="tokens"
+                placeholder="Enter number of tokens"
+                onChange={handleTokenChange}
+                value={inputTokens || ""}
+              />
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            {showAlert && availableBalance > 0 ? (
+              <div className="alert alert-success fade show" role="alert">
+                Availabe Balance: {availableBalance}
+              </div>
+            ) : showAlert ? (
+              <div>
+                <div className="alert alert-warning fade show" role="alert">
+                  <p>
+                    Project has ZERO balance.{" "}
+                    <Link to={`/projects/${selectedProject}`}>
+                      You can add here.
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          {loading ? (
+            <>
+              <div
+                role="status"
+                className="spinner-border-sm spinner-border text-secondary"
+              >
+                <span className="sr-only">Loading...</span>
+              </div>
+            </>
+          ) : (
+            <>
+              {availableBalance && availableBalance > 0 ? (
+                <>
+                  <Button
+                    onClick={handleIssueToken}
+                    type="button"
+                    color="primary"
+                  >
+                    Submit
+                  </Button>
+                  <Button color="secondary" onClick={toggleModal.bind(null)}>
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                ""
+              )}
+            </>
+          )}
+        </ModalFooter>
+      </Modal>
       <Row>
-        <Col md="6">
+        <Col md="12">
           <Card>
             <CardBody>
-              <div className="">
+              <div>
                 <div className="d-flex align-items-center p-4 border-bottom">
                   <div className="mr-3">
                     <img
@@ -87,6 +289,11 @@ export default function DetailsForm(props) {
                       {beneficiary_detail ? beneficiary_detail.name : ""}
                     </h5>
                     <p className="mb-0">Current balance: {tokenBalance}</p>
+                  </div>
+                  <div className="ml-auto">
+                    <Button type="button" color="primary" onClick={toggleModal}>
+                      Issue Token
+                    </Button>
                   </div>
                 </div>
                 <div className="details-table px-4">
@@ -190,57 +397,6 @@ export default function DetailsForm(props) {
                 </div>
               </div>
             </CardBody>
-          </Card>
-        </Col>
-
-        <Col md="6">
-          <Card style={{ minHeight: 445 }}>
-            <CardTitle className="bg-light border-bottom p-3 mb-0">
-              <i className="mdi mdi-book mr-2"></i>Issue Token for {aidName}.
-            </CardTitle>
-            <Form
-              onSubmit={(e) => {
-                let form = e.target;
-                e.preventDefault();
-                setLoading(true);
-                issueTokens(e, projectId, contractAddress)
-                  .then((d) => {
-                    addToast(`${d.claimable} tokens assigned to beneficiary.`, {
-                      appearance: "success",
-                      autoDismiss: true,
-                    });
-                    getBalance(d.phone);
-                    setLoading(false);
-                    form.reset();
-                  })
-                  .catch((err) => {
-                    addToast(err.message, {
-                      appearance: "error",
-                      autoDismiss: true,
-                    });
-                  });
-              }}
-            >
-              <CardBody>
-                <div className="form-item">
-                  <label htmlFor="claimable">Tokens</label>
-                  <br />
-                  <Input
-                    name="claimable"
-                    type="number"
-                    placeholder="Enter number of tokens."
-                    className="form-field"
-                    required
-                  />
-                </div>
-                <br />
-                {loading ? (
-                  "Deploying token, please wait..."
-                ) : (
-                  <Button color="primary">Issue Token</Button>
-                )}
-              </CardBody>
-            </Form>
           </Card>
         </Col>
       </Row>
