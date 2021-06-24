@@ -1,3 +1,5 @@
+import DexieService from '../services/db';
+
 export function getUser() {
   if (
     localStorage.getItem("currentUser") &&
@@ -44,8 +46,9 @@ export function getUserPermissions() {
   return [];
 }
 
-export function logoutUser() {
+export async function logoutUser() {
   localStorage.clear();
+  await DexieService.clearAll();
   window.location = "/auth/wallet";
 }
 

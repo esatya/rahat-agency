@@ -4,11 +4,17 @@ import * as Service from "../services/users";
 
 const initialState = {
   user_info: {},
+  dashboardStats: null,
 };
 
 export const UserContext = createContext(initialState);
 export const UserContextProvider = ({ children }) => {
   const [state] = useReducer(userReduce, initialState);
+
+  async function getDashboardStats() {
+    let d = await Service.dashboardStats();
+    return d;
+  }
 
   function verifyToken(token) {
     return new Promise((resolve, reject) => {
@@ -38,7 +44,9 @@ export const UserContextProvider = ({ children }) => {
     <UserContext.Provider
       value={{
         user_info: state.user_info,
+        dashboardStats: state.dashboardStats,
         verifyToken,
+        getDashboardStats,
         loginUsingMetamask,
       }}
     >

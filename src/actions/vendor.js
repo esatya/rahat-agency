@@ -8,5 +8,6 @@ module.exports = {
   UPDATE: "UPDATE_VENDOR",
   GET: "GET_VENDOR",
   SET_LOADING: "set_vendor_loading",
-  RESET_LOADING: "reset_vendor_reset_loading"
+  RESET_LOADING: "reset_vendor_reset_loading",
+  VENDOR_TX: "VENDOR_TX_HISTORY",
 };
