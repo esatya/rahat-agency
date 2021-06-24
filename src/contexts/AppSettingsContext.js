@@ -21,6 +21,9 @@ const initialState = {
   tempIdentity: '',
   wallet: null,
   hasWallet: false,
+  walletPasscode: null,
+  isVerified: false,
+  
 };
 
 export const AppContext = createContext(initialState);
@@ -48,6 +51,12 @@ export const AppContextProvider = ({ children }) => {
   function setWallet(wallet) {
     dispatch({ type: ACTION.SET_WALLET, data: wallet });
   }
+  function changeIsverified(boolArg) {
+    dispatch({ type: ACTION.CHANGE_ISVERIFIED, data: boolArg });
+  }
+  function setWalletPasscode(passcode) {
+    dispatch({ type: ACTION.SET_APP_PASSCODE, data: passcode });
+  }
 
   return (
     <AppContext.Provider
@@ -57,10 +66,14 @@ export const AppContextProvider = ({ children }) => {
         tempIdentity: state.tempIdentity,
         hasWallet: state.hasWallet,
         wallet: state.wallet,
+        walletPasscode: state.walletPasscode,
+        isVerified:state.isVerified,
         getAppSettings,
         setTempIdentity,
         setHasWallet,
         setWallet,
+        setWalletPasscode,
+        changeIsverified
       }}
     >
       {children}

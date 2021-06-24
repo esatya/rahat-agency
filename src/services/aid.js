@@ -16,9 +16,10 @@ const mapTestContract = (contract) => ({
   issueToken: contract.issueToken,
 });
 
-export async function addProjectBudget(aidId, supplyToken, contract_addr) {
-  const contract = await getContract(contract_addr, CONTRACT.RAHATADMIN);
-  const myContract = mapTestContract(contract);
+export async function addProjectBudget(wallet,aidId, supplyToken, contract_addr) {
+  const contract = await getContractByProvider(contract_addr, CONTRACT.RAHATADMIN);
+  const signerContract = contract.connect(wallet);
+  const myContract = mapTestContract(signerContract);
   const res = await myContract.setProjectBudget(aidId, supplyToken);
   let d = await res.wait();
   if (d) {
@@ -27,6 +28,8 @@ export async function addProjectBudget(aidId, supplyToken, contract_addr) {
     return project;
   }
 }
+
+
 
 async function tokenAllocate(projectId, tokens, txHash) {
   return axios.patch(
@@ -66,9 +69,10 @@ export async function changeProjectStatus(aidId, status) {
 // Get Project Balance
 export async function loadAidBalance(aidId, contract_address) {
   try {
-    const contract = await getContract(contract_address, CONTRACT.RAHATADMIN);
+    const hashId = ethers.utils.solidityKeccak256(["string"], [aidId]);
+    const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
     const myContract = mapTestContract(contract);
-    const data = await myContract.getProjectBalance(aidId);
+    const data = await myContract.getProjectBalance(hashId);
     return data.toNumber();
   } catch(e) {
     return 0;

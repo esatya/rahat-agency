@@ -25,6 +25,16 @@ export default (state, action) => {
         ...state,
         hasWallet: action.data,
       };
+      case ACTION.SET_APP_PASSCODE:
+      return {
+        ...state,
+        walletPasscode: action.data
+      };
+      case ACTION.CHANGE_ISVERIFIED:
+        return {
+          ...state,
+          isVerified: action.data
+        };
 
     default:
       return state;
