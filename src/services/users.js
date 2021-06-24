@@ -4,7 +4,17 @@ import {
   saveUser,
   saveUserToken,
   saveUserPermissions,
+  getUserToken,
 } from "../utils/sessionManager";
+
+const access_token = getUserToken();
+
+export async function dashboardStats() {
+  let res = await axios.get(`${API.APP}/dashboards`, {
+    headers: { access_token },
+  });
+  return res.data;
+}
 
 export function verifyToken(token) {
   return new Promise((resolve, reject) => {

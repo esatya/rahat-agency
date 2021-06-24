@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Row,
   Col,
@@ -14,19 +14,19 @@ import {
   Input,
   InputGroup,
   Table,
-} from "reactstrap";
-import { Link } from "react-router-dom";
-import { useToasts } from "react-toast-notifications";
-import moment from "moment";
+} from 'reactstrap';
+import { Link } from 'react-router-dom';
+import { useToasts } from 'react-toast-notifications';
+import moment from 'moment';
 
-import { AidContext } from "../../../contexts/AidContext";
-import AidModal from "../../global/CustomModal";
+import { AidContext } from '../../../contexts/AidContext';
+import AidModal from '../../global/CustomModal';
 
 const List = () => {
   const { aids, pagination, listAid, addAid } = useContext(AidContext);
   const { addToast } = useToasts();
   const [aidModal, setaidModal] = useState(false);
-  const [aidPayload, setaidPayload] = useState({ name: "" });
+  const [aidPayload, setaidPayload] = useState({ name: '' });
 
   const toggleModal = () => {
     setaidModal(!aidModal);
@@ -41,23 +41,23 @@ const List = () => {
     addAid(aidPayload)
       .then(() => {
         toggleModal();
-        addToast("Project created successfully.", {
-          appearance: "success",
+        addToast('Project created successfully.', {
+          appearance: 'success',
           autoDismiss: true,
         });
         loadAidList();
-        setaidPayload({ name: "" });
+        setaidPayload({ name: '' });
       })
       .catch((err) => {
         addToast(err, {
-          appearance: "error",
+          appearance: 'error',
           autoDismiss: true,
         });
       });
   };
 
   const handlePagination = (current_page) => {
-    let _start = current_page * pagination.limit - 1;
+    let _start = (current_page - 1) * pagination.limit;
     return loadAidList({ start: _start, limit: pagination.limit });
   };
 
@@ -66,8 +66,8 @@ const List = () => {
     listAid(query)
       .then()
       .catch(() => {
-        addToast("Something went wrong!", {
-          appearance: "error",
+        addToast('Something went wrong!', {
+          appearance: 'error',
           autoDismiss: true,
         });
       });
@@ -128,7 +128,7 @@ const List = () => {
                   return (
                     <tr key={d._id}>
                       <td>{d.name}</td>
-                      <td>{moment(d.created_at).format("MMM Do YY")}</td>
+                      <td>{moment(d.created_at).format('MMM Do YY')}</td>
                       <td>{d.status.toUpperCase()}</td>
                       <td className="blue-grey-text  text-darken-4 font-medium">
                         <Link
@@ -153,9 +153,9 @@ const List = () => {
           {pagination.totalPages > 1 ? (
             <Pagination
               style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "50px",
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '50px',
               }}
             >
               <PaginationItem>
@@ -185,7 +185,7 @@ const List = () => {
               </PaginationItem>
             </Pagination>
           ) : (
-            ""
+            ''
           )}
         </CardBody>
       </Card>

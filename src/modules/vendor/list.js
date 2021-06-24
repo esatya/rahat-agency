@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
-import { VendorContext } from "../../contexts/VendorContext";
-import { useToasts } from "react-toast-notifications";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from 'react';
+import { VendorContext } from '../../contexts/VendorContext';
+import { useToasts } from 'react-toast-notifications';
+import { Link } from 'react-router-dom';
 
 import {
   Card,
@@ -12,154 +12,158 @@ import {
   Pagination,
   PaginationItem,
   PaginationLink,
-  CustomInput,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Form,
   Table,
-} from "reactstrap";
+  Row,
+  Col,
+  CustomInput,
+} from 'reactstrap';
 
-const Vendor = (props) => {
+import displayPic from '../../assets/images/users/1.jpg';
+
+const searchOptions = { PHONE: 'phone', NAME: 'name' };
+
+const Vendor = () => {
   const { addToast } = useToasts();
   const [model, setModel] = useState(false);
-  const [issueModel, setIssueModel] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState({
+    searchPlaceholder: 'Enter phone number...',
+    searchBy: 'phone',
+  });
 
-  const {
-    listVendor,
-    list,
-    pagination,
-    query,
-    listAid,
-    aid,
-    vendor,
-    addVendor,
-    setVendor,
-    issueTokens,
-  } = useContext(VendorContext);
+  const { listVendor, list, pagination, addVendor } = useContext(VendorContext);
 
   const toggle = () => setModel(!model);
-  const toggleIssueModel = (b) => {
-    if (b) {
-      setVendor(b);
-    }
-    setIssueModel(!issueModel);
+
+  const fetchList = (query) => {
+    let params = { ...pagination, ...query };
+    listVendor(params)
+      .then()
+      .catch(() => {
+        addToast('Something went wrong!', {
+          appearance: 'error',
+          autoDismiss: true,
+        });
+      });
   };
 
-  //List Beneficiary
-  let get = useCallback(
-    (params) => {
-      listVendor(params);
-    },
-    [listVendor]
-  );
+  useEffect(fetchList, []);
 
-  useEffect(() => {
-    listVendor({ ...pagination, ...query }).catch((e) =>
-      addToast("Something went wrong!", {
-        appearance: "error",
-        autoDismiss: true,
-      })
-    );
-    listAid();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  let onSearchName = useCallback(
-    (val) => {
-      get({ limit: 10, start: 0, name: val, phone: "", aid });
-    },
-    [aid, get]
-  );
-
-  let onSearchPhone = useCallback(
-    (val) => {
-      get({ limit: 10, start: 0, name: "", phone: val, aid });
-    },
-    [aid, get]
-  );
-
-  const onSearch = (val) => {
-    if (!filter.trim().length) return;
-    if (filter === "name") {
-      onSearchName(val);
-    } else if (filter === "phone") {
-      onSearchPhone(val);
+  const handleFilterChange = (e) => {
+    let { value } = e.target;
+    if (value === searchOptions.NAME) {
+      setFilter({
+        searchPlaceholder: 'Enter name...',
+        searchBy: searchOptions.NAME,
+      });
     }
+    if (value === searchOptions.PHONE) {
+      setFilter({
+        searchPlaceholder: 'Enter phone number...',
+        searchBy: searchOptions.PHONE,
+      });
+    }
+    fetchList({ start: 0, limit: pagination.limit });
   };
 
-  const handlePagination = useCallback(
-    (current) => {
-      let st = current * pagination.limit;
-      get({ start: st, limit: pagination.limit, ...query, aid });
-    },
-    [aid, get, pagination.limit, query]
-  );
+  const handleSearchInputChange = (e) => {
+    const { value } = e.target;
+    if (filter.searchBy === searchOptions.PHONE) {
+      return fetchList({ start: 0, limit: pagination.limit, phone: value });
+    }
+    if (filter.searchBy === searchOptions.NAME) {
+      return fetchList({ start: 0, limit: pagination.limit, name: value });
+    }
+    fetchList({ start: 0, limit: pagination.limit });
+  };
+
+  const handlePagination = (current_page) => {
+    let _start = (current_page - 1) * pagination.limit;
+    return fetchList({ start: _start, limit: pagination.limit });
+  };
 
   return (
     <div className="main">
       <div className="transaction-table-container">
         <Card>
           <CardTitle className="mb-0 p-3 border-bottom bg-light">
-            <i className="mdi mdi-border-right mr-2"></i>Vendors List
-            <div style={{ float: "right" }}>
-              <Button color="info" onClick={(e) => toggle()}>
-                Add Vendor
-              </Button>
-            </div>
-          </CardTitle>
-          <CardBody>
-            <div
-              style={{ float: "right", display: "flex", padding: "15px 1px" }}
-            >
-              <div style={{ display: "flex" }}>
-                <Input
-                  placeholder="Search..."
-                  onChange={(event) => {
-                    onSearch(event.target.value);
-                  }}
-                  style={{ width: "100%" }}
-                />
-
-                <CustomInput
-                  type="select"
-                  id="exampleCustomSelect"
-                  name="customSelect"
-                  defaultValue=""
-                  style={{ width: "auto" }}
-                  onChange={(event) => {
-                    // clear();
-                    setFilter(event.target.value);
+            <Row>
+              <Col md="4">
+                <i className="mdi mdi-border-right mr-2"></i>Vendors List
+              </Col>
+              <Col md="6">
+                <div
+                  style={{
+                    float: 'right',
+                    display: 'flex',
                   }}
                 >
-                  <option value="" disabled>
-                    Filter
-                  </option>
-                  <option value="name">Name</option>
-                  <option value="phone">Phone</option>
-                </CustomInput>
-              </div>
-            </div>
-            <Table borderless responsive style={{ backgroundColor: "white" }}>
+                  <CustomInput
+                    type="select"
+                    id="exampleCustomSelect"
+                    name="customSelect"
+                    defaultValue=""
+                    onChange={handleFilterChange}
+                    style={{ width: 'auto' }}
+                  >
+                    <option value="phone">Search By Phone</option>
+                    <option value="name">By Name</option>
+                  </CustomInput>
+                  <div style={{ display: 'inline-flex' }}>
+                    <Input
+                      placeholder={filter.searchPlaceholder}
+                      onChange={handleSearchInputChange}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col md="2">
+                <div>
+                  <Button onClick={() => toggle()} className="btn" color="info">
+                    Add New
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          </CardTitle>
+          <CardBody>
+            <Table className="no-wrap v-middle" responsive>
               <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Wallet Address</th>
-                  <th>Email</th>
-                  <th>Address</th>
+                <tr className="border-0">
+                  <th className="border-0">Name</th>
+                  <th className="border-0">Phone</th>
+                  <th className="border-0">Address</th>
+                  <th className="border-0">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {list.length ? (
                   list.map((e, i) => (
                     <tr key={e._id}>
-                      <td>{e.name}</td>
+                      <td>
+                        <div className="d-flex no-block align-items-center">
+                          <div className="mr-2">
+                            <img
+                              src={displayPic}
+                              alt="user"
+                              className="rounded-circle"
+                              width="45"
+                            />
+                          </div>
+                          <div className="">
+                            <h5 className="mb-0 font-16 font-medium">
+                              {e.name}
+                            </h5>
+                            <span>{e.email ? e.email : '-'}</span>
+                          </div>
+                        </div>
+                      </td>
                       <td>{e.phone}</td>
-                      <td>{e.wallet_address}</td>
-                      <td>{e.email}</td>
                       <td>{e.address}</td>
                       <td className="blue-grey-text  text-darken-4 font-medium">
                         <Link
@@ -173,104 +177,71 @@ const Vendor = (props) => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2}></td>
-                    <td>No data available.</td>
+                    <td style={{ textAlign: 'center' }} colSpan={4}>
+                      No data available
+                    </td>
                   </tr>
                 )}
               </tbody>
             </Table>
 
-            <Pagination
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "50px",
-              }}
-            >
-              <PaginationItem onClick={(e) => handlePagination(0)}>
-                <PaginationLink first href="#" />
-              </PaginationItem>
-              {[...Array(pagination.page)].map((p, i) => (
-                <PaginationItem
-                  key={i}
-                  active={
-                    pagination.start === i * pagination.limit ? true : false
-                  }
-                  onClick={(e) => handlePagination(i)}
-                >
-                  <PaginationLink href="#">{i + 1}</PaginationLink>
+            {pagination.totalPages > 1 ? (
+              <Pagination
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: '50px',
+                }}
+              >
+                <PaginationItem>
+                  <PaginationLink
+                    first
+                    href="#first_page"
+                    onClick={() => handlePagination(1)}
+                  />
                 </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationLink
-                  last
-                  href="#"
-                  onClick={(e) => handlePagination(pagination.page - 1)}
-                />
-              </PaginationItem>
-            </Pagination>
+                {[...Array(pagination.totalPages)].map((p, i) => (
+                  <PaginationItem
+                    key={i}
+                    active={pagination.currentPage === i + 1 ? true : false}
+                    onClick={() => handlePagination(i + 1)}
+                  >
+                    <PaginationLink href={`#page=${i + 1}`}>
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationLink
+                    last
+                    href="#last_page"
+                    onClick={() => handlePagination(pagination.totalPages)}
+                  />
+                </PaginationItem>
+              </Pagination>
+            ) : (
+              ''
+            )}
           </CardBody>
         </Card>
       </div>
-
-      <Modal isOpen={issueModel} toggle={toggleIssueModel}>
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            issueTokens(e).then((d) => {
-              get();
-              toggleIssueModel();
-            });
-          }}
-        >
-          <ModalHeader toggle={toggleIssueModel}>
-            <div>
-              <h3>Issue Tokens</h3>
-            </div>
-          </ModalHeader>
-          <ModalBody>
-            <div className="form-item">
-              <label htmlFor="claimable">Tokens</label>
-              <br />
-              <Input
-                name="claimable"
-                type="text"
-                defaultValue={vendor.claimable}
-                placeholder="Tokens"
-                className="form-field"
-                required
-              />
-            </div>
-            <br />
-
-            <br />
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary">Submit</Button>
-
-            <Button color="secondary" onClick={toggleIssueModel}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Form>
-      </Modal>
 
       <Modal isOpen={model} toggle={toggle}>
         <Form
           onSubmit={(e) => {
             e.preventDefault();
             addVendor(e)
-              .then((d) => {
-                addToast("Vendor Added Successfully", {
-                  appearance: "success",
+              .then(() => {
+                addToast('Vendor Added Successfully', {
+                  appearance: 'success',
                   autoDismiss: true,
                 });
-                get();
+                fetchList({});
                 toggle();
               })
               .catch((err) =>
                 addToast(err.message, {
-                  appearance: "error",
+                  appearance: 'error',
                   autoDismiss: true,
                 })
               );
@@ -282,30 +253,6 @@ const Vendor = (props) => {
             </div>
           </ModalHeader>
           <ModalBody>
-            {/* <div className="form-item">
-              <label htmlFor="aid">Aid</label>
-              <br />
-
-              <CustomInput
-                type="select"
-                id="aid"
-                name="aid"
-                className="form-field"
-                defaultValue=""
-                required
-              >
-                <option value="" disabled>
-                  All
-                </option>
-                {aids.map(e => (
-                  <option key={e._id} value={e._id}>
-                    {e.name}
-                  </option>
-                ))}
-              </CustomInput>
-            </div>
-            <br /> */}
-
             <div className="form-item">
               <label htmlFor="name">Name</label>
               <br />
@@ -333,9 +280,9 @@ const Vendor = (props) => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -364,9 +311,9 @@ const Vendor = (props) => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">

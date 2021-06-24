@@ -14,7 +14,7 @@ const initialState = {
     currentPage: 1,
     totalPages: 0,
   },
-  balance: 0,
+  balance: { total: 0, available: 0 },
   aid_details: null,
   loading: false,
 };
@@ -22,10 +22,6 @@ const initialState = {
 export const AidContext = createContext(initialState);
 export const AidContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(aidReduce, initialState);
-
-  async function getProjectCapital(aidId, contract_addr) {
-    return Service.getProjectCapital(aidId, contract_addr);
-  }
 
   function getAidDetails(aidId) {
     return new Promise((resolve, reject) => {
@@ -41,9 +37,12 @@ export const AidContextProvider = ({ children }) => {
   }
 
   async function addProjectBudget(aidId, supplyToken, contract_addr) {
-    await Service.addProjectBudget(aidId, supplyToken, contract_addr);
+    let d = await Service.addProjectBudget(aidId, supplyToken, contract_addr);
     let balance = await Service.loadAidBalance(aidId, contract_addr);
-    if (balance) dispatch({ type: ACTION.GET_BALANCE, res: balance });
+    if (balance) {
+      dispatch({ type: ACTION.GET_BALANCE, res: balance });
+      return d;
+    }
   }
 
   async function changeProjectStatus(aidId, status) {
@@ -52,9 +51,27 @@ export const AidContextProvider = ({ children }) => {
     return res;
   }
 
-  async function getAidBalance(aidId, rahatAdminContractAddr) {
-    let res = await Service.loadAidBalance(aidId, rahatAdminContractAddr);
+  async function getProjectCapital(aidId, contract_addr) {
+    let res = await Service.getProjectCapital(aidId, contract_addr);
+    dispatch({ type: ACTION.PROJECT_CAPITAL, res });
     return res;
+  }
+
+  async function getAidBalance(aidId, rahatAdminContractAddr) {
+    let _available = await Service.loadAidBalance(
+      aidId,
+      rahatAdminContractAddr
+    );
+    let _capital = await Service.getProjectCapital(
+      aidId,
+      rahatAdminContractAddr
+    );
+    dispatch({ type: ACTION.PROJECT_CAPITAL, res: _capital ? _capital : 0 });
+    dispatch({
+      type: ACTION.AVAILABLE_BALANCE,
+      res: _available ? _available : 0,
+    });
+    return _available;
   }
 
   function setLoading() {

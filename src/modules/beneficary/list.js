@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
-import { BeneficiaryContext } from "../../contexts/BeneficiaryContext";
-import { useToasts } from "react-toast-notifications";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from 'react';
+import { BeneficiaryContext } from '../../contexts/BeneficiaryContext';
+import { useToasts } from 'react-toast-notifications';
+import { Link } from 'react-router-dom';
 import {
   Card,
   CardBody,
@@ -18,289 +18,262 @@ import {
   ModalFooter,
   Table,
   Form,
-  // Spinner
-} from "reactstrap";
+  Row,
+  Col,
+} from 'reactstrap';
+import displayPic from '../../assets/images/users/1.jpg';
 
-const Beneficiary = (props) => {
+const searchOptions = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
+
+const Beneficiary = () => {
   const { addToast } = useToasts();
   const [model, setModel] = useState(false);
-  const [filter, setFilter] = useState("");
-  // const [spin, setSpin] = useState(false);
+
+  const [filter, setFilter] = useState({
+    searchPlaceholder: 'Enter phone number...',
+    searchBy: 'phone',
+  });
 
   const {
     listBeneficiary,
     list,
     pagination,
-    query,
     listAid,
-    aids,
-    aid,
+    projectList,
     addBeneficiary,
-    setAid,
-    // importBeneficiary
   } = useContext(BeneficiaryContext);
+
+  const handleFilterChange = (e) => {
+    let { value } = e.target;
+    if (value === searchOptions.NAME) {
+      setFilter({
+        searchPlaceholder: 'Enter name...',
+        searchBy: searchOptions.NAME,
+      });
+    }
+    if (value === searchOptions.PROJECT) {
+      setFilter({
+        searchPlaceholder: 'Select project...',
+        searchBy: searchOptions.PROJECT,
+      });
+    }
+    if (value === searchOptions.PHONE) {
+      setFilter({
+        searchPlaceholder: 'Enter phone number...',
+        searchBy: searchOptions.PHONE,
+      });
+    }
+    fetchList({ start: 0, limit: pagination.limit });
+  };
+
+  const handleSearchInputChange = (e) => {
+    const { value } = e.target;
+    if (filter.searchBy === searchOptions.PHONE) {
+      return fetchList({ start: 0, limit: pagination.limit, phone: value });
+    }
+    if (filter.searchBy === searchOptions.NAME) {
+      return fetchList({ start: 0, limit: pagination.limit, name: value });
+    }
+    if (filter.searchBy === searchOptions.PROJECT) {
+      return fetchList({ start: 0, limit: pagination.limit, projectId: value });
+    }
+    fetchList({ start: 0, limit: pagination.limit });
+  };
 
   const toggle = () => setModel(!model);
 
-  //List Beneficiary
-  let get = useCallback(
-    (params) => {
-      listBeneficiary(params);
-    },
-    [listBeneficiary]
-  );
-
-  useEffect(() => {
-    listBeneficiary({ ...pagination, ...query });
-    listAid();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  let onSearchName = useCallback(
-    (val) => {
-      get({
-        limit: 10,
-        start: 0,
-        name: val,
-        phone: "",
-        aid: aid ? aid._id : "",
+  const fetchList = (query) => {
+    let params = { ...pagination, ...query };
+    listBeneficiary(params)
+      .then()
+      .catch(() => {
+        addToast('Something went wrong!', {
+          appearance: 'error',
+          autoDismiss: true,
+        });
       });
-    },
-    [aid, get]
-  );
-
-  let onSearchPhone = useCallback(
-    (val) => {
-      get({
-        limit: 10,
-        start: 0,
-        name: "",
-        phone: val,
-        aid: aid ? aid._id : "",
-      });
-    },
-    [aid, get]
-  );
-
-  const onSearch = (val) => {
-    if (!filter.trim().length) return;
-    if (filter === "name") {
-      onSearchName(val);
-    } else if (filter === "phone") {
-      onSearchPhone(val);
-    }
   };
 
-  const handlePagination = useCallback(
-    (current) => {
-      let st = current * pagination.limit;
-      get({
-        start: st,
-        limit: pagination.limit,
-        ...query,
-        aid: aid ? aid._id : "",
+  const fetchProjectList = () => {
+    listAid()
+      .then()
+      .catch(() => {
+        addToast('Something went wrong!', {
+          appearance: 'error',
+          autoDismiss: true,
+        });
       });
-    },
-    [aid, get, pagination.limit, query]
-  );
+  };
+
+  useEffect(fetchList, []);
+  useEffect(fetchProjectList, []);
+
+  const handlePagination = (current_page) => {
+    let _start = (current_page - 1) * pagination.limit;
+    return fetchList({ start: _start, limit: pagination.limit });
+  };
 
   return (
     <div className="main">
       <div className="transaction-table-container">
         <Card>
           <CardTitle className="mb-0 p-3 border-bottom bg-light">
-            <i className="mdi mdi-border-right mr-2"></i>Beneficiary List
-            <div style={{ float: "right" }}>
-              <Button color="info" onClick={(e) => toggle()}>
-                Add Beneficiary
-              </Button>
-              {/* <Button
-                color="info"
-                onClick={event => {
-                  event.preventDefault();
-                  setSpin(true);
-                  importBeneficiary()
-                    .then(d => {
-                      setSpin(false);
-                      addToast("Imported successfully", {
-                        appearance: "success",
-                        autoDismiss: true
-                      });
-                      get();
-                    })
-                    .catch(err => {
-                      setSpin(false);
-                      addToast(err.message, {
-                        appearance: "error",
-                        autoDismiss: true
-                      });
-                    });
-                }}
-              >
-                {spin ? <Spinner size="sm" /> : ""} Import Beneficiary
-              </Button> */}
-            </div>
+            <Row>
+              <Col md="4">
+                <i className="mdi mdi-border-right mr-2"></i>Beneficiary List
+              </Col>
+              <Col md="6">
+                <div
+                  style={{
+                    float: 'right',
+                    display: 'flex',
+                  }}
+                >
+                  <CustomInput
+                    type="select"
+                    id="exampleCustomSelect"
+                    name="customSelect"
+                    defaultValue=""
+                    style={{ width: 'auto' }}
+                    onChange={handleFilterChange}
+                  >
+                    <option value="phone">Search By Phone</option>
+                    <option value="name">By Name</option>
+                    <option value="project">By Project</option>
+                  </CustomInput>
+                  <div style={{ display: 'inline-flex' }}>
+                    {filter.searchBy === searchOptions.PROJECT ? (
+                      <CustomInput
+                        type="select"
+                        id="aid"
+                        name="aid"
+                        defaultValue=""
+                        className="form-field"
+                        onChange={handleSearchInputChange}
+                        required
+                      >
+                        <option value="" disabled>
+                          --Select Project--
+                        </option>
+                        {projectList.map((e) => (
+                          <option key={e._id} value={e._id}>
+                            {e.name}
+                          </option>
+                        ))}
+                      </CustomInput>
+                    ) : (
+                      <Input
+                        placeholder={filter.searchPlaceholder}
+                        onChange={handleSearchInputChange}
+                        style={{ width: '100%' }}
+                      />
+                    )}
+                  </div>
+                </div>
+              </Col>
+              <Col md="2">
+                <div>
+                  <Button onClick={() => toggle()} className="btn" color="info">
+                    Add New
+                  </Button>
+                </div>
+              </Col>
+            </Row>
           </CardTitle>
           <CardBody>
-            <div
-              style={{ float: "right", display: "flex", padding: "15px 1px" }}
-            >
-              <CustomInput
-                type="select"
-                id="exampleCustomSelect"
-                name="customSelect"
-                defaultValue=""
-                style={{ width: "auto" }}
-                onChange={(event) => {
-                  // clear();
-                  get({
-                    limit: 10,
-                    start: 0,
-                    name: "",
-                    phone: "",
-                    aid: event.target.value,
-                  });
-
-                  setAid({
-                    name:
-                      event.target.options[event.target.selectedIndex].label,
-                    _id: event.target.value,
-                  });
-                }}
-              >
-                <option value="">All</option>
-                {aids.map((e) => (
-                  <option key={e._id} value={e._id}>
-                    {e.name}
-                  </option>
-                ))}
-              </CustomInput>
-              <div style={{ display: "inline-flex" }}>
-                <Input
-                  placeholder="Search..."
-                  onChange={(event) => {
-                    onSearch(event.target.value);
-                  }}
-                  style={{ width: "100%" }}
-                />
-
-                <CustomInput
-                  type="select"
-                  id="exampleCustomSelect"
-                  name="customSelect"
-                  defaultValue=""
-                  style={{ width: "auto" }}
-                  onChange={(event) => {
-                    // clear();
-                    setFilter(event.target.value);
-                  }}
-                >
-                  <option value="" disabled>
-                    Filter
-                  </option>
-                  <option value="name">Name</option>
-                  <option value="phone">Phone</option>
-                </CustomInput>
-              </div>
-            </div>
-            {aid && aid._id ? (
-              <Table borderless style={{ backgroundColor: "white" }} responsive>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Address</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {list.length ? (
-                    list.map((e, i) => (
-                      <tr key={e._id}>
-                        <td>{e.name}</td>
-                        <td>{e.phone}</td>
-                        <td>{e.email}</td>
-                        <td>{e.address}</td>
+            <Table className="no-wrap v-middle" responsive>
+              <thead>
+                <tr className="border-0">
+                  <th className="border-0">Name</th>
+                  <th className="border-0">Phone</th>
+                  <th className="border-0">Govt. ID</th>
+                  <th className="border-0">Address</th>
+                  <th className="border-0">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.length ? (
+                  list.map((d) => {
+                    return (
+                      <tr key={d._id}>
                         <td>
-                          <div>
-                            <Link
-                              className="btn btn-secondary"
-                              to={`/beneficiaries/${e._id}/${aid.name}/${aid._id}`}
-                            >
-                              Details
-                            </Link>
+                          <div className="d-flex no-block align-items-center">
+                            <div className="mr-2">
+                              <img
+                                src={displayPic}
+                                alt="user"
+                                className="rounded-circle"
+                                width="45"
+                              />
+                            </div>
+                            <div className="">
+                              <h5 className="mb-0 font-16 font-medium">
+                                {d.name}
+                              </h5>
+                              <span>{d.email ? d.email : '-'}</span>
+                            </div>
                           </div>
                         </td>
+                        <td>{d.phone}</td>
+                        <td>{d.govt_id ? d.govt_id : '-'}</td>
+                        <td>{d.address}</td>
+                        <td className="blue-grey-text  text-darken-4 font-medium">
+                          <Link
+                            className="btn btn-secondary"
+                            to={`/beneficiaries/${d._id}`}
+                          >
+                            Details
+                          </Link>
+                        </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={2}></td>
-                      <td>No data available.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            ) : (
-              <Table borderless responsive>
-                <thead>
+                    );
+                  })
+                ) : (
                   <tr>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Address</th>
+                    <td colSpan={2}></td>
+                    <td>No data available.</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {list.length ? (
-                    list.map((e, i) => (
-                      <tr key={e._id}>
-                        <td>{e.name}</td>
-                        <td>{e.phone}</td>
-                        <td>{e.email}</td>
-                        <td>{e.address}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={2}></td>
-                      <td>No data available.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            )}
+                )}
+              </tbody>
+            </Table>
 
-            <Pagination
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "50px",
-              }}
-            >
-              <PaginationItem onClick={(e) => handlePagination(0)}>
-                <PaginationLink first href="#" />
-              </PaginationItem>
-              {[...Array(pagination.page)].map((p, i) => (
-                <PaginationItem
-                  key={i}
-                  active={
-                    pagination.start === i * pagination.limit ? true : false
-                  }
-                  onClick={(e) => handlePagination(i)}
-                >
-                  <PaginationLink href="#">{i + 1}</PaginationLink>
+            {pagination.totalPages > 1 ? (
+              <Pagination
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: '50px',
+                }}
+              >
+                <PaginationItem>
+                  <PaginationLink
+                    first
+                    href="#first_page"
+                    onClick={() => handlePagination(1)}
+                  />
                 </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationLink
-                  last
-                  href="#"
-                  onClick={(e) => handlePagination(pagination.page - 1)}
-                />
-              </PaginationItem>
-            </Pagination>
+                {[...Array(pagination.totalPages)].map((p, i) => (
+                  <PaginationItem
+                    key={i}
+                    active={pagination.currentPage === i + 1 ? true : false}
+                    onClick={() => handlePagination(i + 1)}
+                  >
+                    <PaginationLink href={`#page=${i + 1}`}>
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationLink
+                    last
+                    href="#last_page"
+                    onClick={() => handlePagination(pagination.totalPages)}
+                  />
+                </PaginationItem>
+              </Pagination>
+            ) : (
+              ''
+            )}
           </CardBody>
         </Card>
       </div>
@@ -311,16 +284,16 @@ const Beneficiary = (props) => {
             e.preventDefault();
             addBeneficiary(e)
               .then((d) => {
-                addToast("Beneficiary Added successfully", {
-                  appearance: "success",
+                addToast('Beneficiary Added successfully', {
+                  appearance: 'success',
                   autoDismiss: true,
                 });
-                get();
+                fetchList();
                 toggle();
               })
               .catch((err) =>
                 addToast(err.message, {
-                  appearance: "error",
+                  appearance: 'error',
                   autoDismiss: true,
                 })
               );
@@ -334,9 +307,9 @@ const Beneficiary = (props) => {
           <ModalBody>
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -354,7 +327,7 @@ const Beneficiary = (props) => {
                   <option value="" disabled>
                     All
                   </option>
-                  {aids.map((e) => (
+                  {projectList.map((e) => (
                     <option key={e._id} value={e._id}>
                       {e.name}
                     </option>
@@ -376,9 +349,9 @@ const Beneficiary = (props) => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -407,9 +380,9 @@ const Beneficiary = (props) => {
             <br />
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
@@ -440,9 +413,9 @@ const Beneficiary = (props) => {
 
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gridColumnGap: "10px",
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gridColumnGap: '10px',
               }}
             >
               <div className="form-item">
