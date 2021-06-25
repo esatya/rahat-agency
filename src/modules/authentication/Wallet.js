@@ -133,9 +133,9 @@ const Wallet = () => {
           tempIdentity.privateKey, // privateKey
           encWalletData // encrypted-data
         );
-        const address = JSON.parse(decrypted).address; 
+        const address = JSON.parse(decrypted).address;
         await DataService.saveWallet(decrypted);
-        await DataService.saveAddress(address)
+        await DataService.saveAddress(address);
       }
 
       if (data.action === 'access-granted') {
@@ -146,27 +146,27 @@ const Wallet = () => {
 
   return (
     <>
-      <div className='error-box'>
-        <div className='error-body text-center'>
-          <img src={Logo} height='auto' alt='rahat logo'></img>
-          <h4 className='text-grey font-24'>Rahat Authentication</h4>
-          <div className='mt-4'>
+      <div className="error-box">
+        <div className="error-body text-center">
+          <img src={Logo} height="auto" alt="rahat logo"></img>
+          <h4 className="text-grey font-24">Rahat Authentication</h4>
+          <div className="mt-4">
             <span>Scan QR Code to Login</span>
             <div style={{ padding: 15 }}>
               <canvas ref={inputRef} />
             </div>
             <p style={{ color: '#fff' }}>----------OR---------- </p>
             {clientId ? (
-              <button onClick={handleMetamaskLogin} className='btn btn-warning'>
-                <i className='fab fa-ethereum'></i> Login Using Metamask
+              <button onClick={handleMetamaskLogin} className="btn btn-warning">
+                <i className="fab fa-ethereum"></i> Login Using Metamask
               </button>
             ) : (
               'Initializing...'
             )}
           </div>
-          <div className='text-center' style={{ marginTop: 10 }}>
-            <p className='text-white'>New Agency?</p>
-            <a href='/setup' className='btn btn-info setup-link ml-1'>
+          <div className="text-center" style={{ marginTop: 10 }}>
+            <p className="text-white">New Agency?</p>
+            <a href="/setup" className="btn btn-info setup-link ml-1">
               <b>Setup Now</b>
             </a>
           </div>

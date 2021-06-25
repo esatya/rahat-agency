@@ -14,23 +14,18 @@ export default (state, action) => {
         wallet: action.data,
       };
 
-      case ACTION.INIT_APP:
-        return {
-          ...state,
-          address: action.data.address,
-          network: action.data.network,
-          hasWallet: action.data.hasWallet
-        };
+    case ACTION.INIT_APP:
+      return {
+        ...state,
+        address: action.data.address,
+        network: action.data.network,
+        hasWallet: action.data.hasWallet,
+      };
 
     case ACTION.SET_TEMP_IDENTITY:
       return {
         ...state,
         tempIdentity: action.data,
-      };
-    case ACTION.SET_WALLET:
-      return {
-        ...state,
-        wallet: action.data,
       };
 
     case ACTION.SET_HASWALLET:
@@ -38,16 +33,16 @@ export default (state, action) => {
         ...state,
         hasWallet: action.data,
       };
-      case ACTION.SET_APP_PASSCODE:
+    case ACTION.SET_APP_PASSCODE:
       return {
         ...state,
-        walletPasscode: action.data
+        walletPasscode: action.data,
       };
-      case ACTION.CHANGE_ISVERIFIED:
-        return {
-          ...state,
-          isVerified: action.data
-        };
+    case ACTION.CHANGE_ISVERIFIED:
+      return {
+        ...state,
+        isVerified: action.data,
+      };
 
     default:
       return state;
