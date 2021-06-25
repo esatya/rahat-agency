@@ -3,7 +3,7 @@ import axios from "axios";
 import API from "../constants/api";
 import { getUserToken } from "../utils/sessionManager";
 import CONTRACT from "../constants/contracts";
-import { getContract,getContractByProvider } from "../blockchain/abi";
+import { getContractByProvider } from "../blockchain/abi";
 
 const access_token = getUserToken();
 
@@ -20,12 +20,13 @@ export async function getVendorBalance(contract_address, wallet_addr) {
   return data.toNumber();
 }
 
-export async function approveVendor(vendorId, payload) {
-  const contract = await getContract(payload.contract_address, CONTRACT.RAHAT);
-  const myContract = mapTestContract(contract);
+export async function approveVendor(wallet, payload,contract_address) {
+  const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+  const signerContract = contract.connect(wallet);
+  const myContract = mapTestContract(signerContract);
   const data = await myContract.addVendor(payload.wallet_address);
   if (!data) return "Vendor approve failed!";
-  const res = await changeVendorStaus(vendorId, payload.status);
+  const res = await changeVendorStaus(payload.vendorId, payload.status);
   return res;
 }
 
