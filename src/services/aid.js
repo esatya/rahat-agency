@@ -5,7 +5,7 @@ import {ethers} from "ethers";
 import { getUserToken } from "../utils/sessionManager";
 import API from "../constants/api";
 import CONTRACT from "../constants/contracts";
-import { getContract,getContractByProvider } from "../blockchain/abi";
+import { getContractByProvider } from "../blockchain/abi";
 
 const access_token = getUserToken();
 
@@ -41,9 +41,10 @@ async function tokenAllocate(projectId, tokens, txHash) {
   );
 }
 
-export async function issueBeneficiaryToken(payload, contract_addr) {
-  const contract = await getContract(contract_addr, CONTRACT.RAHAT);
-  const myContract = mapTestContract(contract);
+export async function issueBeneficiaryToken(wallet,payload, contract_addr) {
+  const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
+  const signerContract = contract.connect(wallet);
+  const myContract = mapTestContract(signerContract);
   const res = await myContract.issueToken(
     payload.projectId,
     payload.phone,

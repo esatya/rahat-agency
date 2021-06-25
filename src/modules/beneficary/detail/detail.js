@@ -24,6 +24,8 @@ import Swal from "sweetalert2";
 import { BeneficiaryContext } from "../../../contexts/BeneficiaryContext";
 import { AppContext } from "../../../contexts/AppSettingsContext";
 import profilePhoto from "../../../assets/images/users/1.jpg";
+import UnlockWallet from '../../global/walletUnlock';
+
 
 export default function DetailsForm(props) {
   const { addToast } = useToasts();
@@ -35,8 +37,13 @@ export default function DetailsForm(props) {
   const [selectedProject, setSelectedProject] = useState("");
   const [availableBalance, setAvailableBalance] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [passcodeModal, setPasscodeModal] = useState(false);
+
 
   const beneficiaryId = props.params.id;
+
+  const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+
 
   const {
     issueTokens,
@@ -47,7 +54,7 @@ export default function DetailsForm(props) {
     getAvailableBalance,
   } = useContext(BeneficiaryContext);
 
-  const { appSettings } = useContext(AppContext);
+  const { appSettings,isVerified } = useContext(AppContext);
 
   const handleTokenChange = (e) => {
     setInputTokens(e.target.value);
@@ -57,8 +64,8 @@ export default function DetailsForm(props) {
     try {
       setLoading(true);
       setSelectedProject(e.value);
-      const { rahat_admin } = appSettings.agency.contracts;
-      let d = await getAvailableBalance(e.value, rahat_admin);
+      //const { rahat_admin } = appSettings.agency.contracts;
+      let d = await getAvailableBalance(e.value);
       setAvailableBalance(d);
       setShowAlert(true);
       setLoading(false);
@@ -90,17 +97,18 @@ export default function DetailsForm(props) {
       })
       return;
     }
+     togglePasscodeModal()
+  };
+
+  const submitIssueTokenDetails = () => {
+    if (!isVerified) return;
     const payload = {
       claimable: +inputTokens,
       phone: +beneficiary_detail.phone,
       projectId: selectedProject,
     };
-    submitIssueTokenDetails(payload);
-  };
-
-  const submitIssueTokenDetails = (payload) => {
     setLoading(true);
-    issueTokens(payload, contractAddress)
+    issueTokens(payload)
       .then(() => {
         toggleModal();
         addToast(`${payload.claimable} tokens assigned to beneficiary.`, {
@@ -187,12 +195,15 @@ export default function DetailsForm(props) {
 
   useEffect(fetchProjectList, []);
   useEffect(loadBeneficiaryDetails, []);
+  useEffect(submitIssueTokenDetails, [isVerified]);
 
   const contractAddress =
     appSettings && appSettings.agency ? appSettings.agency.contracts.rahat : "";
 
   return (
     <>
+        <UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
+
       <Modal isOpen={modal} toggle={toggleModal.bind(null)}>
         <ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
         <ModalBody>

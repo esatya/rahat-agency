@@ -9,6 +9,14 @@ export default (state, action) => {
         appSettings: result,
       };
 
+      case ACTION.INIT_APP:
+        return {
+          ...state,
+          address: action.data.address,
+          network: action.data.network,
+          hasWallet: action.data.hasWallet
+        };
+
     case ACTION.SET_TEMP_IDENTITY:
       return {
         ...state,
