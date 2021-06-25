@@ -3,11 +3,10 @@ const networkList = [
     name: 'rumsan',
     url: 'https://chain.esatya.io',
     display: 'Rumsan Network',
-    default: true,
   },
   {
     name: 'rumsan_test',
-    url: 'https://testnetwork.esatya.io',
+    url: process.env.REACT_APP_BLOCKCHAIN_NETWORK,
     display: 'Rumsan Test Network',
     default: true,
   },

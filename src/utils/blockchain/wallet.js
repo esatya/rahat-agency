@@ -6,7 +6,9 @@ export default {
   isValidMnemonic: ethers.utils.isValidMnemonic,
 
   async connectProvider(wallet, network) {
-    if (!network) network = await DataService.getNetwork();
+    try {
+      if (!network) network = await DataService.getNetwork();
+    } catch (e) {}
     const { url } = network;
     const provider = new ethers.providers.JsonRpcProvider(url);
     return wallet.connect(provider);

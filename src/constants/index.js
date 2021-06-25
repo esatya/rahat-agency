@@ -1,14 +1,14 @@
 module.exports = {
-  APP_CONSTANTS: { PASSCODE_LENGTH: 6 },
+  APP_CONSTANTS: {
+    PASSCODE_LENGTH: 6,
+  },
+
+  DEFAULT_TOKEN: {
+    NAME: 'Ether',
+    SYMBOL: 'ETH',
+  },
   BACKUP: {
     PASSPHRASE_RULE: '"^(?=.*[a-zA-Z])(?=.*[0-9])(?=.{12,})"',
     GDRIVE_FOLDERNAME: 'RumsanWalletBackups',
-  },
-  DB: {
-    NAME: 'db_wallet',
-    VERSION: 1,
-    TABLES: {
-      DATA: 'tbl_data',
-    },
   },
 };
