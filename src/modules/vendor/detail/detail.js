@@ -63,7 +63,6 @@ export default function DetailsForm(props) {
       try {
         const { token } = appSettings.agency.contracts;
         let d = await getVendorBalance(token, wallet);
-        console.log({d});
         setVendorBalance(d);
       } catch {
         addToast('Invalid vendor wallet address!', {

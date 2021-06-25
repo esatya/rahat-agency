@@ -13,4 +13,5 @@ module.exports = {
   TOKEN_AUTH: API_PATH + "/auth",
   USERS: API_PATH + "/users",
   VENDORS: API_PATH + "/vendors",
+  FAUCET:process.env.REACT_APP_BLOCKCHAIN_FAUCET,
 };
