@@ -1,4 +1,5 @@
 module.exports = {
+  INIT_APP: 'init_app',
   GET_APP_SUCCESS: 'GET_APP_SUCCESS',
   SET_TEMP_IDENTITY: 'set_temp_identity',
   SET_HASWALLET: 'set_haswallet',
