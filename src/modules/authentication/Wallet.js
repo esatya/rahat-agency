@@ -133,7 +133,9 @@ const Wallet = () => {
           tempIdentity.privateKey, // privateKey
           encWalletData // encrypted-data
         );
+        const address = JSON.parse(decrypted).address; 
         await DataService.saveWallet(decrypted);
+        await DataService.saveAddress(address)
       }
 
       if (data.action === 'access-granted') {
