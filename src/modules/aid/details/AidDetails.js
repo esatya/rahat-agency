@@ -26,7 +26,7 @@ export default function AidDetails(props) {
   const projectId = props.aidId;
 
 
-  const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+  const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal));
   const {
     balance,
     getAidDetails,
@@ -38,7 +38,7 @@ export default function AidDetails(props) {
     changeProjectStatus,
   } = useContext(AidContext);
 
-  const loadAidDetails = () => {
+  const loadAidDetails = useCallback(() => {
     getAidDetails(projectId)
       .then((d) => {
         setProjectDetails(d);
@@ -50,7 +50,7 @@ export default function AidDetails(props) {
           autoDismiss: true,
         });
       });
-  };
+  },[addToast, getAidBalance, getAidDetails, projectId])
 
   const handleInputChange = (e) => {
     let { value } = e.target;
@@ -71,8 +71,10 @@ export default function AidDetails(props) {
           autoDismiss: true,
         });
         getAidBalance(projectId);
+        togglePasscodeModal();
       })
       .catch((err) => {
+        togglePasscodeModal()
         let err_msg = "Something went wrong!!";
         if (err.code === 4001) err_msg = err.message;
         resetLoading();
@@ -81,7 +83,7 @@ export default function AidDetails(props) {
           autoDismiss: true,
         });
       });
-  },[addProjectBudget, addToast, appSettings.agency.contracts, getAidBalance, inputTokens, isVerified, projectId, resetLoading, setLoading]);
+  },[addProjectBudget, addToast, appSettings.agency.contracts, getAidBalance, inputTokens, isVerified, projectId, resetLoading, setLoading, togglePasscodeModal]);
 
   const handleTokenSubmit = (e) => {
     e.preventDefault();
@@ -134,6 +136,7 @@ export default function AidDetails(props) {
   };
 
   const { available } = balance;
+  console.log({passcodeModal})
 
   return (
     <>

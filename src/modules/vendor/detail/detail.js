@@ -109,12 +109,14 @@ export default function DetailsForm(props) {
     
   approveVendor(payload).then(()=> {
     setLoading(false);
+    togglePasscodeModal()
     addToast('Vendor approved successfully.', {
       appearance: 'success',
       autoDismiss: true,
     });
   }).catch(()=>{
     setLoading(false);
+    togglePasscodeModal()
     addToast('Invalid vendor wallet address!', {
       appearance: 'error',
       autoDismiss: true,
