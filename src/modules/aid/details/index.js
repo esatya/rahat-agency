@@ -1,24 +1,48 @@
-import React, { useContext } from 'react';
-import { CardTitle, Card, CardBody, Row, Col, Button } from 'reactstrap';
+import React, { useContext, useState } from 'react';
+import {
+  CardTitle,
+  Card,
+  CardBody,
+  Row,
+  Col,
+  Button,
+  FormGroup,
+  InputGroup,
+  Input,
+} from 'reactstrap';
 import QRCode from 'qrcode';
+import { useToasts } from 'react-toast-notifications';
 
 import AidDetails from './AidDetails';
 import BeneficiaryList from './BeneficiaryList';
 import TokenDetails from './TokenDetails';
 import { AidContext } from '../../../contexts/AidContext';
+import ModalWrapper from '../../global/CustomModal';
 
 const FETCH_LIMIT = 200;
 
 export default function Details({ match }) {
   const aidId = match.params.id;
   const { beneficiaryByAid } = useContext(AidContext);
+  const { addToast } = useToasts();
 
-  const fetchBeneficiaryByProject = () => {
+  const [modal, setModal] = useState(false);
+  const [amount, setAmount] = useState('');
+
+  const toggleModal = () => setModal(!modal);
+  const handleAmountChange = (e) => setAmount(e.target.value);
+
+  const fetchBeneficiaryByProject = (e) => {
+    e.preventDefault();
     beneficiaryByAid(aidId, { limit: FETCH_LIMIT })
       .then((res) => {
         const { data } = res;
         if (data && data.length) return generateBulkQRCodes(data);
-        alert('No beneficiary available!');
+        toggleModal();
+        addToast('No beneficiary available!', {
+          appearance: 'error',
+          autoDismiss: true,
+        });
       })
       .catch();
   };
@@ -27,7 +51,9 @@ export default function Details({ match }) {
   const convertQrToImg = async (data) => {
     let result = [];
     for (let d of data) {
-      const imgUrl = await QRCode.toDataURL(`Phone: ['+977${d.phone}', 'NP']`);
+      const imgUrl = await QRCode.toDataURL(
+        `phone:+977${d.phone}?amount=${amount ? amount : null}`
+      );
       result.push({ imgUrl, phone: d.phone });
     }
     return result;
@@ -48,7 +74,6 @@ export default function Details({ match }) {
 		<body>
 		`;
     data.map((d, i) => {
-      console.log('D==>', d);
       const name = `Name: ${d.name}`;
       const address = `Address: ${d.address}`;
       const govtID = `Govt. ID: ${d.govt_id}`;
@@ -90,7 +115,8 @@ export default function Details({ match }) {
 		</div>`;
     }
     html += '</body></html>';
-
+    toggleModal();
+    setAmount('');
     var newWindow = window.open('', 'Print QR', 'fullscreen=yes'),
       document = newWindow.document.open();
     document.write(html);
@@ -103,6 +129,24 @@ export default function Details({ match }) {
 
   return (
     <>
+      <ModalWrapper
+        toggle={toggleModal}
+        open={modal}
+        title="Set Beneficiary Amount"
+        handleSubmit={fetchBeneficiaryByProject}
+      >
+        <FormGroup>
+          <InputGroup>
+            <Input
+              type="number"
+              name="amount"
+              placeholder="Please enter amount (optional)"
+              value={amount || ''}
+              onChange={handleAmountChange}
+            />
+          </InputGroup>
+        </FormGroup>
+      </ModalWrapper>
       <Row>
         <Col md="6">
           <Card style={{ minHeight: 484 }}>
@@ -138,7 +182,7 @@ export default function Details({ match }) {
                   <Col md="2">
                     <div style={{ marginLeft: 30 }}>
                       <Button
-                        onClick={fetchBeneficiaryByProject}
+                        onClick={toggleModal}
                         type="button"
                         className="btn"
                         color="info"
