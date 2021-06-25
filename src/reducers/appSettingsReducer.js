@@ -14,6 +14,23 @@ export default (state, action) => {
         wallet: action.data,
       };
 
+    case ACTION.SET_TEMP_IDENTITY:
+      return {
+        ...state,
+        tempIdentity: action.data,
+      };
+    case ACTION.SET_WALLET:
+      return {
+        ...state,
+        wallet: action.data,
+      };
+
+    case ACTION.SET_HASWALLET:
+      return {
+        ...state,
+        hasWallet: action.data,
+      };
+
     default:
       return state;
   }

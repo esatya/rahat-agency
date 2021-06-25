@@ -1,10 +1,8 @@
-import React, { createContext, useReducer, useCallback } from 'react';
+import React, { createContext, useReducer } from 'react';
 
 import * as Service from '../services/appSettings';
 import appReduce from '../reducers/appSettingsReducer';
 import ACTION from '../actions/appSettings';
-import { APP_CONSTANTS } from '../constants';
-import DataService from '../services/db';
 
 const initialState = {
   settings: {
@@ -19,9 +17,10 @@ const initialState = {
     activeHeaderPos: 'fixed',
     activeLayout: 'full',
   },
-  network: null,
-  wallet: null,
   appSettings: { title: 'App Details' },
+  tempIdentity: '',
+  wallet: null,
+  hasWallet: false,
 };
 
 export const AppContext = createContext(initialState);
@@ -46,6 +45,17 @@ export const AppContextProvider = ({ children }) => {
         .catch((err) => reject(err));
     });
   }
+  function setTempIdentity(tempIdentity) {
+    dispatch({ type: ACTION.SET_TEMP_IDENTITY, data: tempIdentity });
+  }
+
+  function setHasWallet(hasWallet) {
+    dispatch({ type: ACTION.SET_HASWALLET, data: hasWallet });
+  }
+
+  function setWallet(wallet) {
+    dispatch({ type: ACTION.SET_WALLET, data: wallet });
+  }
 
   function setWallet(wallet) {
     dispatch({ type: ACTION.SET_WALLET, data: wallet });
@@ -56,11 +66,13 @@ export const AppContextProvider = ({ children }) => {
       value={{
         settings: state.settings,
         appSettings: state.appSettings,
+        tempIdentity: state.tempIdentity,
+        hasWallet: state.hasWallet,
         wallet: state.wallet,
-        network: state.network,
-        initApp,
-        setWallet,
         getAppSettings,
+        setTempIdentity,
+        setHasWallet,
+        setWallet,
       }}
     >
       {children}

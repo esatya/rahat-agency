@@ -9,6 +9,7 @@ const networkList = [
     name: 'rumsan_test',
     url: 'https://testnetwork.esatya.io',
     display: 'Rumsan Test Network',
+    default: true,
   },
   {
     name: 'mainnet',
