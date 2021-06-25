@@ -118,8 +118,10 @@ export default function DetailsForm(props) {
         getBalance(payload.phone);
         setLoading(false);
         resetTokenIssueForm();
+        togglePasscodeModal()
       })
       .catch((err) => {
+        togglePasscodeModal()
         addToast(err.message, {
           appearance: "error",
           autoDismiss: true,
