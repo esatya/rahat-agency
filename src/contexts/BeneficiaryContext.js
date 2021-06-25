@@ -1,8 +1,9 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer ,useContext} from "react";
 import beneficiaryReduce from "../reducers/beneficiaryReducer";
 import * as Service from "../services/beneficiary";
 import * as AidService from "../services/aid";
 import ACTION from "../actions/beneficiary";
+import {AppContext} from './AppSettingsContext';
 
 const initialState = {
   list: [],
@@ -16,16 +17,20 @@ const initialState = {
 export const BeneficiaryContext = createContext(initialState);
 export const BeneficiaryContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(beneficiaryReduce, initialState);
+  const {wallet,appSettings,changeIsverified} = useContext(AppContext);
 
   async function getAvailableBalance(proejctId, rahatAdminContractAddr) {
-    return AidService.loadAidBalance(proejctId, rahatAdminContractAddr);
+    const { rahat:rahatContractAddr } = appSettings.agency.contracts;
+    return AidService.loadAidBalance(proejctId, rahatContractAddr);
   }
 
-  const issueTokens = async (payload, contractAddress) => {
-    await AidService.issueBeneficiaryToken(payload, contractAddress);
+  const issueTokens = async (payload) => {
+    const { rahat:rahatContractAddr } = appSettings.agency.contracts;
+    await AidService.issueBeneficiaryToken(wallet,payload, rahatContractAddr);
+    changeIsverified(false);
     let balance = await Service.getBeneficiaryBalance(
       payload.phone,
-      contractAddress
+      rahatContractAddr
     );
     dispatch({ type: ACTION.SET_TOKEN_BALANCE, data: balance });
     return payload;

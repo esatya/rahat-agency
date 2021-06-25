@@ -1,8 +1,9 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer,useContext } from "react";
 import vendorReduce from "../reducers/vendorReducer";
 import * as Service from "../services/vendor";
 import * as AidService from "../services/aid";
 import ACTION from "../actions/vendor";
+import {AppContext} from './AppSettingsContext';
 
 const initialState = {
   list: [],
@@ -17,6 +18,7 @@ const initialState = {
 export const VendorContext = createContext(initialState);
 export const VendorContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(vendorReduce, initialState);
+  const {wallet,appSettings,changeIsverified} = useContext(AppContext);
 
   async function getVendorBalance(contract_addr, wallet_address) {
     return Service.getVendorBalance(contract_addr, wallet_address);
@@ -46,8 +48,10 @@ export const VendorContextProvider = ({ children }) => {
     });
   }
 
-  async function approveVendor(vendorId, payload) {
-    const res = await Service.approveVendor(vendorId, payload);
+  async function approveVendor( payload) {
+    const { rahat:rahatContractAddr } = appSettings.agency.contracts;
+    const res = await Service.approveVendor(wallet,payload,rahatContractAddr);
+    changeIsverified(false);
     if (res) {
       setVendor(res.data);
       return res.data;

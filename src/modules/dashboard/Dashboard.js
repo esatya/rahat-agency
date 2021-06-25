@@ -6,6 +6,7 @@ import AgencyTokens from './allocated_tokens';
 import TotalStats from './total_stats';
 import BeneficiaryStats from './beneficiary_stats';
 import TokensByProject from './tokens_by_project';
+import {AppContext} from '../../contexts/AppSettingsContext';
 
 import { UserContext } from '../../contexts/UserContext';
 
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const { addToast } = useToasts();
 
   const { getDashboardStats } = useContext(UserContext);
+  const {initApp} = useContext(AppContext)
   const [stats, setStats] = useState({
     totalProjects: 0,
     totalVendors: 0,
@@ -44,6 +46,12 @@ const Dashboard = () => {
   };
 
   useEffect(fetchDashboardStats, []);
+
+	useEffect(() => {
+		(async () => {
+			initApp();
+		})();
+	}, [initApp]);
 
   return (
     <>

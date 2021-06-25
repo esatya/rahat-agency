@@ -1,7 +1,8 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useContext, useReducer } from "react";
 import aidReduce from "../reducers/aidReducer";
 import * as Service from "../services/aid";
 import ACTION from "../actions/aid";
+import {AppContext} from './AppSettingsContext';
 
 const initialState = {
   aids: [],
@@ -22,7 +23,7 @@ const initialState = {
 export const AidContext = createContext(initialState);
 export const AidContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(aidReduce, initialState);
-
+  const {wallet,appSettings,changeIsverified} = useContext(AppContext);
   function getAidDetails(aidId) {
     return new Promise((resolve, reject) => {
       Service.getAidDetails(aidId)
@@ -37,8 +38,11 @@ export const AidContextProvider = ({ children }) => {
   }
 
   async function addProjectBudget(aidId, supplyToken, contract_addr) {
-    let d = await Service.addProjectBudget(aidId, supplyToken, contract_addr);
-    let balance = await Service.loadAidBalance(aidId, contract_addr);
+    // const wallet = await Wallet.loadWallet('123123');
+     const { rahat:rahatContractAddr } = appSettings.agency.contracts;
+    let d = await Service.addProjectBudget(wallet,aidId, supplyToken, contract_addr);
+    changeIsverified(false);
+    let balance = await Service.loadAidBalance(aidId, rahatContractAddr);
     if (balance) {
       dispatch({ type: ACTION.GET_BALANCE, res: balance });
       return d;
@@ -57,14 +61,15 @@ export const AidContextProvider = ({ children }) => {
     return res;
   }
 
-  async function getAidBalance(aidId, rahatAdminContractAddr) {
+  async function getAidBalance(aidId) {
+    const { rahat_admin,rahat } = appSettings.agency.contracts;
     let _available = await Service.loadAidBalance(
       aidId,
-      rahatAdminContractAddr
+      rahat
     );
     let _capital = await Service.getProjectCapital(
       aidId,
-      rahatAdminContractAddr
+      rahat_admin
     );
     dispatch({ type: ACTION.PROJECT_CAPITAL, res: _capital ? _capital : 0 });
     dispatch({
