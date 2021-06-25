@@ -1,8 +1,9 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer,useCallback } from 'react';
 
 import * as Service from '../services/appSettings';
 import appReduce from '../reducers/appSettingsReducer';
 import ACTION from '../actions/appSettings';
+import DataService from '../services/db';
 
 const initialState = {
   settings: {
@@ -30,6 +31,15 @@ export const AppContext = createContext(initialState);
 export const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReduce, initialState);
 
+  const initApp = useCallback(async () => {
+
+		let data = await DataService.initAppData();
+		data.hasWallet = data.wallet === null ? false : true;
+		if (!data.hasWallet) localStorage.removeItem('address');
+		dispatch({ type: ACTION.INIT_APP, data });
+  }, [dispatch]);
+  
+
   function getAppSettings() {
     return new Promise((resolve, reject) => {
       Service.getSettings()
@@ -40,6 +50,7 @@ export const AppContextProvider = ({ children }) => {
         .catch((err) => reject(err));
     });
   }
+
   function setTempIdentity(tempIdentity) {
     dispatch({ type: ACTION.SET_TEMP_IDENTITY, data: tempIdentity });
   }
@@ -73,7 +84,8 @@ export const AppContextProvider = ({ children }) => {
         setHasWallet,
         setWallet,
         setWalletPasscode,
-        changeIsverified
+        changeIsverified,
+        initApp
       }}
     >
       {children}

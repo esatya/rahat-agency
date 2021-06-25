@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext ,useCallback} from 'react';
 import { Input } from 'reactstrap';
 
 import { AppContext } from '../../contexts/AppSettingsContext';
@@ -6,7 +6,7 @@ import ModalWrapper from './LiteModal';
 import Wallet from '../../utils/blockchain/wallet';
 import { APP_CONSTANTS } from '../../constants';
 export default function UnlockWallet({ open, onClose }) {
-  const { hasWallet, walletPasscode, setWallet, changeIsverified, setWalletPasscode } = useContext(AppContext);
+  const { hasWallet, walletPasscode, setWallet, changeIsverified, setWalletPasscode,initApp } = useContext(AppContext);
   const PASSCODE_LENGTH = APP_CONSTANTS.PASSCODE_LENGTH;
 
   const [passcodeModal, setPasscodeModal] = useState(false);
@@ -35,6 +35,7 @@ export default function UnlockWallet({ open, onClose }) {
         return;
       }
       setLoadingMessage(<span style={{ color: 'green' }}>Verified</span>);
+
       setPasscodeModal(!passcodeModal);
       return changeIsverified(true);
     } else {
@@ -43,6 +44,7 @@ export default function UnlockWallet({ open, onClose }) {
         setWallet(wlt);
         setWalletPasscode(code);
         setLoadingMessage(<span style={{ color: 'green' }}>Verified</span>);
+
         setPasscodeModal(!passcodeModal);
         return changeIsverified(true);
       } catch (err) {
@@ -61,15 +63,19 @@ export default function UnlockWallet({ open, onClose }) {
     setPasscodeModal(!passcodeModal);
     onClose(!passcodeModal);
   };
-  // const initializeWallet = useCallback(() => {
-  //   async function initWallet() {
-  //     await initApp();
-  //   }
-  //   initWallet();
-  // }, [initApp]);
 
-  // useEffect(initializeWallet, []);
+  const initializeWallet = useCallback(() => {
+
+    async function initWallet() {
+      await initApp();
+    }
+    initWallet();
+  }, [initApp]);
+
+  useEffect(initializeWallet, []);
+
   useEffect(() => {
+    setLoadingMessage('Enter 6 digit passcode');
     setPasscodeModal(open);
   }, [open]);
 
