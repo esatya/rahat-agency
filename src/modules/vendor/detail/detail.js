@@ -20,6 +20,9 @@ import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/1.jpg';
 import IdPhoto from '../../../assets/images/id-icon-1.png';
+import UnlockWallet from '../../global/walletUnlock';
+import Loading from "../../global/Loading";
+
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -35,8 +38,11 @@ export default function DetailsForm(props) {
     getVendorTransactions,
     transactionHistory,
   } = useContext(VendorContext);
-  const { appSettings } = useContext(AppContext);
+  const { appSettings,isVerified } = useContext(AppContext);
   const [vendorBalance, setVendorBalance] = useState('');
+  const [passcodeModal, setPasscodeModal] = useState(false);
+  const [loading,setLoading] = useState(false);
+  const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
   const loadVendorDetails = () => {
     getVendorDetails(vendorId)
@@ -93,18 +99,33 @@ export default function DetailsForm(props) {
     }
   };
 
-  useEffect(loadVendorDetails, []);
+  const submitVendorApproval = (e)=> {
+    if (!isVerified) return;
+    let payload = {
+      status: 'active',
+      wallet_address: vendor.wallet_address,
+      vendorId: vendorId,
+    };
+    
+  approveVendor(payload).then(()=> {
+    setLoading(false);
+    togglePasscodeModal()
+    addToast('Vendor approved successfully.', {
+      appearance: 'success',
+      autoDismiss: true,
+    });
+  }).catch(()=>{
+    setLoading(false);
+    togglePasscodeModal()
+    addToast('Invalid vendor wallet address!', {
+      appearance: 'error',
+      autoDismiss: true,
+    });
+  })
+  }
 
   const handleVendorApprove = async (e) => {
     e.preventDefault();
-    let contract_addr = appSettings.agency.contracts.rahat;
-    let wallet = vendor.wallet_address;
-    let payload = {
-      status: 'active',
-      wallet_address: wallet,
-      contract_address: contract_addr,
-    };
-    try {
       let swal = await Swal.fire({
         title: 'Are you sure?',
         text: `You want to approve this vendor!`,
@@ -115,25 +136,26 @@ export default function DetailsForm(props) {
         confirmButtonText: 'Yes',
       });
       if (swal.isConfirmed) {
-        await approveVendor(vendorId, payload);
-        addToast('Vendor approved successfully.', {
-          appearance: 'success',
-          autoDismiss: true,
-        });
+        setLoading(true);
+        togglePasscodeModal();
+        // await approveVendor(vendorId, payload);
+        // addToast('Vendor approved successfully.', {
+        //   appearance: 'success',
+        //   autoDismiss: true,
+        // });
       }
-    } catch {
-      addToast('Invalid vendor wallet address!', {
-        appearance: 'error',
-        autoDismiss: true,
-      });
-    }
-  };
+      };
+
+  useEffect(loadVendorDetails, []);
+  useEffect(submitVendorApproval, [isVerified]);
 
   const vendor_status =
     vendor && vendor.agencies ? vendor.agencies[0].status : 'new';
 
   return (
     <>
+            <UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
+
       <Row>
         <Col md="12">
           <Card>
@@ -177,13 +199,21 @@ export default function DetailsForm(props) {
                         </Button>
                       </ButtonGroup>
                     ) : (
-                      <Button
-                        onClick={handleVendorApprove}
-                        className="btn"
-                        color="info"
-                      >
-                        Approve
-                      </Button>
+                      
+                        loading?(
+                          <Loading />
+                          ):
+                        (
+                          <Button
+                          onClick={handleVendorApprove}
+                          className="btn"
+                          color="info"
+                        >
+                          Approve
+                        </Button>
+                        )
+                      
+                      
                     )}
                   </div>
                 </div>

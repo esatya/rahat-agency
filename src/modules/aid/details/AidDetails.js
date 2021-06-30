@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   ButtonGroup,
   Button,
@@ -15,14 +15,18 @@ import Swal from "sweetalert2";
 import { AppContext } from "../../../contexts/AppSettingsContext";
 import { AidContext } from "../../../contexts/AidContext";
 import Loading from "../../global/Loading";
+import UnlockWallet from '../../global/walletUnlock';
 
 export default function AidDetails(props) {
   const { addToast } = useToasts();
-  const { appSettings } = useContext(AppContext);
+  const { appSettings,isVerified } = useContext(AppContext);
   const [inputTokens, setInputToken] = useState("");
   const [projectDetails, setProjectDetails] = useState(null);
+  const [passcodeModal, setPasscodeModal] = useState(false);
   const projectId = props.aidId;
 
+
+  const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal));
   const {
     balance,
     getAidDetails,
@@ -34,11 +38,11 @@ export default function AidDetails(props) {
     changeProjectStatus,
   } = useContext(AidContext);
 
-  const loadAidDetails = () => {
+  const loadAidDetails = useCallback(() => {
     getAidDetails(projectId)
       .then((d) => {
         setProjectDetails(d);
-        loadBalance();
+        getAidBalance(projectId);
       })
       .catch(() => {
         addToast("Internal server error.", {
@@ -46,14 +50,15 @@ export default function AidDetails(props) {
           autoDismiss: true,
         });
       });
-  };
+  },[addToast, getAidBalance, getAidDetails, projectId])
 
   const handleInputChange = (e) => {
     let { value } = e.target;
     setInputToken(value);
   };
 
-  const addProjectBalance = () => {
+  const addProjectBalance = useCallback(() => {
+    if (!isVerified) return;
     const { rahat_admin } = appSettings.agency.contracts;
     setLoading();
     addProjectBudget(projectId, inputTokens, rahat_admin)
@@ -65,9 +70,11 @@ export default function AidDetails(props) {
           appearance: "success",
           autoDismiss: true,
         });
-        loadBalance();
+        getAidBalance(projectId);
+        togglePasscodeModal();
       })
       .catch((err) => {
+        togglePasscodeModal()
         let err_msg = "Something went wrong!!";
         if (err.code === 4001) err_msg = err.message;
         resetLoading();
@@ -76,7 +83,7 @@ export default function AidDetails(props) {
           autoDismiss: true,
         });
       });
-  };
+  },[addProjectBudget, addToast, appSettings.agency.contracts, getAidBalance, inputTokens, isVerified, projectId, resetLoading, setLoading, togglePasscodeModal]);
 
   const handleTokenSubmit = (e) => {
     e.preventDefault();
@@ -88,19 +95,14 @@ export default function AidDetails(props) {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        addProjectBalance();
+      togglePasscodeModal();
       }
     });
   };
+  useEffect(addProjectBalance, [isVerified]);
 
-  const loadBalance = () => {
-    const { rahat_admin } = appSettings.agency.contracts;
-    getAidBalance(projectId, rahat_admin)
-      .then()
-      .catch(() => {});
-  };
 
   useEffect(loadAidDetails, []);
 
@@ -134,9 +136,12 @@ export default function AidDetails(props) {
   };
 
   const { available } = balance;
+  console.log({passcodeModal})
 
   return (
     <>
+    <UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
+
       <Form onSubmit={handleTokenSubmit}>
         <FormGroup>
           <ButtonGroup>
