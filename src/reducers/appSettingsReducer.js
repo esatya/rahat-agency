@@ -9,6 +9,14 @@ export default (state, action) => {
         appSettings: result,
       };
 
+      case ACTION.INIT_APP:
+        return {
+          ...state,
+          address: action.data.address,
+          network: action.data.network,
+          hasWallet: action.data.hasWallet
+        };
+
     case ACTION.SET_TEMP_IDENTITY:
       return {
         ...state,
@@ -25,6 +33,16 @@ export default (state, action) => {
         ...state,
         hasWallet: action.data,
       };
+      case ACTION.SET_APP_PASSCODE:
+      return {
+        ...state,
+        walletPasscode: action.data
+      };
+      case ACTION.CHANGE_ISVERIFIED:
+        return {
+          ...state,
+          isVerified: action.data
+        };
 
     default:
       return state;

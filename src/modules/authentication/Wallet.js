@@ -15,7 +15,7 @@ import { AppContext } from '../../contexts/AppSettingsContext';
 import Logo from '../../assets/images/logo-dark.png';
 import DataService from '../../services/db';
 
-const NODE_URL = process.env.REACT_APP_BLOCKCHAIN_NODE;
+const NETWORK_URL = process.env.REACT_APP_BLOCKCHAIN_NETWORK;
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');
 
@@ -51,15 +51,15 @@ const Wallet = () => {
       window.ethereum.enable();
       signer = new ethers.providers.Web3Provider(window.ethereum).getSigner();
     } else {
-      signer = new ethers.providers.JsonRpcProvider(NODE_URL).getSigner();
+      signer = new ethers.providers.JsonRpcProvider(NETWORK_URL).getSigner();
     }
     return signer;
   };
   function getRandomString(length) {
-    var randomChars =
+    let randomChars =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var result = '';
-    for (var i = 0; i < length; i++) {
+    let result = '';
+    for (let i = 0; i < length; i++) {
       result += randomChars.charAt(
         Math.floor(Math.random() * randomChars.length)
       );
@@ -133,7 +133,9 @@ const Wallet = () => {
           tempIdentity.privateKey, // privateKey
           encWalletData // encrypted-data
         );
+        const address = JSON.parse(decrypted).address; 
         await DataService.saveWallet(decrypted);
+        await DataService.saveAddress(address)
       }
 
       if (data.action === 'access-granted') {

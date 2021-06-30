@@ -3,9 +3,10 @@ import axios from "axios";
 import API from "../constants/api";
 import { getUserToken } from "../utils/sessionManager";
 import CONTRACT from "../constants/contracts";
-import { getContract,getContractByProvider } from "../blockchain/abi";
+import { getContractByProvider } from "../blockchain/abi";
 
 const access_token = getUserToken();
+const faucet_auth_token = process.env.REACT_APP_BLOCKCHAIN_FAUCET_AUTH_TOKEN;
 
 const mapTestContract = (contract) => ({
   addVendor: contract.addVendor,
@@ -20,13 +21,21 @@ export async function getVendorBalance(contract_address, wallet_addr) {
   return data.toNumber();
 }
 
-export async function approveVendor(vendorId, payload) {
-  const contract = await getContract(payload.contract_address, CONTRACT.RAHAT);
-  const myContract = mapTestContract(contract);
+export async function approveVendor(wallet, payload,contract_address) {
+  try{
+  const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+  const signerContract = contract.connect(wallet);
+  const myContract = mapTestContract(signerContract);
   const data = await myContract.addVendor(payload.wallet_address);
   if (!data) return "Vendor approve failed!";
-  const res = await changeVendorStaus(vendorId, payload.status);
+  const res = await changeVendorStaus(payload.vendorId, payload.status);
+  getEth({address:payload.wallet_address});
   return res;
+  }
+  catch(e){
+    console.log(e);
+    throw Error(e);
+  }
 }
 
 export async function changeVendorStaus(vendorId, status) {
@@ -109,6 +118,16 @@ export async function approve({ vendorId }) {
       access_token,
     },
     data: { vendorId },
+  });
+
+  return res.data;
+}
+
+export async function getEth({ address }) {
+  const res = await axios({
+    url: API.FAUCET,
+    method: "post",
+    data: { address,token:faucet_auth_token },
   });
 
   return res.data;
