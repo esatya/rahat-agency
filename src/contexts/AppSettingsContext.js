@@ -24,7 +24,9 @@ const initialState = {
 	hasWallet: false,
 	walletPasscode: null,
 	isVerified: false,
-	loading: false
+	loading: false,
+	openPasscodeModal: false,
+	walletActionMsg: null
 };
 
 export const AppContext = createContext(initialState);
@@ -49,8 +51,16 @@ export const AppContextProvider = ({ children }) => {
 		});
 	}
 
+	function setPasscodeModal(flag) {
+		dispatch({ type: ACTION.SET_PASSCODE_MODAL, data: flag });
+	}
+
 	function setLoading(flag) {
 		dispatch({ type: ACTION.SET_LOADING, data: flag });
+	}
+
+	function setWalletActionMsg(msg) {
+		dispatch({ type: ACTION.SET_WALLET_ACTION_MSG, data: msg });
 	}
 
 	function setTempIdentity(tempIdentity) {
@@ -82,6 +92,10 @@ export const AppContextProvider = ({ children }) => {
 				walletPasscode: state.walletPasscode,
 				isVerified: state.isVerified,
 				loading: state.loading,
+				openPasscodeModal: state.openPasscodeModal,
+				walletActionMsg: state.walletActionMsg,
+				setWalletActionMsg,
+				setPasscodeModal,
 				setLoading,
 				getAppSettings,
 				setTempIdentity,

@@ -133,7 +133,7 @@ export const AidContextProvider = ({ children }) => {
 	}
 
 	function bulkTokenIssueToBeneficiary(payload) {
-		return Service.bulkTokenIssueToBeneficiary({ ...payload, wallet });
+		return Service.bulkTokenIssueToBeneficiary({ ...payload });
 	}
 
 	return (

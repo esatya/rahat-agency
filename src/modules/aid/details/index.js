@@ -8,23 +8,34 @@ import BeneficiaryList from './BeneficiaryList';
 import TokenDetails from './TokenDetails';
 import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
-
 import ModalWrapper from '../../global/CustomModal';
-
-import { TOAST } from '../../../constants';
-
-const FETCH_LIMIT = 200;
+import { TOAST, APP_CONSTANTS } from '../../../constants';
+import { APP } from '../../../constants/api';
+import Wallet from '../../../utils/blockchain/wallet';
 
 export default function Details({ match }) {
 	const aidId = match.params.id;
 	const { beneficiaryByAid, bulkTokenIssueToBeneficiary } = useContext(AidContext);
-	const { appSettings, setLoading, loading } = useContext(AppContext);
+	const {
+		appSettings,
+		setLoading,
+		loading,
+		setWallet,
+		openPasscodeModal,
+		setPasscodeModal,
+		walletPasscode,
+		setWalletPasscode,
+		walletActionMsg,
+		setWalletActionMsg
+	} = useContext(AppContext);
 
 	const { addToast } = useToasts();
 
 	const [modal, setModal] = useState(false);
 	const [amount, setAmount] = useState('');
 	const [currentAction, setCurrentAction] = useState('');
+	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
+	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
 
 	const toggleModal = action => {
 		if (action) setCurrentAction(action);
@@ -34,7 +45,7 @@ export default function Details({ match }) {
 	const handleAmountChange = e => setAmount(e.target.value);
 
 	const fetchBeneficiaryByProject = () => {
-		beneficiaryByAid(aidId, { limit: FETCH_LIMIT })
+		beneficiaryByAid(aidId, { limit: APP_CONSTANTS.BULK_BENEFICIARY_LIMIT })
 			.then(res => {
 				const { data } = res;
 				if (data && data.length) return generateBulkQRCodes(data);
@@ -48,36 +59,75 @@ export default function Details({ match }) {
 	};
 
 	const bulkTokenIssue = async () => {
-		let amount_collection = [];
+		let beneficiary_tokens = [];
 		if (!amount) return addToast('Please enter token amount', TOAST.ERROR);
 
-		const { data } = await beneficiaryByAid(aidId, { limit: FETCH_LIMIT });
+		const { data } = await beneficiaryByAid(aidId, { limit: APP.BULK_BENEFICIARY_LIMIT });
 		if (data.length) {
-			const beneficiaryPhones = data.map(d => d.phone);
-			const len = beneficiaryPhones.length;
+			const beneficiary_phones = data.map(d => d.phone);
+			const len = beneficiary_phones.length;
 			if (len < 1) return addToast('No phone number found', TOAST.ERROR);
-			setLoading(true);
 			for (let i = 0; i < len; i++) {
-				amount_collection.push(amount);
+				beneficiary_tokens.push(amount);
 			}
+			setBeneficiaryTokens(beneficiary_tokens);
+			setBeneficiaryPhones(beneficiary_phones);
+			toggleModal();
+			setPasscodeModal(true);
+		}
+	};
+
+	const handlePasscodeChange = async e => {
+		const { value } = e.target;
+		setWalletPasscode(value);
+		if (value.length === APP_CONSTANTS.PASSCODE_LENGTH) {
+			const _wallet = await verifyPasscodeAndGetWallet(value);
+			if (!_wallet) {
+				setWalletPasscode('');
+				setPasscodeModal(true);
+				setWalletActionMsg(<span style={{ color: 'red' }}>Please enter valid passcode</span>);
+			} else {
+				setWalletPasscode('');
+				setPasscodeModal(false);
+				setWalletActionMsg(<span style={{ color: 'green' }}>Wallet verified!</span>);
+				setWallet(_wallet);
+				return submitBeneficiaryTokens({ phones: beneficiaryPhones, amounts: beneficiaryTokens, wallet: _wallet });
+			}
+		}
+	};
+
+	const verifyPasscodeAndGetWallet = async passcodeInput => {
+		setWalletActionMsg('Verifying your passcode. Please wait...');
+		try {
+			let w = await Wallet.loadWallet(passcodeInput);
+			return w;
+		} catch (e) {
+			setWalletPasscode('');
+			setPasscodeModal(true);
+			setWalletActionMsg(<span style={{ color: 'red' }}>Please enter valid passcode</span>);
+		}
+	};
+
+	const submitBeneficiaryTokens = async ({ phones, amounts, wallet }) => {
+		try {
+			setLoading(true);
 			const { contracts } = appSettings.agency;
-			try {
-				let res = await bulkTokenIssueToBeneficiary({
-					projectId: aidId,
-					phone_numbers: beneficiaryPhones,
-					token_amounts: amount_collection,
-					contract_address: contracts.rahat
-				});
-				if (res) {
-					toggleModal();
-					setAmount('');
-					return addToast(`Each of ${len} beneficiaries has been assigned ${amount} tokens`, TOAST.SUCCESS);
-				}
-			} catch (err) {
-				addToast(err.message, TOAST.ERROR);
-			} finally {
-				setLoading(true);
+			let res = await bulkTokenIssueToBeneficiary({
+				projectId: aidId,
+				phone_numbers: phones,
+				token_amounts: amounts,
+				contract_address: contracts.rahat,
+				wallet
+			});
+			if (res) {
+				setWalletActionMsg('');
+				setAmount('');
+				return addToast(`Each of ${phones.length} beneficiaries has been assigned ${amount} tokens`, TOAST.SUCCESS);
 			}
+		} catch (err) {
+			addToast(err.message, TOAST.ERROR);
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -168,6 +218,33 @@ export default function Details({ match }) {
 
 	return (
 		<>
+			{/* PASSCODE MODAL */}
+			<ModalWrapper
+				toggle={() => setPasscodeModal(false)}
+				open={openPasscodeModal}
+				title="Verify Wallet"
+				loading={loading}
+				hideFooter={true}
+			>
+				<FormGroup>
+					<InputGroup>
+						<Input
+							disabled={walletPasscode && walletPasscode.length === 6 ? true : false}
+							type="text"
+							className="verify-input pwd"
+							value={walletPasscode || ''}
+							placeholder="Enter 6-digit passcode"
+							onChange={handlePasscodeChange}
+							maxLength="6"
+						/>
+					</InputGroup>
+				</FormGroup>
+				<FormGroup>
+					<InputGroup>{walletActionMsg ? walletActionMsg : ''}</InputGroup>
+				</FormGroup>
+			</ModalWrapper>
+
+			{/* BENEFICIARY TOKEN MODAL */}
 			<ModalWrapper
 				toggle={toggleModal}
 				open={modal}
@@ -217,18 +294,25 @@ export default function Details({ match }) {
 									<Col md="2">
 										<div>
 											<Button
+												disabled={loading}
 												onClick={() => toggleModal('bulk_issue')}
 												type="button"
 												className="btn pull-right"
 												color="info"
 											>
-												Bulk Token Issue
+												{loading ? 'Please wait...' : 'Bulk Token Issue'}
 											</Button>
 										</div>
 									</Col>
 									<Col md="2">
 										<div>
-											<Button onClick={() => toggleModal('bulk_export')} type="button" className="btn" color="info">
+											<Button
+												disabled={loading}
+												onClick={() => toggleModal('bulk_export')}
+												type="button"
+												className="btn"
+												color="info"
+											>
 												Bulk QRCode Export{' '}
 											</Button>
 										</div>
