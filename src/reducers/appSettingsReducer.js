@@ -9,6 +9,9 @@ export default (state, action) => {
 				appSettings: result
 			};
 
+		case ACTION.SET_PASSCODE_MODAL:
+			return { ...state, openPasscodeModal: action.data };
+
 		case ACTION.INIT_APP:
 			return {
 				...state,
@@ -21,6 +24,12 @@ export default (state, action) => {
 			return {
 				...state,
 				loading: action.data
+			};
+
+		case ACTION.SET_WALLET_ACTION_MSG:
+			return {
+				...state,
+				walletActionMsg: action.data
 			};
 
 		case ACTION.SET_TEMP_IDENTITY:

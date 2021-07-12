@@ -5,24 +5,29 @@ import PropTypes from 'prop-types';
 import Loading from './Loading';
 
 export default function CustomModal(props) {
+	const { open, toggle, title, children, loading, hideFooter } = props;
 	return (
 		<>
-			<Modal isOpen={props.open} toggle={props.toggle.bind(null)} className={props.className || ''}>
+			<Modal isOpen={open} toggle={toggle.bind(null)} className={props.className || ''} centered>
 				<Form onSubmit={props.handleSubmit}>
-					<ModalHeader toggle={props.toggle.bind(null)}>{props.title || 'Modal Title'}</ModalHeader>
-					<ModalBody>{props.children || 'No child elements supplied.'}</ModalBody>
-					<ModalFooter>
-						{props.loading ? (
-							<Loading />
-						) : (
-							<Button type="submit" color="primary">
-								Submit
+					<ModalHeader toggle={toggle.bind(null)}>{title || 'Modal Title'}</ModalHeader>
+					<ModalBody>{children || 'No child elements supplied.'}</ModalBody>
+					{hideFooter ? (
+						''
+					) : (
+						<ModalFooter>
+							{loading ? (
+								<Loading />
+							) : (
+								<Button type="submit" color="primary">
+									Submit
+								</Button>
+							)}
+							<Button color="secondary" onClick={toggle.bind(null)}>
+								Cancel
 							</Button>
-						)}
-						<Button color="secondary" onClick={props.toggle.bind(null)}>
-							Cancel
-						</Button>
-					</ModalFooter>
+						</ModalFooter>
+					)}
 				</Form>
 			</Modal>
 		</>
