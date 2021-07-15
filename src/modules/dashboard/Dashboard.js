@@ -2,10 +2,9 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
-import AgencyTokens from './allocated_tokens';
-import TotalStats from './total_stats';
 import BeneficiaryStats from './beneficiary_stats';
 import TokensByProject from './tokens_by_project';
+import { StatsCard } from '../ui_components/cards';
 
 import { UserContext } from '../../contexts/UserContext';
 
@@ -54,16 +53,55 @@ const Dashboard = () => {
 	return (
 		<>
 			<Row>
-				<Col md="4">
+				<Col md="3">
+					<StatsCard
+						title="Projects"
+						title_color="#2b7ec1"
+						icon_color="#2b7ec1"
+						icon_name="fas fa-clone"
+						data={stats.totalProjects}
+					/>
+				</Col>
+				<Col md="3">
+					<StatsCard
+						title="Beneficiary"
+						title_color="#80D5AA"
+						icon_color="#80D5AA"
+						icon_name="fas fa-users"
+						data={stats.totalBeneficiaries}
+					/>
+				</Col>
+				<Col md="3">
+					<StatsCard
+						title="Vendors"
+						title_color="#F49786"
+						icon_color="#F49786"
+						icon_name="fas fa-anchor"
+						data={stats.totalVendors}
+					/>
+				</Col>
+				<Col md="3">
+					<StatsCard
+						title="Financial Institutions"
+						title_color="#F7C087"
+						icon_color="#F7C087"
+						icon_name="fas fa-dollar-sign"
+						data={stats.totalProjects}
+					/>
+				</Col>
+				{/* <Col md="3">
 					<AgencyTokens allocatedTokens={stats.totalAllocation} />
 				</Col>
-				<Col md="8">
+				<Col md="3">
+					<AgencyTokens allocatedTokens={stats.totalAllocation} />
+				</Col> */}
+				{/* <Col md="8">
 					<TotalStats
 						vendors={stats.totalVendors}
 						projects={stats.totalProjects}
 						beneficiaries={stats.totalBeneficiaries}
 					/>
-				</Col>
+				</Col> */}
 			</Row>
 			<Row>
 				<Col md="8">

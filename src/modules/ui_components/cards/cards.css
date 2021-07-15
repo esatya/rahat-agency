@@ -1,0 +1,29 @@
+.title {
+	color: #2b7ec1;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	font-family: 'Be Vietnam' !important;
+	font-style: normal;
+	line-height: 20px;
+	letter-spacing: 0em;
+	text-align: left;
+}
+
+.stat-card-body {
+	background: #ffffff;
+	box-shadow: 0px 4px 15px 3px rgba(196, 196, 196, 0.15);
+	border-radius: 10px !important;
+	padding: 20px;
+}
+
+.card-font-medium {
+	font-weight: 400;
+}
+
+.sub-title {
+	font-weight: 400;
+	margin-bottom: 0px;
+	color: #9b9b9b;
+	font-size: 14px;
+	margin: 0;
+}
