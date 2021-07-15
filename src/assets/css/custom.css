@@ -1,6 +1,6 @@
 body,
 html {
-	font-family: 'Roboto, Poppins, Lato';
+	font-family: 'Be Vietnam';
 }
 .error-box {
 	height: 100%;
@@ -74,4 +74,19 @@ a:focus {
 .v-border {
 	height: 50px;
 	border-left: 2px solid rgba(43, 126, 193, 0.5);
+}
+.active {
+	background: rgba(43, 126, 193, 0.1);
+	border-right: 3px solid #2b7ec1;
+}
+.card {
+	box-shadow: 0px 4px 15px 3px rgba(196, 196, 196, 0.15);
+	-moz-box-shadow: 0px 4px 15px 3px rgba(196, 196, 196, 0.15);
+	-o-box-shadow: 0px 4px 15px 3px rgba(196, 196, 196, 0.15);
+}
+.left-sidebar {
+	top: 12px;
+}
+.sidebar-nav ul li {
+	margin-top: 10px;
 }
