@@ -3,7 +3,7 @@ import { Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
 import BeneficiaryStats from './beneficiary_stats';
-import TokensByProject from './tokens_by_project';
+import BeneficiaryByProject from './beneficiary_by_project';
 import { StatsCard } from '../ui_components/cards';
 
 import { UserContext } from '../../contexts/UserContext';
@@ -108,7 +108,7 @@ const Dashboard = () => {
 					<BeneficiaryStats data={stats.beneficiariesByProject} />
 				</Col>
 				<Col md="4">
-					<TokensByProject data={stats.tokensByProject} />
+					<BeneficiaryByProject data={stats.beneficiariesByProject} />
 				</Col>
 			</Row>
 		</>
