@@ -32,3 +32,46 @@ a:focus {
 .page-wrapper {
 	background: #ffffff;
 }
+.card .card-title {
+	font-family: Be Vietnam;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 18px;
+	line-height: 26px;
+	color: #6b6c72;
+}
+.custom-label {
+	font-style: normal;
+	font-weight: 550;
+	font-size: 14px;
+	line-height: 20px;
+	color: #2b7ec1;
+}
+.flex-container {
+	margin-top: 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.flex-item {
+	flex-basis: '33%';
+}
+.token-counts {
+	font-style: normal;
+	font-weight: 545;
+	font-size: 24px;
+	line-height: 35.06px;
+	color: #6b6c72;
+	margin-bottom: 0;
+}
+.token-label {
+	font-style: normal;
+	font-weight: 548;
+	font-size: 14px;
+	line-height: 20px;
+	color: #9b9b9b;
+}
+.v-border {
+	height: 50px;
+	border-left: 2px solid rgba(43, 126, 193, 0.5);
+}
