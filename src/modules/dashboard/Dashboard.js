@@ -64,7 +64,7 @@ const Dashboard = () => {
 				</Col>
 				<Col md="3">
 					<StatsCard
-						title="Beneficiary"
+						title="Beneficiaries"
 						title_color="#80D5AA"
 						icon_color="#80D5AA"
 						icon_name="fas fa-users"

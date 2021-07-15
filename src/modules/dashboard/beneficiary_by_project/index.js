@@ -10,6 +10,8 @@ let pieData = {
 	datasets: [
 		{
 			data: _data,
+			pointRadius: 1,
+			pointHitRadius: 10,
 			backgroundColor: ['#245064', '#80D5AA', '#F49786', '#F7C087', '#2b7ec1', '#fb6340', '#527855'],
 			hoverBackgroundColor: ['#245064', '#80D5AA', '#F49786', '#F7C087', '#2b7ec1', '#fb6340', '#527855'],
 			hoverOffset: 100
@@ -51,7 +53,7 @@ export default function Index(props) {
 			<Card>
 				<CardBody>
 					<CardTitle>Beneficiaries by project ({data.length})</CardTitle>
-					<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 350 }}>
+					<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 230 }}>
 						<Pie
 							data={pieData}
 							options={{

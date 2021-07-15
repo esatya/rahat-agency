@@ -13,15 +13,17 @@ export default function Stats(props) {
 						{title || 'No Title'}
 					</CardTitle>
 					<br />
-					<div style={{ display: 'flex', justifyContent: 'space-between', margin: 0 }}>
-						<h4 style={{ flexBasis: '70%' }} className="card-font-medium">
+					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+						<h2 style={{ flexBasis: '70%' }} className="card-font-medium">
 							{data || '0'}
-						</h4>
+						</h2>
 						<h2 style={{ flexBasis: '30%' }} className="card-font-medium">
 							<i style={{ color: icon_color || '#222' }} class={icon_name}></i>
 						</h2>
 					</div>
-					<div className="sub-title">Total {title}</div>
+					<div style={{ marginTop: 0 }} className="sub-title">
+						Total {title}
+					</div>
 				</div>
 				{/* <div className="earningsbox mt-1"></div> */}
 			</Card>
