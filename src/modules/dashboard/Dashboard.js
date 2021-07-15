@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
-import BeneficiaryStats from './beneficiary_stats';
+import TokenByProject from './tokens_by_project';
 import BeneficiaryByProject from './beneficiary_by_project';
 import { StatsCard } from '../ui_components/cards';
 
@@ -43,12 +43,6 @@ const Dashboard = () => {
 	};
 
 	useEffect(fetchDashboardStats, []);
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		initApp();
-	// 	})();
-	// }, [initApp]);
 
 	return (
 		<>
@@ -105,7 +99,7 @@ const Dashboard = () => {
 			</Row>
 			<Row>
 				<Col md="8">
-					<BeneficiaryStats data={stats.beneficiariesByProject} />
+					<TokenByProject data={stats.beneficiariesByProject} />
 				</Col>
 				<Col md="4">
 					<BeneficiaryByProject data={stats.beneficiariesByProject} />
