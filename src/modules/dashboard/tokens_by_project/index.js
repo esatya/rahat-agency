@@ -3,19 +3,19 @@ import { Bar } from 'react-chartjs-2';
 import { Card, CardBody, CardTitle } from 'reactstrap';
 
 const barChartData = {
-	labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+	labels: ['Project 1', 'Project 2', 'Project 3', 'Project 4', 'Project 5', 'Project 6'],
 	datasets: [
 		{
 			label: 'Token Redeem',
 			backgroundColor: '#2B7EC1',
 			stack: '2',
-			data: [30, 50, 20, 40, 50, 30, 20, 110]
+			data: [30, 50, 20, 40, 50, 30]
 		},
 		{
 			label: 'Token Released',
 			backgroundColor: '#DBEBF4',
 			stack: '2',
-			data: [10, 0, 5, 15, 0, 4, 8, 8]
+			data: [10, 15, 5, 20, 30, 24]
 		}
 	]
 };
