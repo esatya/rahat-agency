@@ -90,3 +90,20 @@ a:focus {
 .sidebar-nav ul li {
 	margin-top: 10px;
 }
+.btn-info {
+	background-color: #2b7ec1;
+	border-color: #2b7ec1;
+	box-shadow: 0px 4px 15px 3px rgba(83, 167, 216, 0.15);
+	border-radius: 8px;
+}
+.btn-info:hover {
+	background-color: #2b7ec1;
+	border-color: #2b7ec1;
+}
+.page-item.active .page-link {
+	background-color: #2b7ec1;
+	border-color: #2b7ec1;
+}
+a {
+	color: #6b6c72;
+}

@@ -115,11 +115,9 @@ const Beneficiary = () => {
 		<div className="main">
 			<div className="transaction-table-container">
 				<Card>
-					<CardTitle className="mb-0 p-3 border-bottom bg-light">
+					<CardTitle className="mb-0 p-3 border-bottom">
 						<Row>
-							<Col md="4">
-								<i className="mdi mdi-border-right mr-2"></i>Beneficiary List
-							</Col>
+							<Col md="4">Beneficiary List</Col>
 							<Col md="6">
 								<div
 									style={{
@@ -184,8 +182,8 @@ const Beneficiary = () => {
 								<tr className="border-0">
 									<th className="border-0">Name</th>
 									<th className="border-0">Phone</th>
-									<th className="border-0">Govt. ID</th>
 									<th className="border-0">Address</th>
+									<th className="border-0">Govt. ID</th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
@@ -206,11 +204,11 @@ const Beneficiary = () => {
 													</div>
 												</td>
 												<td>{d.phone}</td>
-												<td>{d.govt_id ? d.govt_id : '-'}</td>
 												<td>{d.address}</td>
-												<td className="blue-grey-text  text-darken-4 font-medium">
-													<Link className="btn btn-secondary" to={`/beneficiaries/${d._id}`}>
-														Details
+												<td>{d.govt_id ? d.govt_id : '-'}</td>
+												<td>
+													<Link to={`/beneficiaries/${d._id}`}>
+														<i class="fas fa-eye fa-lg"></i>
 													</Link>
 												</td>
 											</tr>
