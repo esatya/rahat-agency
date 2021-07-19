@@ -17,8 +17,10 @@ const Dashboard = () => {
 		totalVendors: 0,
 		totalBeneficiaries: 0,
 		totalAllocation: 0,
+		redeemedTokens: 0,
 		beneficiariesByProject: [],
-		tokensByProject: []
+		tokensByProject: [],
+		totalInstitutions: 0
 	});
 
 	const fetchDashboardStats = () => {
@@ -30,8 +32,10 @@ const Dashboard = () => {
 					totalVendors: d.vendorCount,
 					totalBeneficiaries: d.beneficiary.totalCount,
 					totalAllocation: d.tokenAllocation.totalAllocation,
+					redeemedTokens: d.tokenRedemption.totalTokenRedemption,
 					beneficiariesByProject: d.beneficiary.project,
-					tokensByProject: d.tokenAllocation.projectAllocation
+					tokensByProject: d.tokenAllocation.projectAllocation,
+					totalInstitutions: d.institutionCount
 				}));
 			})
 			.catch(() => {
@@ -80,29 +84,20 @@ const Dashboard = () => {
 						title_color="#F7C087"
 						icon_color="#F7C087"
 						icon_name="fas fa-dollar-sign"
-						data={stats.totalProjects}
+						data={stats.totalInstitutions}
 					/>
 				</Col>
-				{/* <Col md="3">
-					<AgencyTokens allocatedTokens={stats.totalAllocation} />
-				</Col>
-				<Col md="3">
-					<AgencyTokens allocatedTokens={stats.totalAllocation} />
-				</Col> */}
-				{/* <Col md="8">
-					<TotalStats
-						vendors={stats.totalVendors}
-						projects={stats.totalProjects}
-						beneficiaries={stats.totalBeneficiaries}
-					/>
-				</Col> */}
 			</Row>
 			<Row>
 				<Col md="8">
-					<TokenByProject data={stats.beneficiariesByProject} />
+					<TokenByProject data={stats.tokensByProject} />
 				</Col>
 				<Col md="4">
-					<BeneficiaryByProject data={stats.beneficiariesByProject} />
+					<BeneficiaryByProject
+						releasedToken={stats.totalAllocation}
+						redeemedTokens={stats.redeemedTokens}
+						data={stats.beneficiariesByProject}
+					/>
 				</Col>
 			</Row>
 		</>

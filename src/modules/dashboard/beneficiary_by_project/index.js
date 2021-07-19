@@ -20,7 +20,8 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { data } = props;
+	const { releasedToken, redeemedTokens, data } = props;
+
 	if (data && data.length) {
 		_labels = [];
 		_data = [];
@@ -31,6 +32,8 @@ export default function Index(props) {
 		pieData.labels = _labels;
 		pieData.datasets[0].data = _data;
 	}
+
+	console.log({ releasedToken });
 	return (
 		<div>
 			<Card>
@@ -39,12 +42,12 @@ export default function Index(props) {
 					<br />
 					<div className="flex-container">
 						<div className="flex-item">
-							<p className="token-counts">2000000</p>
+							<p className="token-counts">{releasedToken}</p>
 							<span className="token-label">Total released</span>
 						</div>
 						<div className="flex-item v-border"></div>
 						<div className="flex-item">
-							<p className="token-counts">50000</p>
+							<p className="token-counts">{redeemedTokens}</p>
 							<p className="token-label">Total redeem</p>
 						</div>
 					</div>
