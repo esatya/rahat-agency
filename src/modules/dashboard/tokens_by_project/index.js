@@ -3,20 +3,18 @@ import { Bar } from 'react-chartjs-2';
 import { Card, CardBody, CardTitle } from 'reactstrap';
 
 const barChartData = {
-	labels: ['Project 1', 'Project 2', 'Project 3', 'Project 4', 'Project 5', 'Project 6'],
 	datasets: [
 		{
-			label: 'Token Redeem',
+			label: 'Tokens Allocated',
 			backgroundColor: '#2B7EC1',
-			stack: '2',
-			data: [30, 50, 20, 40, 50, 30]
-		},
-		{
-			label: 'Token Released',
-			backgroundColor: '#DBEBF4',
-			stack: '2',
-			data: [10, 15, 5, 20, 30, 24]
+			stack: '2'
 		}
+		// {
+		// 	label: 'Token Released',
+		// 	backgroundColor: '#DBEBF4',
+		// 	stack: '2',
+		// 	data: [10, 15, 5, 20, 30, 24]
+		// }
 	]
 };
 
@@ -30,32 +28,35 @@ const barChartOptions = {
 		xAxes: [
 			{
 				gridLines: { display: false },
-				stacked: true,
+				// stacked: true,
 				barThickness: 40
 			}
 		],
 		yAxes: [
 			{
-				gridLines: { borderDash: [4, 2] },
-				stacked: true
+				gridLines: { borderDash: [4, 2] }
+				// stacked: true
 			}
 		]
 	}
 };
 
 const Index = props => {
-	// const { data } = props;
-	// if (data && data.length) {
-	// 	_labels = [];
-	// 	_data = [];
-	// 	for (let d of data) {
-	// 		_labels.push(d.name);
-	// 		_data.push(d.count);
-	// 	}
-	// }
+	const { data } = props;
 
-	// barData.labels = _labels;
-	// barData.datasets[0].data = _data;
+	let bar_labels = [];
+	let bar_data = [];
+
+	if (data && data.length) {
+		bar_labels = [];
+		for (let d of data) {
+			bar_labels.push(d.name);
+			bar_data.push(d.token);
+		}
+	}
+
+	barChartData.labels = bar_labels;
+	barChartData.datasets[0].data = bar_data;
 
 	return (
 		<div>
