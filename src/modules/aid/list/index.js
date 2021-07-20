@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
-	Row,
-	Col,
 	Button,
 	Card,
 	CardBody,
@@ -103,7 +101,7 @@ const List = () => {
 					<div className="toolbar-flex-container">
 						<div style={{ flex: 1, padding: 10 }}>
 							<input
-								style={{ width: '50%' }}
+								style={{ width: '40%' }}
 								className="custom-input-box"
 								value={searchName || ''}
 								onChange={handleSearchInputChange}
