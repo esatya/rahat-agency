@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
-	Row,
-	Col,
 	Button,
 	Card,
 	CardBody,
@@ -29,6 +27,8 @@ const List = () => {
 	const [aidModal, setaidModal] = useState(false);
 	const [aidPayload, setaidPayload] = useState({ name: '' });
 
+	const [searchName, setSearchName] = useState('');
+
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
@@ -36,6 +36,8 @@ const List = () => {
 	const handleInputChange = e => {
 		setaidPayload({ ...aidPayload, [e.target.name]: e.target.value });
 	};
+
+	const handleSearchInputChange = e => setSearchName(e.target.value);
 
 	const handleAidSubmit = e => {
 		e.preventDefault();
@@ -62,8 +64,9 @@ const List = () => {
 		return loadAidList({ start: _start, limit: pagination.limit });
 	};
 
-	const loadAidList = query => {
-		if (!query) query = null;
+	const loadAidList = () => {
+		let query = {};
+		if (searchName) query.name = searchName;
 		listAid(query)
 			.then()
 			.catch(() => {
@@ -74,7 +77,7 @@ const List = () => {
 			});
 	};
 
-	useEffect(loadAidList, []);
+	useEffect(loadAidList, [searchName]);
 
 	return (
 		<>
@@ -95,17 +98,18 @@ const List = () => {
 			</AidModal>
 			<Card>
 				<CardTitle className="mb-0 p-3">
-					<Row>
-						<Col md="4">
-							<Input placeholder="Search by name" style={{ width: '100%' }} />
-						</Col>
-						<Col md="6">
-							<div
-								style={{
-									float: 'right',
-									display: 'flex'
-								}}
-							>
+					<div className="toolbar-flex-container">
+						<div style={{ flex: 1, padding: 10 }}>
+							<input
+								style={{ width: '40%' }}
+								className="custom-input-box"
+								value={searchName || ''}
+								onChange={handleSearchInputChange}
+								placeholder="Search by name..."
+							/>
+						</div>
+						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+							<div className="flex-item">
 								<CustomInput
 									type="select"
 									id="exampleCustomSelect"
@@ -113,27 +117,27 @@ const List = () => {
 									defaultValue=""
 									style={{ width: 'auto' }}
 								>
-									<option value="">Filter by status</option>
+									<option value="">--Select Status--</option>
 									<option value="active">Active</option>
 									<option value="draft">Draft</option>
 								</CustomInput>
 							</div>
-						</Col>
-						<Col md="2">
-							<div style={{ marginLeft: 30 }}>
+							<div className="flex-item">
 								<Button onClick={toggleModal} className="btn" color="info">
 									Add New
 								</Button>
 							</div>
-						</Col>
-					</Row>
+						</div>
+					</div>
 				</CardTitle>
 				<CardBody>
 					<Table className="no-wrap v-middle" responsive>
 						<thead>
 							<tr className="border-0">
 								<th className="border-0">Name</th>
-								<th className="border-0">Created At</th>
+								<th className="border-0">Location</th>
+								<th className="border-0">Project Manager</th>
+								<th className="border-0">Created Date</th>
 								<th className="border-0">Status</th>
 								<th className="border-0">Action</th>
 							</tr>
@@ -144,6 +148,8 @@ const List = () => {
 									return (
 										<tr key={d._id}>
 											<td>{d.name}</td>
+											<td>Kavre</td>
+											<td>Shrawan Khadka</td>
 											<td>{moment(d.created_at).format('MMM Do YY')}</td>
 											<td>{d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">

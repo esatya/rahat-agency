@@ -64,7 +64,7 @@ const Index = props => {
 				<CardBody>
 					<CardTitle>Tokens by project</CardTitle>
 					<br />
-					<div className="chart-wrapper" style={{ width: '100%', margin: '0 auto', height: 400 }}>
+					<div className="chart-wrapper" style={{ width: '100%', margin: '0 auto', height: 420 }}>
 						{/* <Bar data={barChartData} options={barChartOptions} /> */}
 						<Bar data={barChartData} options={barChartOptions} />
 					</div>
