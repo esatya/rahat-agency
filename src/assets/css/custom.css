@@ -137,7 +137,7 @@ a {
 
 .flex-item {
 	width: 160px;
-	padding: 10px;
+	margin: 10px;
 }
 
 .flex-tools-group {
