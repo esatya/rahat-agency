@@ -14,7 +14,6 @@ const InstitutionDetails = lazy(() => import('../modules/institution/detail/inde
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
 const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index'));
 
-const Settings = lazy(() => import('../modules/settings'));
 const Onboard = lazy(() => import('../modules/onboard'));
 const ListUsers = lazy(() => import('../modules/user/list'));
 const AddUser = lazy(() => import('../modules/user/add'));
@@ -83,15 +82,7 @@ var AppRoutes = [
 		showInSidebar: true
 	},
 	{
-		path: '/users',
-		name: 'Users',
-		icon: 'user-plus',
-		component: ListUsers,
-		showInSidebar: true
-	},
-	{
 		path: '/add_user',
-		exact: true,
 		name: 'Users',
 		component: AddUser
 	},
@@ -117,25 +108,23 @@ var AppRoutes = [
 	{
 		collapse: true,
 		path: '/dashboard',
-		name: 'Admin',
-		state: 'dashboardpages',
+		name: 'Administration',
+		state: 'admin',
 		showInSidebar: false,
-
 		icon: 'lock',
 		child: [
-			{
-				path: '/settings',
-				name: 'Settings',
-				mini: 'B',
-				icon: 'mdi mdi-adjust',
-				component: Settings
-			},
+			// {
+			// 	path: '/settings',
+			// 	name: 'Settings',
+			// 	mini: 'B',
+			// 	icon: 'mdi mdi-adjust',
+			// 	component: Settings
+			// },
 			{
 				path: '/users',
 				name: 'Users',
-				mini: 'B',
 				icon: 'mdi mdi-adjust',
-				component: Dashboard
+				component: ListUsers
 			}
 		]
 	},

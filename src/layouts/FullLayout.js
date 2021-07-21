@@ -7,13 +7,19 @@ import Footer from './layout-components/footer/Footer';
 import AppRoutes from '../routes/Router';
 import Spinner from '../modules/spinner';
 import { AppContext } from '../contexts/AppSettingsContext';
+import { getUser } from '../utils/sessionManager';
+import { ROLES } from '../constants';
 
 export default props => {
 	const [width, setWidth] = useState(window.innerWidth);
 
 	const { settings, initApp } = useContext(AppContext);
 
+	const { roles } = getUser();
+	const is_admin = roles.includes(ROLES.ADMIN);
+
 	const SidebarRoutes = AppRoutes.filter(d => {
+		if (is_admin && d.state === 'admin') d.showInSidebar = true;
 		return d.showInSidebar === true;
 	});
 
