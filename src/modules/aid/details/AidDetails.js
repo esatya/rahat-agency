@@ -7,6 +7,10 @@ import { AppContext } from '../../../contexts/AppSettingsContext';
 import { AidContext } from '../../../contexts/AidContext';
 import Loading from '../../global/Loading';
 import UnlockWallet from '../../global/walletUnlock';
+import { getUser } from '../../../utils/sessionManager';
+import { ROLES } from '../../../constants';
+
+const current_user = getUser();
 
 export default function AidDetails(props) {
 	const { addToast } = useToasts();
@@ -184,23 +188,29 @@ export default function AidDetails(props) {
 
 				{projectDetails && projectDetails.status === 'draft' ? (
 					<InputGroup>
-						<Input
-							type="number"
-							name="assign_tokens"
-							placeholder="Enter number of token balance to be added."
-							value={inputTokens || ''}
-							onChange={handleInputChange}
-							required
-						/>
-						<InputGroupAddon addonType="append">
-							{loading ? (
-								<Loading />
-							) : (
-								<Button type="submit" color="primary">
-									Add Budget
-								</Button>
-							)}
-						</InputGroupAddon>
+						{current_user && current_user.roles.includes(ROLES.ADMIN) ? (
+							<div>
+								<Input
+									type="number"
+									name="assign_tokens"
+									placeholder="Enter number of token balance to be added."
+									value={inputTokens || ''}
+									onChange={handleInputChange}
+									required
+								/>
+								<InputGroupAddon addonType="append">
+									{loading ? (
+										<Loading />
+									) : (
+										<Button type="submit" color="primary">
+											Add Budget
+										</Button>
+									)}
+								</InputGroupAddon>
+							</div>
+						) : (
+							''
+						)}
 					</InputGroup>
 				) : projectDetails && projectDetails.status === 'active' ? (
 					<InputGroup>
