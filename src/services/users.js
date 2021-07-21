@@ -1,8 +1,16 @@
 import API from '../constants/api';
 import axios from 'axios';
 import { saveUser, saveUserToken, saveUserPermissions, getUserToken } from '../utils/sessionManager';
+import CONTRACT from '../constants/contracts';
+import { getContractByProvider } from '../blockchain/abi';
+import { ROLES } from '../constants';
 
 const access_token = getUserToken();
+
+const mapContractToMethod = contract => ({
+	addOwner: contract.addOwner,
+	addAdmin: contract.addAdmin
+});
 
 export async function dashboardStats() {
 	let res = await axios.get(`${API.APP}/dashboards`, {
@@ -58,17 +66,43 @@ export async function listUsers(params) {
 	return res.data;
 }
 
-export function addUser(payload) {
-	return new Promise((resolve, reject) => {
-		axios
-			.post(API.USERS, payload, {
-				headers: { access_token: access_token }
-			})
-			.then(res => {
-				resolve(res.data);
-			})
-			.catch(err => {
-				reject(err.response.data);
+export async function addUser({ payload, rahat, rahat_admin, wallet }) {
+	try {
+		const b_user = await saveRoleToBlockchain({
+			role: payload.roles[0],
+			rahat,
+			rahat_admin,
+			wallet,
+			wallet_address: payload.wallet_address
+		});
+		if (b_user) {
+			const res = await axios({
+				url: API.USERS,
+				method: 'Post',
+				data: payload,
+				headers: { access_token }
 			});
-	});
+			return res.data;
+		}
+	} catch (err) {
+		throw err;
+	}
+}
+
+async function saveRoleToBlockchain({ role, rahat, rahat_admin, wallet, wallet_address }) {
+	const admin_contract = await getContractByProvider(rahat_admin, CONTRACT.RAHATADMIN);
+	const rahat_contract = await getContractByProvider(rahat, CONTRACT.RAHAT);
+	if (role === ROLES.MANAGER) {
+		const signed_contract = rahat_contract.connect(wallet);
+		const my_contract = mapContractToMethod(signed_contract);
+		return my_contract.addAdmin(wallet_address);
+	}
+	if (role === ROLES.ADMIN) {
+		const sign_admin_contract = admin_contract.connect(wallet);
+		const sign_rahat_contract = rahat_contract.connect(wallet);
+		const my_admin_contract = mapContractToMethod(sign_admin_contract);
+		const my_rahat_contract = mapContractToMethod(sign_rahat_contract);
+		await my_rahat_contract.addAdmin(wallet_address);
+		return my_admin_contract.addOwner(wallet_address);
+	}
 }
