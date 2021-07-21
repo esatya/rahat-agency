@@ -45,7 +45,7 @@ export const UserContextProvider = ({ children }) => {
 	}
 
 	function addUser(payload) {
-		return Service.addUser(payload);
+		return Service.addUser({ ...payload });
 	}
 
 	return (

@@ -79,7 +79,7 @@ export default function UnlockWallet({ open, onClose }) {
 				{
 					<Input
 						required
-						type="text"
+						type="password"
 						className="verify-input pwd"
 						defaultValue={e => e.target.value}
 						onChange={handlePasscodeChange}
