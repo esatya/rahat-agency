@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
 import { UserContext } from '../../../contexts/UserContext';
+import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
 
 const List = () => {
@@ -17,6 +18,8 @@ const List = () => {
 		current_page: 1
 	});
 	const [users, setUsers] = useState([]);
+
+	const handleAddUserClick = () => History.push('/add_user');
 
 	const handleSearchInputChange = e => setSearchName(e.target.value);
 
@@ -59,7 +62,7 @@ const List = () => {
 						</div>
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<div className="flex-item">
-								<Button className="btn" color="info">
+								<Button type="button" onClick={handleAddUserClick} className="btn" color="info">
 									Add New
 								</Button>
 							</div>

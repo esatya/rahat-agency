@@ -57,3 +57,18 @@ export async function listUsers(params) {
 	});
 	return res.data;
 }
+
+export function addUser(payload) {
+	return new Promise((resolve, reject) => {
+		axios
+			.post(API.USERS, payload, {
+				headers: { access_token: access_token }
+			})
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err.response.data);
+			});
+	});
+}
