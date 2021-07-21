@@ -54,6 +54,19 @@ export function loginUsingMetamask(payload) {
 	});
 }
 
+export function checkExistingUser(payload) {
+	return new Promise((resolve, reject) => {
+		axios
+			.post(`${API.USERS}/check`, payload, { headers: { access_token } })
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err.response.data);
+			});
+	});
+}
+
 export async function listUsers(params) {
 	const res = await axios({
 		url: `${API.USERS}`,
@@ -68,6 +81,8 @@ export async function listUsers(params) {
 
 export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 	try {
+		const { phone, email, wallet_address } = payload;
+		await checkExistingUser({ phone, email, wallet_address });
 		const b_user = await saveRoleToBlockchain({
 			role: payload.roles[0],
 			rahat,

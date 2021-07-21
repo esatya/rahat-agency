@@ -44,7 +44,7 @@ const List = () => {
 			});
 	};
 
-	useEffect(fetchUserList, [searchName, pagination.start]);
+	useEffect(fetchUserList, [pagination.start]);
 
 	return (
 		<>
@@ -85,7 +85,7 @@ const List = () => {
 								users.map(d => {
 									return (
 										<tr key={d._id}>
-											<td>{d.full_name}</td>
+											<td>{`${d.name.first} ${d.name.last}`}</td>
 											<td>{d.email}</td>
 											<td>{d.phone || '-'}</td>
 											<td>{d.roles.toString()}</td>

@@ -48,6 +48,10 @@ export const UserContextProvider = ({ children }) => {
 		return Service.addUser({ ...payload });
 	}
 
+	function checkExistingUser(payload) {
+		return Service.checkExistingUser(payload);
+	}
+
 	return (
 		<UserContext.Provider
 			value={{
@@ -56,6 +60,7 @@ export const UserContextProvider = ({ children }) => {
 				addUser,
 				listUsers,
 				verifyToken,
+				checkExistingUser,
 				getDashboardStats,
 				loginUsingMetamask
 			}}
