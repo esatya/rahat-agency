@@ -44,11 +44,16 @@ export const UserContextProvider = ({ children }) => {
 		return Service.listUsers(params);
 	}
 
+	function addUser(payload) {
+		return Service.addUser(payload);
+	}
+
 	return (
 		<UserContext.Provider
 			value={{
 				user_info: state.user_info,
 				dashboardStats: state.dashboardStats,
+				addUser,
 				listUsers,
 				verifyToken,
 				getDashboardStats,

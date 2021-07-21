@@ -16,7 +16,8 @@ const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index
 
 const Settings = lazy(() => import('../modules/settings'));
 const Onboard = lazy(() => import('../modules/onboard'));
-const UsersList = lazy(() => import('../modules/user/list'));
+const ListUsers = lazy(() => import('../modules/user/list'));
+const AddUser = lazy(() => import('../modules/user/add'));
 
 var AppRoutes = [
 	{
@@ -85,8 +86,14 @@ var AppRoutes = [
 		path: '/users',
 		name: 'Users',
 		icon: 'user-plus',
-		component: UsersList,
+		component: ListUsers,
 		showInSidebar: true
+	},
+	{
+		path: '/add_user',
+		exact: true,
+		name: 'Users',
+		component: AddUser
 	},
 	{
 		path: '/institutions/:id',
