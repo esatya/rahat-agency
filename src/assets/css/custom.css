@@ -79,6 +79,7 @@ a:focus {
 .active {
 	background: rgba(43, 126, 193, 0.1);
 	border-right: 3px solid #2b7ec1;
+	color: #2b7ec1 !important;
 }
 .card {
 	box-shadow: 0px 4px 15px 3px rgba(196, 196, 196, 0.15);

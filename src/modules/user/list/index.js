@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Card, CardBody, CardTitle, Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
 import { UserContext } from '../../../contexts/UserContext';
@@ -77,7 +77,7 @@ const List = () => {
 								<th className="border-0">Email</th>
 								<th className="border-0">Phone</th>
 								<th className="border-0">Role</th>
-								<th className="border-0">Action</th>
+								{/* <th className="border-0">Action</th> */}
 							</tr>
 						</thead>
 						<tbody>
@@ -89,11 +89,11 @@ const List = () => {
 											<td>{d.email}</td>
 											<td>{d.phone || '-'}</td>
 											<td>{d.roles.toString()}</td>
-											<td className="blue-grey-text  text-darken-4 font-medium">
+											{/* <td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/users/${d._id}`}>
 													<i class="fas fa-eye fa-lg"></i>
 												</Link>
-											</td>
+											</td> */}
 										</tr>
 									);
 								})
