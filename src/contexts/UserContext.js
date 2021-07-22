@@ -48,8 +48,16 @@ export const UserContextProvider = ({ children }) => {
 		return Service.addUser({ ...payload });
 	}
 
+	function updateUser(userId, payload) {
+		return Service.updateUser(userId, payload);
+	}
+
 	function checkExistingUser(payload) {
 		return Service.checkExistingUser(payload);
+	}
+
+	function getUserById(userId) {
+		return Service.getUserById(userId);
 	}
 
 	return (
@@ -57,6 +65,8 @@ export const UserContextProvider = ({ children }) => {
 			value={{
 				user_info: state.user_info,
 				dashboardStats: state.dashboardStats,
+				updateUser,
+				getUserById,
 				addUser,
 				listUsers,
 				verifyToken,
