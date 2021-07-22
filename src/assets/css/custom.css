@@ -110,6 +110,13 @@ a {
 	color: #6b6c72;
 }
 
+.btn-info:not(:disabled):not(.disabled):active,
+.btn-info:not(:disabled):not(.disabled).active,
+.show > .btn-info.dropdown-toggle {
+	background-color: #2b7ec1;
+	border-color: #2b7ec1;
+}
+
 .custom-input-box {
 	height: calc(2em + 0.75rem + 2px);
 	width: '100%' !important;
