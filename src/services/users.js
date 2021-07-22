@@ -4,6 +4,7 @@ import { saveUser, saveUserToken, saveUserPermissions, getUserToken } from '../u
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
 import { ROLES } from '../constants';
+import { getEth } from './vendor';
 
 const access_token = getUserToken();
 
@@ -116,6 +117,7 @@ export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 			wallet_address: payload.wallet_address
 		});
 		if (b_user) {
+			await getEth({ address: wallet_address });
 			const res = await axios({
 				url: API.USERS,
 				method: 'Post',

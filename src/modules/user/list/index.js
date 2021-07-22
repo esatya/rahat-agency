@@ -15,7 +15,8 @@ const List = () => {
 	const [pagination, setPagination] = useState({
 		start: 0,
 		total_pages: 0,
-		current_page: 1
+		current_page: 1,
+		limit: 10
 	});
 	const [users, setUsers] = useState([]);
 
@@ -25,7 +26,7 @@ const List = () => {
 
 	const handlePagination = current_page => {
 		let _start = (current_page - 1) * pagination.limit;
-		return fetchUserList({ start: _start, limit: pagination.limit });
+		setPagination({ ...pagination, start: _start });
 	};
 
 	const fetchUserList = () => {
@@ -34,10 +35,10 @@ const List = () => {
 		if (pagination.start) query.start = pagination.start;
 		listUsers(query)
 			.then(res => {
-				const { start, total, limit, data } = res;
+				const { page, start, total, limit, data } = res;
 				const total_pages = Math.ceil(total / limit);
 				setUsers(data);
-				setPagination({ ...pagination, start, total_pages });
+				setPagination({ ...pagination, start, total_pages, current_page: page });
 			})
 			.catch(err => {
 				addToast(err.message, TOAST.ERROR);
@@ -123,7 +124,7 @@ const List = () => {
 							{[...Array(pagination.total_pages)].map((p, i) => (
 								<PaginationItem
 									key={i}
-									active={pagination.currentPage === i + 1 ? true : false}
+									active={pagination.current_page === i + 1 ? true : false}
 									onClick={() => handlePagination(i + 1)}
 								>
 									<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
