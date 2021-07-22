@@ -1,6 +1,7 @@
 body,
 html {
 	font-family: 'Be Vietnam';
+	font-size: 16px;
 }
 .error-box {
 	height: 100%;
@@ -78,6 +79,7 @@ a:focus {
 .active {
 	background: rgba(43, 126, 193, 0.1);
 	border-right: 3px solid #2b7ec1;
+	color: #2b7ec1 !important;
 }
 .card {
 	box-shadow: 0px 4px 15px 3px rgba(196, 196, 196, 0.15);
@@ -106,4 +108,40 @@ a:focus {
 }
 a {
 	color: #6b6c72;
+}
+
+.custom-input-box {
+	height: calc(2em + 0.75rem + 2px);
+	width: '100%' !important;
+	border-radius: 8px;
+	display: block;
+	padding: 0.375rem 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #525f7f;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #e9ecef;
+	box-shadow: none;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.toolbar-flex-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.flex-search-box {
+	width: '48%';
+}
+
+.flex-item {
+	width: 160px;
+	margin: 10px;
+}
+
+.flex-tools-group {
+	display: 'flex';
+	justify-content: space-between;
 }
