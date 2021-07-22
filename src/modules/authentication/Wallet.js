@@ -1,57 +1,23 @@
 import React, { useCallback, useRef, useEffect, useState, useContext } from 'react';
 import { useQRCode } from 'react-qrcodes';
-import { ethers } from 'ethers';
 import EthCrypto from 'eth-crypto';
 import { Card, Row, CardTitle, Col, Button, CardText } from 'reactstrap';
-import { useToasts } from 'react-toast-notifications';
-
-import { UserContext } from '../../contexts/UserContext';
 import { AppContext } from '../../contexts/AppSettingsContext';
-import Logo from '../../assets/images/logo-dark.png';
+import Logo from '../../assets/images/rahat-logo-blue.png';
 import DataService from '../../services/db';
+import './wallet.css';
 
-const NETWORK_URL = process.env.REACT_APP_BLOCKCHAIN_NETWORK;
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');
 const QR_REFRESH_TIME = 30000; // 30
 
 const Wallet = () => {
-	const { addToast } = useToasts();
-
 	const ws = useRef(null);
 	const [qroptions, setQrOptions] = useState({});
 	const [clientId, setclientId] = useState('');
-	const [token, setToken] = useState('');
 	const [refreshCounter, setRefreshCounter] = useState(0);
-
-	const { loginUsingMetamask } = useContext(UserContext);
 	const { setTempIdentity, tempIdentity } = useContext(AppContext);
 
-	const handleMetamaskLogin = async () => {
-		try {
-			let _sign = await signMessage();
-			const payload = { id: clientId, signature: _sign };
-			await loginUsingMetamask(payload);
-		} catch (e) {
-			let error_msg = 'Something went wrong on server!';
-			if (e.code === 4001) error_msg = e.message;
-			addToast(error_msg, {
-				appearance: 'error',
-				autoDismiss: true
-			});
-		}
-	};
-
-	const getSigner = async () => {
-		let signer;
-		if (window.ethereum) {
-			window.ethereum.enable();
-			signer = new ethers.providers.Web3Provider(window.ethereum).getSigner();
-		} else {
-			signer = new ethers.providers.JsonRpcProvider(NETWORK_URL).getSigner();
-		}
-		return signer;
-	};
 	function getRandomString(length) {
 		let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 		let result = '';
@@ -61,18 +27,13 @@ const Wallet = () => {
 		return result;
 	}
 
-	const signMessage = async () => {
-		const wallet = await getSigner();
-		return wallet.signMessage(token);
-	};
-
 	const [inputRef] = useQRCode({
 		text: JSON.stringify(qroptions),
 		options: {
 			level: 'M',
 			margin: 7,
 			scale: 1,
-			width: 250
+			width: 200
 		}
 	});
 
@@ -114,7 +75,7 @@ const Wallet = () => {
 			if (data.data && data.data.token) {
 				const { id, token } = data.data;
 				setclientId(id.toString());
-				setToken(token.toString());
+				// setToken(token.toString());
 				generateQR(id, token);
 			}
 			if (data.action === 'welcome') {
@@ -148,47 +109,59 @@ const Wallet = () => {
 
 	return (
 		<>
-			<div className="error-box">
-				<div className="error-body text-center">
-					<img src={Logo} height="auto" alt="rahat logo"></img>
-					<h4 className="text-grey font-24">Rahat Authentication</h4>
-					<div className="mt-4">
-						{clientId ? <span>Scan QR Code to Login</span> : ''}
-						<div style={{ padding: 15 }}>
-							<canvas ref={inputRef} style={{ display: clientId ? '' : 'none' }} />
+			<Row style={{ height: '100vh' }}>
+				<Col className="left-content">
+					<div className="text-center">
+						<img src={Logo} height="200" width="460" alt="rahat logo"></img>
+						<div style={{ width: '410px' }}>
+							<p className="description">
+								Supporting vulnerable communities with a simple and efficient relief distribution platform.
+							</p>
 						</div>
-
-						<Row>
-							<Col xs="12" md="4" lg="5"></Col>
-							<Col xs="12" md="4" lg="2">
-								{clientId ? (
-									''
-								) : (
-									<Card body inverse color="secondary">
-										<CardTitle>QR Code Expired</CardTitle>
-										<CardText>Generated qrcode will expire in {QR_REFRESH_TIME / 1000} seconds.</CardText>
-										<Button type="button" onClick={handleRefreshQrCode} className="bg-white text-dark">
-											<i className="fas fa-redo"></i> Refresh Now
-										</Button>
-									</Card>
-								)}
-							</Col>
-							<Col xs="12" md="4" lg="5"></Col>
-						</Row>
-
-						<p style={{ color: '#fff' }}>------------OR------------</p>
-						<button onClick={handleMetamaskLogin} className="btn btn-warning">
-							<i className="fab fa-ethereum"></i> Login Using Metamask
-						</button>
 					</div>
-					<div className="text-center" style={{ marginTop: 10 }}>
-						<p className="text-white">New Agency?</p>
-						<a href="/setup" className="btn btn-secondary setup-link ml-1">
-							<b>Setup New</b>
-						</a>
+				</Col>
+				<Col className="right-content">
+					<p className="text-signup">
+						Haven’t registered? <span style={{ color: '#3F9EEB' }}>Sign up now </span>
+					</p>
+					<div className=" text-center">
+						<p className="text-title">Rahat Agency App</p>
+						<div className="mt-4 align-items-center">
+							<div style={{ padding: 15 }}>
+								<canvas ref={inputRef} style={{ display: clientId ? '' : 'none' }} />
+							</div>
+
+							<Row>
+								<Col xs="12" md="2" lg="2"></Col>
+								<Col xs="12" md="8" lg="8">
+									{clientId ? (
+										''
+									) : (
+										<Card body inverse className="card">
+											<CardTitle className="card-title">QR Code Expired</CardTitle>
+											<CardText>Generated qrcode will expire in {QR_REFRESH_TIME / 1000} seconds.</CardText>
+											<Button type="button" onClick={handleRefreshQrCode} className="card-button">
+												<i className="fas fa-redo" style={{ marginRight: '10px' }}></i> Refresh QR Code
+											</Button>
+										</Card>
+									)}
+								</Col>
+								<Col xs="12" md="2" lg="2"></Col>
+							</Row>
+
+							<p className="text-instruction">
+								<i class="fa fa-qrcode" aria-hidden="true" style={{ marginRight: '10px' }}></i>
+								Open Rumsan wallet App and scan the QR code to log in
+							</p>
+
+							{/* <a href=""> */}
+							<p className="text-tutorial">Click to learn how this works.</p>
+							{/* </a> */}
+						</div>
 					</div>
-				</div>
-			</div>
+					<p className="text-copyright">Copyright © 2021 Rumsan Group of Companies | All Rights Reserved.</p>
+				</Col>
+			</Row>
 		</>
 	);
 };
