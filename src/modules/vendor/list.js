@@ -23,7 +23,7 @@ import {
 	CustomInput
 } from 'reactstrap';
 
-import displayPic from '../../assets/images/users/1.jpg';
+import displayPic from '../../assets/images/users/user_avatar.svg';
 
 const searchOptions = { PHONE: 'phone', NAME: 'name' };
 
@@ -92,7 +92,7 @@ const Vendor = () => {
 				<Card>
 					<CardTitle className="mb-0 p-3">
 						<Row>
-							<Col md="4">Vendors List</Col>
+							<Col md="4">Vendors</Col>
 							<Col md="6">
 								<div
 									style={{

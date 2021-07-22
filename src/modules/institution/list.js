@@ -103,7 +103,7 @@ const Institution = () => {
 				<Card>
 					<CardTitle className="mb-0 p-3">
 						<Row>
-							<Col md="4">Institutions List</Col>
+							<Col md="4">Institutions</Col>
 							<Col md="6">
 								<div
 									style={{

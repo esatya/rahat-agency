@@ -97,6 +97,9 @@ const List = () => {
 				</FormGroup>
 			</AidModal>
 			<Card>
+				<CardTitle className="mb-0">
+					<span style={{ paddingLeft: 26 }}>Projects</span>
+				</CardTitle>
 				<CardTitle className="mb-0 p-3">
 					<div className="toolbar-flex-container">
 						<div style={{ flex: 1, padding: 10 }}>
