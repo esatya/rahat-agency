@@ -137,10 +137,10 @@ const Wallet = () => {
 									{clientId ? (
 										''
 									) : (
-										<Card body inverse className="card">
-											<CardTitle className="card-title">QR Code Expired</CardTitle>
+										<Card body inverse className="qr-card">
+											<CardTitle className="qr-card-title">QR Code Expired</CardTitle>
 											<CardText>Generated qrcode will expire in {QR_REFRESH_TIME / 1000} seconds.</CardText>
-											<Button type="button" onClick={handleRefreshQrCode} className="card-button">
+											<Button type="button" onClick={handleRefreshQrCode} className="qr-card-button">
 												<i className="fas fa-redo" style={{ marginRight: '10px' }}></i> Refresh QR Code
 											</Button>
 										</Card>
