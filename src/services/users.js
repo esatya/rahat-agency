@@ -4,6 +4,7 @@ import { saveUser, saveUserToken, saveUserPermissions, getUserToken } from '../u
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
 import { ROLES } from '../constants';
+import { getEth } from './vendor';
 
 const access_token = getUserToken();
 
@@ -79,6 +80,31 @@ export async function listUsers(params) {
 	return res.data;
 }
 
+export async function getUserById(userId) {
+	const res = await axios({
+		url: `${API.USERS}/${userId}`,
+		method: 'Get',
+		headers: {
+			access_token
+		}
+	});
+	return res.data;
+}
+
+export async function updateUser(userId, payload) {
+	delete payload.wallet_address;
+	return new Promise((resolve, reject) => {
+		axios
+			.post(`${API.USERS}/${userId}`, payload, { headers: { access_token } })
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err.response.data);
+			});
+	});
+}
+
 export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 	try {
 		const { phone, email, wallet_address } = payload;
@@ -91,6 +117,7 @@ export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 			wallet_address: payload.wallet_address
 		});
 		if (b_user) {
+			await getEth({ address: wallet_address });
 			const res = await axios({
 				url: API.USERS,
 				method: 'Post',
