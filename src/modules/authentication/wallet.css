@@ -1,0 +1,60 @@
+.left-content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.description{
+    font-size: 16px;
+    color: #6B6C72;
+    text-align: justify;
+    margin-left: 50px;
+}
+.right-content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #326481; 
+    position: relative;
+}
+.text-signup{
+    position: absolute;
+    top: 4vh;        
+    right: 50px;
+    color: #fff;
+}
+.text-title{
+    color: #fff;
+    font-size: 34px;
+}
+.card{
+    text-align: center;
+    justify-content: center;
+    height: 180px;
+    background-color: #C4C4C4; 
+}
+.card-title{
+    color: #6B6C72;
+    margin-bottom: 10px;
+}
+.card-button{
+    background-color: #3F9EEB; 
+    border-radius: 8px;
+    color:white;
+}
+.text-instruction{
+    color: #fff;
+    font-size: 14px;
+}
+.text-tutorial{
+    color: #3F9EEB; 
+    font-size: 14px; 
+    cursor: pointer;
+}
+.text-copyright{
+    color: #fff;
+    position: absolute;
+    bottom: 1vh;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+}
