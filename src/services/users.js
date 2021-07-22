@@ -79,6 +79,31 @@ export async function listUsers(params) {
 	return res.data;
 }
 
+export async function getUserById(userId) {
+	const res = await axios({
+		url: `${API.USERS}/${userId}`,
+		method: 'Get',
+		headers: {
+			access_token
+		}
+	});
+	return res.data;
+}
+
+export async function updateUser(userId, payload) {
+	delete payload.wallet_address;
+	return new Promise((resolve, reject) => {
+		axios
+			.post(`${API.USERS}/${userId}`, payload, { headers: { access_token } })
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err.response.data);
+			});
+	});
+}
+
 export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 	try {
 		const { phone, email, wallet_address } = payload;
