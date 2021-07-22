@@ -21,7 +21,7 @@ import {
 	Row,
 	Col
 } from 'reactstrap';
-import displayPic from '../../assets/images/users/1.jpg';
+import displayPic from '../../assets/images/users/user_avatar.svg';
 
 const searchOptions = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
 
@@ -115,9 +115,9 @@ const Beneficiary = () => {
 		<div className="main">
 			<div className="transaction-table-container">
 				<Card>
-					<CardTitle className="mb-0 p-3 border-bottom">
+					<CardTitle className="mb-0 p-3">
 						<Row>
-							<Col md="4">Beneficiary List</Col>
+							<Col md="4">Beneficiaries</Col>
 							<Col md="6">
 								<div
 									style={{
