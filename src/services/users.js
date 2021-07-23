@@ -105,6 +105,31 @@ export async function updateUser(userId, payload) {
 	});
 }
 
+export async function updateRole({ userId, payload, rahat, rahat_admin, wallet }) {
+	try {
+		const { wallet_address, role } = payload;
+		const b_user = await saveRoleToBlockchain({
+			role: role,
+			rahat,
+			rahat_admin,
+			wallet,
+			wallet_address: wallet_address
+		});
+		if (b_user) {
+			await getEth({ address: wallet_address });
+			const res = await axios({
+				url: `${API.USERS}/${userId}/roles`,
+				method: 'Patch',
+				data: { roles: [role] },
+				headers: { access_token }
+			});
+			return res.data;
+		}
+	} catch (err) {
+		throw err;
+	}
+}
+
 export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 	try {
 		const { phone, email, wallet_address } = payload;

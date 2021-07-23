@@ -12,6 +12,7 @@ import ModalWrapper from '../../global/CustomModal';
 import { TOAST, APP_CONSTANTS } from '../../../constants';
 import { APP } from '../../../constants/api';
 import Wallet from '../../../utils/blockchain/wallet';
+import GrowSpinner from '../../global/GrowSpinner';
 
 export default function Details({ match }) {
 	const aidId = match.params.id;
@@ -23,8 +24,6 @@ export default function Details({ match }) {
 		setWallet,
 		openPasscodeModal,
 		setPasscodeModal,
-		walletPasscode,
-		setWalletPasscode,
 		walletActionMsg,
 		setWalletActionMsg
 	} = useContext(AppContext);
@@ -36,6 +35,7 @@ export default function Details({ match }) {
 	const [currentAction, setCurrentAction] = useState('');
 	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
 	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
+	const [walletPasscode, setWalletPasscode] = useState('');
 
 	const toggleModal = action => {
 		if (action) setCurrentAction(action);
@@ -287,37 +287,41 @@ export default function Details({ match }) {
 					<Card>
 						<CardBody>
 							<div className="bg-light border-bottom p-3 mb-0 card-title">
-								<Row>
-									<Col md="8">
-										<i className="mdi mdi-border-right mr-2"></i>Beneficiary List
-									</Col>
-									<Col md="2">
-										<div>
-											<Button
-												disabled={loading}
-												onClick={() => toggleModal('bulk_issue')}
-												type="button"
-												className="btn pull-right"
-												color="info"
-											>
-												{loading ? 'Please wait...' : 'Bulk Token Issue'}
-											</Button>
-										</div>
-									</Col>
-									<Col md="2">
-										<div>
-											<Button
-												disabled={loading}
-												onClick={() => toggleModal('bulk_export')}
-												type="button"
-												className="btn"
-												color="info"
-											>
-												Bulk QRCode Export{' '}
-											</Button>
-										</div>
-									</Col>
-								</Row>
+								{loading ? (
+									<GrowSpinner />
+								) : (
+									<Row>
+										<Col md="8">
+											<i className="mdi mdi-border-right mr-2"></i>Beneficiary List
+										</Col>
+										<Col md="2">
+											<div>
+												<Button
+													disabled={loading}
+													onClick={() => toggleModal('bulk_issue')}
+													type="button"
+													className="btn pull-right"
+													color="info"
+												>
+													{loading ? 'Please wait...' : 'Bulk Token Issue'}
+												</Button>
+											</div>
+										</Col>
+										<Col md="2">
+											<div>
+												<Button
+													disabled={loading}
+													onClick={() => toggleModal('bulk_export')}
+													type="button"
+													className="btn"
+													color="info"
+												>
+													Bulk QRCode Export{' '}
+												</Button>
+											</div>
+										</Col>
+									</Row>
+								)}
 							</div>
 							<BeneficiaryList aidId={aidId} />
 						</CardBody>
