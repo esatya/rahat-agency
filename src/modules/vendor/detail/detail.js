@@ -89,12 +89,12 @@ export default function DetailsForm(props) {
 
 	const submitVendorApproval = e => {
 		if (!isVerified) return;
+		setLoading(true);
 		let payload = {
 			status: 'active',
 			wallet_address: vendor.wallet_address,
 			vendorId: vendorId
 		};
-
 		approveVendor(payload)
 			.then(() => {
 				setLoading(false);
@@ -126,7 +126,6 @@ export default function DetailsForm(props) {
 			confirmButtonText: 'Yes'
 		});
 		if (swal.isConfirmed) {
-			setLoading(true);
 			togglePasscodeModal();
 			// await approveVendor(vendorId, payload);
 			// addToast('Vendor approved successfully.', {
