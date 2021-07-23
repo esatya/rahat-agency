@@ -60,11 +60,16 @@ export const UserContextProvider = ({ children }) => {
 		return Service.getUserById(userId);
 	}
 
+	function updateRole(data) {
+		return Service.updateRole({ ...data });
+	}
+
 	return (
 		<UserContext.Provider
 			value={{
 				user_info: state.user_info,
 				dashboardStats: state.dashboardStats,
+				updateRole,
 				updateUser,
 				getUserById,
 				addUser,

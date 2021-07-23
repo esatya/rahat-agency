@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import { Card, CardBody, CardTitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
@@ -7,11 +7,18 @@ import { UserContext } from '../../../contexts/UserContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import { History } from '../../../utils/History';
 import GrowSpinner from '../../global/GrowSpinner';
+import SelectWrapper from '../../global/SelectWrapper';
+import WalletUnlock from '../../global/walletUnlock';
+
+const ROLES_LIST = [
+	{ label: ROLES.ADMIN, value: ROLES.ADMIN },
+	{ label: ROLES.MANAGER, value: ROLES.MANAGER }
+];
 
 const UserDetails = props => {
 	const { addToast } = useToasts();
-	const { updateUser, getUserById } = useContext(UserContext);
-	const { loading, setLoading } = useContext(AppContext);
+	const { updateUser, getUserById, updateRole } = useContext(UserContext);
+	const { wallet, appSettings, isVerified, loading, setLoading, changeIsverified } = useContext(AppContext);
 
 	const { id } = props.match.params;
 
@@ -22,13 +29,26 @@ const UserDetails = props => {
 		wallet_address: ''
 	});
 	const [selectedRole, setSelectedRole] = useState('');
+	const [existingRoles, setExsitingRoles] = useState([]);
+	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [roleProcess, setRoleProcess] = useState(false);
+
+	const togglePasscodeModal = useCallback(() => {
+		setPasscodeModal(!passcodeModal);
+	}, [passcodeModal]);
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	const handleRoleChange = e => {
-		setSelectedRole(e.target.value);
+	const handleRoleChange = d => {
+		setSelectedRole(d.value);
+	};
+
+	const handleSubmitRoles = e => {
+		e.preventDefault();
+		if (!selectedRole) return addToast('Please selecte role', TOAST.ERROR);
+		togglePasscodeModal();
 	};
 
 	const handleFormSubmit = e => {
@@ -57,8 +77,7 @@ const UserDetails = props => {
 	const fetchUserDetails = () => {
 		getUserById(id)
 			.then(user => {
-				const current_role = user.roles[0];
-				setSelectedRole(current_role);
+				sanitizeAndSetRoles(user.roles);
 				setFormData({
 					...formData,
 					name: `${user.name.first} ${user.name.last ? user.name.last : ''}`,
@@ -70,10 +89,59 @@ const UserDetails = props => {
 			.catch();
 	};
 
+	const sanitizeAndSetRoles = roles => {
+		let data = roles.map(d => {
+			return { label: d, value: d };
+		});
+		if (data.length > 1) data = data.filter(f => f.value === ROLES.ADMIN);
+
+		setExsitingRoles(data);
+	};
+
+	const updateUserRole = useCallback(() => {
+		if (!isVerified) return;
+		if (!wallet) return addToast('Wallet not found', TOAST.ERROR);
+		setRoleProcess(true);
+		const { rahat, rahat_admin } = appSettings.agency.contracts;
+		updateRole({
+			userId: id,
+			payload: { wallet_address: formData.wallet_address, role: selectedRole },
+			rahat,
+			rahat_admin,
+			wallet
+		})
+			.then(() => {
+				changeIsverified(false);
+				togglePasscodeModal();
+				setRoleProcess(false);
+				History.push('/users');
+				addToast('User role updated successfully', TOAST.SUCCESS);
+			})
+			.catch(err => {
+				changeIsverified(false);
+				togglePasscodeModal();
+				setRoleProcess(false);
+				addToast(err.message, TOAST.ERROR);
+			});
+	}, [
+		addToast,
+		appSettings.agency.contracts,
+		changeIsverified,
+		formData.wallet_address,
+		id,
+		isVerified,
+		selectedRole,
+		togglePasscodeModal,
+		updateRole,
+		wallet
+	]);
+
 	useEffect(fetchUserDetails, []);
+	useEffect(updateUserRole, [isVerified]);
 
 	return (
 		<div>
+			<WalletUnlock open={passcodeModal} onClose={e => setPasscodeModal(e)}></WalletUnlock>
 			<Row>
 				<Col md="12">
 					<Card>
@@ -116,23 +184,6 @@ const UserDetails = props => {
 										</FormGroup>
 									</Col>
 								</Row>
-								<Row>
-									<Col md="6">
-										<FormGroup>
-											<Label>Role</Label>
-											<Input disabled={true} type="select" name="roles" onChange={handleRoleChange}>
-												<option value="">--Select Role--</option>
-												<option value="Admin" selected={selectedRole === ROLES.ADMIN ? true : false}>
-													Admin
-												</option>
-												<option value="Manager" selected={selectedRole === ROLES.MANAGER ? true : false}>
-													Manager
-												</option>
-											</Input>
-										</FormGroup>
-									</Col>
-									<Col md="6"></Col>
-								</Row>
 								<CardBody style={{ paddingLeft: 0 }}>
 									{loading ? (
 										<GrowSpinner />
@@ -148,6 +199,49 @@ const UserDetails = props => {
 												className="btn btn-dark ml-2"
 											>
 												Cancel
+											</Button>
+										</div>
+									)}
+								</CardBody>
+							</Form>
+						</CardBody>
+					</Card>
+				</Col>
+			</Row>
+
+			<Row>
+				<Col md="12">
+					<Card>
+						<CardBody>
+							<CardTitle className="mb-0">User Roles</CardTitle>
+						</CardBody>
+						<CardBody>
+							<Form onSubmit={handleSubmitRoles}>
+								<Row>
+									<Col md="6">
+										<FormGroup>
+											{existingRoles.length > 0 ? (
+												<SelectWrapper
+													onChange={handleRoleChange}
+													maxMenuHeight={130}
+													currentValue={existingRoles}
+													data={ROLES_LIST}
+													placeholder="--Select Role--"
+												/>
+											) : (
+												''
+											)}
+										</FormGroup>
+									</Col>
+									<Col md="6"></Col>
+								</Row>
+								<CardBody style={{ paddingLeft: 0 }}>
+									{roleProcess ? (
+										<GrowSpinner />
+									) : (
+										<div>
+											<Button type="submit" className="btn btn-secondary">
+												<i className="fa fa-check"></i> Add Role
 											</Button>
 										</div>
 									)}
