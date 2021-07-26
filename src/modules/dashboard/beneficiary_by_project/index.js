@@ -1,6 +1,9 @@
 import React from 'react';
 import { Card, CardBody, CardTitle } from 'reactstrap';
 import { Pie } from 'react-chartjs-2';
+import moment from 'moment';
+
+import { ExportToExcel } from '../../global/ExportToExcel';
 
 let _data = [];
 let _labels = [];
@@ -20,7 +23,7 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { releasedToken, redeemedTokens, data } = props;
+	const { releasedToken, redeemedTokens, data, exportData } = props;
 
 	if (data && data.length) {
 		_labels = [];
@@ -33,7 +36,6 @@ export default function Index(props) {
 		pieData.datasets[0].data = _data;
 	}
 
-	console.log({ releasedToken });
 	return (
 		<div>
 			<Card>
@@ -56,7 +58,16 @@ export default function Index(props) {
 			</Card>
 			<Card>
 				<CardBody>
-					<CardTitle>Beneficiaries by project ({data.length})</CardTitle>
+					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+						<CardTitle>Beneficiaries by project ({data.length})</CardTitle>
+						<div>
+							{exportData.length ? (
+								<ExportToExcel apiData={exportData} fileName={`Beneficiaries-by-project-report-${moment().unix()}`} />
+							) : (
+								''
+							)}
+						</div>
+					</div>
 					<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 230 }}>
 						<Pie
 							data={pieData}
