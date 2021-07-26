@@ -80,7 +80,7 @@ const Dashboard = () => {
 				</Col>
 				<Col md="3">
 					<StatsCard
-						title="Financial Institutions"
+						title="Institutions"
 						title_color="#F7C087"
 						icon_color="#F7C087"
 						icon_name="fas fa-dollar-sign"

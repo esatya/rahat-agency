@@ -26,7 +26,7 @@ export default function DetailsForm(props) {
 		getVendorTransactions,
 		transactionHistory
 	} = useContext(VendorContext);
-	const { appSettings, isVerified } = useContext(AppContext);
+	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
 	const [vendorBalance, setVendorBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -97,6 +97,7 @@ export default function DetailsForm(props) {
 		};
 		approveVendor(payload)
 			.then(() => {
+				changeIsverified(false);
 				setLoading(false);
 				togglePasscodeModal();
 				addToast('Vendor approved successfully.', {
@@ -105,6 +106,7 @@ export default function DetailsForm(props) {
 				});
 			})
 			.catch(() => {
+				changeIsverified(false);
 				setLoading(false);
 				togglePasscodeModal();
 				addToast('Invalid vendor wallet address!', {
@@ -125,14 +127,7 @@ export default function DetailsForm(props) {
 			cancelButtonColor: '#d33',
 			confirmButtonText: 'Yes'
 		});
-		if (swal.isConfirmed) {
-			togglePasscodeModal();
-			// await approveVendor(vendorId, payload);
-			// addToast('Vendor approved successfully.', {
-			//   appearance: 'success',
-			//   autoDismiss: true,
-			// });
-		}
+		if (swal.isConfirmed) togglePasscodeModal();
 	};
 
 	useEffect(loadVendorDetails, []);
