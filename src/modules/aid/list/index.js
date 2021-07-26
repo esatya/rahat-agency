@@ -28,10 +28,13 @@ const List = () => {
 	const [aidPayload, setaidPayload] = useState({ name: '' });
 
 	const [searchName, setSearchName] = useState('');
+	const [projectStatus, setProjectStatus] = useState('');
 
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
+
+	const handleProjectStatusChange = e => setProjectStatus(e.target.value);
 
 	const handleInputChange = e => {
 		setaidPayload({ ...aidPayload, [e.target.name]: e.target.value });
@@ -67,6 +70,7 @@ const List = () => {
 	const loadAidList = () => {
 		let query = {};
 		if (searchName) query.name = searchName;
+		if (projectStatus) query.status = projectStatus;
 		listAid(query)
 			.then()
 			.catch(() => {
@@ -77,7 +81,7 @@ const List = () => {
 			});
 	};
 
-	useEffect(loadAidList, [searchName]);
+	useEffect(loadAidList, [projectStatus, searchName]);
 
 	return (
 		<>
@@ -114,10 +118,11 @@ const List = () => {
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<div className="flex-item">
 								<CustomInput
+									onChange={handleProjectStatusChange}
 									type="select"
 									id="exampleCustomSelect"
 									name="customSelect"
-									defaultValue=""
+									value={projectStatus || ''}
 									style={{ width: 'auto' }}
 								>
 									<option value="">--Select Status--</option>
@@ -153,7 +158,7 @@ const List = () => {
 											<td>{d.name}</td>
 											<td>Kavre</td>
 											<td>Shrawan Khadka</td>
-											<td>{moment(d.created_at).format('MMM Do YY')}</td>
+											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/projects/${d._id}`}>
