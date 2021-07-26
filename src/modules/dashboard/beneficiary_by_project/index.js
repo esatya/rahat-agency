@@ -45,6 +45,7 @@ export default function Index(props) {
 							<p className="token-counts">{releasedToken}</p>
 							<span className="token-label">Total released</span>
 						</div>
+						<div className="flex-item "></div>
 						<div className="flex-item v-border"></div>
 						<div className="flex-item">
 							<p className="token-counts">{redeemedTokens}</p>
