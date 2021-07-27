@@ -19,6 +19,13 @@ const ListUsers = lazy(() => import('../modules/user/list'));
 const AddUser = lazy(() => import('../modules/user/add'));
 const UserDetails = lazy(() => import('../modules/user/edit'));
 
+// ------------------------------Project UI----------------------------------------
+
+const ProjectAdd = lazy(() => import('../views/project/add'));
+const ProjectDetail = lazy(() => import('../views/project/detail'));
+
+// --------------------------------------------------------------------------------
+
 var AppRoutes = [
 	{
 		path: '/dashboard',
@@ -68,6 +75,20 @@ var AppRoutes = [
 		component: AidList,
 		showInSidebar: true
 	},
+
+	// ----------------------------Project ui------------------------
+
+	{
+		path: '/add_project',
+		name: 'ProjectAdd',
+		component: ProjectAdd
+	},
+	{
+		path: '/detail_project',
+		name: 'ProjectDetail',
+		component: ProjectDetail
+	},
+	// -----------------------------------------------------------------
 	{
 		path: '/beneficiaries',
 		name: 'Beneficiary',

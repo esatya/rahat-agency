@@ -1,0 +1,38 @@
+.title {
+	color: #6B6C72;
+	font-size: 18px !important;
+	font-weight: 500 !important;
+	font-family: 'Be Vietnam' !important;
+	font-style: normal;
+	line-height: 20px;
+	letter-spacing: 0em;
+	text-align: left;
+    margin-bottom: 20px !important;
+}
+
+.stat-card-body {
+	background: #ffffff;
+	border-radius: 10px !important;
+	padding: 20px 30px;
+}
+
+.card-font-medium {
+	font-size: 18px !important;
+	font-weight: normal;
+	font-style: normal;
+    margin-bottom: 0px !important;
+}
+
+.card-font-bold {
+	font-size: 24px !important;
+	font-weight: 500;
+    margin-bottom: 0px !important;
+}
+
+.sub-title {
+	font-weight: 400;
+	margin-bottom: 0px;
+	color: #9b9b9b;
+	font-size: 14px;
+	margin: 0;
+}
