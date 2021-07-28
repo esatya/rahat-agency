@@ -110,6 +110,23 @@ a {
 	color: #6b6c72;
 }
 
+#main-wrapper[data-layout='vertical']
+	.left-sidebar[data-sidebarbg='skin6']
+	.sidebar-nav
+	ul
+	.sidebar-item
+	.sidebar-link:hover
+	.feather,
+#main-wrapper[data-layout='horizontal']
+	.left-sidebar[data-sidebarbg='skin6']
+	.sidebar-nav
+	ul
+	.sidebar-item
+	.sidebar-link:hover
+	.feather {
+	color: #2b7ec1;
+}
+
 .btn-info:not(:disabled):not(.disabled):active,
 .btn-info:not(:disabled):not(.disabled).active,
 .show > .btn-info.dropdown-toggle {
