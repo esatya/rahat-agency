@@ -5,6 +5,7 @@ import { useToasts } from 'react-toast-notifications';
 import TokenByProject from './tokens_by_project';
 import BeneficiaryByProject from './beneficiary_by_project';
 import { StatsCard } from '../ui_components/cards';
+import { TOAST } from '../../constants';
 
 import { UserContext } from '../../contexts/UserContext';
 
@@ -22,28 +23,53 @@ const Dashboard = () => {
 		tokensByProject: [],
 		totalInstitutions: 0
 	});
+	const [exportData, setExportData] = useState({
+		tokens_by_project: [],
+		benef_by_project: []
+	});
 
 	const fetchDashboardStats = () => {
 		getDashboardStats()
 			.then(d => {
+				const { projectCount, vendorCount, beneficiary, tokenAllocation, institutionCount, tokenRedemption } = d;
+				if (beneficiary && beneficiary.project.length) setBeneficiaryByProjectExport(beneficiary.project);
+				if (tokenAllocation && tokenAllocation.projectAllocation.length)
+					setTokensByProjectExport(tokenAllocation.projectAllocation);
 				setStats(prevState => ({
 					...prevState,
-					totalProjects: d.projectCount,
-					totalVendors: d.vendorCount,
-					totalBeneficiaries: d.beneficiary.totalCount,
-					totalAllocation: d.tokenAllocation.totalAllocation,
-					redeemedTokens: d.tokenRedemption.totalTokenRedemption,
-					beneficiariesByProject: d.beneficiary.project,
-					tokensByProject: d.tokenAllocation.projectAllocation,
-					totalInstitutions: d.institutionCount
+					totalProjects: projectCount,
+					totalVendors: vendorCount,
+					totalBeneficiaries: beneficiary.totalCount,
+					totalAllocation: tokenAllocation.totalAllocation,
+					redeemedTokens: tokenRedemption.totalTokenRedemption,
+					beneficiariesByProject: beneficiary.project,
+					tokensByProject: tokenAllocation.projectAllocation,
+					totalInstitutions: institutionCount
 				}));
 			})
 			.catch(() => {
-				addToast('Internal server error!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
+				addToast('Internal server error!', TOAST.ERROR);
 			});
+	};
+
+	const setBeneficiaryByProjectExport = data => {
+		const export_data = data.map(d => {
+			return { Project: d.name, Count: d.count };
+		});
+		setExportData(prevState => ({
+			...prevState,
+			benef_by_project: export_data
+		}));
+	};
+
+	const setTokensByProjectExport = data => {
+		const export_data = data.map(d => {
+			return { Project: d.name, Tokens: d.token };
+		});
+		setExportData(prevState => ({
+			...prevState,
+			tokens_by_project: export_data
+		}));
 	};
 
 	useEffect(fetchDashboardStats, []);
@@ -80,7 +106,7 @@ const Dashboard = () => {
 				</Col>
 				<Col md="3">
 					<StatsCard
-						title="Financial Institutions"
+						title="Institutions"
 						title_color="#F7C087"
 						icon_color="#F7C087"
 						icon_name="fas fa-dollar-sign"
@@ -90,13 +116,14 @@ const Dashboard = () => {
 			</Row>
 			<Row>
 				<Col md="8">
-					<TokenByProject data={stats.tokensByProject} />
+					<TokenByProject data={stats.tokensByProject} exportData={exportData.tokens_by_project || []} />
 				</Col>
 				<Col md="4">
 					<BeneficiaryByProject
 						releasedToken={stats.totalAllocation}
 						redeemedTokens={stats.redeemedTokens}
 						data={stats.beneficiariesByProject}
+						exportData={exportData.benef_by_project || []}
 					/>
 				</Col>
 			</Row>

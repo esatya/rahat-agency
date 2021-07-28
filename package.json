@@ -44,6 +44,7 @@
     "eth-crypto": "^1.9.0",
     "ethers": "^5.0.13",
     "feather-icons-react": "^0.4.1",
+    "file-saver": "^2.0.5",
     "history": "4.7.2",
     "moment": "^2.26.0",
     "node-sass": "^4.14.1",
@@ -67,6 +68,7 @@
     "redux-devtools-extension": "^2.13.8",
     "rumsan-ui": "^1.0.11",
     "sweetalert2": "^9.17.2",
+    "xlsx": "^0.17.0",
     "yarn": "^1.22.4",
     "yup": "^0.29.3"
   },
