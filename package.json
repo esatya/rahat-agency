@@ -1,6 +1,6 @@
 {
   "name": "rahat-agency",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "homepage": "/",
   "description": "Front end web interface for Rahat Agency",
   "main": "index.js",
@@ -28,9 +28,12 @@
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.18.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "lodash": "^4.17.19",
     "mixin-deep": "^2.0.1",
-    "node": "^8.15.0"
+    "node": "^8.15.0",
+    "prettier": "2.2.1"
   },
   "dependencies": {
     "add": "^2.0.6",
@@ -40,6 +43,7 @@
     "eth-crypto": "^1.9.0",
     "ethers": "^5.0.13",
     "feather-icons-react": "^0.4.1",
+    "file-saver": "^2.0.5",
     "history": "4.7.2",
     "moment": "^2.26.0",
     "node-sass": "^4.14.1",
@@ -63,6 +67,7 @@
     "redux-devtools-extension": "^2.13.8",
     "rumsan-ui": "^1.0.11",
     "sweetalert2": "^9.17.2",
+    "xlsx": "^0.17.0",
     "yarn": "^1.22.4",
     "yup": "^0.29.3"
   },
