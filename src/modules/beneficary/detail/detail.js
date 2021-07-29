@@ -51,7 +51,7 @@ export default function DetailsForm(props) {
 		getAvailableBalance
 	} = useContext(BeneficiaryContext);
 
-	const { appSettings, isVerified } = useContext(AppContext);
+	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
 
 	const handleTokenChange = e => {
 		setInputTokens(e.target.value);
@@ -107,6 +107,7 @@ export default function DetailsForm(props) {
 		setLoading(true);
 		issueTokens(payload)
 			.then(() => {
+				changeIsverified(false);
 				toggleModal();
 				addToast(`${payload.claimable} tokens assigned to beneficiary.`, {
 					appearance: 'success',
@@ -118,6 +119,7 @@ export default function DetailsForm(props) {
 				togglePasscodeModal();
 			})
 			.catch(err => {
+				changeIsverified(false);
 				togglePasscodeModal();
 				addToast(err.message, {
 					appearance: 'error',
@@ -283,7 +285,7 @@ export default function DetailsForm(props) {
 										<p className="mb-0">Current balance: {tokenBalance}</p>
 									</div>
 									<div className="ml-auto">
-										<Button type="button" color="primary" onClick={toggleModal}>
+										<Button type="button" color="info" onClick={toggleModal}>
 											Issue Token
 										</Button>
 									</div>
