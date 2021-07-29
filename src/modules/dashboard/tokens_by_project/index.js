@@ -1,6 +1,9 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Card, CardBody, CardTitle } from 'reactstrap';
+import moment from 'moment';
+
+import { ExportToExcel } from '../../global/ExportToExcel';
 
 const barChartData = {
 	datasets: [
@@ -42,7 +45,7 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data } = props;
+	const { data, exportData } = props;
 
 	let bar_labels = [];
 	let bar_data = [];
@@ -62,7 +65,16 @@ const Index = props => {
 		<div>
 			<Card>
 				<CardBody>
-					<CardTitle>Tokens by project</CardTitle>
+					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+						<CardTitle>Tokens by project</CardTitle>
+						<div>
+							{exportData.length ? (
+								<ExportToExcel apiData={exportData} fileName={`Tokens-by-project-report-${moment().unix()}`} />
+							) : (
+								''
+							)}
+						</div>
+					</div>
 					<br />
 					<div className="chart-wrapper" style={{ width: '100%', margin: '0 auto', height: 420 }}>
 						{/* <Bar data={barChartData} options={barChartOptions} /> */}
