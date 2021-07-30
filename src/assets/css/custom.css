@@ -157,8 +157,37 @@ a {
 	color: #6B6C72;
 	font-size: 24px;
 	font-weight: 400;
+	margin-bottom: 0px ;
 }
 
 .breadcrumb{
     background-color: #fff;
+	padding-left: 0px !important;
+	font-size: 14px;
+}
+
+.modal-backdrop{
+    opacity:1 !important;
+}
+.input-pin{
+	background-color: black;
+	color: white;
+	width: 100px;
+	height: 100px;
+	text-align: center;
+	font-size: 36px;
+	border-style: solid;
+  	border-width: 5px;
+	border-color: white;
+	margin-right: 10px;
+}
+
+.btn-outline-info:not(:disabled):not(.disabled):active, .btn-outline-info:not(:disabled):not(.disabled).active, .show > .btn-outline-info.dropdown-toggle {
+    background-color: #2b7ec1;
+    border-color: #2b7ec1;
+}
+
+.btn-outline-info:hover {
+    background-color: #2b7ec1;
+    border-color: #2b7ec1;
 }
