@@ -70,7 +70,13 @@ const AddProject = () => {
 			})
 			.catch(err => {
 				setLoading(false);
-				addToast(err.message, TOAST.ERROR);
+				let err_msg = err.message;
+				if (err_msg === 'Request failed with status code 500') {
+					addToast('Project has been created', TOAST.SUCCESS);
+					err_msg = 'Upload failed due to duplicate data!';
+					addToast(err_msg, TOAST.ERROR);
+					History.push('/projects');
+				} else addToast(err_msg, TOAST.ERROR);
 			});
 	};
 
@@ -145,7 +151,7 @@ const AddProject = () => {
 
 								<FormGroup>
 									<Label>Location</Label>
-									<Input type="text" value={formData.location} name="location" onChange={handleInputChange} />
+									<Input type="text" value={formData.location} name="location" onChange={handleInputChange} required />
 								</FormGroup>
 
 								<FormGroup>

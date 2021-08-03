@@ -23,7 +23,6 @@ const UserDetails = lazy(() => import('../modules/user/edit'));
 
 // ------------------------------Project UI----------------------------------------
 
-const ProjectAdd = lazy(() => import('../views/project/add'));
 const ProjectDetail = lazy(() => import('../views/project/detail'));
 const BudgetAdd = lazy(() => import('../views/project/detail/budgetAdd'));
 // --------------------------------------------------------------------------------
@@ -98,11 +97,6 @@ var AppRoutes = [
 	},
 
 	// ----------------------------Project ui------------------------
-	{
-		path: '/add_project',
-		name: 'ProjectAdd',
-		component: ProjectAdd
-	},
 	{
 		path: '/detail_project',
 		name: 'ProjectDetail',
