@@ -23,6 +23,20 @@ const UserDetails = lazy(() => import('../modules/user/edit'));
 
 const ProjectAdd = lazy(() => import('../views/project/add'));
 const ProjectDetail = lazy(() => import('../views/project/detail'));
+const BudgetAdd = lazy(() => import('../views/project/detail/budgetAdd'));
+// --------------------------------------------------------------------------------
+
+// ------------------------------Beneficiary UI------------------------------------
+
+const BeneficiaryAdd = lazy(() => import('../views/beneficiaries/add'));
+const BeneficiaryDetail = lazy(() => import('../views/beneficiaries/detail'));
+
+// --------------------------------------------------------------------------------
+
+// ------------------------------Vendor UI------------------------------------
+
+const VendorAdd = lazy(() => import('../views/vendors/add'));
+const VendorDetail = lazy(() => import('../views/vendors/detail'));
 
 // --------------------------------------------------------------------------------
 
@@ -88,7 +102,41 @@ var AppRoutes = [
 		name: 'ProjectDetail',
 		component: ProjectDetail
 	},
+	{
+		path: '/add_budget',
+		name: 'BudgetAdd',
+		component: BudgetAdd
+	},
 	// -----------------------------------------------------------------
+
+	//.............................Beneficiary ui......................
+
+	{
+		path: '/add_beneficiary',
+		name: 'BeneficiaryAdd',
+		component: BeneficiaryAdd
+	},
+	{
+		path: '/detail_beneficiary',
+		name: 'BeneficiaryDetail',
+		component: BeneficiaryDetail
+	},
+	// -----------------------------------------------------------------
+
+	//.............................Vendor ui......................
+
+	{
+		path: '/add_vendor',
+		name: 'VendorAdd',
+		component: VendorAdd
+	},
+	{
+		path: '/detail_vendor',
+		name: 'VendorDetail',
+		component: VendorDetail
+	},
+	// -----------------------------------------------------------------
+
 	{
 		path: '/beneficiaries',
 		name: 'Beneficiary',

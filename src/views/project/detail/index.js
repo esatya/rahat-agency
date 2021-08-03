@@ -1,8 +1,8 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, Row, Col } from 'reactstrap';
 
-import Balance from './balance';
-import DetailCard from './detailCard';
+import Balance from '../../balance';
+import DetailCard from '../../detailCard';
 import ProjectInfo from './projectInfo';
 import PieChart from './pieChart';
 import Tabs from './tab/index';
