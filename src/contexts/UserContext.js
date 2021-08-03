@@ -64,11 +64,16 @@ export const UserContextProvider = ({ children }) => {
 		return Service.updateRole({ ...data });
 	}
 
+	function listUsersByRole(role) {
+		return Service.listUsersByRole(role);
+	}
+
 	return (
 		<UserContext.Provider
 			value={{
 				user_info: state.user_info,
 				dashboardStats: state.dashboardStats,
+				listUsersByRole,
 				updateRole,
 				updateUser,
 				getUserById,
