@@ -136,6 +136,10 @@ export const AidContextProvider = ({ children }) => {
 		return Service.bulkTokenIssueToBeneficiary({ ...payload });
 	}
 
+	function listFinancialInstitutions(params) {
+		return Service.listFinancialInstitutions(params);
+	}
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -159,6 +163,7 @@ export const AidContextProvider = ({ children }) => {
 				addProjectBudget,
 				changeProjectStatus,
 				getProjectCapital,
+				listFinancialInstitutions,
 				bulkTokenIssueToBeneficiary
 			}}
 		>

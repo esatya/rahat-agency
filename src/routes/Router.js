@@ -8,6 +8,8 @@ const AgencyList = lazy(() => import('../modules/agency/list'));
 const AgencyDetails = lazy(() => import('../modules/agency/details'));
 const AidList = lazy(() => import('../modules/aid/list'));
 const AidDetails = lazy(() => import('../modules/aid/details'));
+const AddProject = lazy(() => import('../modules/aid/add'));
+
 const AgencyProfile = lazy(() => import('../modules/agency/profile'));
 const InstitutionList = lazy(() => import('../modules/institution'));
 const InstitutionDetails = lazy(() => import('../modules/institution/detail/index'));
@@ -83,6 +85,11 @@ var AppRoutes = [
 		component: AidDetails
 	},
 	{
+		path: '/add-project',
+		name: 'Add',
+		component: AddProject
+	},
+	{
 		path: '/projects',
 		name: 'Projects',
 		icon: 'layers',
@@ -91,7 +98,6 @@ var AppRoutes = [
 	},
 
 	// ----------------------------Project ui------------------------
-
 	{
 		path: '/add_project',
 		name: 'ProjectAdd',
