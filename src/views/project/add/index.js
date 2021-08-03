@@ -72,7 +72,7 @@ const AddProject = () => {
 				<Col md="12">
 					<Card>
 						<CardBody>
-							<Form onSubmit={handleFormSubmit}>
+							<Form onSubmit={handleFormSubmit} style={{ color: '#6B6C72' }}>
 								<FormGroup>
 									<Label>Project Name</Label>
 									<Input type="text" value={formData.name} name="name" onChange={handleInputChange} required />
