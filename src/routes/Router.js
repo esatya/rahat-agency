@@ -8,6 +8,8 @@ const AgencyList = lazy(() => import('../modules/agency/list'));
 const AgencyDetails = lazy(() => import('../modules/agency/details'));
 const AidList = lazy(() => import('../modules/aid/list'));
 const AidDetails = lazy(() => import('../modules/aid/details'));
+const AddProject = lazy(() => import('../modules/aid/add'));
+
 const AgencyProfile = lazy(() => import('../modules/agency/profile'));
 const InstitutionList = lazy(() => import('../modules/institution'));
 const InstitutionDetails = lazy(() => import('../modules/institution/detail/index'));
@@ -21,7 +23,6 @@ const UserDetails = lazy(() => import('../modules/user/edit'));
 
 // ------------------------------Project UI----------------------------------------
 
-const ProjectAdd = lazy(() => import('../views/project/add'));
 const ProjectDetail = lazy(() => import('../views/project/detail'));
 const BudgetAdd = lazy(() => import('../views/project/detail/budgetAdd'));
 // --------------------------------------------------------------------------------
@@ -83,6 +84,11 @@ var AppRoutes = [
 		component: AidDetails
 	},
 	{
+		path: '/add-project',
+		name: 'Add',
+		component: AddProject
+	},
+	{
 		path: '/projects',
 		name: 'Projects',
 		icon: 'layers',
@@ -91,12 +97,6 @@ var AppRoutes = [
 	},
 
 	// ----------------------------Project ui------------------------
-
-	{
-		path: '/add_project',
-		name: 'ProjectAdd',
-		component: ProjectAdd
-	},
 	{
 		path: '/detail_project',
 		name: 'ProjectDetail',

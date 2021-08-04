@@ -20,6 +20,7 @@ import moment from 'moment';
 
 import { AidContext } from '../../../contexts/AidContext';
 import AidModal from '../../global/CustomModal';
+import { History } from '../../../utils/History';
 
 const List = () => {
 	const { aids, pagination, listAid, addAid } = useContext(AidContext);
@@ -33,6 +34,8 @@ const List = () => {
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
+
+	const handleAddProjectClick = () => History.push('/add-project');
 
 	const handleProjectStatusChange = e => setProjectStatus(e.target.value);
 
@@ -131,7 +134,7 @@ const List = () => {
 								</CustomInput>
 							</div>
 							<div className="flex-item">
-								<Button onClick={toggleModal} className="btn" color="info">
+								<Button onClick={handleAddProjectClick} className="btn" color="info">
 									Add New
 								</Button>
 							</div>
