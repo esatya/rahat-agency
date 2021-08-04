@@ -202,6 +202,18 @@ export async function addBeneficiary(aid, body) {
 	return data;
 }
 
+export async function listFinancialInstitutions(params) {
+	const res = await axios({
+		url: API.INSTITUTIONS,
+		method: 'get',
+		headers: {
+			access_token: access_token
+		},
+		params
+	});
+	return res.data;
+}
+
 export async function addVendor(aid, body) {
 	const { data } = await axios({
 		url: API.PROJECTS + `/${aid}/vendor`,
