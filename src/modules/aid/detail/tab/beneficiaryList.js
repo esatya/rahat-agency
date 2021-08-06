@@ -25,7 +25,7 @@ const List = () => {
 			});
 	};
 
-	useEffect(loadAidList);
+	useEffect(loadAidList, []);
 
 	return (
 		<>

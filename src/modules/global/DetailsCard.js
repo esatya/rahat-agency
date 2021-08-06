@@ -1,10 +1,18 @@
 import React from 'react';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
+
 import '../../assets/css/project.css';
+import { PROJECT_STATUS } from '../../constants';
 
 export default function DetailsCard(props) {
-	const { title, button_name, name, name_value, total, total_value } = props;
+	const { title, button_name, name, name_value, total, total_value, status, handleStatusChange } = props;
+
+	const handleSwitchChange = e => {
+		const _status = e === true ? PROJECT_STATUS.ACTIVE : PROJECT_STATUS.SUSPENDED;
+		handleStatusChange(_status);
+	};
+
 	return (
 		<div>
 			<Card>
@@ -19,13 +27,13 @@ export default function DetailsCard(props) {
 							<div style={{ float: 'right' }}>
 								{title === 'Project Details' ? (
 									<BootstrapSwitchButton
-										checked={true}
+										checked={status === PROJECT_STATUS.SUSPENDED ? false : true}
 										onlabel="Activated"
 										offlabel="Suspended"
 										width={140}
 										height={30}
 										onstyle="success"
-										// onChange={}
+										onChange={handleSwitchChange}
 									/>
 								) : (
 									<button
