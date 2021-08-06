@@ -7,7 +7,7 @@ const Vendor = lazy(() => import('../modules/vendor'));
 const AgencyList = lazy(() => import('../modules/agency/list'));
 const AgencyDetails = lazy(() => import('../modules/agency/details'));
 const AidList = lazy(() => import('../modules/aid/list'));
-const AidDetails = lazy(() => import('../modules/aid/details'));
+const AidDetails = lazy(() => import('../modules/aid/detail'));
 const AddProject = lazy(() => import('../modules/aid/add'));
 
 const AgencyProfile = lazy(() => import('../modules/agency/profile'));
