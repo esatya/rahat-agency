@@ -22,5 +22,9 @@ module.exports = {
 			appearance: 'success',
 			autoDismiss: true
 		}
+	},
+	PROJECT_STATUS: {
+		ACTIVE: 'active',
+		SUSPENDED: 'suspended'
 	}
 };
