@@ -39,7 +39,7 @@ export default function ProjectInfo({ projectDetails }) {
 						<Col md="6" sm="12">
 							<div style={{ marginBottom: '25px' }}>
 								<p className="card-font-medium">{social_mobilizer || '-'}</p>
-								<div className="sub-title">Assigned Social Mobilizer</div>
+								<div className="sub-title">Social Mobilizer</div>
 							</div>
 							<div style={{ marginBottom: '25px' }}>
 								<p className="card-font-medium">{moment(created_at).format('ll')}</p>
