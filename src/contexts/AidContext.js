@@ -15,7 +15,8 @@ const initialState = {
 		currentPage: 1,
 		totalPages: 0
 	},
-	balance: { total: 0, available: 0 },
+	total_tokens: 0,
+	available_tokens: 0,
 	aid_details: null,
 	loading: false
 };
@@ -57,18 +58,16 @@ export const AidContextProvider = ({ children }) => {
 
 	async function getProjectCapital(aidId, contract_addr) {
 		let res = await Service.getProjectCapital(aidId, contract_addr);
-		dispatch({ type: ACTION.PROJECT_CAPITAL, res });
+		dispatch({ type: ACTION.SET_TOTAL_TOKENS, res });
 		return res;
 	}
 
 	async function getAidBalance(aidId) {
-		const { rahat_admin, rahat } = appSettings.agency.contracts;
+		const { rahat } = appSettings.agency.contracts;
 		let _available = await Service.loadAidBalance(aidId, rahat);
-		let _capital = await Service.getProjectCapital(aidId, rahat_admin);
-		dispatch({ type: ACTION.PROJECT_CAPITAL, res: _capital ? _capital : 0 });
 		dispatch({
-			type: ACTION.AVAILABLE_BALANCE,
-			res: _available ? _available : 0
+			type: ACTION.SET_AVAILABLE_TOKENS,
+			res: _available
 		});
 		return _available;
 	}
@@ -151,7 +150,8 @@ export const AidContextProvider = ({ children }) => {
 				beneficiary_list: state.beneficiary_list,
 				beneficiary_pagination: state.beneficiary_pagination,
 				aid_details: state.aid_details,
-				balance: state.balance,
+				available_tokens: state.available_tokens,
+				total_tokens: state.total_tokens,
 				addAid,
 				listAid,
 				setLoading,
