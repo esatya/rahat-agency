@@ -5,6 +5,7 @@ import '../../../assets/css/project.css';
 
 export default function ProjectInfo({ projectDetails }) {
 	const { social_mobilizer, project_manager, location, description, created_at } = projectDetails;
+
 	return (
 		<div>
 			<Card>
@@ -28,7 +29,9 @@ export default function ProjectInfo({ projectDetails }) {
 					<Row>
 						<Col md="6" sm="12">
 							<div style={{ marginBottom: '25px' }}>
-								<p className="card-font-medium">{project_manager || '-'}</p>
+								<p className="card-font-medium">
+									{project_manager ? `${project_manager.name.first} ${project_manager.name.last}` : '-'}
+								</p>
 								<div className="sub-title">Project Manager</div>
 							</div>
 							<div style={{ marginBottom: '25px' }}>
