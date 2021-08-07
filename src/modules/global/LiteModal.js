@@ -4,14 +4,7 @@ import PropTypes from 'prop-types';
 import useDigitInput from 'react-digit-input';
 
 export default function CustomModal(props) {
-	const {
-		// children,
-		title,
-		loadingMessage,
-		open,
-		size,
-		handleSubmit
-	} = props;
+	const { toggle, title, loadingMessage, open, size, handleSubmit } = props;
 	const [value, onChange] = useState('');
 	const digits = useDigitInput({
 		acceptedCharacters: /^[0-9]$/,
@@ -23,7 +16,7 @@ export default function CustomModal(props) {
 		<>
 			<Modal
 				isOpen={open}
-				toggle={props.toggle}
+				toggle={toggle}
 				className={props.className || ''}
 				size={size ? size : 'xl'}
 				aria-labelledby="contained-modal-title-vcenter"
@@ -34,7 +27,9 @@ export default function CustomModal(props) {
 				<Form id="form" style={{ backgroundColor: 'black', textAlign: 'center' }} onSubmit={handleSubmit}>
 					<ModalBody className="pt-4">
 						{/* {children || 'No child elements supplied.'} */}
+						{/* <span>Close</span> */}
 						<h2 style={{ marginBottom: '50px', color: 'white' }}>{title || 'Modal Title'}</h2>
+
 						<div>
 							<div className="input-group" style={{ display: 'flex', justifyContent: 'center' }}>
 								<input inputMode="decimal" type="password" className="input-pin" autoFocus {...digits[0]} />
@@ -44,11 +39,11 @@ export default function CustomModal(props) {
 								<input inputMode="decimal" type="password" className="input-pin" {...digits[4]} />
 								<input inputMode="decimal" type="password" className="input-pin" {...digits[5]} />
 							</div>
-							<pre>
+							{/* <pre>
 								<code>"{value}"</code>
-							</pre>
+							</pre> */}
 						</div>
-						<div className="text-center" style={{ padding: '0px 0px 15px' }}>
+						<div className="text-center" style={{ padding: '0px 0px 15px', marginTop: 20 }}>
 							{loadingMessage ? loadingMessage : ''}
 						</div>
 					</ModalBody>

@@ -20,12 +20,7 @@ const Onboard = lazy(() => import('../modules/onboard'));
 const ListUsers = lazy(() => import('../modules/user/list'));
 const AddUser = lazy(() => import('../modules/user/add'));
 const UserDetails = lazy(() => import('../modules/user/edit'));
-
-// ------------------------------Project UI----------------------------------------
-
-const ProjectDetail = lazy(() => import('../views/project/detail'));
-const BudgetAdd = lazy(() => import('../views/project/detail/budgetAdd'));
-// --------------------------------------------------------------------------------
+const BudgetAdd = lazy(() => import('../modules/aid/detail/budgetAdd'));
 
 // ------------------------------Beneficiary UI------------------------------------
 
@@ -96,18 +91,11 @@ var AppRoutes = [
 		showInSidebar: true
 	},
 
-	// ----------------------------Project ui------------------------
 	{
-		path: '/detail_project',
-		name: 'ProjectDetail',
-		component: ProjectDetail
-	},
-	{
-		path: '/add_budget',
+		path: '/add_budget/:projectId',
 		name: 'BudgetAdd',
 		component: BudgetAdd
 	},
-	// -----------------------------------------------------------------
 
 	//.............................Beneficiary ui......................
 
