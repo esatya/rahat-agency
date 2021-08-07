@@ -4,10 +4,10 @@ import { useHistory } from 'react-router-dom';
 import '../../../assets/css/project.css';
 
 export default function Balance(props) {
-	const { title, data, button_name, label } = props;
+	const { title, data, button_name, label, projectId } = props;
 	const history = useHistory();
 	const handleClick = () => {
-		history.push('/add_budget');
+		history.push(`/add_budget/${projectId}`);
 	};
 	return (
 		<div>

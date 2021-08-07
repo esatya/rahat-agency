@@ -71,15 +71,17 @@ export const AppContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.SET_HASWALLET, data: hasWallet });
 	}
 
-	function setWallet(wallet) {
+	const setWallet = useCallback(wallet => {
 		dispatch({ type: ACTION.SET_WALLET, data: wallet });
-	}
-	function changeIsverified(boolArg) {
+	}, []);
+
+	const changeIsverified = useCallback(boolArg => {
 		dispatch({ type: ACTION.CHANGE_ISVERIFIED, data: boolArg });
-	}
-	function setWalletPasscode(passcode) {
+	}, []);
+
+	const setWalletPasscode = useCallback(passcode => {
 		dispatch({ type: ACTION.SET_APP_PASSCODE, data: passcode });
-	}
+	}, []);
 
 	return (
 		<AppContext.Provider

@@ -93,7 +93,13 @@ export default function Index(props) {
 					)}
 				</Col>
 				<Col md="5">
-					<Balance title="Budget" button_name="Add Budget" data={available_tokens} label="Available Budget" />
+					<Balance
+						title="Budget"
+						projectId={id}
+						button_name="Add Budget"
+						data={available_tokens}
+						label="Available Budget"
+					/>
 				</Col>
 			</Row>
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useCallback, useContext, useReducer } from 'react';
 import aidReduce from '../reducers/aidReducer';
 import * as Service from '../services/aid';
 import ACTION from '../actions/aid';
@@ -24,7 +24,7 @@ const initialState = {
 export const AidContext = createContext(initialState);
 export const AidContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(aidReduce, initialState);
-	const { wallet, appSettings, changeIsverified } = useContext(AppContext);
+	const { appSettings, changeIsverified } = useContext(AppContext);
 	function getAidDetails(aidId) {
 		return new Promise((resolve, reject) => {
 			Service.getAidDetails(aidId)
@@ -38,17 +38,25 @@ export const AidContextProvider = ({ children }) => {
 		});
 	}
 
-	async function addProjectBudget(aidId, supplyToken, contract_addr) {
-		// const wallet = await Wallet.loadWallet('123123');
-		const { rahat: rahatContractAddr } = appSettings.agency.contracts;
-		let d = await Service.addProjectBudget(wallet, aidId, supplyToken, contract_addr);
-		changeIsverified(false);
-		let balance = await Service.loadAidBalance(aidId, rahatContractAddr);
-		if (balance) {
-			dispatch({ type: ACTION.GET_BALANCE, res: balance });
-			return d;
-		}
-	}
+	const addProjectBudget = useCallback(
+		async ({ projectId, supplyToken, rahat_admin, wallet }) => {
+			changeIsverified(false);
+			await Service.addProjectBudget(wallet, projectId, supplyToken, rahat_admin);
+		},
+		[changeIsverified]
+	);
+
+	// async function addProjectBudget(aidId, supplyToken) {
+	// 	// const wallet = await Wallet.loadWallet('123123');
+	// 	const { rahat: rahatContractAddr, rahat_admin } = appSettings.agency.contracts;
+	// 	let d = await Service.addProjectBudget(wallet, aidId, supplyToken, rahat_admin);
+	// 	changeIsverified(false);
+	// 	let balance = await Service.loadAidBalance(aidId, rahatContractAddr);
+	// 	if (balance) {
+	// 		dispatch({ type: ACTION.GET_BALANCE, res: balance });
+	// 		return d;
+	// 	}
+	// }
 
 	async function changeProjectStatus(aidId, status) {
 		let res = await Service.changeProjectStatus(aidId, status);
