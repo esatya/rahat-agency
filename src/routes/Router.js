@@ -9,6 +9,7 @@ const AgencyDetails = lazy(() => import('../modules/agency/details'));
 const AidList = lazy(() => import('../modules/aid/list'));
 const AidDetails = lazy(() => import('../modules/aid/detail'));
 const AddProject = lazy(() => import('../modules/aid/add'));
+const EditProject = lazy(() => import('../modules/aid/edit'));
 
 const AgencyProfile = lazy(() => import('../modules/agency/profile'));
 const InstitutionList = lazy(() => import('../modules/institution'));
@@ -77,6 +78,11 @@ var AppRoutes = [
 		path: '/projects/:id',
 		name: 'Aid',
 		component: AidDetails
+	},
+	{
+		path: '/edit-project/:id',
+		name: 'Project',
+		component: EditProject
 	},
 	{
 		path: '/add-project',

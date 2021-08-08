@@ -1,10 +1,15 @@
 import React from 'react';
 import moment from 'moment';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
+
+import { History } from '../../../utils/History';
+
 import '../../../assets/css/project.css';
 
 export default function ProjectInfo({ projectDetails }) {
-	const { social_mobilizer, project_manager, location, description, created_at } = projectDetails;
+	const { _id, social_mobilizer, project_manager, location, description, created_at } = projectDetails;
+
+	const handleEditClick = () => History.push(`/edit-project/${_id}`);
 
 	return (
 		<div>
@@ -19,6 +24,7 @@ export default function ProjectInfo({ projectDetails }) {
 						<Col>
 							<button
 								type="button"
+								onClick={handleEditClick}
 								className="btn waves-effect waves-light btn-info"
 								style={{ borderRadius: '8px', float: 'right' }}
 							>
