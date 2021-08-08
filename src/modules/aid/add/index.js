@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	Card,
-	CardBody,
-	Row,
-	Col,
-	Form,
-	FormGroup,
-	Label,
-	Input,
-	Button
-} from 'reactstrap';
+import { Card, CardBody, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
 import { TOAST, APP_CONSTANTS, ROLES } from '../../../constants';
 import { AidContext } from '../../../contexts/AidContext';
@@ -21,6 +9,7 @@ import { UserContext } from '../../../contexts/UserContext';
 import { History } from '../../../utils/History';
 import SelectWrapper from '../../global/SelectWrapper';
 import GrowSpinner from '../../../modules/global/GrowSpinner';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 const AddProject = () => {
 	const { addToast } = useToasts();
@@ -121,12 +110,8 @@ const AddProject = () => {
 	return (
 		<div>
 			<p className="page-heading">Projects</p>
-			<Breadcrumb>
-				<BreadcrumbItem style={{ color: '#6B6C72' }}>
-					<a href="#projects">Projects</a>
-				</BreadcrumbItem>
-				<BreadcrumbItem active-breadcrumb>Add</BreadcrumbItem>
-			</Breadcrumb>
+			<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Add" />
+
 			<Row>
 				<Col md="12">
 					<Card>

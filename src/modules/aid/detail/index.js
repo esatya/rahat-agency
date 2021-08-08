@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Breadcrumb, BreadcrumbItem, Row, Col } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
 import { AidContext } from '../../../contexts/AidContext';
@@ -10,6 +10,7 @@ import ProjectInfo from './projectInfo';
 import PieChart from './pieChart';
 import Tabs from './tab';
 import { TOAST, PROJECT_STATUS } from '../../../constants';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 export default function Index(props) {
 	const { id } = props.match.params;
@@ -71,12 +72,7 @@ export default function Index(props) {
 	return (
 		<>
 			<p className="page-heading">Projects</p>
-			<Breadcrumb>
-				<BreadcrumbItem style={{ color: '#6B6C72' }}>
-					<a href="/">Projects</a>
-				</BreadcrumbItem>
-				<BreadcrumbItem active-breadcrumb>Detail</BreadcrumbItem>
-			</Breadcrumb>
+			<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Details" />
 			<Row>
 				<Col md="7">
 					{projectDetails && (

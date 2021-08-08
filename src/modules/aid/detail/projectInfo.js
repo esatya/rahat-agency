@@ -3,7 +3,6 @@ import moment from 'moment';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
 
 import { History } from '../../../utils/History';
-
 import '../../../assets/css/project.css';
 
 export default function ProjectInfo({ projectDetails }) {
@@ -14,7 +13,7 @@ export default function ProjectInfo({ projectDetails }) {
 	return (
 		<div>
 			<Card>
-				<div className="stat-card-body" style={{ minHeight: 120 }}>
+				<div className="stat-card-body" style={{ minHeight: 330 }}>
 					<Row>
 						<Col>
 							<CardTitle className="title" style={{ flexBasis: '90%' }}>
