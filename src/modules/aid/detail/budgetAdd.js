@@ -10,6 +10,7 @@ import { AppContext } from '../../../contexts/AppSettingsContext';
 import PasscodeModal from '../../global/PasscodeModal';
 import { TOAST } from '../../../constants';
 import GrowSpinner from '../../global/GrowSpinner';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 export default function BudgetAdd({ match }) {
 	const { addToast } = useToasts();
@@ -73,6 +74,9 @@ export default function BudgetAdd({ match }) {
 	return (
 		<div>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+			<p className="page-heading">Project</p>
+			<BreadCrumb redirect_path={`projects/${projectId}`} root_label="Details" current_label="Add Budget" />
+
 			<Card>
 				<div className="stat-card-body" style={{ minHeight: 120 }}>
 					<CardTitle className="title">Budget</CardTitle>
