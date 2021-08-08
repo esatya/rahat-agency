@@ -3,6 +3,7 @@ import aidReduce from '../reducers/aidReducer';
 import * as Service from '../services/aid';
 import ACTION from '../actions/aid';
 import { AppContext } from './AppSettingsContext';
+import { get } from '../services/institution';
 
 const initialState = {
 	aids: [],
@@ -25,17 +26,17 @@ export const AidContext = createContext(initialState);
 export const AidContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(aidReduce, initialState);
 	const { appSettings, changeIsverified } = useContext(AppContext);
-	function getAidDetails(aidId) {
-		return new Promise((resolve, reject) => {
-			Service.getAidDetails(aidId)
-				.then(res => {
-					dispatch({ type: ACTION.GET_AID_SUCCESS, res });
-					resolve(res);
-				})
-				.catch(err => {
-					reject(err);
-				});
-		});
+
+	function getAidDetails(projectId) {
+		return Service.getAidDetails(projectId);
+	}
+
+	function updateAid(projectId, payload) {
+		return Service.updateAid(projectId, payload);
+	}
+
+	function getInstitution(institutionId) {
+		return get(institutionId);
 	}
 
 	const addProjectBudget = useCallback(
@@ -160,10 +161,12 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				updateAid,
 				addAid,
 				listAid,
 				setLoading,
 				getAidBalance,
+				getInstitution,
 				resetLoading,
 				vendorsByAid,
 				getAidDetails,
