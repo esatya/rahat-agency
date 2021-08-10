@@ -1,31 +1,15 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
-import { useToasts } from 'react-toast-notifications';
 
 import { AidContext } from '../../../../contexts/AidContext';
 
-const List = () => {
-	const { aids, pagination, listAid } = useContext(AidContext);
-	const { addToast } = useToasts();
+const List = ({ beneficiaries, projectId }) => {
+	const { beneficiary_pagination, beneficiaryByAid } = useContext(AidContext);
 
 	const handlePagination = current_page => {
-		let _start = (current_page - 1) * pagination.limit;
-		return loadAidList({ start: _start, limit: pagination.limit });
+		let _start = (current_page - 1) * beneficiary_pagination.limit;
+		return beneficiaryByAid(projectId, { start: _start });
 	};
-
-	const loadAidList = () => {
-		let query = {};
-		listAid(query)
-			.then()
-			.catch(() => {
-				addToast('Something went wrong!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	useEffect(loadAidList, []);
 
 	return (
 		<>
@@ -44,9 +28,9 @@ const List = () => {
 				</div>
 
 				<div className="flex-item">
-					<button type="button" class="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
+					{/* <button type="button" class="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
 						Add Beneficiary
-					</button>
+					</button> */}
 				</div>
 			</div>
 			<Table className="no-wrap v-middle" responsive>
@@ -55,20 +39,18 @@ const List = () => {
 						<th className="border-0">Name</th>
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
-						<th className="border-0">Total Token Issued</th>
-						<th className="border-0">Total Token Redeemed</th>
+						<th className="border-0">Govt. ID</th>
 					</tr>
 				</thead>
 				<tbody>
-					{aids.length ? (
-						aids.map(d => {
+					{beneficiaries.length > 0 ? (
+						beneficiaries.map(d => {
 							return (
 								<tr key={d._id}>
-									<td>XYZ</td>
-									<td>Kavre</td>
-									<td>9867453212</td>
-									<td>1500</td>
-									<td>500</td>
+									<td>{d.name}</td>
+									<td>{d.address || '-'}</td>
+									<td>{d.phone}</td>
+									<td>{d.govt_id || '-'}</td>
 								</tr>
 							);
 						})
@@ -81,7 +63,7 @@ const List = () => {
 				</tbody>
 			</Table>
 
-			{pagination.totalPages > 1 ? (
+			{beneficiary_pagination.totalPages > 1 ? (
 				<Pagination
 					style={{
 						display: 'flex',
@@ -92,17 +74,21 @@ const List = () => {
 					<PaginationItem>
 						<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
 					</PaginationItem>
-					{[...Array(pagination.totalPages)].map((p, i) => (
+					{[...Array(beneficiary_pagination.totalPages)].map((p, i) => (
 						<PaginationItem
 							key={i}
-							active={pagination.currentPage === i + 1 ? true : false}
+							active={beneficiary_pagination.currentPage === i + 1 ? true : false}
 							onClick={() => handlePagination(i + 1)}
 						>
 							<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
 						</PaginationItem>
 					))}
 					<PaginationItem>
-						<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.totalPages)} />
+						<PaginationLink
+							last
+							href="#last_page"
+							onClick={() => handlePagination(beneficiary_pagination.totalPages)}
+						/>
 					</PaginationItem>
 				</Pagination>
 			) : (

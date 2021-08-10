@@ -105,7 +105,7 @@ export default function Index(props) {
 					<PieChart available_tokens={available_tokens} total_tokens={total_tokens} />
 				</Col>
 			</Row>
-			<Tabs />
+			<Tabs projectId={id} />
 		</>
 	);
 }
