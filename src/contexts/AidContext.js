@@ -7,7 +7,7 @@ import { get } from '../services/institution';
 
 const initialState = {
 	aids: [],
-	pagination: { total: 0, limit: 20, start: 0, currentPage: 1, totalPages: 0 },
+	pagination: { total: 0, limit: 10, start: 0, currentPage: 1, totalPages: 0 },
 	beneficiary_list: [],
 	beneficiary_pagination: {
 		total: 0,
@@ -102,7 +102,7 @@ export const AidContextProvider = ({ children }) => {
 		});
 	}
 
-	function beneficiaryByAid(aidId, params) {
+	const beneficiaryByAid = useCallback((aidId, params) => {
 		return new Promise((resolve, reject) => {
 			Service.beneficiaryByAid(aidId, params)
 				.then(res => {
@@ -113,7 +113,20 @@ export const AidContextProvider = ({ children }) => {
 					reject(err);
 				});
 		});
-	}
+	}, []);
+
+	// function beneficiaryByAid(aidId, params) {
+	// 	return new Promise((resolve, reject) => {
+	// 		Service.beneficiaryByAid(aidId, params)
+	// 			.then(res => {
+	// 				dispatch({ type: ACTION.BENEF_LIST_SUCCSS, res });
+	// 				resolve(res);
+	// 			})
+	// 			.catch(err => {
+	// 				reject(err);
+	// 			});
+	// 	});
+	// }
 
 	function addAid(payload) {
 		return new Promise((resolve, reject) => {

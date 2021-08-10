@@ -1,31 +1,17 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
-import { useToasts } from 'react-toast-notifications';
 
 import { AidContext } from '../../../../contexts/AidContext';
 
 const List = () => {
-	const { aids, pagination, listAid } = useContext(AidContext);
-	const { addToast } = useToasts();
+	const { pagination } = useContext(AidContext);
 
 	const handlePagination = current_page => {
 		let _start = (current_page - 1) * pagination.limit;
-		return loadAidList({ start: _start, limit: pagination.limit });
+		console.log({ _start });
 	};
 
-	const loadAidList = () => {
-		let query = {};
-		listAid(query)
-			.then()
-			.catch(() => {
-				addToast('Something went wrong!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	useEffect(loadAidList, []);
+	const vendors = [];
 
 	return (
 		<>
@@ -40,8 +26,8 @@ const List = () => {
 					</tr>
 				</thead>
 				<tbody>
-					{aids.length ? (
-						aids.map(d => {
+					{vendors.length ? (
+						vendors.map(d => {
 							return (
 								<tr key={d._id}>
 									<td>XYZ</td>
