@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Pagination, PaginationItem, PaginationLink, Table, FormGroup, InputGroup, Input } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import QRCode from 'qrcode';
@@ -8,6 +8,8 @@ import { AppContext } from '../../../../contexts/AppSettingsContext';
 import { APP_CONSTANTS, TOAST } from '../../../../constants';
 import { htmlResponse } from '../../../../utils/printBeneficiary';
 import ModalWrapper from '../../../global/CustomModal';
+import PasscodeModal from '../../../global/PasscodeModal';
+import GrowSpinner from '../../../global/GrowSpinner';
 
 const ACTION = {
 	BULK_QR: 'bulk_qrcode_export',
@@ -16,12 +18,17 @@ const ACTION = {
 
 const List = ({ beneficiaries, projectId }) => {
 	const { addToast } = useToasts();
-	const { beneficiary_pagination, beneficiaryByAid } = useContext(AidContext);
-	const { loading } = useContext(AppContext);
+	const { beneficiary_pagination, beneficiaryByAid, bulkTokenIssueToBeneficiary } = useContext(AidContext);
+	const { loading, setLoading, wallet, isVerified, appSettings } = useContext(AppContext);
 
 	const [amount, setAmount] = useState('');
 	const [amountModal, setAmountModal] = useState(false);
 	const [currentAction, setCurrentAction] = useState('');
+	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
+	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
+	const [passcodeModal, setPasscodeModal] = useState(false);
+
+	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
 	const toggleAmountModal = action => {
 		if (action) setCurrentAction(action);
@@ -33,6 +40,7 @@ const List = ({ beneficiaries, projectId }) => {
 	const handleModalFormSubmit = e => {
 		e.preventDefault();
 		if (currentAction === ACTION.BULK_QR) return handleBulkQrExport();
+		if (currentAction === ACTION.BULK_ISSUE) return handleBulkTokenIssue();
 	};
 
 	const handlePagination = current_page => {
@@ -47,6 +55,25 @@ const List = ({ beneficiaries, projectId }) => {
 			result.push({ imgUrl, phone: d.phone });
 		}
 		return result;
+	};
+
+	const handleBulkTokenIssue = async () => {
+		let beneficiary_tokens = [];
+		if (!amount) return addToast('Please enter token amount', TOAST.ERROR);
+		const { data } = await beneficiaryByAid(projectId, { limit: APP_CONSTANTS.BULK_BENEFICIARY_LIMIT });
+		if (!data || !data.length) return addToast('No beneficiary available', TOAST.ERROR);
+		if (data.length) {
+			const beneficiary_phones = data.map(d => d.phone);
+			const len = beneficiary_phones.length;
+			if (len < 1) return addToast('No phone number found', TOAST.ERROR);
+			for (let i = 0; i < len; i++) {
+				beneficiary_tokens.push(amount);
+			}
+			setBeneficiaryTokens(beneficiary_tokens);
+			setBeneficiaryPhones(beneficiary_phones);
+			toggleAmountModal();
+			togglePasscodeModal();
+		}
 	};
 
 	const handleBulkQrExport = async () => {
@@ -70,8 +97,51 @@ const List = ({ beneficiaries, projectId }) => {
 		}, 250);
 	};
 
+	const submitBulkTokenIssue = useCallback(async () => {
+		if (wallet && isVerified) {
+			try {
+				setPasscodeModal(false);
+				setLoading(true);
+				const { contracts } = appSettings.agency;
+				let res = await bulkTokenIssueToBeneficiary({
+					projectId: projectId,
+					phone_numbers: beneficiaryPhones,
+					token_amounts: beneficiaryTokens,
+					contract_address: contracts.rahat,
+					wallet
+				});
+				if (res) {
+					setAmount('');
+					const total_ben = beneficiaryPhones.length;
+					return addToast(`Each of ${total_ben} beneficiary has been assigned ${amount} tokens`, TOAST.SUCCESS);
+				}
+			} catch (err) {
+				addToast(err.message, TOAST.ERROR);
+			} finally {
+				setLoading(false);
+			}
+		}
+	}, [
+		addToast,
+		amount,
+		appSettings.agency,
+		beneficiaryPhones,
+		beneficiaryTokens,
+		bulkTokenIssueToBeneficiary,
+		isVerified,
+		projectId,
+		setLoading,
+		wallet
+	]);
+
+	useEffect(() => {
+		submitBulkTokenIssue();
+	}, [submitBulkTokenIssue, isVerified]);
+
 	return (
 		<>
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+
 			<ModalWrapper
 				toggle={toggleAmountModal}
 				open={amountModal}
@@ -92,23 +162,28 @@ const List = ({ beneficiaries, projectId }) => {
 				</FormGroup>
 			</ModalWrapper>
 			<div className="toolbar-flex-container">
-				<div style={{ flex: 1, padding: 10 }}>
-					<button
-						type="button"
-						class="btn waves-effect waves-light btn-outline-info"
-						style={{ borderRadius: '8px', marginRight: '20px' }}
-					>
-						Bulk Token Issue
-					</button>
-					<button
-						type="button"
-						onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-						class="btn waves-effect waves-light btn-outline-info"
-						style={{ borderRadius: '8px' }}
-					>
-						Bulk Generate QR Code
-					</button>
-				</div>
+				{loading ? (
+					<GrowSpinner />
+				) : (
+					<div style={{ flex: 1, padding: 10 }}>
+						<button
+							onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
+							type="button"
+							class="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px', marginRight: '20px' }}
+						>
+							Bulk Token Issue
+						</button>
+						<button
+							type="button"
+							onClick={() => toggleAmountModal(ACTION.BULK_QR)}
+							class="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Bulk Generate QR Code
+						</button>
+					</div>
+				)}
 
 				<div className="flex-item">
 					{/* <button type="button" class="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
