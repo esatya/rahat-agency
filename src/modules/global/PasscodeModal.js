@@ -67,7 +67,16 @@ export default function PasscodeModal(props) {
 					<ModalBody className="pt-4">
 						{/* {children || 'No child elements supplied.'} */}
 						{/* <span>Close</span> */}
-						<h2 style={{ marginBottom: '50px', color: 'white' }}>{title || 'Verify Passcode'}</h2>
+						<div>
+							<h2 style={{ marginBottom: '50px', color: 'white' }}>
+								{title || 'Verify Passcode'} &nbsp;
+								<span style={{ cursor: 'pointer' }} onClick={toggleModal}>
+									<small>
+										<i class="fa fa-times" aria-hidden="true"></i>
+									</small>
+								</span>
+							</h2>
+						</div>
 
 						<div>
 							<div className="input-group" style={{ display: 'flex', justifyContent: 'center' }}>

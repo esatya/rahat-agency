@@ -115,19 +115,6 @@ export const AidContextProvider = ({ children }) => {
 		});
 	}, []);
 
-	// function beneficiaryByAid(aidId, params) {
-	// 	return new Promise((resolve, reject) => {
-	// 		Service.beneficiaryByAid(aidId, params)
-	// 			.then(res => {
-	// 				dispatch({ type: ACTION.BENEF_LIST_SUCCSS, res });
-	// 				resolve(res);
-	// 			})
-	// 			.catch(err => {
-	// 				reject(err);
-	// 			});
-	// 	});
-	// }
-
 	function addAid(payload) {
 		return new Promise((resolve, reject) => {
 			Service.addAid(payload)
@@ -153,9 +140,13 @@ export const AidContextProvider = ({ children }) => {
 		});
 	}
 
-	function bulkTokenIssueToBeneficiary(payload) {
-		return Service.bulkTokenIssueToBeneficiary({ ...payload });
-	}
+	const bulkTokenIssueToBeneficiary = useCallback(
+		payload => {
+			changeIsverified(false);
+			return Service.bulkTokenIssueToBeneficiary({ ...payload });
+		},
+		[changeIsverified]
+	);
 
 	function listFinancialInstitutions(params) {
 		return Service.listFinancialInstitutions(params);

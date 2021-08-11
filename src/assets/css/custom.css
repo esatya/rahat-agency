@@ -184,7 +184,8 @@ a {
 }
 
 .modal-backdrop {
-	opacity: 1 !important;
+	opacity: 0.4 !important;
+	background-color: #2b7ec1;
 }
 .input-pin {
 	background-color: black;
