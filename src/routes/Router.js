@@ -2,7 +2,7 @@ import { lazy } from 'react';
 
 const Dashboard = lazy(() => import('../modules/dashboard/Dashboard'));
 const Beneficiary = lazy(() => import('../modules/beneficary'));
-
+const Mobilizer = lazy(() => import('../modules/mobilizer'));
 const Vendor = lazy(() => import('../modules/vendor'));
 const AgencyList = lazy(() => import('../modules/agency/list'));
 const AgencyDetails = lazy(() => import('../modules/agency/details'));
@@ -15,6 +15,7 @@ const InstitutionList = lazy(() => import('../modules/institution'));
 const InstitutionDetails = lazy(() => import('../modules/institution/detail/index'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
 const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index'));
+const MobilizerDetails = lazy(() => import('../modules/mobilizer/detail/index'));
 
 const Onboard = lazy(() => import('../modules/onboard'));
 const ListUsers = lazy(() => import('../modules/user/list'));
@@ -40,6 +41,8 @@ const VendorAdd = lazy(() => import('../views/vendors/add'));
 const VendorDetail = lazy(() => import('../views/vendors/detail'));
 
 // --------------------------------------------------------------------------------
+
+
 
 var AppRoutes = [
 	{
@@ -77,6 +80,12 @@ var AppRoutes = [
 		path: '/vendors/:id',
 		name: 'Vendor',
 		component: VendorDetails
+	},
+
+	{
+		path: '/mobilizers/:id',
+		name: 'Mobilizer',
+		component: MobilizerDetails
 	},
 	{
 		path: '/projects/:id',
@@ -149,6 +158,13 @@ var AppRoutes = [
 		name: 'Vendors',
 		icon: 'anchor',
 		component: Vendor,
+		showInSidebar: true
+	},
+	{
+		path: '/mobilizers',
+		name: 'Mobilizers',
+		icon: 'git-merge',
+		component: Mobilizer,
 		showInSidebar: true
 	},
 	{
