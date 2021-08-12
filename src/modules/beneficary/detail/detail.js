@@ -23,6 +23,8 @@ import Swal from 'sweetalert2';
 
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
+import PasscodeModal from '../../global/PasscodeModal';
+
 import profilePhoto from '../../../assets/images/users/user_avatar.svg';
 import UnlockWallet from '../../global/walletUnlock';
 
