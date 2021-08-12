@@ -1,7 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
+import Select from 'react-select';
+import { Link } from 'react-router-dom';
 
-import { Card, CardBody, Row, Col, Input, ButtonGroup, Button, Table, CardSubtitle, CardTitle } from 'reactstrap';
+import { Card, 
+	CardBody, Row, Col, Input, ButtonGroup, Button, Table, CardSubtitle, CardTitle,Label,FormGroup,
+	InputGroup,
+	Modal,
+	ModalBody,
+	ModalHeader,
+	ModalFooter } from 'reactstrap';
 import Swal from 'sweetalert2';
 
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
@@ -24,13 +32,22 @@ export default function DetailsForm(props) {
 		changeMobilizerStatus,
 		getMobilizerBalance,
 		getMobilizerTransactions,
-		transactionHistory
+		transactionHistory,
+		getAvailableBalance,
+		listAid,
 	} = useContext(MobilizerContext);
 	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+	const [modal, setModal] = useState(false);
+	const [projectOptions, setProjectOptions] = useState([]);
+	const [inputTokens, setInputTokens] = useState(null);
+	const [selectedProject, setSelectedProject] = useState('');
+	const [availableBalance, setAvailableBalance] = useState(null);
+	const [showAlert, setShowAlert] = useState(false);
+
 
 	const loadMobilizerDetails = () => {
 		getMobilizerDetails(mobilizerId)
@@ -87,13 +104,37 @@ export default function DetailsForm(props) {
 		}
 	};
 
+	const handleTokenChange = e => {
+		setInputTokens(e.target.value);
+	};
+
+
+	const handleSelectProject = async e => {
+		try {
+			setLoading(true);
+			setSelectedProject(e.value);
+			//const { rahat_admin } = appSettings.agency.contracts;
+			let d = await getAvailableBalance(e.value);
+			setAvailableBalance(d);
+			setShowAlert(true);
+			setLoading(false);
+		} catch {
+			setShowAlert(false);
+			addToast('Failed to fetch availabe balance!', {
+				appearance: 'error',
+				autoDismiss: true
+			});
+			setLoading(false);
+		}
+	};
+
 	const submitMobilizerApproval = e => {
 		if (!isVerified) return;
 		setLoading(true);
 		let payload = {
 			status: 'active',
 			wallet_address: mobilizer.wallet_address,
-			mobilizerId: mobilizerId
+			projectId: selectedProject
 		};
 		approveMobilizer(payload)
 			.then(() => {
@@ -116,19 +157,64 @@ export default function DetailsForm(props) {
 			});
 	};
 
+	const toggleModal = () => {
+		setModal(prevState => !prevState);
+		resetTokenIssueForm();
+	};
+
+	const resetTokenIssueForm = () => {
+		setInputTokens(null);
+		setAvailableBalance('');
+		setShowAlert(false);
+	};
+
+
 	const handleMobilizerApprove = async e => {
 		e.preventDefault();
-		let swal = await Swal.fire({
-			title: 'Are you sure?',
-			text: `You want to approve this mobilizer!`,
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes'
-		});
-		if (swal.isConfirmed) togglePasscodeModal();
+		// let swal = await Swal.fire({
+		// 	title: 'Are you sure?',
+		// 	text: `You want to approve this mobilizer!`,
+		// 	icon: 'warning',
+		// 	showCancelButton: true,
+		// 	confirmButtonColor: '#3085d6',
+		// 	cancelButtonColor: '#d33',
+		// 	confirmButtonText: 'Yes'
+		// });
+		// if (swal.isConfirmed) 
+		toggleModal();
+		togglePasscodeModal();
 	};
+
+
+	const fetchProjectList = () => {
+		listAid()
+			.then(d => {
+				sanitizeProjectOptions(d.data);
+			})
+			.catch(() => {
+				addToast('Something went wrong!', {
+					appearance: 'error',
+					autoDismiss: true
+				});
+			});
+	};
+
+	const sanitizeProjectOptions = data => {
+		let options = [];
+		if (data && data.length) {
+			for (let d of data) {
+				let obj = {};
+				obj.value = d._id;
+				obj.label = d.name;
+				options.push(obj);
+			}
+			setProjectOptions(options);
+			return;
+		}
+		setProjectOptions(options);
+	};
+
+	useEffect(fetchProjectList, []);
 
 	useEffect(loadMobilizerDetails, []);
 	useEffect(submitMobilizerApproval, [isVerified]);
@@ -138,6 +224,60 @@ export default function DetailsForm(props) {
 	return (
 		<>
 			<UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
+
+
+
+
+			<Modal isOpen={modal} toggle={toggleModal.bind(null)}>
+				<ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
+				<ModalBody>
+					<FormGroup>
+						<Label>Project *</Label>
+						<Select
+							onChange={handleSelectProject}
+							closeMenuOnSelect={true}
+							defaultValue={[]}
+							options={projectOptions}
+							placeholder="--Select Project--"
+						/>
+						<br />
+				
+					</FormGroup>
+					<FormGroup>
+						{showAlert && availableBalance > 0 ? (
+							<div className="alert alert-success fade show" role="alert">
+								Availabe Balance: {availableBalance}
+							</div>
+						) : showAlert ? (
+							<div>
+								<div className="alert alert-warning fade show" role="alert">
+									<p>
+										Project has ZERO balance. <Link to={`/projects/${selectedProject}`}>You can add here.</Link>
+									</p>
+								</div>
+							</div>
+						) : (
+							''
+						)}
+					</FormGroup>
+				</ModalBody>
+				<ModalFooter>
+			
+						
+								<>
+									<Button onClick={handleMobilizerApprove} type="button" color="primary">
+										Submit
+									</Button>
+									<Button color="secondary" onClick={toggleModal.bind(null)}>
+										Cancel
+									</Button>
+								</>
+						
+						
+				</ModalFooter>
+			</Modal>
+
+
 
 			<Row>
 				<Col md="12">
@@ -178,7 +318,7 @@ export default function DetailsForm(props) {
 										) : loading ? (
 											<Loading />
 										) : (
-											<Button onClick={handleMobilizerApprove} className="btn" color="info">
+											<Button onClick={toggleModal} className="btn" color="info">
 												Approve
 											</Button>
 										)}

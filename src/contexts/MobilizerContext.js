@@ -24,9 +24,16 @@ export const MobilizerContextProvider = ({ children }) => {
     return Service.getMobilizerBalance(contract_addr, wallet_address);
   }
 
+
+  async function getAvailableBalance(proejctId, rahatAdminContractAddr) {
+    const { rahat:rahatContractAddr } = appSettings.agency.contracts;
+    return AidService.loadAidBalance(proejctId, rahatContractAddr);
+  }
+
   async function listAid() {
     const d = await AidService.listAid({ start: 0, limit: 20 });
     dispatch({ type: ACTION.LIST_AID, data: { aids: d.data } });
+    return d;
   }
 
   function setAid(aid) {
@@ -107,7 +114,6 @@ export const MobilizerContextProvider = ({ children }) => {
   }
 
   async function listMobilizer(params) {
-    console.log("listing MOB");
     let res = await Service.list(params);
     if (res) {
       dispatch({
@@ -152,6 +158,7 @@ export const MobilizerContextProvider = ({ children }) => {
         changeMobilizerStatus,
         getMobilizerBalance,
         getMobilizerTransactions,
+        getAvailableBalance
       }}
     >
       {children}
