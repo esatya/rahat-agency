@@ -259,6 +259,18 @@ export default function DetailsForm(props) {
 													/>
 												</td>
 											</tr>
+											<tr className="d-flex">
+												<td className="col-3 font-bold"> Organization</td>
+												<td className="col-9">
+													<Input
+														readOnly
+														type="text"
+														name="organization"
+														id="organization"
+														defaultValue={mobilizer && mobilizer.organization ? mobilizer.organization : ''}
+													/>
+												</td>
+											</tr>
 										</tbody>
 									</Table>
 								</div>

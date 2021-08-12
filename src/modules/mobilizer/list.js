@@ -212,7 +212,7 @@ const Mobilizer = () => {
 						e.preventDefault();
 						addMobilizer(e)
 							.then(() => {
-								addToast('Vendor Added Successfully', {
+								addToast('Mobilizer Added Successfully', {
 									appearance: 'success',
 									autoDismiss: true
 								});
@@ -229,7 +229,7 @@ const Mobilizer = () => {
 				>
 					<ModalHeader toggle={toggle}>
 						<div>
-							<h3>Add Vendor</h3>
+							<h3>Add Mobilizer</h3>
 						</div>
 					</ModalHeader>
 					<ModalBody>
@@ -284,6 +284,12 @@ const Mobilizer = () => {
 							</div>
 						</div>
 						<br />
+						<div className="form-item">
+							<label htmlFor="ethaddress">Organization</label>
+							<br />
+							<Input name="organization" type="text" placeholder="Organization" className="form-field" required />
+						</div>
+						<br/>
 					</ModalBody>
 					<ModalFooter>
 						<Button color="primary">Submit</Button>
