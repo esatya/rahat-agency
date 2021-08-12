@@ -28,7 +28,7 @@ export async function approveMobilizer(wallet, payload,contract_address) {
   const myContract = mapTestContract(signerContract);
   const data = await myContract.addAdmin(payload.wallet_address);
   if (!data) return "Mobilizer approve failed!";
-  const res = await changeMobilizerStaus(payload.mobilizerId, payload.status);
+  const res = await approveMobilizerToProject(payload.wallet_address, payload.projectId);
   getEth({address:payload.wallet_address});
   return res;
   }
@@ -42,6 +42,17 @@ export async function changeMobilizerStaus(mobilizerId, status) {
   return axios.patch(
     `${API.MOBILIZERS}/${mobilizerId}/status/`,
     { status: status },
+    {
+      headers: { access_token: access_token },
+    }
+  );
+}
+
+
+export async function approveMobilizerToProject(wallet_address,projectId){
+  return axios.patch(
+    `${API.MOBILIZERS}/approve/`,
+    { wallet_address,projectId },
     {
       headers: { access_token: access_token },
     }
