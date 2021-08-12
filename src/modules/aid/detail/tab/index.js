@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Card, Row, Col } from 'reactstrap';
 import classnames from 'classnames';
+
 import BeneficiaryList from './beneficiaryList';
 import VendorList from './vendorList';
+import { AidContext } from '../../../../contexts/AidContext';
 
-const Tabs = () => {
+const Tabs = ({ projectId }) => {
+	const { beneficiaryByAid, beneficiary_list } = useContext(AidContext);
+
 	const [activeTab, setActiveTab] = useState('1');
 
 	const toggle = tab => {
 		if (activeTab !== tab) setActiveTab(tab);
 	};
+
+	const fetchData = useCallback(async () => {
+		await beneficiaryByAid(projectId);
+	}, [beneficiaryByAid, projectId]);
+
+	useEffect(() => {
+		console.log('Effect...');
+		fetchData();
+	}, [fetchData]);
 
 	return (
 		<div>
@@ -41,7 +54,7 @@ const Tabs = () => {
 						<TabPane tabId="1">
 							<Row>
 								<Col sm="12">
-									<BeneficiaryList />
+									<BeneficiaryList beneficiaries={beneficiary_list} projectId={projectId} />
 								</Col>
 							</Row>
 						</TabPane>
