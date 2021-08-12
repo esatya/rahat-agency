@@ -84,6 +84,7 @@ export const MobilizerContextProvider = ({ children }) => {
       email: formData.get("email"),
       address: formData.get("address"),
       govt_id: formData.get("govt_id"),
+      organization:formData.get("organization")
     };
 
     return new Promise((resolve, reject) => {
