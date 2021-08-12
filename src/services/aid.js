@@ -176,6 +176,21 @@ export function addAid(payload) {
 	});
 }
 
+export function updateAid(projectId, payload) {
+	return new Promise((resolve, reject) => {
+		axios
+			.put(`${API.PROJECTS}/${projectId}`, payload, {
+				headers: { access_token: access_token }
+			})
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err);
+			});
+	});
+}
+
 export async function listAid(params) {
 	let { data } = await axios({
 		url: API.PROJECTS,
