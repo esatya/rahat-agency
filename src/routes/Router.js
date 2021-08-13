@@ -1,31 +1,44 @@
 import { lazy } from 'react';
 
-const Dashboard = lazy(() => import('../modules/dashboard/Dashboard'));
-const Beneficiary = lazy(() => import('../modules/beneficary'));
-const Mobilizer = lazy(() => import('../modules/mobilizer'));
-const Vendor = lazy(() => import('../modules/vendor'));
+// Agency
 const AgencyList = lazy(() => import('../modules/agency/list'));
 const AgencyDetails = lazy(() => import('../modules/agency/details'));
+const AgencyProfile = lazy(() => import('../modules/agency/profile'));
+
+// Beneficiary
+const Beneficiary = lazy(() => import('../modules/beneficary'));
+const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index'));
+const AddBeneficiary = lazy(() => import('../modules/beneficary/add'));
+
+// Institutions
+const InstitutionList = lazy(() => import('../modules/institution'));
+const InstitutionDetails = lazy(() => import('../modules/institution/detail/index'));
+
+// Misc
+const Dashboard = lazy(() => import('../modules/dashboard/Dashboard'));
+const Onboard = lazy(() => import('../modules/onboard'));
+
+// Mobilizer
+const Mobilizer = lazy(() => import('../modules/mobilizer'));
+const MobilizerDetails = lazy(() => import('../modules/mobilizer/detail/index'));
+
+// Project
 const AidList = lazy(() => import('../modules/aid/list'));
 const AidDetails = lazy(() => import('../modules/aid/detail'));
 const AddProject = lazy(() => import('../modules/aid/add'));
 const EditProject = lazy(() => import('../modules/aid/edit'));
+const BudgetAdd = lazy(() => import('../modules/aid/detail/budgetAdd'));
 
-const AgencyProfile = lazy(() => import('../modules/agency/profile'));
-const InstitutionList = lazy(() => import('../modules/institution'));
-const InstitutionDetails = lazy(() => import('../modules/institution/detail/index'));
-const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
-const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index'));
-const MobilizerDetails = lazy(() => import('../modules/mobilizer/detail/index'));
-
-const Onboard = lazy(() => import('../modules/onboard'));
+// Users
 const ListUsers = lazy(() => import('../modules/user/list'));
 const AddUser = lazy(() => import('../modules/user/add'));
 const UserDetails = lazy(() => import('../modules/user/edit'));
-const BudgetAdd = lazy(() => import('../modules/aid/detail/budgetAdd'));
+
+// Vendor
+const Vendor = lazy(() => import('../modules/vendor'));
+const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
 
 // ------------------------------Beneficiary UI------------------------------------
-
 const BeneficiaryAdd = lazy(() => import('../views/beneficiaries/add'));
 const BeneficiaryDetail = lazy(() => import('../views/beneficiaries/detail'));
 
@@ -38,9 +51,7 @@ const VendorDetail = lazy(() => import('../views/vendors/detail'));
 
 // --------------------------------------------------------------------------------
 
-
-
-var AppRoutes = [
+let AppRoutes = [
 	{
 		path: '/dashboard',
 		name: 'Dashboard',
@@ -72,10 +83,20 @@ var AppRoutes = [
 		name: 'Beneficiary',
 		component: BeneficiaryDetails
 	},
+
 	{
-		path: '/vendors/:id',
-		name: 'Vendor',
-		component: VendorDetails
+		path: '/add-beneficiary',
+		name: 'Beneficiary',
+		icon: 'users',
+		component: AddBeneficiary
+	},
+
+	{
+		path: '/beneficiaries',
+		name: 'Beneficiary',
+		icon: 'users',
+		component: Beneficiary,
+		showInSidebar: true
 	},
 
 	{
@@ -139,13 +160,10 @@ var AppRoutes = [
 		component: VendorDetail
 	},
 	// -----------------------------------------------------------------
-
 	{
-		path: '/beneficiaries',
-		name: 'Beneficiary',
-		icon: 'users',
-		component: Beneficiary,
-		showInSidebar: true
+		path: '/vendors/:id',
+		name: 'Vendor',
+		component: VendorDetails
 	},
 	{
 		path: '/vendors',
@@ -154,6 +172,7 @@ var AppRoutes = [
 		component: Vendor,
 		showInSidebar: true
 	},
+
 	{
 		path: '/mobilizers',
 		name: 'Mobilizers',
