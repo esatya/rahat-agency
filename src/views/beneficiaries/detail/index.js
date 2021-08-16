@@ -9,7 +9,7 @@ const projects = [
 	{ id: '0', name: 'Sindhupalchowk relief' },
 	{ id: '1', name: 'Flood relief distribution' }
 ];
-const ProjectDetail = () => {
+const BeneficiaryDetail = () => {
 	return (
 		<>
 			<p className="page-heading">Beneficiary</p>
@@ -41,4 +41,4 @@ const ProjectDetail = () => {
 	);
 };
 
-export default ProjectDetail;
+export default BeneficiaryDetail;

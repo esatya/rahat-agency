@@ -18,7 +18,7 @@ export default function BeneficiaryInfo() {
 						</div>
 					</div>
 					<Row>
-						<Col>
+						<Col md="4" sm="12">
 							<div className="card-data">
 								<p className="card-font-medium">Sindhupalchowk , Kavre</p>
 								<div className="sub-title">Address</div>
@@ -36,7 +36,7 @@ export default function BeneficiaryInfo() {
 								<div className="sub-title">Number of family member (Adult)</div>
 							</div>
 						</Col>
-						<Col>
+						<Col md="4" sm="12">
 							<div className="card-data">
 								<p className="card-font-medium">Bachelors in computer science</p>
 								<div className="sub-title">Education</div>
@@ -54,12 +54,14 @@ export default function BeneficiaryInfo() {
 								<div className="sub-title">Number of family member(Child)</div>
 							</div>
 						</Col>
-						<Col>
+						<Col md="4" sm="12">
 							<div className="card-data">
 								<p className="card-font-medium">Software Engineer</p>
 								<div className="sub-title">Profession</div>
 							</div>
-							<img src={image} alt="certificate" width="90%" height="60%" className="card-data" />
+							<div className="card-data">
+								<img src={image} alt="certificate" width="90%" height="60%" className="card-data" />
+							</div>
 						</Col>
 					</Row>
 				</div>

@@ -29,7 +29,7 @@ const ProjectDetail = () => {
 					/>
 				</Col>
 				<Col md="5">
-					<Balance title="Budget" button_name="Add Budget" data="50,000" label="Total Redeemed Budget" />
+					<Balance title="Budget" button_name="Add Budget" data="50,000" label="Total Remaining Budget" />
 				</Col>
 			</Row>
 
