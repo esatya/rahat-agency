@@ -9,6 +9,7 @@ const AgencyProfile = lazy(() => import('../modules/agency/profile'));
 const Beneficiary = lazy(() => import('../modules/beneficary'));
 const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index'));
 const AddBeneficiary = lazy(() => import('../modules/beneficary/add'));
+const EditBeneficiary = lazy(() => import('../modules/beneficary/edit'));
 
 // Institutions
 const InstitutionList = lazy(() => import('../modules/institution'));
@@ -39,7 +40,6 @@ const Vendor = lazy(() => import('../modules/vendor'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
 
 // ------------------------------Beneficiary UI------------------------------------
-const BeneficiaryAdd = lazy(() => import('../views/beneficiaries/add'));
 const BeneficiaryDetail = lazy(() => import('../views/beneficiaries/detail'));
 
 // --------------------------------------------------------------------------------
@@ -82,6 +82,13 @@ let AppRoutes = [
 		path: '/beneficiaries/:id',
 		name: 'Beneficiary',
 		component: BeneficiaryDetails
+	},
+
+	{
+		path: '/edit-beneficiary/:id',
+		name: 'Beneficiary',
+		icon: 'users',
+		component: EditBeneficiary
 	},
 
 	{
@@ -134,12 +141,6 @@ let AppRoutes = [
 	},
 
 	//.............................Beneficiary ui......................
-
-	{
-		path: '/add_beneficiary',
-		name: 'BeneficiaryAdd',
-		component: BeneficiaryAdd
-	},
 	{
 		path: '/detail_beneficiary',
 		name: 'BeneficiaryDetail',

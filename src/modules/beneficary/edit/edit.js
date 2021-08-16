@@ -8,7 +8,8 @@ import { GROUPS, TOAST } from '../../../constants';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import SelectWrapper from '../../global/SelectWrapper';
 
-const Add = () => {
+const Edit = ({ beneficiaryId }) => {
+	console.log({ beneficiaryId });
 	const { addToast } = useToasts();
 	const { listAid, addBeneficiary } = useContext(BeneficiaryContext);
 
@@ -90,7 +91,7 @@ const Add = () => {
 	return (
 		<div>
 			<p className="page-heading">Beneficiary</p>
-			<BreadCrumb redirect_path="beneficiaries" root_label="Beneficiary" current_label="Add" />
+			<BreadCrumb redirect_path="beneficiaries" root_label="Beneficiary" current_label="Edit" />
 
 			<Row>
 				<Col md="12">
@@ -264,7 +265,7 @@ const Add = () => {
 									) : ( */}
 									<div>
 										<Button type="submit" className="btn btn-info">
-											<i className="fa fa-check"></i> Submit
+											<i className="fa fa-check"></i> Update
 										</Button>
 										<Button
 											type="button"
@@ -286,4 +287,4 @@ const Add = () => {
 	);
 };
 
-export default Add;
+export default Edit;
