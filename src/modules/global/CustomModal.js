@@ -19,7 +19,7 @@ export default function CustomModal(props) {
 							{loading ? (
 								<Loading />
 							) : (
-								<Button type="submit" color="primary">
+								<Button type="submit" color="info">
 									Submit
 								</Button>
 							)}
