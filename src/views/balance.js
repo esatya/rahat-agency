@@ -32,10 +32,6 @@ export default function Balance(props) {
 							</button>
 						</Col>
 					</Row>
-					{/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						<div style={{ flexBasis: '70%' }}></div>
-						<div style={{ flexBasis: '30%' }}></div>
-					</div> */}
 				</div>
 			</Card>
 		</div>

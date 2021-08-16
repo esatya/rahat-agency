@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Button, Card, CardTitle, Col, Form, FormGroup, Input, InputGroup, InputGroupAddon, Row } from 'reactstrap';
+import { Button, Card, CardTitle, Form, FormGroup, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 import '../../project.css';
 import UnlockWallet from '../../../modules/global/walletUnlock';
+import TotalCard from '../../totalCard';
 
 export default function BudgetAdd() {
 	const [inputTokens, setInputToken] = useState('');
@@ -21,21 +22,13 @@ export default function BudgetAdd() {
 	return (
 		<div>
 			<UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
-			<Card>
-				<div className="stat-card-body" style={{ minHeight: 120 }}>
-					<CardTitle className="title">Budget</CardTitle>
-					<Row>
-						<Col md="6" sm="12" style={{ marginBottom: '10px' }}>
-							<p className="card-font-bold">10,000,000</p>
-							<div className="sub-title">Total Project Budget</div>
-						</Col>
-						<Col md="6" sm="12">
-							<p className="card-font-bold">50,000</p>
-							<div className="sub-title">Total Redeemed Budget</div>
-						</Col>
-					</Row>
-				</div>
-			</Card>
+			<TotalCard
+				title="Budget"
+				data1="10,000,000"
+				sub_title1="Total Project Budget"
+				data2="50,000"
+				sub_title2="Total Redeemed Budget"
+			/>
 			<Card>
 				<div className="stat-card-body" style={{ minHeight: 120 }}>
 					<CardTitle className="title">Add Budget</CardTitle>

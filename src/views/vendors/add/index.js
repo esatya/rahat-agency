@@ -33,7 +33,6 @@ const AddProject = () => {
 		wallet_address: ''
 	});
 	const [selectedGender, setSelectedGender] = useState('');
-	const [selectedGroup, setSelectedGroup] = useState('');
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,13 +41,9 @@ const AddProject = () => {
 	const handleGenderChange = e => {
 		setSelectedGender(e.target.value);
 	};
-	const handleGroupChange = e => {
-		setSelectedGroup(e.target.value);
-	};
 
 	const handleFormSubmit = e => {
 		console.log(selectedGender);
-		console.log(selectedGroup);
 
 		return;
 	};
@@ -134,7 +129,7 @@ const AddProject = () => {
 										<FormGroup>
 											<label htmlFor="pan_number">PAN number</label>
 											<br />
-											<Input name="pan_number" type="text" className="form-field" required />
+											<Input name="pan_number" type="number" className="form-field" required />
 										</FormGroup>
 									</Col>
 								</Row>
@@ -142,49 +137,25 @@ const AddProject = () => {
 								<Row>
 									<Col md="6" sm="12">
 										<FormGroup>
-											<label htmlFor="governmentID">Government ID number</label>
+											<label htmlFor="bank_name">Bank name</label>
 											<br />
-											<Input name="governmentID" type="number" className="form-field" required />
+											<Input name="bank_name" type="text" className="form-field" required />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
-											<Label>Group</Label>
-											<Input type="select" name="group" onChange={handleGroupChange}>
-												<option value="">--Select Group--</option>
-												<option value="Differently_Abled">Differently Abled</option>
-												<option value="Maternity">Maternity</option>
-												<option value="Senior_Citizens">Senior Citizens</option>
-												<option value="Covid_Victim">Covid Victim</option>
-												<option value="Natural_Calamities_Victim">Natural Calamities Victim</option>
-												<option value="Under Privileged">Under Privileged</option>
-												<option value="Severe_Health_Issues">Severe Health Issues</option>
-												<option value="Single_Women">Single Women</option>
-												<option value="Orphan">Orphan</option>
-											</Input>
+											<label htmlFor="bank_branch">Bank branch</label>
+											<br />
+											<Input name="bank_branch" type="text" className="form-field" required />
 										</FormGroup>
 									</Col>
 								</Row>
 
 								<FormGroup>
-									<label htmlFor="family_members">Number of family members</label>
+									<label htmlFor="account_number">Bank account number</label>
 									<br />
-									<Input name="family_members" type="number" className="form-field" required />
+									<Input name="account_number" type="number" className="form-field" required />
 								</FormGroup>
-								<Row>
-									<Col md="6" sm="12">
-										<FormGroup>
-											<Label>Adult</Label>
-											<Input type="number" value={formData.adult} name="adult" onChange={handleInputChange} required />
-										</FormGroup>
-									</Col>
-									<Col md="6" sm="12">
-										<FormGroup>
-											<Label>Child</Label>
-											<Input type="number" value={formData.child} name="child" onChange={handleInputChange} required />
-										</FormGroup>
-									</Col>
-								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
 									{/* {loading ? (
