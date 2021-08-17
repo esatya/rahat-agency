@@ -28,11 +28,8 @@ const BenefDetails = ({ params }) => {
 	}, [getBeneficiaryDetails, id]);
 
 	useEffect(() => {
-		console.log('EFFECT!');
 		fetchBeneficiaryDetails();
 	}, [fetchBeneficiaryDetails]);
-
-	console.log('BASIC==>', basicInfo);
 
 	return (
 		<>
