@@ -34,10 +34,9 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return payload;
 	};
 
-	async function getBeneficiaryBalance(phone, contract_address) {
-		const balance = await Service.getBeneficiaryBalance(phone, contract_address);
-		return balance;
-	}
+	const getBeneficiaryBalance = useCallback(async (phone, contract_address) => {
+		return Service.getBeneficiaryBalance(phone, contract_address);
+	}, []);
 
 	const listAid = useCallback(() => {
 		return AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
