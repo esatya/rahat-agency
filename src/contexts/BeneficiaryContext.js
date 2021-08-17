@@ -76,6 +76,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.addBeneficiary(payload);
 	};
 
+	const updateBeneficiary = (id, payload) => {
+		return Service.updateBeneficiary(id, payload);
+	};
+
 	// const addBeneficiary = async event => {
 	// 	event.preventDefault();
 	// 	const formData = new FormData(event.target);
@@ -127,6 +131,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				listAid,
 				issueTokens,
 				addBeneficiary,
+				updateBeneficiary,
 				setBeneficiary,
 				listBeneficiary,
 				importBeneficiary,
