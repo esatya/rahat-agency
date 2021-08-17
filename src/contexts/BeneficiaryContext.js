@@ -34,10 +34,9 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return payload;
 	};
 
-	async function getBeneficiaryBalance(phone, contract_address) {
-		const balance = await Service.getBeneficiaryBalance(phone, contract_address);
-		return balance;
-	}
+	const getBeneficiaryBalance = useCallback(async (phone, contract_address) => {
+		return Service.getBeneficiaryBalance(phone, contract_address);
+	}, []);
 
 	const listAid = useCallback(() => {
 		return AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
@@ -74,6 +73,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 
 	const addBeneficiary = payload => {
 		return Service.addBeneficiary(payload);
+	};
+
+	const updateBeneficiary = (id, payload) => {
+		return Service.updateBeneficiary(id, payload);
 	};
 
 	// const addBeneficiary = async event => {
@@ -127,6 +130,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				listAid,
 				issueTokens,
 				addBeneficiary,
+				updateBeneficiary,
 				setBeneficiary,
 				listBeneficiary,
 				importBeneficiary,

@@ -34,7 +34,7 @@ const Add = () => {
 
 	const [selectedGender, setSelectedGender] = useState('');
 	const [selectedGroup, setSelectedGroup] = useState('');
-	const [selectedProject, setSelectedProject] = useState('');
+	const [selectedProjects, setSelectedProjects] = useState('');
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,11 +46,11 @@ const Add = () => {
 
 	const handleFormSubmit = e => {
 		e.preventDefault();
-		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
+		if (!selectedProjects.length) return addToast('Please select project', TOAST.ERROR);
 
 		if (selectedGroup) extras.group = selectedGroup;
 		const payload = { ...formData, extras: { ...extras } };
-		payload.project_id = selectedProject;
+		payload.projects = selectedProjects;
 		if (selectedGender) payload.gender = selectedGender;
 		addBeneficiary(payload)
 			.then(() => {
@@ -66,7 +66,10 @@ const Add = () => {
 
 	const handleGroupChange = e => setSelectedGroup(e.target.value);
 
-	const handleProjectChange = d => setSelectedProject(d.value);
+	const handleProjectChange = data => {
+		const values = data.map(d => d.value);
+		setSelectedProjects(values.toString());
+	};
 
 	const handleCancelClick = () => History.push('/beneficiaries');
 
@@ -100,8 +103,9 @@ const Add = () => {
 								<FormGroup>
 									<Label>Project</Label>
 									<SelectWrapper
+										multi={true}
 										onChange={handleProjectChange}
-										maxMenuHeight={130}
+										maxMenuHeight={150}
 										data={projectList}
 										placeholder="--Select Project--"
 									/>
