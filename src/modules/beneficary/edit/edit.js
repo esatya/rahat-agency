@@ -9,9 +9,8 @@ import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import SelectWrapper from '../../global/SelectWrapper';
 
 const Edit = ({ beneficiaryId }) => {
-	console.log({ beneficiaryId });
 	const { addToast } = useToasts();
-	const { listAid, addBeneficiary } = useContext(BeneficiaryContext);
+	const { listAid, updateBeneficiary, getBeneficiaryDetails } = useContext(BeneficiaryContext);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -32,10 +31,11 @@ const Edit = ({ beneficiaryId }) => {
 	});
 
 	const [projectList, setProjectList] = useState([]);
+	const [existingProjects, setExistingProjects] = useState([]);
 
 	const [selectedGender, setSelectedGender] = useState('');
 	const [selectedGroup, setSelectedGroup] = useState('');
-	const [selectedProject, setSelectedProject] = useState('');
+	const [selectedProjects, setSelectedProjects] = useState('');
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,15 +47,15 @@ const Edit = ({ beneficiaryId }) => {
 
 	const handleFormSubmit = e => {
 		e.preventDefault();
-		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
+		if (!selectedProjects.length) return addToast('Please select project', TOAST.ERROR);
 
 		if (selectedGroup) extras.group = selectedGroup;
 		const payload = { ...formData, extras: { ...extras } };
-		payload.project_id = selectedProject;
+		payload.projects = selectedProjects;
 		if (selectedGender) payload.gender = selectedGender;
-		addBeneficiary(payload)
+		updateBeneficiary(beneficiaryId, payload)
 			.then(() => {
-				addToast('Beneficiary added successfully', TOAST.SUCCESS);
+				addToast('Beneficiary updated successfully', TOAST.SUCCESS);
 				History.push('/beneficiaries');
 			})
 			.catch(err => {
@@ -67,26 +67,52 @@ const Edit = ({ beneficiaryId }) => {
 
 	const handleGroupChange = e => setSelectedGroup(e.target.value);
 
-	const handleProjectChange = d => setSelectedProject(d.value);
+	const handleProjectChange = data => {
+		const values = data.map(d => d.value);
+		setSelectedProjects(values.toString());
+	};
 
 	const handleCancelClick = () => History.push('/beneficiaries');
+
+	const createProjectSelectOptions = projects => {
+		const select_options = projects.map(p => {
+			return {
+				label: p.name,
+				value: p._id
+			};
+		});
+		return select_options;
+	};
+
+	const loadBeneficiaryDetails = useCallback(async () => {
+		const d = await getBeneficiaryDetails(beneficiaryId);
+		const { extras, projects, name, phone, email, address, address_temporary, govt_id } = d;
+		if (projects && projects.length) {
+			const project_ids = projects.map(p => p._id);
+			setSelectedProjects(project_ids.toString());
+			const select_options = createProjectSelectOptions(projects);
+			setExistingProjects(select_options);
+		}
+		setExtras(extras);
+		if (extras.group) setSelectedGroup(extras.group);
+		delete d.extras;
+		setFormData({ name, phone, email, address, address_temporary, govt_id });
+		const { gender } = d;
+		if (gender !== 'U') setSelectedGender(gender);
+	}, [beneficiaryId, getBeneficiaryDetails]);
 
 	const loadProjects = useCallback(async () => {
 		const projects = await listAid();
 		if (projects && projects.data.length) {
-			const select_options = projects.data.map(p => {
-				return {
-					label: p.name,
-					value: p._id
-				};
-			});
+			const select_options = createProjectSelectOptions(projects.data);
 			setProjectList(select_options);
 		}
 	}, [listAid]);
 
 	useEffect(() => {
 		loadProjects();
-	}, [loadProjects]);
+		loadBeneficiaryDetails();
+	}, [loadBeneficiaryDetails, loadProjects]);
 
 	return (
 		<div>
@@ -100,12 +126,26 @@ const Edit = ({ beneficiaryId }) => {
 							<Form onSubmit={handleFormSubmit} style={{ color: '#6B6C72' }}>
 								<FormGroup>
 									<Label>Project</Label>
-									<SelectWrapper
-										onChange={handleProjectChange}
-										maxMenuHeight={130}
-										data={projectList}
-										placeholder="--Select Project--"
-									/>
+									{existingProjects.length > 0 && (
+										<SelectWrapper
+											multi={true}
+											currentValue={existingProjects}
+											onChange={handleProjectChange}
+											maxMenuHeight={130}
+											data={projectList}
+											placeholder="--Select Project--"
+										/>
+									)}
+
+									{existingProjects.length < 1 && (
+										<SelectWrapper
+											multi={true}
+											onChange={handleProjectChange}
+											maxMenuHeight={130}
+											data={projectList}
+											placeholder="--Select Project--"
+										/>
+									)}
 								</FormGroup>
 
 								<FormGroup>
@@ -131,7 +171,7 @@ const Edit = ({ beneficiaryId }) => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Gender</Label>
-											<Input type="select" name="gender" onChange={handleGenderChange}>
+											<Input type="select" name="gender" value={selectedGender} onChange={handleGenderChange}>
 												<option value="">--Select Gender--</option>
 												<option value="M">Male</option>
 												<option value="F">Female</option>
@@ -215,7 +255,7 @@ const Edit = ({ beneficiaryId }) => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Group</Label>
-											<Input type="select" name="group" onChange={handleGroupChange}>
+											<Input type="select" value={selectedGroup} name="group" onChange={handleGroupChange}>
 												<option value="">--Select Group--</option>
 												<option value={GROUPS.DIFFERENTLY_ABLED.value}>{GROUPS.DIFFERENTLY_ABLED.label}</option>
 												<option value={GROUPS.MATERNITY.value}>{GROUPS.MATERNITY.label}</option>
