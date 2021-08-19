@@ -1,337 +1,98 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useToasts } from 'react-toast-notifications';
-
-import { Card, CardBody, Row, Col, Input, ButtonGroup, Button, Table, CardSubtitle, CardTitle } from 'reactstrap';
-import Swal from 'sweetalert2';
-
+import React, { useContext, useCallback, useEffect, useState } from 'react';
+import { Breadcrumb, BreadcrumbItem, Row, Col, Card, CardTitle } from 'reactstrap';
+// import TotalCard from '../../totalCard';
+import Balance from '../../ui_components/balance';
+import VendorInfo from './vendorInfo';
+import ProjectInvovled from '../../ui_components/projects';
+import TransactionHistory from './transactionHistory';
 import { VendorContext } from '../../../contexts/VendorContext';
-import { AppContext } from '../../../contexts/AppSettingsContext';
-import profilePhoto from '../../../assets/images/users/user_avatar.svg';
-import IdPhoto from '../../../assets/images/id-icon-1.png';
-import UnlockWallet from '../../global/walletUnlock';
-import Loading from '../../global/Loading';
+import displayPic from '../../../assets/images/users/user_avatar.svg';
 
-const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
+const projects = [
+	{ id: '0', name: 'Sindhupalchowk relief' },
+	{ id: '1', name: 'Flood relief distribution' }
+];
+const Index = ({ params }) => {
+	const { id } = params;
+	const { getVendorDetails } = useContext(VendorContext);
+	const [basicInfo, setBasicInfo] = useState({});
 
-export default function DetailsForm(props) {
-	const vendorId = props.params.id;
-	const { addToast } = useToasts();
-	const {
-		vendor,
-		getVendorDetails,
-		approveVendor,
-		changeVendorStatus,
-		getVendorBalance,
-		getVendorTransactions,
-		transactionHistory
-	} = useContext(VendorContext);
-	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
-	const [vendorBalance, setVendorBalance] = useState('');
-	const [passcodeModal, setPasscodeModal] = useState(false);
-	const [loading, setLoading] = useState(false);
-	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+	const fetchVendorDetails = useCallback(async () => {
+		const details = await getVendorDetails(id);
+		if (details) setBasicInfo(details);
+	}, [getVendorDetails, id]);
 
-	const loadVendorDetails = () => {
-		getVendorDetails(vendorId)
-			.then(d => {
-				getVendorTransactions(vendorId);
-				getBalance(d.wallet_address);
-			})
-			.catch(() => {
-				addToast('Something went wrong on server!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
+	useEffect(() => {
+		// console.log('EFFECT!');
+		fetchVendorDetails();
+	}, [fetchVendorDetails]);
 
-	const getBalance = async wallet => {
-		if (appSettings && appSettings.agency) {
-			try {
-				const { token } = appSettings.agency.contracts;
-				let d = await getVendorBalance(token, wallet);
-				setVendorBalance(d);
-			} catch {
-				addToast('Invalid vendor wallet address!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			}
-		}
-	};
-
-	const handleChangeStatus = async status => {
-		let swal = await Swal.fire({
-			title: 'Are you sure?',
-			text: `Vendor will be marked as ${status}`,
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes'
-		});
-		if (swal.isConfirmed) {
-			try {
-				await changeVendorStatus(vendorId, status);
-				addToast(`Vendor marked as ${status}`, {
-					appearance: 'success',
-					autoDismiss: true
-				});
-			} catch (e) {
-				addToast('Something went wrong on server!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			}
-		}
-	};
-
-	const submitVendorApproval = e => {
-		if (!isVerified) return;
-		setLoading(true);
-		let payload = {
-			status: 'active',
-			wallet_address: vendor.wallet_address,
-			vendorId: vendorId
-		};
-		approveVendor(payload)
-			.then(() => {
-				changeIsverified(false);
-				setLoading(false);
-				togglePasscodeModal();
-				addToast('Vendor approved successfully.', {
-					appearance: 'success',
-					autoDismiss: true
-				});
-			})
-			.catch(() => {
-				changeIsverified(false);
-				setLoading(false);
-				togglePasscodeModal();
-				addToast('Invalid vendor wallet address!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	const handleVendorApprove = async e => {
-		e.preventDefault();
-		let swal = await Swal.fire({
-			title: 'Are you sure?',
-			text: `You want to approve this vendor!`,
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes'
-		});
-		if (swal.isConfirmed) togglePasscodeModal();
-	};
-
-	useEffect(loadVendorDetails, []);
-	useEffect(submitVendorApproval, [isVerified]);
-
-	const vendor_status = vendor && vendor.agencies ? vendor.agencies[0].status : 'new';
+	console.log('BASIC==>', basicInfo);
 
 	return (
 		<>
-			<UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
-
+			<p className="page-heading">Vendors</p>
+			<Breadcrumb>
+				<BreadcrumbItem style={{ color: '#6B6C72' }}>
+					<a href="/">Vendors</a>
+				</BreadcrumbItem>
+				<BreadcrumbItem active-breadcrumb>Detail</BreadcrumbItem>
+			</Breadcrumb>
 			<Row>
-				<Col md="12">
+				<Col md="7">
 					<Card>
-						<CardBody>
-							<div className="">
-								<div className="d-flex align-items-center p-4 border-bottom">
-									<div className="mr-3">
-										<img
-											src={vendor.photo ? `${IPFS_GATEWAY}/ipfs/${vendor.photo}` : profilePhoto}
-											alt="user"
-											className="rounded-circle"
-											width="50"
-										/>
-									</div>
-									<div>
-										<h5 className="message-title mb-0">{vendor ? vendor.name : ''}</h5>
-										<p className="mb-0">Current balance: {vendorBalance || 0}</p>
-									</div>
-									<div className="ml-auto" style={{ padding: 5 }}>
-										{vendor_status !== 'new' ? (
-											<ButtonGroup>
-												<Button
-													onClick={() => handleChangeStatus('active')}
-													disabled={vendor_status === 'suspended' ? false : true}
-													color="success"
-												>
-													Activate
-												</Button>
-												<Button
-													onClick={() => handleChangeStatus('suspended')}
-													disabled={vendor_status === 'active' ? false : true}
-													color="danger"
-												>
-													Suspend
-												</Button>
-											</ButtonGroup>
-										) : loading ? (
-											<Loading />
-										) : (
-											<Button onClick={handleVendorApprove} className="btn" color="info">
-												Approve
-											</Button>
-										)}
-									</div>
-								</div>
-								<div className="details-table px-4">
-									<Table responsive borderless size="sm" className="mt-4">
-										<tbody>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Status</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="status"
-														id="status"
-														defaultValue={vendor && vendor.agencies ? vendor.agencies[0].status : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Phone</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="phone"
-														id="phone"
-														defaultValue={vendor ? vendor.phone : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Email</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="email"
-														id="email"
-														defaultValue={vendor ? vendor.email : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Government ID</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="govt_id"
-														id="govt_id"
-														defaultValue={vendor ? vendor.govt_id : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Wallet Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="wallet_address"
-														id="wallet_address"
-														defaultValue={vendor ? vendor.wallet_address : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold"> Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="address"
-														id="address"
-														defaultValue={vendor && vendor.address ? vendor.address : ''}
-													/>
-												</td>
-											</tr>
-										</tbody>
-									</Table>
-								</div>
+						<div className="stat-card-body" style={{ minHeight: 120 }}>
+							<CardTitle className="title" style={{ flexBasis: '70%' }}>
+								Vendor Detail
+							</CardTitle>
 
-								<div className="text-center">
-									<img
-										src={vendor.govt_id_image ? `${IPFS_GATEWAY}/ipfs/${vendor.govt_id_image}` : IdPhoto}
-										alt="user"
-										className="img-fluid"
-										height="auto"
-										width="38%"
-									/>
-								</div>
-							</div>
-						</CardBody>
+							<Row>
+								<Col md="8" sm="12" style={{ marginBottom: '10px' }}>
+									<div style={{ display: 'flex', alignItems: 'center' }}>
+										<img src={displayPic} alt="user" className="rounded-circle" width="45" />
+										<div style={{ marginLeft: '20px' }}>
+											<p className="card-font-medium">Susma shahi thakuri</p>
+											<div className="sub-title">Name</div>
+										</div>
+									</div>
+								</Col>
+								<Col md="4" sm="12">
+									<button
+										type="button"
+										className="btn waves-effect waves-light btn-outline-info"
+										style={{ borderRadius: '8px', float: 'right' }}
+									>
+										Approve
+									</button>
+								</Col>
+							</Row>
+						</div>
+					</Card>
+				</Col>
+				<Col md="5">
+					<Card>
+						<div className="stat-card-body" style={{ minHeight: 120 }}>
+							<CardTitle className="title">Token</CardTitle>
+							<Row>
+								<Col md="6" sm="12" style={{ marginBottom: '10px' }}>
+									<p className="card-font-bold">Balance</p>
+									<div className="sub-title">Token Status</div>
+								</Col>
+								<Col md="6" sm="12">
+									<p className="card-font-bold">50,000</p>
+									<div className="sub-title">Total Redeemed</div>
+								</Col>
+							</Row>
+						</div>
 					</Card>
 				</Col>
 			</Row>
 
-			<Row>
-				<Col md="12">
-					<Card>
-						<CardBody>
-							<CardTitle>Transaction history</CardTitle>
-							{transactionHistory.length > 0 && (
-								<CardSubtitle>{transactionHistory.length} transactions found.</CardSubtitle>
-							)}
-							<Table className="no-wrap v-middle" responsive>
-								<thead>
-									<tr className="border-0">
-										<th className="border-0">From</th>
-										<th className="border-0">To</th>
-										<th className="border-0">Value</th>
-										<th className="border-0">Type</th>
-										<th className="border-0">Blockchain Tx</th>
-									</tr>
-								</thead>
-								<tbody>
-									{transactionHistory && transactionHistory.length ? (
-										transactionHistory.map((tx, index) => {
-											return (
-												<tr key={index}>
-													<td>{tx.from || ''}</td>
-													<td>{tx.to || '-'}</td>
-													<td>{tx.value || '-'}</td>
-													<td>
-														{(tx.tag === 'sent' && tx.to === appSettings.agency.contracts.rahat_admin
-															? 'redeem'
-															: tx.tag) || '-'}
-													</td>
-													<td>
-														<a
-															href={EXPLORER_URL + '/tx/' + tx.transactionHash}
-															target="_blank"
-															rel="noopener noreferrer"
-														>
-															Verify
-														</a>
-													</td>
-												</tr>
-											);
-										})
-									) : (
-										<tr>
-											<td colSpan={4}>No data available.</td>
-										</tr>
-									)}
-								</tbody>
-							</Table>
-						</CardBody>
-					</Card>
-				</Col>
-			</Row>
+			<VendorInfo information={basicInfo} />
+			<ProjectInvovled projects={projects} />
+			<TransactionHistory />
 		</>
 	);
-}
+};
+
+export default Index;
