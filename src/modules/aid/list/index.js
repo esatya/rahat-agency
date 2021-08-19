@@ -145,6 +145,7 @@ const List = () => {
 					<Table className="no-wrap v-middle" responsive>
 						<thead>
 							<tr className="border-0">
+								<th className="border-0">S.N.</th>
 								<th className="border-0">Name</th>
 								<th className="border-0">Location</th>
 								<th className="border-0">Project Manager</th>
@@ -155,12 +156,15 @@ const List = () => {
 						</thead>
 						<tbody>
 							{aids.length ? (
-								aids.map(d => {
+								aids.map((d, i) => {
 									return (
 										<tr key={d._id}>
+											<td>{i + 1}</td>
 											<td>{d.name}</td>
-											<td>Kavre</td>
-											<td>Shrawan Khadka</td>
+											<td>{d.location || '-'}</td>
+											<td>
+												{d.project_manager ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
+											</td>
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
