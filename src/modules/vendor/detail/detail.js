@@ -23,7 +23,7 @@ const Index = ({ params }) => {
 	}, [getVendorDetails, id]);
 
 	useEffect(() => {
-		// console.log('EFFECT!');
+		console.log('EFFECT!');
 		fetchVendorDetails();
 	}, [fetchVendorDetails]);
 

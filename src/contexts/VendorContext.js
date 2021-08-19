@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from 'react';
+import React, { createContext, useReducer, useContext, useCallback } from 'react';
 import vendorReduce from '../reducers/vendorReducer';
 import * as Service from '../services/vendor';
 import * as AidService from '../services/aid';
@@ -68,11 +68,10 @@ export const VendorContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.SET_VENDOR, data: b });
 	}
 
-	async function getVendorDetails(id) {
+	const getVendorDetails = useCallback(async id => {
 		const data = await Service.get(id);
-		setVendor(data);
 		return data;
-	}
+	}, []);
 
 	function addVendor(payload) {
 		// const formData = new FormData(e.target);
