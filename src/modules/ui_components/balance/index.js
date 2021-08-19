@@ -3,8 +3,10 @@ import { Card, CardTitle, Col, Row } from 'reactstrap';
 import { useHistory } from 'react-router-dom';
 import '../../../assets/css/project.css';
 
+import Loading from '../../global/Loading';
+
 export default function Balance(props) {
-	const { title, data, button_name, label, projectId } = props;
+	const { title, data, button_name, label, projectId, fetching } = props;
 	const history = useHistory();
 	const handleClick = () => {
 		history.push(`/add_budget/${projectId}`);
@@ -16,7 +18,8 @@ export default function Balance(props) {
 					<CardTitle className="title">{title || 'No Title'}</CardTitle>
 					<Row>
 						<Col>
-							<p className="card-font-bold">{data || '0'}</p>
+							{fetching ? <Loading /> : <p className="card-font-bold">{data || '0'}</p>}
+
 							<div style={{ marginTop: 0 }} className="sub-title">
 								{label || 'No Label'}
 							</div>
