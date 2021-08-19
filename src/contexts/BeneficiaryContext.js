@@ -18,21 +18,21 @@ const initialState = {
 export const BeneficiaryContext = createContext(initialState);
 export const BeneficiaryContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(beneficiaryReduce, initialState);
-	const { wallet, appSettings, changeIsverified } = useContext(AppContext);
+	const { appSettings, changeIsverified } = useContext(AppContext);
 
 	async function getAvailableBalance(proejctId, rahatAdminContractAddr) {
 		const { rahat: rahatContractAddr } = appSettings.agency.contracts;
 		return AidService.loadAidBalance(proejctId, rahatContractAddr);
 	}
 
-	const issueTokens = async payload => {
-		const { rahat: rahatContractAddr } = appSettings.agency.contracts;
-		await AidService.issueBeneficiaryToken(wallet, payload, rahatContractAddr);
-		changeIsverified(false);
-		let balance = await Service.getBeneficiaryBalance(payload.phone, rahatContractAddr);
-		dispatch({ type: ACTION.SET_TOKEN_BALANCE, data: balance });
-		return payload;
-	};
+	const issueTokens = useCallback(
+		async (payload, wallet) => {
+			changeIsverified(false);
+			const { rahat: rahatContractAddr } = appSettings.agency.contracts;
+			return AidService.issueBeneficiaryToken(wallet, payload, rahatContractAddr);
+		},
+		[appSettings.agency.contracts, changeIsverified]
+	);
 
 	const getBeneficiaryBalance = useCallback(async (phone, contract_address) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
