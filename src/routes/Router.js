@@ -39,11 +39,6 @@ const UserDetails = lazy(() => import('../modules/user/edit'));
 const Vendor = lazy(() => import('../modules/vendor'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
 
-// ------------------------------Beneficiary UI------------------------------------
-const BeneficiaryDetail = lazy(() => import('../views/beneficiaries/detail'));
-
-// --------------------------------------------------------------------------------
-
 // ------------------------------Vendor UI------------------------------------
 
 const VendorAdd = lazy(() => import('../views/vendors/add'));
@@ -139,14 +134,6 @@ let AppRoutes = [
 		name: 'BudgetAdd',
 		component: BudgetAdd
 	},
-
-	//.............................Beneficiary ui......................
-	{
-		path: '/detail_beneficiary',
-		name: 'BeneficiaryDetail',
-		component: BeneficiaryDetail
-	},
-	// -----------------------------------------------------------------
 
 	//.............................Vendor ui......................
 

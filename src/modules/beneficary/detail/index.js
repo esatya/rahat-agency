@@ -1,6 +1,6 @@
 import React from 'react';
 import { BeneficiaryContextProvider } from '../../../contexts/BeneficiaryContext';
-import Detail from './_detail';
+import Detail from './detail';
 
 const index = props => {
 	return (
