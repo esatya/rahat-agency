@@ -4,9 +4,21 @@ import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 
 import '../../assets/css/project.css';
 import { PROJECT_STATUS } from '../../constants';
+import Loading from '../global/Loading';
 
 export default function DetailsCard(props) {
-	const { title, button_name, name, name_value, total, total_value, status, handleStatusChange } = props;
+	const {
+		fetching,
+		title,
+		button_name,
+		name,
+		name_value,
+		total,
+		total_value,
+		status,
+		handleStatusChange,
+		handleButtonClick
+	} = props;
 
 	const handleSwitchChange = e => {
 		const _status = e === true ? PROJECT_STATUS.ACTIVE : PROJECT_STATUS.SUSPENDED;
@@ -37,6 +49,7 @@ export default function DetailsCard(props) {
 									/>
 								) : (
 									<button
+										onClick={handleButtonClick}
 										type="button"
 										className="btn waves-effect waves-light btn-outline-info"
 										style={{ borderRadius: '8px' }}
@@ -53,7 +66,8 @@ export default function DetailsCard(props) {
 							<div className="sub-title">{name || 'No Label'}</div>
 						</Col>
 						<Col md="4" sm="12">
-							<p className="card-font-bold">{total_value || '0'}</p>
+							{fetching ? <Loading /> : <p className="card-font-bold">{total_value || '0'}</p>}
+
 							<div className="sub-title">{total || 'No Label'}</div>
 						</Col>
 					</Row>
