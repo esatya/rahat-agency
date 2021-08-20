@@ -4,9 +4,11 @@ import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 
 import '../../assets/css/project.css';
 import { PROJECT_STATUS } from '../../constants';
+import Loading from '../global/Loading';
 
 export default function DetailsCard(props) {
 	const {
+		fetching,
 		title,
 		button_name,
 		name,
@@ -64,7 +66,8 @@ export default function DetailsCard(props) {
 							<div className="sub-title">{name || 'No Label'}</div>
 						</Col>
 						<Col md="4" sm="12">
-							<p className="card-font-bold">{total_value || '0'}</p>
+							{fetching ? <Loading /> : <p className="card-font-bold">{total_value || '0'}</p>}
+
 							<div className="sub-title">{total || 'No Label'}</div>
 						</Col>
 					</Row>
