@@ -6,7 +6,17 @@ import '../../assets/css/project.css';
 import { PROJECT_STATUS } from '../../constants';
 
 export default function DetailsCard(props) {
-	const { title, button_name, name, name_value, total, total_value, status, handleStatusChange } = props;
+	const {
+		title,
+		button_name,
+		name,
+		name_value,
+		total,
+		total_value,
+		status,
+		handleStatusChange,
+		handleButtonClick
+	} = props;
 
 	const handleSwitchChange = e => {
 		const _status = e === true ? PROJECT_STATUS.ACTIVE : PROJECT_STATUS.SUSPENDED;
@@ -37,6 +47,7 @@ export default function DetailsCard(props) {
 									/>
 								) : (
 									<button
+										onClick={handleButtonClick}
 										type="button"
 										className="btn waves-effect waves-light btn-outline-info"
 										style={{ borderRadius: '8px' }}

@@ -1,6 +1,7 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { Row, Col, FormGroup, Label, InputGroup, Input } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
+import QRCode from 'qrcode';
 
 import Balance from '../../ui_components/balance';
 import DetailsCard from '../../global/DetailsCard';
@@ -15,6 +16,7 @@ import { TOAST } from '../../../constants';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import { History } from '../../../utils/History';
+import { htmlResponse } from '../../../utils/printSingleBeneficiary';
 
 const BenefDetails = ({ params }) => {
 	const { id } = params;
@@ -31,13 +33,18 @@ const BenefDetails = ({ params }) => {
 	const [currentBalance, setCurrentBalance] = useState('');
 	const [inputTokens, setInputTokens] = useState('');
 	const [projectOptions, setProjectOptions] = useState([]);
+	const [assignTokenAmount, setAssignTokenAmount] = useState('');
 
 	const [fetching, setFetching] = useState(false);
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [projectModal, setProjectModal] = useState(false);
+	const [assignTokenModal, setAssignTokenModal] = useState(false);
+
 	const [availableBalance, setAvailableBalance] = useState('');
 	const [showAlert, setShowAlert] = useState(false);
 	const [selectedProject, setSelectedProject] = useState('');
+
+	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
 
 	const toggleProjectModal = () => {
 		// If opening modal, reset fields
@@ -54,6 +61,30 @@ const BenefDetails = ({ params }) => {
 	const togglePasscodeModal = useCallback(() => {
 		setPasscodeModal(!passcodeModal);
 	}, [passcodeModal]);
+
+	const handleAssignTokenChange = e => setAssignTokenAmount(e.target.value);
+
+	const handleTokenInputSubmit = e => {
+		e.preventDefault();
+		const { name, address, govt_id, phone } = basicInfo;
+		const payload = { name, address, govt_id, phone };
+		generateQrAndPrint(payload);
+	};
+
+	const generateQrAndPrint = async payload => {
+		toggleAssignTokenModal();
+		const imgUrl = await QRCode.toDataURL(`phone:+977${payload.phone}?amount=${assignTokenAmount || null}`);
+		const html = await htmlResponse(payload, imgUrl);
+		setAssignTokenAmount('');
+		let newWindow = window.open('', 'Print QR', 'fullscreen=yes'),
+			document = newWindow.document.open();
+		document.write(html);
+		document.close();
+		setTimeout(function () {
+			newWindow.print();
+			newWindow.close();
+		}, 250);
+	};
 
 	const handleProjectChange = async d => {
 		try {
@@ -110,12 +141,17 @@ const BenefDetails = ({ params }) => {
 
 	const fetchCurrentBalance = useCallback(
 		async phone => {
-			const parsed_phone = parseInt(phone);
-			const { rahat } = appSettings.agency.contracts;
-			setFetching(true);
-			const balance = await getBeneficiaryBalance(parsed_phone, rahat);
-			setCurrentBalance(balance);
-			setFetching(false);
+			try {
+				const parsed_phone = parseInt(phone);
+				const { rahat } = appSettings.agency.contracts;
+				setFetching(true);
+				const balance = await getBeneficiaryBalance(parsed_phone, rahat);
+				setCurrentBalance(balance);
+				setFetching(false);
+			} catch (err) {
+				setCurrentBalance('0');
+				setFetching(false);
+			}
 		},
 		[appSettings.agency.contracts, getBeneficiaryBalance]
 	);
@@ -149,7 +185,13 @@ const BenefDetails = ({ params }) => {
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
-			<ModalWrapper loading={loading} open={projectModal} toggle={toggleProjectModal} handleSubmit={handleIssueSubmit}>
+			<ModalWrapper
+				title="Issue Tokens"
+				loading={loading}
+				open={projectModal}
+				toggle={toggleProjectModal}
+				handleSubmit={handleIssueSubmit}
+			>
 				<FormGroup>
 					<Label>Project *</Label>
 					<SelectWrapper
@@ -188,11 +230,32 @@ const BenefDetails = ({ params }) => {
 				</FormGroup>
 			</ModalWrapper>
 
+			{/* Assign token modal */}
+			<ModalWrapper
+				title="Set Tokens"
+				open={assignTokenModal}
+				toggle={toggleAssignTokenModal}
+				handleSubmit={handleTokenInputSubmit}
+			>
+				<FormGroup>
+					<InputGroup>
+						<Input
+							type="number"
+							name="assignTokenAmount"
+							placeholder="Enter number of tokens (optional)"
+							value={assignTokenAmount}
+							onChange={handleAssignTokenChange}
+						/>
+					</InputGroup>
+				</FormGroup>
+			</ModalWrapper>
+
 			<p className="page-heading">Beneficiary</p>
 			<BreadCrumb redirect_path="beneficiaries" root_label="Beneficiary" current_label="Details" />
 			<Row>
 				<Col md="7">
 					<DetailsCard
+						handleButtonClick={toggleAssignTokenModal}
 						title="Beneficiary Details"
 						button_name="Generate QR Code"
 						name="Name"
