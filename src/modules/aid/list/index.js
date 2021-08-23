@@ -159,7 +159,7 @@ const List = () => {
 								aids.map((d, i) => {
 									return (
 										<tr key={d._id}>
-											<td>{i + 1}</td>
+											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 											<td>{d.name}</td>
 											<td>{d.location || '-'}</td>
 											<td>
