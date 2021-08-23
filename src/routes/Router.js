@@ -38,6 +38,8 @@ const UserDetails = lazy(() => import('../modules/user/edit'));
 // Vendor
 const Vendor = lazy(() => import('../modules/vendor'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
+const AddVendor = lazy(() => import('../modules/vendor/add'));
+const EditVendor = lazy(() => import('../modules/vendor/edit'));
 
 // ------------------------------Vendor UI------------------------------------
 
@@ -152,6 +154,16 @@ let AppRoutes = [
 		path: '/vendors/:id',
 		name: 'Vendor',
 		component: VendorDetails
+	},
+	{
+		path: '/add-vendor',
+		name: 'AddVendor',
+		component: AddVendor
+	},
+	{
+		path: '/edit-vendor/:id',
+		name: 'Vendor',
+		component: EditVendor
 	},
 	{
 		path: '/vendors',

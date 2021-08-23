@@ -6,12 +6,15 @@ import { AppContext } from '../../contexts/AppSettingsContext';
 import Logo from '../../assets/images/rahat-logo-blue.png';
 import DataService from '../../services/db';
 import './wallet.css';
+import { useToasts } from 'react-toast-notifications';
+import { TOAST } from '../../constants';
 
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');
 const QR_REFRESH_TIME = 30000; // 30
 
 const Wallet = () => {
+	const { addToast } = useToasts();
 	const ws = useRef(null);
 	const [qroptions, setQrOptions] = useState({});
 	const [clientId, setclientId] = useState('');
@@ -72,6 +75,9 @@ const Wallet = () => {
 
 		ws.current.onmessage = async e => {
 			const data = JSON.parse(e.data);
+			if (data.action === 'unauthorized') {
+				return addToast('User not authorized!', TOAST.ERROR);
+			}
 			if (data.data && data.data.token) {
 				const { id, token } = data.data;
 				setclientId(id.toString());
