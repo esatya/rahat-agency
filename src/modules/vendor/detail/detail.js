@@ -1,31 +1,42 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { Breadcrumb, BreadcrumbItem, Row, Col, Card, CardTitle } from 'reactstrap';
-// import TotalCard from '../../totalCard';
-import Balance from '../../ui_components/balance';
 import VendorInfo from './vendorInfo';
 import ProjectInvovled from '../../ui_components/projects';
 import TransactionHistory from './transactionHistory';
 import { VendorContext } from '../../../contexts/VendorContext';
 import displayPic from '../../../assets/images/users/user_avatar.svg';
 
-const projects = [
-	{ id: '0', name: 'Sindhupalchowk relief' },
-	{ id: '1', name: 'Flood relief distribution' }
-];
 const Index = ({ params }) => {
 	const { id } = params;
-	const { getVendorDetails } = useContext(VendorContext);
+	const { getVendorDetails, getVendorTransactions } = useContext(VendorContext);
 	const [basicInfo, setBasicInfo] = useState({});
+	const [projectList, setProjectList] = useState([]);
+	const [transactionList, setTransactionList] = useState([]);
 
 	const fetchVendorDetails = useCallback(async () => {
 		const details = await getVendorDetails(id);
 		if (details) setBasicInfo(details);
+		if (details.projects && details.projects.length) {
+			const projects = details.projects.map(d => {
+				return { id: d._id, name: d.name };
+			});
+			setProjectList(projects);
+		}
 	}, [getVendorDetails, id]);
 
+	const fetchVendorTransactions = useCallback(async () => {
+		const transactions = await getVendorTransactions(id);
+		console.log('transaction alsdjflkajsdlfj', transactions);
+		if (transactions) setTransactionList(transactions);
+	}, [getVendorTransactions, id]);
+
 	useEffect(() => {
-		console.log('EFFECT!');
 		fetchVendorDetails();
 	}, [fetchVendorDetails]);
+
+	useEffect(() => {
+		fetchVendorTransactions();
+	}, [fetchVendorTransactions]);
 
 	console.log('BASIC==>', basicInfo);
 
@@ -47,16 +58,16 @@ const Index = ({ params }) => {
 							</CardTitle>
 
 							<Row>
-								<Col md="8" sm="12" style={{ marginBottom: '10px' }}>
+								<Col md="8" sm="8" style={{ marginBottom: '10px' }}>
 									<div style={{ display: 'flex', alignItems: 'center' }}>
 										<img src={displayPic} alt="user" className="rounded-circle" width="45" />
 										<div style={{ marginLeft: '20px' }}>
-											<p className="card-font-medium">Susma shahi thakuri</p>
+											<p className="card-font-medium">{basicInfo.name}</p>
 											<div className="sub-title">Name</div>
 										</div>
 									</div>
 								</Col>
-								<Col md="4" sm="12">
+								<Col md="4" sm="4">
 									<button
 										type="button"
 										className="btn waves-effect waves-light btn-outline-info"
@@ -89,8 +100,8 @@ const Index = ({ params }) => {
 			</Row>
 
 			<VendorInfo information={basicInfo} />
-			<ProjectInvovled projects={projects} />
-			<TransactionHistory />
+			<ProjectInvovled projects={projectList} />
+			<TransactionHistory transactions={transactionList} />
 		</>
 	);
 };

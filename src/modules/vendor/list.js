@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { VendorContext } from '../../contexts/VendorContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
+import { History } from '../../utils/History';
 
 import {
 	Card,
@@ -85,6 +86,7 @@ const Vendor = () => {
 		let _start = (current_page - 1) * pagination.limit;
 		return fetchList({ start: _start, limit: pagination.limit });
 	};
+	const handleAddClick = () => History.push('/add-vendor');
 
 	return (
 		<div className="main">
@@ -122,7 +124,7 @@ const Vendor = () => {
 							</Col>
 							<Col md="2">
 								<div>
-									<Button onClick={() => toggle()} className="btn" color="info">
+									<Button type="button" onClick={handleAddClick} className="btn" color="info">
 										Add New
 									</Button>
 								</div>
@@ -157,8 +159,8 @@ const Vendor = () => {
 											<td>{e.phone}</td>
 											<td>{e.address}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
-												<Link className="btn btn-secondary" to={`/vendors/${e._id}`}>
-													Details
+												<Link to={`/vendors/${e._id}`}>
+													<i class="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>
