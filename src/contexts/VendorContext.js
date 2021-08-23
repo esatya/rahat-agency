@@ -4,6 +4,7 @@ import * as Service from '../services/vendor';
 import * as AidService from '../services/aid';
 import ACTION from '../actions/vendor';
 import { AppContext } from './AppSettingsContext';
+import { APP_CONSTANTS } from '../constants';
 
 const initialState = {
 	list: [],
@@ -24,10 +25,11 @@ export const VendorContextProvider = ({ children }) => {
 		return Service.getVendorBalance(contract_addr, wallet_address);
 	}
 
-	async function listAid() {
-		const d = await AidService.listAid({ start: 0, limit: 20 });
+	const listAid = useCallback(async () => {
+		const d = await AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
 		dispatch({ type: ACTION.LIST_AID, data: { aids: d.data } });
-	}
+		return d;
+	}, []);
 
 	function setAid(aid) {
 		dispatch({ type: ACTION.SET_AID, data: aid });
@@ -95,6 +97,10 @@ export const VendorContextProvider = ({ children }) => {
 		});
 	}
 
+	const updateVendor = (id, payload) => {
+		return Service.updateVendor(id, payload);
+	};
+
 	function setLoading() {
 		dispatch({ type: ACTION.SET_LOADING });
 	}
@@ -114,8 +120,8 @@ export const VendorContextProvider = ({ children }) => {
 		}
 	}
 
-	async function getVendorTransactions(vendorId) {
-		let res = await Service.vendorTransactions(vendorId);
+	const getVendorTransactions = useCallback(async id => {
+		let res = await Service.vendorTransactions(id);
 		if (res) {
 			dispatch({
 				type: ACTION.VENDOR_TX,
@@ -123,7 +129,7 @@ export const VendorContextProvider = ({ children }) => {
 			});
 			return res;
 		}
-	}
+	}, []);
 
 	return (
 		<VendorContext.Provider
@@ -140,6 +146,7 @@ export const VendorContextProvider = ({ children }) => {
 				setAid,
 				clear,
 				addVendor,
+				updateVendor,
 				setVendor,
 				setLoading,
 				resetLoading,

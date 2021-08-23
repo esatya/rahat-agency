@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -17,28 +17,36 @@ import { VendorContext } from '../../../contexts/VendorContext';
 import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
 import WalletUnlock from '../../../modules/global/walletUnlock';
+import SelectWrapper from '../../global/SelectWrapper';
+import { blobToBase64 } from '../../../utils';
+import AvatarIcon from '../../../assets/images/download.png';
 
 const Add = () => {
 	const { addToast } = useToasts();
-	const { addVendor } = useContext(VendorContext);
-
+	const { listAid, addVendor } = useContext(VendorContext);
 	const [passcodeModal, setPasscodeModal] = useState(false);
-
 	const [formData, setFormData] = useState({
 		name: '',
-		// shop_name: '',
+		shop_name: '',
 		phone: '',
 		email: '',
 		address: '',
-		// education: '',
-		// pan_number: '',
-		governmentID: '',
+		govt_id: '',
+		pan_number: '',
 		wallet_address: '',
 		bank_branch: '',
 		bank_name: '',
-		account_number: ''
+		bank_account: ''
+	});
+	const [extras, setExtras] = useState({
+		identity_photo: '',
+		signature_photo: '',
+		mou_file: ''
 	});
 	const [selectedGender, setSelectedGender] = useState('');
+	const [selectedProjects, setSelectedProjects] = useState('');
+	const [projectList, setProjectList] = useState([]);
+	const [profileUpload, setProfileUpload] = useState('');
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,11 +56,38 @@ const Add = () => {
 		setSelectedGender(e.target.value);
 	};
 
+	const handleProjectChange = data => {
+		const values = data.map(d => d.value);
+		setSelectedProjects(values.toString());
+	};
+
+	async function handleProfileUpload(e) {
+		const convertImage = await blobToBase64(e.target.files[0]);
+		setProfileUpload(convertImage);
+	}
+
+	async function handleIdentityUpload(e) {
+		const convertImage = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, identity_photo: convertImage });
+	}
+
+	async function handleSignatureUpload(e) {
+		const convertImage = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, signature_photo: convertImage });
+	}
+
+	async function handleMouUpload(e) {
+		const convertImage = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, mou_file: convertImage });
+	}
 	const handleFormSubmit = e => {
 		e.preventDefault();
-		const payload = { ...formData };
+		if (!selectedProjects.length) return addToast('Please select project', TOAST.ERROR);
+
+		const payload = { ...formData, extra_files: { ...extras } };
+		payload.projects = selectedProjects;
+		if (profileUpload) payload.photo = profileUpload;
 		if (selectedGender) payload.gender = selectedGender;
-		console.log('vendor', payload);
 		addVendor(payload)
 			.then(() => {
 				addToast('Vendor added successfully', TOAST.SUCCESS);
@@ -65,9 +100,24 @@ const Add = () => {
 
 	const handleCancelClick = () => History.push('/users');
 
-	const saveUserDetails = () => {};
+	const loadProjects = useCallback(async () => {
+		const projects = await listAid();
+		if (projects && projects.data.length) {
+			const select_options = projects.data.map(p => {
+				return {
+					label: p.name,
+					value: p._id
+				};
+			});
+			setProjectList(select_options);
+		}
+	}, [listAid]);
 
-	useEffect(saveUserDetails);
+	useEffect(() => {
+		loadProjects();
+	}, [loadProjects]);
+
+	// console.log('project list', projects);
 
 	return (
 		<div>
@@ -84,9 +134,56 @@ const Add = () => {
 					<Card>
 						<CardBody>
 							<Form onSubmit={handleFormSubmit} style={{ color: '#6B6C72' }}>
+								<Row>
+									<Col md="6" sm="12" className="d-flex align-items-center">
+										<FormGroup>
+											<label htmlFor="Profile pic">Profile picture</label>
+											<br />
+											{profileUpload ? (
+												<img
+													src={profileUpload}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
+											)}
+											<Input id="profileUpload" type="file" name="file" onChange={handleProfileUpload} />
+										</FormGroup>
+									</Col>
+									<Col md="6" sm="12">
+										<FormGroup>
+											<Label>Name</Label>
+											<Input type="text" value={formData.name} name="name" onChange={handleInputChange} required />
+										</FormGroup>
+										<FormGroup>
+											<Label>Shop Name</Label>
+											<Input
+												type="text"
+												value={formData.shop_name}
+												name="shop_name"
+												onChange={handleInputChange}
+												required
+											/>
+										</FormGroup>
+										<FormGroup>
+											<label htmlFor="phone">Phone number</label>
+											<br />
+											<Input name="phone" type="number" onChange={handleInputChange} required />
+										</FormGroup>
+									</Col>
+								</Row>
 								<FormGroup>
-									<Label>Name</Label>
-									<Input type="text" value={formData.name} name="name" onChange={handleInputChange} required />
+									<Label>Project</Label>
+									<SelectWrapper
+										multi={true}
+										onChange={handleProjectChange}
+										maxMenuHeight={150}
+										data={projectList}
+										placeholder="--Select Project--"
+									/>
 								</FormGroup>
 								<FormGroup>
 									<Label>Wallet Address</Label>
@@ -99,21 +196,6 @@ const Add = () => {
 									/>
 								</FormGroup>
 								<FormGroup>
-									<Label>Shop Name</Label>
-									<Input
-										type="text"
-										value={formData.shop_name}
-										name="shop_name"
-										onChange={handleInputChange}
-										required
-									/>
-								</FormGroup>
-								<FormGroup>
-									<label htmlFor="phone">Phone number</label>
-									<br />
-									<Input name="phone" type="number" onChange={handleInputChange} required />
-								</FormGroup>
-								<FormGroup>
 									<Label>Address</Label>
 									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} required />
 								</FormGroup>
@@ -123,9 +205,10 @@ const Add = () => {
 											<Label>Gender</Label>
 											<Input type="select" name="gender" onChange={handleGenderChange}>
 												<option value="">--Select Gender--</option>
-												<option value="Male">Male</option>
-												<option value="Female">Female</option>
-												<option value="Other">Other</option>
+												<option value="M">Male</option>
+												<option value="F">Female</option>
+												<option value="O">Other</option>
+												{/* <option value="U">Undefinded</option> */}
 											</Input>
 										</FormGroup>
 									</Col>
@@ -140,11 +223,11 @@ const Add = () => {
 								<Row>
 									<Col md="6" sm="12">
 										<FormGroup>
-											<Label>Education</Label>
+											<Label>Government ID</Label>
 											<Input
-												type="text"
-												value={formData.education}
-												name="education"
+												type="number"
+												value={formData.govt_id}
+												name="govt_id"
 												onChange={handleInputChange}
 												required
 											/>
@@ -154,7 +237,13 @@ const Add = () => {
 										<FormGroup>
 											<label htmlFor="pan_number">PAN number</label>
 											<br />
-											<Input name="pan_number" type="number" className="form-field" required />
+											<Input
+												name="pan_number"
+												type="number"
+												className="form-field"
+												onChange={handleInputChange}
+												required
+											/>
 										</FormGroup>
 									</Col>
 								</Row>
@@ -164,23 +253,101 @@ const Add = () => {
 										<FormGroup>
 											<label htmlFor="bank_name">Bank name</label>
 											<br />
-											<Input name="bank_name" type="text" className="form-field" required />
+											<Input
+												name="bank_name"
+												type="text"
+												className="form-field"
+												onChange={handleInputChange}
+												required
+											/>
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
 											<label htmlFor="bank_branch">Bank branch</label>
 											<br />
-											<Input name="bank_branch" type="text" className="form-field" required />
+											<Input
+												name="bank_branch"
+												type="text"
+												className="form-field"
+												onChange={handleInputChange}
+												required
+											/>
 										</FormGroup>
 									</Col>
 								</Row>
-
 								<FormGroup>
-									<label htmlFor="account_number">Bank account number</label>
+									<label htmlFor="bank_account">Bank account number</label>
 									<br />
-									<Input name="account_number" type="number" className="form-field" required />
+									<Input
+										name="bank_account"
+										type="number"
+										className="form-field"
+										onChange={handleInputChange}
+										required
+									/>
 								</FormGroup>
+								<Row>
+									<Col md="4" sm="4">
+										<FormGroup>
+											<label htmlFor="identity_photo">Identity picture</label>
+											<br />
+											{extras.identity_photo ? (
+												<img
+													src={extras.identity_photo}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
+											)}
+											<Input id="identity_photo" type="file" name="file" onChange={handleIdentityUpload} />
+										</FormGroup>
+									</Col>
+									<Col md="4" sm="4">
+										<FormGroup>
+											<label htmlFor="mou_file">Signature upload</label>
+											<br />
+											{extras.signature_photo ? (
+												<img
+													src={extras.mou_file}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
+											)}
+											<Input
+												id="signature_photo"
+												type="file"
+												name="Upload signature"
+												onChange={handleSignatureUpload}
+											/>
+										</FormGroup>
+									</Col>
+									<Col md="4" sm="4">
+										<FormGroup>
+											<label htmlFor="mou_file">MOU upload</label>
+											<br />
+											{extras.mou_file ? (
+												<img
+													src={extras.mou_file}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
+											)}
+											<Input id="mou_file" type="file" name="file" onChange={handleMouUpload} />
+										</FormGroup>
+									</Col>
+								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
 									{/* {loading ? (
