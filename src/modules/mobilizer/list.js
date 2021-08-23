@@ -40,9 +40,9 @@ const Mobilizer = () => {
 	const toggle = () => setModel(!model);
 
 	const fetchList = query => {
-		console.log("LSIISHD")
+		console.log('LSIISHD');
 		let params = { ...pagination, ...query };
-		console.log({params});
+		console.log({ params });
 		listMobilizer(params)
 			.then()
 			.catch(() => {
@@ -145,6 +145,7 @@ const Mobilizer = () => {
 								{list.length ? (
 									list.map((e, i) => (
 										<tr key={e._id}>
+											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 											<td>
 												<div className="d-flex no-block align-items-center">
 													<div className="mr-2">
@@ -289,7 +290,7 @@ const Mobilizer = () => {
 							<br />
 							<Input name="organization" type="text" placeholder="Organization" className="form-field" required />
 						</div>
-						<br/>
+						<br />
 					</ModalBody>
 					<ModalFooter>
 						<Button color="primary">Submit</Button>
