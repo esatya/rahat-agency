@@ -65,21 +65,36 @@ export const AidContextProvider = ({ children }) => {
 		return res;
 	}
 
-	async function getProjectCapital(aidId, contract_addr) {
-		let res = await Service.getProjectCapital(aidId, contract_addr);
+	// async function getProjectCapital(aidId, contract_addr) {
+	// 	let res = await Service.getProjectCapital(aidId, contract_addr);
+	// 	dispatch({ type: ACTION.SET_TOTAL_TOKENS, res });
+	// 	return res;
+	// }
+
+	const getProjectCapital = useCallback(async (aidId, rahat_admin_contract) => {
+		let res = await Service.getProjectCapital(aidId, rahat_admin_contract);
 		dispatch({ type: ACTION.SET_TOTAL_TOKENS, res });
 		return res;
-	}
+	}, []);
 
-	async function getAidBalance(aidId) {
-		const { rahat } = appSettings.agency.contracts;
-		let _available = await Service.loadAidBalance(aidId, rahat);
+	const getAidBalance = useCallback(async (aidId, rahat_contract) => {
+		let _available = await Service.loadAidBalance(aidId, rahat_contract);
 		dispatch({
 			type: ACTION.SET_AVAILABLE_TOKENS,
 			res: _available
 		});
 		return _available;
-	}
+	}, []);
+
+	// async function getAidBalance(aidId) {
+	// 	const { rahat } = appSettings.agency.contracts;
+	// 	let _available = await Service.loadAidBalance(aidId, rahat);
+	// 	dispatch({
+	// 		type: ACTION.SET_AVAILABLE_TOKENS,
+	// 		res: _available
+	// 	});
+	// 	return _available;
+	// }
 
 	function setLoading() {
 		dispatch({ type: ACTION.SET_LOADING });

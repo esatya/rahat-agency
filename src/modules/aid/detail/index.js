@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
@@ -27,6 +27,7 @@ export default function Index(props) {
 	const { appSettings } = useContext(AppContext);
 
 	const [projectDetails, setProjectDetails] = useState(null);
+	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
 
 	const handleStatusChange = status => {
 		const success_label = status === PROJECT_STATUS.SUSPENDED ? 'Suspended' : 'Activated';
@@ -50,24 +51,24 @@ export default function Index(props) {
 			});
 	};
 
-	const fetchTokenDetails = () => {
-		const { rahat_admin } = appSettings.agency.contracts;
-		getProjectCapital(id, rahat_admin)
-			.then()
-			.catch(() => {
-				addToast('Failed to fetch project capital.', TOAST.ERROR);
-			});
-	};
-
-	const fetchProjectBalance = () => {
-		getAidBalance(id)
-			.then()
-			.catch(() => {});
-	};
+	const fetchBalanceAndToken = useCallback(async () => {
+		try {
+			setFetchingBlockchain(true);
+			const { rahat, rahat_admin } = appSettings.agency.contracts;
+			await getProjectCapital(id, rahat_admin);
+			await getAidBalance(id, rahat);
+		} catch (err) {
+			addToast(err.message, TOAST.ERROR);
+		} finally {
+			setFetchingBlockchain(false);
+		}
+	}, [addToast, appSettings.agency.contracts, getAidBalance, getProjectCapital, id]);
 
 	useEffect(fetchProjectDetails, []);
-	useEffect(fetchTokenDetails, []);
-	useEffect(fetchProjectBalance, []);
+
+	useEffect(() => {
+		fetchBalanceAndToken();
+	}, [fetchBalanceAndToken]);
 
 	return (
 		<>
@@ -77,6 +78,7 @@ export default function Index(props) {
 				<Col md="7">
 					{projectDetails && (
 						<DetailsCard
+							fetching={fetchingBlockchain}
 							title="Project Details"
 							button_name="Generate QR Code"
 							name="Project Name"
@@ -90,6 +92,7 @@ export default function Index(props) {
 				</Col>
 				<Col md="5">
 					<Balance
+						fetching={fetchingBlockchain}
 						title="Budget"
 						projectId={id}
 						button_name="Add Budget"
@@ -102,7 +105,7 @@ export default function Index(props) {
 			<Row>
 				<Col md="7">{projectDetails && <ProjectInfo projectDetails={projectDetails} />}</Col>
 				<Col md="5">
-					<PieChart available_tokens={available_tokens} total_tokens={total_tokens} />
+					<PieChart fetching={fetchingBlockchain} available_tokens={available_tokens} total_tokens={total_tokens} />
 				</Col>
 			</Row>
 			<Tabs projectId={id} />
