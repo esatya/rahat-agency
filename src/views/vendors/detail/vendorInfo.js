@@ -3,7 +3,6 @@ import { Card, CardTitle, Col, Row } from 'reactstrap';
 import '../../project.css';
 import image from '../../../assets/images/ID.jpg';
 import sign from '../../../assets/images/sign.png';
-import MOU from '../../../assets/images/MOU.png';
 
 export default function VendorInfo() {
 	return (

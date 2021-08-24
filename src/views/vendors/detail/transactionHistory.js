@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, CardTitle, CustomInput, Table, Row, Col } from 'reactstrap';
+import { Card, CardTitle, CustomInput, Table, Row, Col } from 'reactstrap';
 
 const TransactionHistory = () => {
 	return (
