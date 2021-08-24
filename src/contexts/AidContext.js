@@ -16,6 +16,14 @@ const initialState = {
 		currentPage: 1,
 		totalPages: 0
 	},
+	vendors_list: [],
+	vendor_pagination: {
+		total: 0,
+		limit: 10,
+		start: 0,
+		currentPage: 1,
+		totalPages: 0
+	},
 	total_tokens: 0,
 	available_tokens: 0,
 	aid_details: null,
@@ -23,9 +31,10 @@ const initialState = {
 };
 
 export const AidContext = createContext(initialState);
+
 export const AidContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(aidReduce, initialState);
-	const { appSettings, changeIsverified } = useContext(AppContext);
+	const { changeIsverified } = useContext(AppContext);
 
 	function getAidDetails(projectId) {
 		return Service.getAidDetails(projectId);
@@ -47,29 +56,11 @@ export const AidContextProvider = ({ children }) => {
 		[changeIsverified]
 	);
 
-	// async function addProjectBudget(aidId, supplyToken) {
-	// 	// const wallet = await Wallet.loadWallet('123123');
-	// 	const { rahat: rahatContractAddr, rahat_admin } = appSettings.agency.contracts;
-	// 	let d = await Service.addProjectBudget(wallet, aidId, supplyToken, rahat_admin);
-	// 	changeIsverified(false);
-	// 	let balance = await Service.loadAidBalance(aidId, rahatContractAddr);
-	// 	if (balance) {
-	// 		dispatch({ type: ACTION.GET_BALANCE, res: balance });
-	// 		return d;
-	// 	}
-	// }
-
 	async function changeProjectStatus(aidId, status) {
 		let res = await Service.changeProjectStatus(aidId, status);
 		dispatch({ type: ACTION.GET_AID_SUCCESS, res });
 		return res;
 	}
-
-	// async function getProjectCapital(aidId, contract_addr) {
-	// 	let res = await Service.getProjectCapital(aidId, contract_addr);
-	// 	dispatch({ type: ACTION.SET_TOTAL_TOKENS, res });
-	// 	return res;
-	// }
 
 	const getProjectCapital = useCallback(async (aidId, rahat_admin_contract) => {
 		let res = await Service.getProjectCapital(aidId, rahat_admin_contract);
@@ -86,16 +77,6 @@ export const AidContextProvider = ({ children }) => {
 		return _available;
 	}, []);
 
-	// async function getAidBalance(aidId) {
-	// 	const { rahat } = appSettings.agency.contracts;
-	// 	let _available = await Service.loadAidBalance(aidId, rahat);
-	// 	dispatch({
-	// 		type: ACTION.SET_AVAILABLE_TOKENS,
-	// 		res: _available
-	// 	});
-	// 	return _available;
-	// }
-
 	function setLoading() {
 		dispatch({ type: ACTION.SET_LOADING });
 	}
@@ -104,18 +85,24 @@ export const AidContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.RESET_LOADING });
 	}
 
-	function vendorsByAid(aidId, params) {
-		return new Promise((resolve, reject) => {
-			Service.vendorsByAid(aidId, params)
-				.then(res => {
-					dispatch({ type: ACTION.VENDORS_LIST_SUCCESS, res });
-					resolve(res);
-				})
-				.catch(err => {
-					reject(err);
-				});
-		});
-	}
+	const vendorsByAid = useCallback(async (aidId, params) => {
+		const res = await Service.vendorsByAid(aidId, params);
+		dispatch({ type: ACTION.VENDORS_LIST_SUCCESS, res });
+		return res;
+	}, []);
+
+	// function vendorsByAid(aidId, params) {
+	// 	return new Promise((resolve, reject) => {
+	// 		Service.vendorsByAid(aidId, params)
+	// 			.then(res => {
+	// 				dispatch({ type: ACTION.VENDORS_LIST_SUCCESS, res });
+	// 				resolve(res);
+	// 			})
+	// 			.catch(err => {
+	// 				reject(err);
+	// 			});
+	// 	});
+	// }
 
 	const beneficiaryByAid = useCallback((aidId, params) => {
 		return new Promise((resolve, reject) => {

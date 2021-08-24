@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	Card,
-	CardBody,
-	Row,
-	Col,
-	Form,
-	FormGroup,
-	Label,
-	Input,
-	Button
-} from 'reactstrap';
+import { Card, CardBody, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
 import { TOAST, APP_CONSTANTS, ROLES } from '../../../constants';
 import { AidContext } from '../../../contexts/AidContext';
@@ -21,6 +9,7 @@ import { UserContext } from '../../../contexts/UserContext';
 import { History } from '../../../utils/History';
 import SelectWrapper from '../../global/SelectWrapper';
 import GrowSpinner from '../../../modules/global/GrowSpinner';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 const EditProject = ({ match }) => {
 	const { id } = match.params;
@@ -35,7 +24,6 @@ const EditProject = ({ match }) => {
 
 	const [financialInstitutions, setFinancialInstitutions] = useState([]);
 	const [projectManagers, setProjectManagers] = useState([]);
-	const [benefUploadFile, setBenefUploadFile] = useState('');
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -47,10 +35,6 @@ const EditProject = ({ match }) => {
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
-
-	const handleFileChange = e => {
-		setBenefUploadFile(e.target.files[0]);
 	};
 
 	const handleInstitutionChange = data => {
@@ -65,8 +49,6 @@ const EditProject = ({ match }) => {
 	const handleFormSubmit = e => {
 		e.preventDefault();
 		if (!selectedManager) return addToast('Please select project manager', TOAST.ERROR);
-		console.log(benefUploadFile);
-		// const form_payload = createFormData(formData);
 		if (selectedInstitutions.length) formData.financial_institutions = selectedInstitutions.toString();
 		formData.project_manager = selectedManager;
 		setLoading(true);
@@ -81,17 +63,6 @@ const EditProject = ({ match }) => {
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
-
-	// const createFormData = payload => {
-	// 	const form_data = new FormData();
-	// 	for (let property in payload) {
-	// 		form_data.append(property, payload[property]);
-	// 	}
-	// 	if (selectedInstitutions.length) form_data.append('financial_institutions', selectedInstitutions.toString());
-	// 	if (benefUploadFile) form_data.append('file', benefUploadFile);
-	// 	form_data.append('project_manager', selectedManager);
-	// 	return form_data;
-	// };
 
 	const handleCancelClick = () => History.push('/projects');
 
@@ -152,17 +123,10 @@ const EditProject = ({ match }) => {
 		setProjectManagers(populate_managers);
 	};
 
-	console.log('=======>', existingInstitutions);
-
 	return (
 		<div>
 			<p className="page-heading">Projects</p>
-			<Breadcrumb>
-				<BreadcrumbItem style={{ color: '#6B6C72' }}>
-					<a href="#projects">Projects</a>
-				</BreadcrumbItem>
-				<BreadcrumbItem active-breadcrumb>Edit</BreadcrumbItem>
-			</Breadcrumb>
+			<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Edit" />
 			<Row>
 				<Col md="12">
 					<Card>
@@ -227,10 +191,10 @@ const EditProject = ({ match }) => {
 										/>
 									)}
 								</FormGroup>
-								<FormGroup style={{ display: 'none' }}>
+								{/* <FormGroup style={{ display: 'none' }}>
 									<Label htmlFor="benefUpload">Beneficiary Upload(.xlxs file)</Label>
 									<Input id="benefUpload" type="file" name="file" onChange={handleFileChange} />
-								</FormGroup>
+								</FormGroup> */}
 								<FormGroup>
 									<Label>Description</Label>
 									<Input
