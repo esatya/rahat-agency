@@ -1,5 +1,7 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { Row, Col, Card, CardTitle } from 'reactstrap';
+import { useToasts } from 'react-toast-notifications';
+
 import VendorInfo from './vendorInfo';
 import ProjectInvovled from '../../ui_components/projects';
 import TransactionHistory from './transactionHistory';
@@ -8,19 +10,51 @@ import { AppContext } from '../../../contexts/AppSettingsContext';
 import displayPic from '../../../assets/images/users/user_avatar.svg';
 import Loading from '../../global/Loading';
 import BreadCrumb from '../../ui_components/breadcrumb';
+import PasscodeModal from '../../global/PasscodeModal';
+import { TOAST } from '../../../constants';
+import { History } from '../../../utils/History';
 
 const Index = ({ params }) => {
+	const { addToast } = useToasts();
 	const { id } = params;
-	const { getVendorDetails, getVendorTransactions, getVendorBalance } = useContext(VendorContext);
-	const { appSettings } = useContext(AppContext);
+
+	const { getVendorDetails, getVendorTransactions, getVendorBalance, approveVendor } = useContext(VendorContext);
+	const { isVerified, wallet, appSettings } = useContext(AppContext);
 
 	const [basicInfo, setBasicInfo] = useState({});
 	const [projectList, setProjectList] = useState([]);
 	const [transactionList, setTransactionList] = useState([]);
+	const [loading, setLoading] = useState(false);
 
 	const [fetchingBlockchain, setFetchingBlockChain] = useState(false);
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [vendorBalance, setVendorBalance] = useState('0');
+	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [vendorStatus, setVendorStatus] = useState('');
+
+	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+
+	const handleApproveVendor = useCallback(async () => {
+		setPasscodeModal(false);
+		const { wallet_address } = basicInfo;
+		try {
+			const payload = {
+				status: 'active',
+				wallet_address: wallet_address,
+				vendorId: id
+			};
+			setLoading(true);
+			const approved = await approveVendor(payload);
+			if (approved) {
+				setLoading(false);
+				addToast('Vendor approved successfully', TOAST.SUCCESS);
+				History.push('/vendors');
+			}
+		} catch (err) {
+			setLoading(false);
+			addToast(err.message, TOAST.ERROR);
+		}
+	}, [addToast, approveVendor, basicInfo, id]);
 
 	const fetchVendorBalance = useCallback(
 		async wallet_address => {
@@ -36,6 +70,7 @@ const Index = ({ params }) => {
 	const fetchVendorDetails = useCallback(async () => {
 		const details = await getVendorDetails(id);
 		if (details) {
+			setVendorStatus(details.agencies[0].status);
 			setBasicInfo(details);
 			await fetchVendorBalance(details.wallet_address);
 		}
@@ -63,12 +98,19 @@ const Index = ({ params }) => {
 	}, [fetchVendorDetails]);
 
 	useEffect(() => {
-		console.log('VD Effect...');
 		fetchVendorTransactions();
 	}, [fetchVendorTransactions]);
 
+	useEffect(() => {
+		if (isVerified && wallet) {
+			handleApproveVendor();
+		}
+	}, [handleApproveVendor, isVerified, wallet]);
+
 	return (
 		<>
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+
 			<p className="page-heading">Vendors</p>
 			<BreadCrumb redirect_path="vendors" root_label="Vendors" current_label="Details" />
 			<Row>
@@ -90,13 +132,34 @@ const Index = ({ params }) => {
 									</div>
 								</Col>
 								<Col md="4" sm="4">
-									<button
-										type="button"
-										className="btn waves-effect waves-light btn-outline-info"
-										style={{ borderRadius: '8px', float: 'right' }}
-									>
-										Approve
-									</button>
+									{loading ? (
+										<button
+											type="button"
+											disabled={true}
+											className="btn btn-secondary"
+											style={{ borderRadius: '8px', float: 'right' }}
+										>
+											Approving, please wait...
+										</button>
+									) : vendorStatus === 'active' ? (
+										<button
+											type="button"
+											disabled={true}
+											className="btn btn-success"
+											style={{ borderRadius: '8px', float: 'right' }}
+										>
+											<i className="fas fa-check-circle"></i> Approved
+										</button>
+									) : (
+										<button
+											type="button"
+											onClick={togglePasscodeModal}
+											className="btn waves-effect waves-light btn-outline-info"
+											style={{ borderRadius: '8px', float: 'right' }}
+										>
+											Approve
+										</button>
+									)}
 								</Col>
 							</Row>
 						</div>

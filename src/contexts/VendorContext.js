@@ -50,15 +50,28 @@ export const VendorContextProvider = ({ children }) => {
 		});
 	}
 
-	async function approveVendor(payload) {
-		const { rahat: rahatContractAddr } = appSettings.agency.contracts;
-		const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
-		changeIsverified(false);
-		if (res) {
-			setVendor(res.data);
-			return res.data;
-		}
-	}
+	const approveVendor = useCallback(
+		async payload => {
+			const { rahat: rahatContractAddr } = appSettings.agency.contracts;
+			const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
+			changeIsverified(false);
+			if (res) {
+				setVendor(res.data);
+				return res.data;
+			}
+		},
+		[appSettings.agency.contracts, changeIsverified, wallet]
+	);
+
+	// async function approveVendor(payload) {
+	// 	const { rahat: rahatContractAddr } = appSettings.agency.contracts;
+	// 	const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
+	// 	changeIsverified(false);
+	// 	if (res) {
+	// 		setVendor(res.data);
+	// 		return res.data;
+	// 	}
+	// }
 
 	async function changeVendorStatus(vendorId, status) {
 		const res = await Service.changeVendorStaus(vendorId, status);
