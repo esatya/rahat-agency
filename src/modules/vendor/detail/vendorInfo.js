@@ -1,8 +1,10 @@
 import React from 'react';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
 import '../../../assets/css/project.css';
-import image from '../../../assets/images/ID.jpg';
+import image from '../../../assets/images/id-icon-1.png';
 import { History } from '../../../utils/History';
+
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function VendorInfo(props) {
 	const { information } = props;
@@ -77,8 +79,19 @@ export default function VendorInfo(props) {
 						<Col md="4" sm="12">
 							<img
 								src={
+									information.extra_files && information.extra_files.identity_photo
+										? `${IPFS_GATEWAY}/${information.extra_files.identity_photo}`
+										: image
+								}
+								alt="certificate"
+								width="90%"
+								height="150px"
+								className="card-data"
+							/>
+							<img
+								src={
 									information.extra_files && information.extra_files.signature_photo
-										? `http://ipfs.io/ipfs/${information.extra_files.signature_photo}`
+										? `${IPFS_GATEWAY}/${information.extra_files.signature_photo}`
 										: image
 								}
 								alt="certificate"

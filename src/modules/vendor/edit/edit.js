@@ -1,17 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	Card,
-	CardBody,
-	Row,
-	Col,
-	Form,
-	FormGroup,
-	Label,
-	Input,
-	Button
-} from 'reactstrap';
+import { Card, CardBody, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { History } from '../../../utils/History';
@@ -20,6 +8,7 @@ import WalletUnlock from '../../../modules/global/walletUnlock';
 import AvatarIcon from '../../../assets/images/download.png';
 import { blobToBase64 } from '../../../utils';
 import SelectWrapper from '../../global/SelectWrapper';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 const Edit = ({ vendorId }) => {
 	const { addToast } = useToasts();
@@ -115,7 +104,6 @@ const Edit = ({ vendorId }) => {
 
 	const loadBeneficiaryDetails = useCallback(async () => {
 		const d = await getVendorDetails(vendorId);
-		console.log('data vendor', d);
 		const {
 			projects,
 			name,
@@ -169,18 +157,12 @@ const Edit = ({ vendorId }) => {
 		loadBeneficiaryDetails();
 	}, [loadBeneficiaryDetails, loadProjects]);
 
-	console.log('data', formData);
-
 	return (
 		<div>
 			<WalletUnlock open={passcodeModal} onClose={e => setPasscodeModal(e)}></WalletUnlock>
 			<p className="page-heading">Vendor</p>
-			<Breadcrumb>
-				<BreadcrumbItem style={{ color: '#6B6C72' }}>
-					<a href="/">Vendor</a>
-				</BreadcrumbItem>
-				<BreadcrumbItem active-breadcrumb>Edit</BreadcrumbItem>
-			</Breadcrumb>
+			<BreadCrumb redirect_path="vendors" root_label="Vendors" current_label="Edit" />
+
 			<Row>
 				<Col md="12">
 					<Card>

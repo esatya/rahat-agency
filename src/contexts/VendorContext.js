@@ -21,9 +21,9 @@ export const VendorContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(vendorReduce, initialState);
 	const { wallet, appSettings, changeIsverified } = useContext(AppContext);
 
-	async function getVendorBalance(contract_addr, wallet_address) {
+	const getVendorBalance = useCallback((contract_addr, wallet_address) => {
 		return Service.getVendorBalance(contract_addr, wallet_address);
-	}
+	}, []);
 
 	const listAid = useCallback(async () => {
 		const d = await AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
