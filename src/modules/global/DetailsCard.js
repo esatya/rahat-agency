@@ -5,6 +5,9 @@ import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import '../../assets/css/project.css';
 import { PROJECT_STATUS } from '../../constants';
 import Loading from '../global/Loading';
+import displayPic from '../../assets/images/users/user_avatar.svg';
+
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function DetailsCard(props) {
 	const {
@@ -12,6 +15,7 @@ export default function DetailsCard(props) {
 		title,
 		button_name,
 		name,
+		imgUrl,
 		name_value,
 		total,
 		total_value,
@@ -62,8 +66,21 @@ export default function DetailsCard(props) {
 					</Row>
 					<Row>
 						<Col md="8" sm="12" style={{ marginBottom: '10px' }}>
-							<p className="card-font-medium">{name_value || '0'}</p>
-							<div className="sub-title">{name || 'No Label'}</div>
+							{/* <p className="card-font-medium">{name_value || '0'}</p>
+							<div className="sub-title">{name || 'No Label'}</div> */}
+
+							<div style={{ display: 'flex', alignItems: 'center' }}>
+								<img
+									src={imgUrl ? `${IPFS_GATEWAY}/${imgUrl}` : displayPic}
+									alt="user"
+									className="rounded-circle"
+									width="45"
+								/>
+								<div style={{ marginLeft: '20px' }}>
+									<p className="card-font-medium">{name_value || '-'}</p>
+									<div className="sub-title">{name || 'No Label'}</div>
+								</div>
+							</div>
 						</Col>
 						<Col md="4" sm="12">
 							{fetching ? <Loading /> : <p className="card-font-bold">{total_value || '0'}</p>}

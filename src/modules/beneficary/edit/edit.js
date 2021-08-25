@@ -7,6 +7,10 @@ import BreadCrumb from '../../ui_components/breadcrumb';
 import { GROUPS, TOAST } from '../../../constants';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import SelectWrapper from '../../global/SelectWrapper';
+import { blobToBase64 } from '../../../utils';
+import UploadPlaceholder from '../../../assets/images/download.png';
+
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 const Edit = ({ beneficiaryId }) => {
 	const { addToast } = useToasts();
@@ -37,6 +41,23 @@ const Edit = ({ beneficiaryId }) => {
 	const [selectedGroup, setSelectedGroup] = useState('');
 	const [selectedProjects, setSelectedProjects] = useState('');
 
+	const [profilePic, setProfilePic] = useState('');
+	const [govtId, setGovtId] = useState('');
+
+	const [existingPhoto, setExistingPhoto] = useState('');
+	const [existingGovtImage, setExistingGovtImage] = useState('');
+
+	const handleProfileUpload = async e => {
+		const file = e.target.files[0];
+		const base64Url = await blobToBase64(file);
+		setProfilePic(base64Url);
+	};
+	const handleGovtIdUpload = async e => {
+		const file = e.target.files[0];
+		const base64Url = await blobToBase64(file);
+		setGovtId(base64Url);
+	};
+
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
@@ -53,6 +74,8 @@ const Edit = ({ beneficiaryId }) => {
 		const payload = { ...formData, extras: { ...extras } };
 		payload.projects = selectedProjects;
 		if (selectedGender) payload.gender = selectedGender;
+		if (profilePic) payload.photo = profilePic;
+		if (govtId) payload.govt_id_image = govtId;
 		updateBeneficiary(beneficiaryId, payload)
 			.then(() => {
 				addToast('Beneficiary updated successfully', TOAST.SUCCESS);
@@ -86,7 +109,9 @@ const Edit = ({ beneficiaryId }) => {
 
 	const loadBeneficiaryDetails = useCallback(async () => {
 		const d = await getBeneficiaryDetails(beneficiaryId);
-		const { extras, projects, name, phone, email, address, address_temporary, govt_id } = d;
+		const { photo, govt_id_image, extras, projects, name, phone, email, address, address_temporary, govt_id } = d;
+		if (photo) setExistingPhoto(photo);
+		if (govt_id_image) setExistingGovtImage(govt_id_image);
 		if (projects && projects.length) {
 			const project_ids = projects.map(p => p._id);
 			setSelectedProjects(project_ids.toString());
@@ -124,6 +149,60 @@ const Edit = ({ beneficiaryId }) => {
 					<Card>
 						<CardBody>
 							<Form onSubmit={handleFormSubmit} style={{ color: '#6B6C72' }}>
+								<Row>
+									<Col md="6" sm="12" className="d-flex align-items-center">
+										<FormGroup>
+											<label htmlFor="profilePicUpload">Profile picture</label>
+											<br />
+											{existingPhoto ? (
+												<img
+													src={`${IPFS_GATEWAY}/${existingPhoto}`}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : profilePic ? (
+												<img
+													src={profilePic}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={UploadPlaceholder} alt="Profile" width="100px" height="100px" />
+											)}
+											<Input id="profilePicUpload" type="file" onChange={handleProfileUpload} />
+										</FormGroup>
+									</Col>
+									<Col md="6" sm="12" className="d-flex align-items-center">
+										<FormGroup>
+											<label htmlFor="govtIdUpload">Government ID</label>
+											<br />
+											{existingGovtImage ? (
+												<img
+													src={`${IPFS_GATEWAY}/${existingGovtImage}`}
+													alt="Govt ID"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : govtId ? (
+												<img
+													src={govtId}
+													alt="Govt ID"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={UploadPlaceholder} alt="Govt ID" width="100px" height="100px" />
+											)}
+											<Input id="govtIdUpload" type="file" onChange={handleGovtIdUpload} />
+										</FormGroup>
+									</Col>
+								</Row>
 								<FormGroup>
 									<Label>Project</Label>
 									{existingProjects.length > 0 && (
