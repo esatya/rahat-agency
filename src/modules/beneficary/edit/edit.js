@@ -46,6 +46,7 @@ const Edit = ({ beneficiaryId }) => {
 
 	const [existingPhoto, setExistingPhoto] = useState('');
 	const [existingGovtImage, setExistingGovtImage] = useState('');
+	const [loading, setLoading] = useState(false);
 
 	const handleProfileUpload = async e => {
 		const file = e.target.files[0];
@@ -76,12 +77,16 @@ const Edit = ({ beneficiaryId }) => {
 		if (selectedGender) payload.gender = selectedGender;
 		if (profilePic) payload.photo = profilePic;
 		if (govtId) payload.govt_id_image = govtId;
+		setLoading(true);
 		updateBeneficiary(beneficiaryId, payload)
 			.then(() => {
+				setLoading(false);
+
 				addToast('Beneficiary updated successfully', TOAST.SUCCESS);
 				History.push('/beneficiaries');
 			})
 			.catch(err => {
+				setLoading(false);
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
@@ -154,17 +159,17 @@ const Edit = ({ beneficiaryId }) => {
 										<FormGroup>
 											<label htmlFor="profilePicUpload">Profile picture</label>
 											<br />
-											{existingPhoto ? (
+											{profilePic ? (
 												<img
-													src={`${IPFS_GATEWAY}/${existingPhoto}`}
+													src={profilePic}
 													alt="Profile"
 													width="200px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
-											) : profilePic ? (
+											) : existingPhoto ? (
 												<img
-													src={profilePic}
+													src={`${IPFS_GATEWAY}/ipfs/${existingPhoto}`}
 													alt="Profile"
 													width="200px"
 													height="200px"
@@ -180,17 +185,17 @@ const Edit = ({ beneficiaryId }) => {
 										<FormGroup>
 											<label htmlFor="govtIdUpload">Government ID</label>
 											<br />
-											{existingGovtImage ? (
+											{govtId ? (
 												<img
-													src={`${IPFS_GATEWAY}/${existingGovtImage}`}
+													src={govtId}
 													alt="Govt ID"
 													width="200px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
-											) : govtId ? (
+											) : existingGovtImage ? (
 												<img
-													src={govtId}
+													src={`${IPFS_GATEWAY}/ipfs/${existingGovtImage}`}
 													alt="Govt ID"
 													width="200px"
 													height="200px"
@@ -379,23 +384,25 @@ const Edit = ({ beneficiaryId }) => {
 								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
-									{/* {loading ? (
-										<GrowSpinner />
-									) : ( */}
-									<div>
-										<Button type="submit" className="btn btn-info">
-											<i className="fa fa-check"></i> Update
+									{loading ? (
+										<Button type="button" disabled={true} className="btn btn-secondary">
+											Updating,Please wait...
 										</Button>
-										<Button
-											type="button"
-											onClick={handleCancelClick}
-											style={{ borderRadius: 8 }}
-											className="btn btn-dark ml-2"
-										>
-											Cancel
-										</Button>
-									</div>
-									{/* )} */}
+									) : (
+										<div>
+											<Button type="submit" className="btn btn-info">
+												<i className="fa fa-check"></i> Update
+											</Button>
+											<Button
+												type="button"
+												onClick={handleCancelClick}
+												style={{ borderRadius: 8 }}
+												className="btn btn-dark ml-2"
+											>
+												Cancel
+											</Button>
+										</div>
+									)}
 								</CardBody>
 							</Form>
 						</CardBody>

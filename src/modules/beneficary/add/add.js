@@ -32,6 +32,7 @@ const Add = () => {
 		child: ''
 	});
 
+	const [loading, setLoading] = useState(false);
 	const [projectList, setProjectList] = useState([]);
 
 	const [selectedGender, setSelectedGender] = useState('');
@@ -70,12 +71,15 @@ const Add = () => {
 		if (selectedGender) payload.gender = selectedGender;
 		if (profilePic) payload.photo = profilePic;
 		if (govtId) payload.govt_id_image = govtId;
+		setLoading(true);
 		addBeneficiary(payload)
 			.then(() => {
+				setLoading(false);
 				addToast('Beneficiary added successfully', TOAST.SUCCESS);
 				History.push('/beneficiaries');
 			})
 			.catch(err => {
+				setLoading(false);
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
@@ -319,23 +323,25 @@ const Add = () => {
 								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
-									{/* {loading ? (
-										<GrowSpinner />
-									) : ( */}
-									<div>
-										<Button type="submit" className="btn btn-info">
-											<i className="fa fa-check"></i> Submit
+									{loading ? (
+										<Button type="button" disabled={true} className="btn btn-secondary">
+											Adding,Please wait...
 										</Button>
-										<Button
-											type="button"
-											onClick={handleCancelClick}
-											style={{ borderRadius: 8 }}
-											className="btn btn-dark ml-2"
-										>
-											Cancel
-										</Button>
-									</div>
-									{/* )} */}
+									) : (
+										<div>
+											<Button type="submit" className="btn btn-info">
+												<i className="fa fa-check"></i> Submit
+											</Button>
+											<Button
+												type="button"
+												onClick={handleCancelClick}
+												style={{ borderRadius: 8 }}
+												className="btn btn-dark ml-2"
+											>
+												Cancel
+											</Button>
+										</div>
+									)}
 								</CardBody>
 							</Form>
 						</CardBody>

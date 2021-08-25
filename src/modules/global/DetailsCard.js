@@ -71,7 +71,7 @@ export default function DetailsCard(props) {
 
 							<div style={{ display: 'flex', alignItems: 'center' }}>
 								<img
-									src={imgUrl ? `${IPFS_GATEWAY}/${imgUrl}` : displayPic}
+									src={imgUrl ? `${IPFS_GATEWAY}/ipfs/${imgUrl}` : displayPic}
 									alt="user"
 									className="rounded-circle"
 									width="45"
