@@ -67,7 +67,7 @@ const List = () => {
 
 	const handlePagination = current_page => {
 		let _start = (current_page - 1) * pagination.limit;
-		return listAid({ start: _start, limit: pagination.limit });
+		return loadAidList({ start: _start, limit: pagination.limit });
 	};
 
 	const loadAidList = () => {
