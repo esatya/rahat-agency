@@ -73,7 +73,7 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 								<div className="sub-title">Profession</div>
 							</div>
 							<img
-								src={basicInfo.govt_id_image ? `${IPFS_GATEWAY}/${basicInfo.govt_id_image}` : IdImgPlaceholder}
+								src={basicInfo.govt_id_image ? `${IPFS_GATEWAY}/ipfs/${basicInfo.govt_id_image}` : IdImgPlaceholder}
 								alt="certificate"
 								width="90%"
 								height="60%"
