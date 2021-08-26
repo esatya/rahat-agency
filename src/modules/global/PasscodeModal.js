@@ -63,7 +63,7 @@ export default function PasscodeModal(props) {
 				centered
 				class="modal-backdrop fade in"
 			>
-				<Form id="form" style={{ backgroundColor: 'black', textAlign: 'center' }} onSubmit={handleSubmit}>
+				<Form id="form" style={{ backgroundColor: '#2b7ec1', textAlign: 'center' }} onSubmit={handleSubmit}>
 					<ModalBody className="pt-4">
 						{/* {children || 'No child elements supplied.'} */}
 						{/* <span>Close</span> */}
@@ -91,7 +91,7 @@ export default function PasscodeModal(props) {
 								<code>"{value}"</code>
 							</pre> */}
 						</div>
-						<div className="text-center" style={{ padding: '0px 0px 15px', marginTop: 20 }}>
+						<div className="text-center" style={{ padding: '0px 0px 15px', marginTop: 20, color: 'white' }}>
 							{loadingMessage ? loadingMessage : ''}
 						</div>
 					</ModalBody>
