@@ -261,7 +261,7 @@ const BenefDetails = ({ params }) => {
 						name="Name"
 						name_value={basicInfo.name ? basicInfo.name : ''}
 						total="Total Issued"
-						total_value="1,500"
+						total_value={currentBalance}
 					/>
 				</Col>
 				<Col md="5">
