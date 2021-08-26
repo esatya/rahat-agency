@@ -14,6 +14,8 @@ import PasscodeModal from '../../global/PasscodeModal';
 import { TOAST } from '../../../constants';
 import { History } from '../../../utils/History';
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
+
 const Index = ({ params }) => {
 	const { addToast } = useToasts();
 	const { id } = params;
@@ -124,7 +126,16 @@ const Index = ({ params }) => {
 							<Row>
 								<Col md="8" sm="8" style={{ marginBottom: '10px' }}>
 									<div style={{ display: 'flex', alignItems: 'center' }}>
-										<img src={displayPic} alt="user" className="rounded-circle" width="45" />
+										<img
+											src={
+												basicInfo.photo && basicInfo.photo.length
+													? `${IPFS_GATEWAY}/ipfs/${basicInfo.photo[0]}`
+													: displayPic
+											}
+											alt="user"
+											className="rounded-circle"
+											width="45"
+										/>
 										<div style={{ marginLeft: '20px' }}>
 											<p className="card-font-medium">{basicInfo.name}</p>
 											<div className="sub-title">Name</div>

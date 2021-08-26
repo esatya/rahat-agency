@@ -79,44 +79,35 @@ export default function VendorInfo(props) {
 						<Col md="4" sm="12">
 							<img
 								src={
-									information.extra_files && information.extra_files.identity_photo
-										? `${IPFS_GATEWAY}/${information.extra_files.identity_photo}`
-										: image
+									information.photo && information.photo.length ? `${IPFS_GATEWAY}/ipfs/${information.photo[0]}` : image
 								}
 								alt="certificate"
 								width="90%"
-								height="150px"
+								height="130px"
 								className="card-data"
 							/>
 							<img
 								src={
 									information.extra_files && information.extra_files.signature_photo
-										? `${IPFS_GATEWAY}/${information.extra_files.signature_photo}`
+										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.signature_photo}`
 										: image
 								}
 								alt="certificate"
 								width="90%"
-								height="150px"
+								height="130px"
 								className="card-data"
 							/>
-							{/* <img
+							<img
 								src={
-									information.extra_files && information.extra_files.signature_photo
-										? `http://ipfs.io/ipfs/${information.extra_files.signature_photo}`
-										: '-'
+									information.extra_files && information.extra_files.mou_file
+										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.mou_file}`
+										: image
 								}
-								alt="signature"
+								alt="certificate"
 								width="90%"
-								height="100px"
+								height="130px"
 								className="card-data"
-							/> */}
-							{/* <img
-								src={information.extra_files && information.extra_files.mou_file}
-								alt="signature"
-								width="90%"
-								height="100px"
-								className="card-data"
-							/> */}
+							/>
 						</Col>
 					</Row>
 				</div>

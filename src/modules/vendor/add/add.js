@@ -1,17 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	Card,
-	CardBody,
-	Row,
-	Col,
-	Form,
-	FormGroup,
-	Label,
-	Input,
-	Button
-} from 'reactstrap';
+import { Card, CardBody, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { History } from '../../../utils/History';
@@ -20,10 +8,12 @@ import WalletUnlock from '../../../modules/global/walletUnlock';
 import SelectWrapper from '../../global/SelectWrapper';
 import { blobToBase64 } from '../../../utils';
 import AvatarIcon from '../../../assets/images/download.png';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 const Add = () => {
 	const { addToast } = useToasts();
 	const { listAid, addVendor } = useContext(VendorContext);
+
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [formData, setFormData] = useState({
 		name: '',
@@ -38,11 +28,14 @@ const Add = () => {
 		bank_name: '',
 		bank_account: ''
 	});
+
 	const [extras, setExtras] = useState({
-		identity_photo: '',
 		signature_photo: '',
 		mou_file: ''
 	});
+	const [loading, setLoading] = useState(false);
+
+	const [govtIdImg, setGovtIdImg] = useState('');
 	const [selectedGender, setSelectedGender] = useState('');
 	const [selectedProjects, setSelectedProjects] = useState('');
 	const [projectList, setProjectList] = useState([]);
@@ -62,23 +55,23 @@ const Add = () => {
 	};
 
 	async function handleProfileUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setProfileUpload(convertImage);
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setProfileUpload(base64Url);
 	}
 
-	async function handleIdentityUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, identity_photo: convertImage });
+	async function handleGovtIdImage(e) {
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setGovtIdImg(base64Url);
 	}
 
 	async function handleSignatureUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, signature_photo: convertImage });
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, signature_photo: base64Url });
 	}
 
 	async function handleMouUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, mou_file: convertImage });
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, mou_file: base64Url });
 	}
 	const handleFormSubmit = e => {
 		e.preventDefault();
@@ -88,12 +81,16 @@ const Add = () => {
 		payload.projects = selectedProjects;
 		if (profileUpload) payload.photo = profileUpload;
 		if (selectedGender) payload.gender = selectedGender;
+		if (govtIdImg) payload.govt_id_image = govtIdImg;
+		setLoading(true);
 		addVendor(payload)
 			.then(() => {
+				setLoading(false);
 				addToast('Vendor added successfully', TOAST.SUCCESS);
 				History.push('/vendors');
 			})
 			.catch(err => {
+				setLoading(false);
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
@@ -123,12 +120,7 @@ const Add = () => {
 		<div>
 			<WalletUnlock open={passcodeModal} onClose={e => setPasscodeModal(e)}></WalletUnlock>
 			<p className="page-heading">Vendor</p>
-			<Breadcrumb>
-				<BreadcrumbItem style={{ color: '#6B6C72' }}>
-					<a href="/">Vendor</a>
-				</BreadcrumbItem>
-				<BreadcrumbItem active-breadcrumb>Add</BreadcrumbItem>
-			</Breadcrumb>
+			<BreadCrumb root_label="Vendor" current_label="Add" redirect_path="vendors" />
 			<Row>
 				<Col md="12">
 					<Card>
@@ -197,7 +189,7 @@ const Add = () => {
 								</FormGroup>
 								<FormGroup>
 									<Label>Address</Label>
-									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} required />
+									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} />
 								</FormGroup>
 								<Row>
 									<Col md="6" sm="12">
@@ -224,26 +216,14 @@ const Add = () => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Government ID</Label>
-											<Input
-												type="number"
-												value={formData.govt_id}
-												name="govt_id"
-												onChange={handleInputChange}
-												required
-											/>
+											<Input type="number" value={formData.govt_id} name="govt_id" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
 											<label htmlFor="pan_number">PAN number</label>
 											<br />
-											<Input
-												name="pan_number"
-												type="number"
-												className="form-field"
-												onChange={handleInputChange}
-												required
-											/>
+											<Input name="pan_number" type="number" className="form-field" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 								</Row>
@@ -253,48 +233,30 @@ const Add = () => {
 										<FormGroup>
 											<label htmlFor="bank_name">Bank name</label>
 											<br />
-											<Input
-												name="bank_name"
-												type="text"
-												className="form-field"
-												onChange={handleInputChange}
-												required
-											/>
+											<Input name="bank_name" type="text" className="form-field" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
 											<label htmlFor="bank_branch">Bank branch</label>
 											<br />
-											<Input
-												name="bank_branch"
-												type="text"
-												className="form-field"
-												onChange={handleInputChange}
-												required
-											/>
+											<Input name="bank_branch" type="text" className="form-field" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 								</Row>
 								<FormGroup>
 									<label htmlFor="bank_account">Bank account number</label>
 									<br />
-									<Input
-										name="bank_account"
-										type="number"
-										className="form-field"
-										onChange={handleInputChange}
-										required
-									/>
+									<Input name="bank_account" type="number" className="form-field" onChange={handleInputChange} />
 								</FormGroup>
 								<Row>
 									<Col md="4" sm="4">
 										<FormGroup>
 											<label htmlFor="identity_photo">Identity picture</label>
 											<br />
-											{extras.identity_photo ? (
+											{govtIdImg ? (
 												<img
-													src={extras.identity_photo}
+													src={govtIdImg}
 													alt="Profile"
 													width="200px"
 													height="200px"
@@ -303,7 +265,7 @@ const Add = () => {
 											) : (
 												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
 											)}
-											<Input id="identity_photo" type="file" name="file" onChange={handleIdentityUpload} />
+											<Input id="identity_photo" type="file" name="file" onChange={handleGovtIdImage} />
 										</FormGroup>
 									</Col>
 									<Col md="4" sm="4">
@@ -312,7 +274,7 @@ const Add = () => {
 											<br />
 											{extras.signature_photo ? (
 												<img
-													src={extras.mou_file}
+													src={extras.signature_photo}
 													alt="Profile"
 													width="200px"
 													height="200px"
@@ -350,23 +312,25 @@ const Add = () => {
 								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
-									{/* {loading ? (
-										<GrowSpinner />
-									) : ( */}
-									<div>
-										<Button type="submit" className="btn btn-info">
-											<i className="fa fa-check"></i> Submit
+									{loading ? (
+										<Button type="button" disabled={true} className="btn btn-secondary">
+											Adding, Please wait...
 										</Button>
-										<Button
-											type="button"
-											onClick={handleCancelClick}
-											style={{ borderRadius: 8 }}
-											className="btn btn-dark ml-2"
-										>
-											Cancel
-										</Button>
-									</div>
-									{/* )} */}
+									) : (
+										<div>
+											<Button type="submit" className="btn btn-info">
+												<i className="fa fa-check"></i> Submit
+											</Button>
+											<Button
+												type="button"
+												onClick={handleCancelClick}
+												style={{ borderRadius: 8 }}
+												className="btn btn-dark ml-2"
+											>
+												Cancel
+											</Button>
+										</div>
+									)}
 								</CardBody>
 							</Form>
 						</CardBody>
