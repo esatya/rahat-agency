@@ -260,8 +260,9 @@ const BenefDetails = ({ params }) => {
 						button_name="Generate QR Code"
 						name="Name"
 						name_value={basicInfo.name ? basicInfo.name : ''}
+						imgUrl={basicInfo.photo ? basicInfo.photo : ''}
 						total="Total Issued"
-						total_value="1,500"
+						total_value="-"
 					/>
 				</Col>
 				<Col md="5">

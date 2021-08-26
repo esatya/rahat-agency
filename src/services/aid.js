@@ -107,7 +107,7 @@ export async function getProjectCapital(aidId, contract_address) {
 export function vendorsByAid(aidId, query) {
 	return new Promise((resolve, reject) => {
 		axios
-			.get(`${API.PROJECTS}/${aidId}/beneficiary?${qs.stringify(query)}`, {
+			.get(`${API.PROJECTS}/${aidId}/vendors?${qs.stringify(query)}`, {
 				headers: { access_token: access_token }
 			})
 			.then(res => {

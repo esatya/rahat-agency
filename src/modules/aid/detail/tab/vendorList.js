@@ -1,17 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import { Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
 
 import { AidContext } from '../../../../contexts/AidContext';
 
-const List = () => {
-	const { pagination } = useContext(AidContext);
+const List = ({ projectId }) => {
+	const { vendor_pagination, vendors_list, vendorsByAid } = useContext(AidContext);
 
 	const handlePagination = current_page => {
-		let _start = (current_page - 1) * pagination.limit;
+		let _start = (current_page - 1) * vendor_pagination.limit;
 		console.log({ _start });
 	};
 
-	const vendors = [];
+	const fetchVendorsByAId = useCallback(async () => {
+		await vendorsByAid(projectId);
+	}, [projectId, vendorsByAid]);
+
+	useEffect(() => {
+		fetchVendorsByAId();
+	}, [fetchVendorsByAId]);
 
 	return (
 		<>
@@ -21,20 +27,20 @@ const List = () => {
 						<th className="border-0">Name</th>
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
-						<th className="border-0">Balance</th>
-						<th className="border-0">Total Token Redeemed</th>
+						<th className="border-0">Email</th>
+						<th className="border-0">Shop</th>
 					</tr>
 				</thead>
 				<tbody>
-					{vendors.length ? (
-						vendors.map(d => {
+					{vendors_list.length > 0 ? (
+						vendors_list.map(d => {
 							return (
 								<tr key={d._id}>
-									<td>XYZ</td>
-									<td>Kavre</td>
-									<td>9867453212</td>
-									<td>150000</td>
-									<td>50000</td>
+									<td>{d.name}</td>
+									<td>{d.address || '-'}</td>
+									<td>{d.phone}</td>
+									<td>{d.email}</td>
+									<td>{d.shop_name || '-'}</td>
 								</tr>
 							);
 						})
@@ -47,7 +53,7 @@ const List = () => {
 				</tbody>
 			</Table>
 
-			{pagination.totalPages > 1 ? (
+			{vendor_pagination.totalPages > 1 ? (
 				<Pagination
 					style={{
 						display: 'flex',
@@ -58,17 +64,17 @@ const List = () => {
 					<PaginationItem>
 						<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
 					</PaginationItem>
-					{[...Array(pagination.totalPages)].map((p, i) => (
+					{[...Array(vendor_pagination.totalPages)].map((p, i) => (
 						<PaginationItem
 							key={i}
-							active={pagination.currentPage === i + 1 ? true : false}
+							active={vendor_pagination.currentPage === i + 1 ? true : false}
 							onClick={() => handlePagination(i + 1)}
 						>
 							<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
 						</PaginationItem>
 					))}
 					<PaginationItem>
-						<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.totalPages)} />
+						<PaginationLink last href="#last_page" onClick={() => handlePagination(vendor_pagination.totalPages)} />
 					</PaginationItem>
 				</Pagination>
 			) : (

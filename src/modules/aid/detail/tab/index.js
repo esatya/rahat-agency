@@ -20,7 +20,6 @@ const Tabs = ({ projectId }) => {
 	}, [beneficiaryByAid, projectId]);
 
 	useEffect(() => {
-		console.log('Effect...');
 		fetchData();
 	}, [fetchData]);
 
@@ -61,7 +60,7 @@ const Tabs = ({ projectId }) => {
 						<TabPane tabId="2">
 							<Row>
 								<Col sm="12">
-									<VendorList />
+									<VendorList projectId={projectId} />
 								</Col>
 							</Row>
 						</TabPane>

@@ -2,9 +2,11 @@ import React from 'react';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
 
 import '../../../assets/css/project.css';
-import image from '../../../assets/images/ID.jpg';
+import IdImgPlaceholder from '../../../assets/images/id-icon-1.png';
 import { formatWord } from '../../../utils';
 import { History } from '../../../utils/History';
+
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function BeneficiaryInfo({ basicInfo, extras }) {
 	const handleEditClick = () => History.push(`/edit-beneficiary/${basicInfo._id}`);
@@ -70,7 +72,13 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 								<p className="card-font-medium">{extras && extras.profession ? extras.profession : '-'}</p>
 								<div className="sub-title">Profession</div>
 							</div>
-							<img src={image} alt="certificate" width="90%" height="60%" className="card-data" />
+							<img
+								src={basicInfo.govt_id_image ? `${IPFS_GATEWAY}/ipfs/${basicInfo.govt_id_image}` : IdImgPlaceholder}
+								alt="certificate"
+								width="90%"
+								height="60%"
+								className="card-data"
+							/>
 						</Col>
 					</Row>
 				</div>
