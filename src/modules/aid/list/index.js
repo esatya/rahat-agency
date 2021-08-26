@@ -67,7 +67,7 @@ const List = () => {
 
 	const handlePagination = current_page => {
 		let _start = (current_page - 1) * pagination.limit;
-		return loadAidList({ start: _start, limit: pagination.limit });
+		return listAid({ start: _start, limit: pagination.limit });
 	};
 
 	const loadAidList = () => {
@@ -159,7 +159,7 @@ const List = () => {
 								aids.map((d, i) => {
 									return (
 										<tr key={d._id}>
-											<td>{i + 1}</td>
+											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 											<td>{d.name}</td>
 											<td>{d.location || '-'}</td>
 											<td>

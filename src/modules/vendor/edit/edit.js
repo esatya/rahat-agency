@@ -1,17 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	Card,
-	CardBody,
-	Row,
-	Col,
-	Form,
-	FormGroup,
-	Label,
-	Input,
-	Button
-} from 'reactstrap';
+import { Card, CardBody, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { History } from '../../../utils/History';
@@ -20,12 +8,16 @@ import WalletUnlock from '../../../modules/global/walletUnlock';
 import AvatarIcon from '../../../assets/images/download.png';
 import { blobToBase64 } from '../../../utils';
 import SelectWrapper from '../../global/SelectWrapper';
+import BreadCrumb from '../../ui_components/breadcrumb';
+
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 const Edit = ({ vendorId }) => {
 	const { addToast } = useToasts();
 	const { listAid, updateVendor, getVendorDetails } = useContext(VendorContext);
 
 	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -41,15 +33,21 @@ const Edit = ({ vendorId }) => {
 		bank_account: ''
 	});
 	const [extras, setExtras] = useState({
-		identity_photo: '',
 		signature_photo: '',
 		mou_file: ''
 	});
+	const [govtIdentity, setGovtIdentity] = useState('');
+
 	const [selectedGender, setSelectedGender] = useState('');
 	const [selectedProjects, setSelectedProjects] = useState('');
 	const [projectList, setProjectList] = useState([]);
 	const [profileUpload, setProfileUpload] = useState('');
 	const [existingProjects, setExistingProjects] = useState([]);
+
+	const [existingProfilePhoto, setExistingProfilePhoto] = useState('');
+	const [existingIdentity, setExistingIdentity] = useState('');
+	const [existingSignature, setExistingSignature] = useState('');
+	const [existingMou, setExistingMou] = useState('');
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -66,39 +64,48 @@ const Edit = ({ vendorId }) => {
 	};
 
 	async function handleProfileUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setProfileUpload(convertImage);
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setProfileUpload(base64Url);
 	}
 
-	async function handleIdentityUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, identity_photo: convertImage });
+	async function handleGovtIdentity(e) {
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setGovtIdentity(base64Url);
 	}
 
 	async function handleSignatureUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, signature_photo: convertImage });
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, signature_photo: base64Url });
 	}
 
 	async function handleMouUpload(e) {
-		const convertImage = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, mou_file: convertImage });
+		const base64Url = await blobToBase64(e.target.files[0]);
+		setExtras({ ...extras, mou_file: base64Url });
 	}
 
 	const handleFormSubmit = e => {
 		e.preventDefault();
 		if (!selectedProjects.length) return addToast('Please select project', TOAST.ERROR);
+		let extra_files = {};
 
-		const payload = { ...formData, extra_files: { ...extras } };
+		const payload = { ...formData };
 		payload.projects = selectedProjects;
 		if (profileUpload) payload.photo = profileUpload;
 		if (selectedGender) payload.gender = selectedGender;
+		if (govtIdentity) payload.govt_id_image = govtIdentity;
+		if (extras.signature_photo) extra_files.signature_photo = extras.signature_photo;
+		if (extras.mou_file) extra_files.mou_file = extras.mou_file;
+		payload.extra_files = extra_files;
+
+		setLoading(true);
 		updateVendor(vendorId, payload)
 			.then(() => {
+				setLoading(false);
 				addToast('Vendor updated successfully', TOAST.SUCCESS);
 				History.push('/vendors');
 			})
 			.catch(err => {
+				setLoading(false);
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
@@ -115,7 +122,6 @@ const Edit = ({ vendorId }) => {
 
 	const loadBeneficiaryDetails = useCallback(async () => {
 		const d = await getVendorDetails(vendorId);
-		console.log('data vendor', d);
 		const {
 			projects,
 			name,
@@ -129,8 +135,21 @@ const Edit = ({ vendorId }) => {
 			bank_branch,
 			bank_account,
 			photo,
-			govt_id
+			govt_id,
+			extra_files,
+			govt_id_image
 		} = d;
+
+		if (photo && photo.length) setExistingProfilePhoto(photo[0]);
+		if (govt_id_image) setExistingIdentity(govt_id_image);
+		console.log('==========>', extra_files);
+
+		if (extra_files) {
+			const { signature_photo, mou_file } = extra_files;
+			if (signature_photo) setExistingSignature(signature_photo);
+			if (mou_file) setExistingMou(mou_file);
+		}
+
 		if (projects && projects.length) {
 			const project_ids = projects.map(p => p._id);
 			setSelectedProjects(project_ids.toString());
@@ -149,12 +168,11 @@ const Edit = ({ vendorId }) => {
 			bank_name,
 			bank_branch,
 			bank_account,
-			photo,
 			govt_id
 		});
 		const { gender } = d;
 		if (gender !== 'U') setSelectedGender(gender);
-	}, [vendorId, getVendorDetails]);
+	}, [getVendorDetails, vendorId]);
 
 	const loadProjects = useCallback(async () => {
 		const projects = await listAid();
@@ -169,18 +187,12 @@ const Edit = ({ vendorId }) => {
 		loadBeneficiaryDetails();
 	}, [loadBeneficiaryDetails, loadProjects]);
 
-	console.log('data', formData);
-
 	return (
 		<div>
 			<WalletUnlock open={passcodeModal} onClose={e => setPasscodeModal(e)}></WalletUnlock>
 			<p className="page-heading">Vendor</p>
-			<Breadcrumb>
-				<BreadcrumbItem style={{ color: '#6B6C72' }}>
-					<a href="/">Vendor</a>
-				</BreadcrumbItem>
-				<BreadcrumbItem active-breadcrumb>Edit</BreadcrumbItem>
-			</Breadcrumb>
+			<BreadCrumb redirect_path="vendors" root_label="Vendors" current_label="Edit" />
+
 			<Row>
 				<Col md="12">
 					<Card>
@@ -199,10 +211,18 @@ const Edit = ({ vendorId }) => {
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
+											) : existingProfilePhoto ? (
+												<img
+													src={`${IPFS_GATEWAY}/ipfs/${existingProfilePhoto}`}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
 											) : (
 												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
 											)}
-											<Input id="profileUpload" type="file" name="file" onChange={handleProfileUpload} />
+											<Input id="profileUpload" type="file" onChange={handleProfileUpload} />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
@@ -262,7 +282,7 @@ const Edit = ({ vendorId }) => {
 								</FormGroup>
 								<FormGroup>
 									<Label>Address</Label>
-									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} required />
+									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} />
 								</FormGroup>
 								<Row>
 									<Col md="6" sm="12">
@@ -289,13 +309,7 @@ const Edit = ({ vendorId }) => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Government ID</Label>
-											<Input
-												type="number"
-												value={formData.govt_id}
-												name="govt_id"
-												onChange={handleInputChange}
-												required
-											/>
+											<Input type="number" value={formData.govt_id} name="govt_id" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
@@ -308,7 +322,6 @@ const Edit = ({ vendorId }) => {
 												value={formData.pan_number}
 												className="form-field"
 												onChange={handleInputChange}
-												required
 											/>
 										</FormGroup>
 									</Col>
@@ -325,7 +338,6 @@ const Edit = ({ vendorId }) => {
 												value={formData.bank_name}
 												className="form-field"
 												onChange={handleInputChange}
-												required
 											/>
 										</FormGroup>
 									</Col>
@@ -339,7 +351,6 @@ const Edit = ({ vendorId }) => {
 												value={formData.bank_branch}
 												className="form-field"
 												onChange={handleInputChange}
-												required
 											/>
 										</FormGroup>
 									</Col>
@@ -353,7 +364,6 @@ const Edit = ({ vendorId }) => {
 										value={formData.bank_account}
 										className="form-field"
 										onChange={handleInputChange}
-										required
 									/>
 								</FormGroup>
 								<Row>
@@ -361,9 +371,17 @@ const Edit = ({ vendorId }) => {
 										<FormGroup>
 											<label htmlFor="identity_photo">Identity picture</label>
 											<br />
-											{extras.identity_photo ? (
+											{govtIdentity ? (
 												<img
-													src={extras.identity_photo}
+													src={govtIdentity}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : existingIdentity ? (
+												<img
+													src={`${IPFS_GATEWAY}/ipfs/${existingIdentity}`}
 													alt="Profile"
 													width="200px"
 													height="200px"
@@ -372,7 +390,7 @@ const Edit = ({ vendorId }) => {
 											) : (
 												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
 											)}
-											<Input id="identity_photo" type="file" name="file" onChange={handleIdentityUpload} />
+											<Input id="identity_photo" type="file" onChange={handleGovtIdentity} />
 										</FormGroup>
 									</Col>
 									<Col md="4" sm="4">
@@ -382,6 +400,14 @@ const Edit = ({ vendorId }) => {
 											{extras.signature_photo ? (
 												<img
 													src={extras.signature_photo}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : existingSignature ? (
+												<img
+													src={`${IPFS_GATEWAY}/ipfs/${existingSignature}`}
 													alt="Profile"
 													width="200px"
 													height="200px"
@@ -410,32 +436,42 @@ const Edit = ({ vendorId }) => {
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
+											) : existingMou ? (
+												<img
+													src={`${IPFS_GATEWAY}/ipfs/${existingMou}`}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
 											) : (
 												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
 											)}
-											<Input id="mou_file" type="file" name="file" onChange={handleMouUpload} />
+											<Input id="mou_file" type="file" onChange={handleMouUpload} />
 										</FormGroup>
 									</Col>
 								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
-									{/* {loading ? (
-										<GrowSpinner />
-									) : ( */}
-									<div>
-										<Button type="submit" className="btn btn-info">
-											<i className="fa fa-check"></i> Submit
+									{loading ? (
+										<Button type="button" disabled={true} className="btn btn-secondary">
+											Updating, Please wait...
 										</Button>
-										<Button
-											type="button"
-											onClick={handleCancelClick}
-											style={{ borderRadius: 8 }}
-											className="btn btn-dark ml-2"
-										>
-											Cancel
-										</Button>
-									</div>
-									{/* )} */}
+									) : (
+										<div>
+											<Button type="submit" className="btn btn-info">
+												<i className="fa fa-check"></i> Submit
+											</Button>
+											<Button
+												type="button"
+												onClick={handleCancelClick}
+												style={{ borderRadius: 8 }}
+												className="btn btn-dark ml-2"
+											>
+												Cancel
+											</Button>
+										</div>
+									)}
 								</CardBody>
 							</Form>
 						</CardBody>

@@ -21,9 +21,9 @@ export const VendorContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(vendorReduce, initialState);
 	const { wallet, appSettings, changeIsverified } = useContext(AppContext);
 
-	async function getVendorBalance(contract_addr, wallet_address) {
+	const getVendorBalance = useCallback((contract_addr, wallet_address) => {
 		return Service.getVendorBalance(contract_addr, wallet_address);
-	}
+	}, []);
 
 	const listAid = useCallback(async () => {
 		const d = await AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
@@ -50,15 +50,28 @@ export const VendorContextProvider = ({ children }) => {
 		});
 	}
 
-	async function approveVendor(payload) {
-		const { rahat: rahatContractAddr } = appSettings.agency.contracts;
-		const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
-		changeIsverified(false);
-		if (res) {
-			setVendor(res.data);
-			return res.data;
-		}
-	}
+	const approveVendor = useCallback(
+		async payload => {
+			const { rahat: rahatContractAddr } = appSettings.agency.contracts;
+			const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
+			changeIsverified(false);
+			if (res) {
+				setVendor(res.data);
+				return res.data;
+			}
+		},
+		[appSettings.agency.contracts, changeIsverified, wallet]
+	);
+
+	// async function approveVendor(payload) {
+	// 	const { rahat: rahatContractAddr } = appSettings.agency.contracts;
+	// 	const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
+	// 	changeIsverified(false);
+	// 	if (res) {
+	// 		setVendor(res.data);
+	// 		return res.data;
+	// 	}
+	// }
 
 	async function changeVendorStatus(vendorId, status) {
 		const res = await Service.changeVendorStaus(vendorId, status);

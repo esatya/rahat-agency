@@ -96,6 +96,20 @@ let AppRoutes = [
 	},
 
 	{
+		path: '/projects/:id',
+		name: 'Aid',
+		component: AidDetails
+	},
+
+	{
+		path: '/projects',
+		name: 'Projects',
+		icon: 'layers',
+		component: AidList,
+		showInSidebar: true
+	},
+
+	{
 		path: '/beneficiaries',
 		name: 'Beneficiary',
 		icon: 'users',
@@ -108,11 +122,7 @@ let AppRoutes = [
 		name: 'Mobilizer',
 		component: MobilizerDetails
 	},
-	{
-		path: '/projects/:id',
-		name: 'Aid',
-		component: AidDetails
-	},
+
 	{
 		path: '/edit-project/:id',
 		name: 'Project',
@@ -122,13 +132,6 @@ let AppRoutes = [
 		path: '/add-project',
 		name: 'Add',
 		component: AddProject
-	},
-	{
-		path: '/projects',
-		name: 'Projects',
-		icon: 'layers',
-		component: AidList,
-		showInSidebar: true
 	},
 
 	{

@@ -135,6 +135,7 @@ const Vendor = () => {
 						<Table className="no-wrap v-middle" responsive>
 							<thead>
 								<tr className="border-0">
+									<th className="border-0">S.N.</th>
 									<th className="border-0">Name</th>
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
@@ -145,6 +146,7 @@ const Vendor = () => {
 								{list.length ? (
 									list.map((e, i) => (
 										<tr key={e._id}>
+											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 											<td>
 												<div className="d-flex no-block align-items-center">
 													<div className="mr-2">

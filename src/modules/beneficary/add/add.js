@@ -7,6 +7,8 @@ import BreadCrumb from '../../ui_components/breadcrumb';
 import { GROUPS, TOAST } from '../../../constants';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import SelectWrapper from '../../global/SelectWrapper';
+import UploadPlaceholder from '../../../assets/images/download.png';
+import { blobToBase64 } from '../../../utils';
 
 const Add = () => {
 	const { addToast } = useToasts();
@@ -30,11 +32,26 @@ const Add = () => {
 		child: ''
 	});
 
+	const [loading, setLoading] = useState(false);
 	const [projectList, setProjectList] = useState([]);
 
 	const [selectedGender, setSelectedGender] = useState('');
 	const [selectedGroup, setSelectedGroup] = useState('');
 	const [selectedProjects, setSelectedProjects] = useState('');
+
+	const [profilePic, setProfilePic] = useState('');
+	const [govtId, setGovtId] = useState('');
+
+	const handleProfileUpload = async e => {
+		const file = e.target.files[0];
+		const base64Url = await blobToBase64(file);
+		setProfilePic(base64Url);
+	};
+	const handleGovtIdUpload = async e => {
+		const file = e.target.files[0];
+		const base64Url = await blobToBase64(file);
+		setGovtId(base64Url);
+	};
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,12 +69,17 @@ const Add = () => {
 		const payload = { ...formData, extras: { ...extras } };
 		payload.projects = selectedProjects;
 		if (selectedGender) payload.gender = selectedGender;
+		if (profilePic) payload.photo = profilePic;
+		if (govtId) payload.govt_id_image = govtId;
+		setLoading(true);
 		addBeneficiary(payload)
 			.then(() => {
+				setLoading(false);
 				addToast('Beneficiary added successfully', TOAST.SUCCESS);
 				History.push('/beneficiaries');
 			})
 			.catch(err => {
+				setLoading(false);
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
@@ -100,6 +122,44 @@ const Add = () => {
 					<Card>
 						<CardBody>
 							<Form onSubmit={handleFormSubmit} style={{ color: '#6B6C72' }}>
+								<Row>
+									<Col md="6" sm="12" className="d-flex align-items-center">
+										<FormGroup>
+											<label htmlFor="profilePicUpload">Profile picture</label>
+											<br />
+											{profilePic ? (
+												<img
+													src={profilePic}
+													alt="Profile"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={UploadPlaceholder} alt="Profile" width="100px" height="100px" />
+											)}
+											<Input id="profilePicUpload" type="file" onChange={handleProfileUpload} />
+										</FormGroup>
+									</Col>
+									<Col md="6" sm="12" className="d-flex align-items-center">
+										<FormGroup>
+											<label htmlFor="govtIdUpload">Government ID</label>
+											<br />
+											{govtId ? (
+												<img
+													src={govtId}
+													alt="Govt ID"
+													width="200px"
+													height="200px"
+													style={{ borderRadius: '10px', marginBottom: '10px' }}
+												/>
+											) : (
+												<img src={UploadPlaceholder} alt="Govt ID" width="100px" height="100px" />
+											)}
+											<Input id="govtIdUpload" type="file" onChange={handleGovtIdUpload} />
+										</FormGroup>
+									</Col>
+								</Row>
 								<FormGroup>
 									<Label>Project</Label>
 									<SelectWrapper
@@ -263,23 +323,25 @@ const Add = () => {
 								</Row>
 
 								<CardBody style={{ paddingLeft: 0 }}>
-									{/* {loading ? (
-										<GrowSpinner />
-									) : ( */}
-									<div>
-										<Button type="submit" className="btn btn-info">
-											<i className="fa fa-check"></i> Submit
+									{loading ? (
+										<Button type="button" disabled={true} className="btn btn-secondary">
+											Adding,Please wait...
 										</Button>
-										<Button
-											type="button"
-											onClick={handleCancelClick}
-											style={{ borderRadius: 8 }}
-											className="btn btn-dark ml-2"
-										>
-											Cancel
-										</Button>
-									</div>
-									{/* )} */}
+									) : (
+										<div>
+											<Button type="submit" className="btn btn-info">
+												<i className="fa fa-check"></i> Submit
+											</Button>
+											<Button
+												type="button"
+												onClick={handleCancelClick}
+												style={{ borderRadius: 8 }}
+												className="btn btn-dark ml-2"
+											>
+												Cancel
+											</Button>
+										</div>
+									)}
 								</CardBody>
 							</Form>
 						</CardBody>

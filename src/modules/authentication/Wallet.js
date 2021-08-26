@@ -109,7 +109,7 @@ const Wallet = () => {
 		}, QR_REFRESH_TIME);
 
 		return () => clearTimeout(timer);
-	}, [generateQR, tempIdentity.privateKey, refreshCounter]);
+	}, [generateQR, addToast, tempIdentity.privateKey, refreshCounter]);
 
 	const handleRefreshQrCode = () => setRefreshCounter(refreshCounter + 1);
 
