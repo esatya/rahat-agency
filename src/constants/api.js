@@ -14,4 +14,5 @@ module.exports = {
   USERS: API_PATH + "/users",
   VENDORS: API_PATH + "/vendors",
   FAUCET:process.env.REACT_APP_BLOCKCHAIN_FAUCET,
+  MOBILIZERS: API_PATH + "/mobilizers",
 };

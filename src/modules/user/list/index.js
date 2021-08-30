@@ -77,6 +77,7 @@ const List = () => {
 					<Table className="no-wrap v-middle" responsive>
 						<thead>
 							<tr className="border-0">
+								<th className="border-0">S.N.</th>
 								<th className="border-0">Name</th>
 								<th className="border-0">Email</th>
 								<th className="border-0">Phone</th>
@@ -86,9 +87,10 @@ const List = () => {
 						</thead>
 						<tbody>
 							{users.length ? (
-								users.map(d => {
+								users.map((d, i) => {
 									return (
 										<tr key={d._id}>
+											<td>{(pagination.current_page - 1) * pagination.limit + i + 1}</td>
 											<td>{`${d.name.first} ${d.name.last}`}</td>
 											<td>{d.email}</td>
 											<td>{d.phone || '-'}</td>
