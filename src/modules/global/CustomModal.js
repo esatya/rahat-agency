@@ -19,13 +19,15 @@ export default function CustomModal(props) {
 							{loading ? (
 								<Loading />
 							) : (
-								<Button type="submit" color="primary">
-									Submit
-								</Button>
+								<>
+									<Button type="submit" color="info">
+										Submit
+									</Button>
+									<Button color="secondary" onClick={toggle.bind(null)}>
+										Cancel
+									</Button>
+								</>
 							)}
-							<Button color="secondary" onClick={toggle.bind(null)}>
-								Cancel
-							</Button>
 						</ModalFooter>
 					)}
 				</Form>

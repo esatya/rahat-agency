@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardBody, CardTitle } from 'reactstrap';
 import { Pie } from 'react-chartjs-2';
-import moment from 'moment';
 
 import { ExportToExcel } from '../../global/ExportToExcel';
 
@@ -62,7 +61,7 @@ export default function Index(props) {
 						<CardTitle>Beneficiaries by project ({data.length})</CardTitle>
 						<div>
 							{exportData.length ? (
-								<ExportToExcel apiData={exportData} fileName={`Beneficiaries-by-project-report-${moment().unix()}`} />
+								<ExportToExcel apiData={exportData} fileName="Beneficiaries-by-project-report.xlsx" />
 							) : (
 								''
 							)}
