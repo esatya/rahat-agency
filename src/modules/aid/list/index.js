@@ -20,6 +20,7 @@ import moment from 'moment';
 
 import { AidContext } from '../../../contexts/AidContext';
 import AidModal from '../../global/CustomModal';
+import { History } from '../../../utils/History';
 
 const List = () => {
 	const { aids, pagination, listAid, addAid } = useContext(AidContext);
@@ -33,6 +34,8 @@ const List = () => {
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
+
+	const handleAddProjectClick = () => History.push('/add-project');
 
 	const handleProjectStatusChange = e => setProjectStatus(e.target.value);
 
@@ -64,7 +67,7 @@ const List = () => {
 
 	const handlePagination = current_page => {
 		let _start = (current_page - 1) * pagination.limit;
-		return loadAidList({ start: _start, limit: pagination.limit });
+		return listAid({ start: _start, limit: pagination.limit });
 	};
 
 	const loadAidList = () => {
@@ -131,7 +134,7 @@ const List = () => {
 								</CustomInput>
 							</div>
 							<div className="flex-item">
-								<Button onClick={toggleModal} className="btn" color="info">
+								<Button onClick={handleAddProjectClick} className="btn" color="info">
 									Add New
 								</Button>
 							</div>
@@ -142,6 +145,7 @@ const List = () => {
 					<Table className="no-wrap v-middle" responsive>
 						<thead>
 							<tr className="border-0">
+								<th className="border-0">S.N.</th>
 								<th className="border-0">Name</th>
 								<th className="border-0">Location</th>
 								<th className="border-0">Project Manager</th>
@@ -152,12 +156,15 @@ const List = () => {
 						</thead>
 						<tbody>
 							{aids.length ? (
-								aids.map(d => {
+								aids.map((d, i) => {
 									return (
 										<tr key={d._id}>
+											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 											<td>{d.name}</td>
-											<td>Kavre</td>
-											<td>Shrawan Khadka</td>
+											<td>{d.location || '-'}</td>
+											<td>
+												{d.project_manager ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
+											</td>
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">

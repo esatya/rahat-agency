@@ -1,7 +1,6 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Card, CardBody, CardTitle } from 'reactstrap';
-import moment from 'moment';
 
 import { ExportToExcel } from '../../global/ExportToExcel';
 
@@ -68,11 +67,7 @@ const Index = props => {
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<CardTitle>Tokens by project</CardTitle>
 						<div>
-							{exportData.length ? (
-								<ExportToExcel apiData={exportData} fileName={`Tokens-by-project-report-${moment().unix()}`} />
-							) : (
-								''
-							)}
+							{exportData.length ? <ExportToExcel apiData={exportData} fileName="Tokens-by-project-report.xlsx" /> : ''}
 						</div>
 					</div>
 					<br />

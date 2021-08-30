@@ -1,382 +1,289 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useCallback, useEffect, useState } from 'react';
+import { Row, Col, FormGroup, Label, InputGroup, Input } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
-import Select from 'react-select';
-import { Link } from 'react-router-dom';
+import QRCode from 'qrcode';
 
-import {
-	Card,
-	CardBody,
-	Row,
-	Col,
-	Input,
-	Button,
-	Table,
-	FormGroup,
-	Label,
-	InputGroup,
-	Modal,
-	ModalBody,
-	ModalHeader,
-	ModalFooter
-} from 'reactstrap';
-import Swal from 'sweetalert2';
+import Balance from '../../ui_components/balance';
+import DetailsCard from '../../global/DetailsCard';
+import BeneficiaryInfo from './beneficiaryInfo';
+import ProjectInvovled from '../../ui_components/projects';
+import BreadCrumb from '../../ui_components/breadcrumb';
+import PasscodeModal from '../../global/PasscodeModal';
+import ModalWrapper from '../../global/CustomModal';
+import SelectWrapper from '../../global/SelectWrapper';
+import { TOAST } from '../../../constants';
 
-import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
-import profilePhoto from '../../../assets/images/users/user_avatar.svg';
-import UnlockWallet from '../../global/walletUnlock';
+import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
+import { History } from '../../../utils/History';
+import { htmlResponse } from '../../../utils/printSingleBeneficiary';
 
-export default function DetailsForm(props) {
+const BenefDetails = ({ params }) => {
+	const { id } = params;
 	const { addToast } = useToasts();
-	const [tokenBalance, setTokenBalance] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [modal, setModal] = useState(false);
+
+	const { getBeneficiaryDetails, getBeneficiaryBalance, getAvailableBalance, issueTokens } = useContext(
+		BeneficiaryContext
+	);
+	const { isVerified, wallet, loading, setLoading, appSettings } = useContext(AppContext);
+
+	const [basicInfo, setBasicInfo] = useState({});
+	const [extras, setExtras] = useState({});
+	const [projectList, setProjectList] = useState([]);
+	const [currentBalance, setCurrentBalance] = useState('');
+	const [inputTokens, setInputTokens] = useState('');
 	const [projectOptions, setProjectOptions] = useState([]);
-	const [inputTokens, setInputTokens] = useState(null);
-	const [selectedProject, setSelectedProject] = useState('');
-	const [availableBalance, setAvailableBalance] = useState(null);
-	const [showAlert, setShowAlert] = useState(false);
+	const [assignTokenAmount, setAssignTokenAmount] = useState('');
+
+	const [fetching, setFetching] = useState(false);
 	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [projectModal, setProjectModal] = useState(false);
+	const [assignTokenModal, setAssignTokenModal] = useState(false);
 
-	const beneficiaryId = props.params.id;
+	const [availableBalance, setAvailableBalance] = useState('');
+	const [showAlert, setShowAlert] = useState(false);
+	const [selectedProject, setSelectedProject] = useState('');
 
-	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
 
-	const {
-		issueTokens,
-		beneficiary_detail,
-		getBeneficiaryDetails,
-		getBeneficiaryBalance,
-		listAid,
-		getAvailableBalance
-	} = useContext(BeneficiaryContext);
+	const toggleProjectModal = () => {
+		// If opening modal, reset fields
+		if (!projectModal) {
+			setShowAlert(false);
+			setAvailableBalance('');
+			setInputTokens('');
+			setSelectedProject('');
+		}
+		setProjectModal(!projectModal);
+	};
+	const handleInputTokenChange = e => setInputTokens(e.target.value);
 
-	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
+	const togglePasscodeModal = useCallback(() => {
+		setPasscodeModal(!passcodeModal);
+	}, [passcodeModal]);
 
-	const handleTokenChange = e => {
-		setInputTokens(e.target.value);
+	const handleAssignTokenChange = e => setAssignTokenAmount(e.target.value);
+
+	const handleTokenInputSubmit = e => {
+		e.preventDefault();
+		const { name, address, govt_id, phone } = basicInfo;
+		const payload = { name, address, govt_id, phone };
+		generateQrAndPrint(payload);
 	};
 
-	const handleSelectProject = async e => {
+	const generateQrAndPrint = async payload => {
+		toggleAssignTokenModal();
+		const imgUrl = await QRCode.toDataURL(`phone:+977${payload.phone}?amount=${assignTokenAmount || null}`);
+		const html = await htmlResponse(payload, imgUrl);
+		setAssignTokenAmount('');
+		let newWindow = window.open('', 'Print QR', 'fullscreen=yes'),
+			document = newWindow.document.open();
+		document.write(html);
+		document.close();
+		setTimeout(function () {
+			newWindow.print();
+			newWindow.close();
+		}, 250);
+	};
+
+	const handleProjectChange = async d => {
 		try {
+			setSelectedProject(d.value);
 			setLoading(true);
-			setSelectedProject(e.value);
-			//const { rahat_admin } = appSettings.agency.contracts;
-			let d = await getAvailableBalance(e.value);
-			setAvailableBalance(d);
+			const balance = await getAvailableBalance(d.value);
+			setAvailableBalance(balance);
 			setShowAlert(true);
 			setLoading(false);
-		} catch {
-			setShowAlert(false);
-			addToast('Failed to fetch availabe balance!', {
-				appearance: 'error',
-				autoDismiss: true
-			});
+		} catch (err) {
 			setLoading(false);
+			setShowAlert(false);
+			addToast('Failed to fetch project balance', TOAST.ERROR);
 		}
 	};
 
-	const handleIssueToken = e => {
+	const handleIssueToken = () => toggleProjectModal();
+
+	const handleIssueSubmit = e => {
 		e.preventDefault();
-		if (!selectedProject || !inputTokens) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Attention',
-				text: 'Project and input token is required!'
-			});
-			return;
-		}
-		if (inputTokens > availableBalance) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Attention',
-				text: 'Input balance can not be greater than available balance!'
-			});
-			return;
-		}
+		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
+		if (inputTokens > availableBalance) return addToast('Input tokens must be less than available', TOAST.ERROR);
+		toggleProjectModal();
 		togglePasscodeModal();
 	};
 
-	const submitIssueTokenDetails = () => {
-		if (!isVerified) return;
+	const submitRequest = useCallback(
+		async (payload, wallet) => {
+			try {
+				setLoading(true);
+				await issueTokens(payload, wallet);
+				addToast(`${payload.claimable} tokens issued successfully`, TOAST.SUCCESS);
+				setLoading(false);
+				History.push('/beneficiaries');
+			} catch (err) {
+				setLoading(false);
+				addToast(err.message, TOAST.ERROR);
+			}
+		},
+		[addToast, issueTokens, setLoading]
+	);
+
+	const issueBeneficiaryToken = useCallback(async () => {
 		const payload = {
 			claimable: +inputTokens,
-			phone: +beneficiary_detail.phone,
+			phone: +basicInfo.phone,
 			projectId: selectedProject
 		};
-		setLoading(true);
-		issueTokens(payload)
-			.then(() => {
-				changeIsverified(false);
-				toggleModal();
-				addToast(`${payload.claimable} tokens assigned to beneficiary.`, {
-					appearance: 'success',
-					autoDismiss: true
-				});
-				getBalance(payload.phone);
-				setLoading(false);
-				resetTokenIssueForm();
-				togglePasscodeModal();
-			})
-			.catch(err => {
-				changeIsverified(false);
-				togglePasscodeModal();
-				addToast(err.message, {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	const toggleModal = () => {
-		setModal(prevState => !prevState);
-		resetTokenIssueForm();
-	};
-
-	const resetTokenIssueForm = () => {
-		setInputTokens(null);
-		setAvailableBalance('');
-		setSelectedProject(null);
-		setShowAlert(false);
-	};
-
-	const getBalance = phone => {
-		getBeneficiaryBalance(+phone, contractAddress)
-			.then(bal => {
-				setTokenBalance(bal);
-			})
-			.catch(() => {
-				addToast('Internal server error!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	const loadBeneficiaryDetails = () => {
-		getBeneficiaryDetails(beneficiaryId)
-			.then(d => {
-				getBalance(d.phone);
-			})
-			.catch(() => {
-				addToast('Internal server error!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	const fetchProjectList = () => {
-		listAid()
-			.then(d => {
-				sanitizeProjectOptions(d.data);
-			})
-			.catch(() => {
-				addToast('Something went wrong!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
-
-	const sanitizeProjectOptions = data => {
-		let options = [];
-		if (data && data.length) {
-			for (let d of data) {
-				let obj = {};
-				obj.value = d._id;
-				obj.label = d.name;
-				options.push(obj);
-			}
-			setProjectOptions(options);
-			return;
+		if (isVerified && wallet) {
+			setPasscodeModal(false);
+			return submitRequest(payload, wallet);
 		}
-		setProjectOptions(options);
-	};
+	}, [basicInfo.phone, inputTokens, isVerified, selectedProject, submitRequest, wallet]);
 
-	useEffect(fetchProjectList, []);
-	useEffect(loadBeneficiaryDetails, []);
-	useEffect(submitIssueTokenDetails, [isVerified]);
+	const fetchCurrentBalance = useCallback(
+		async phone => {
+			try {
+				const parsed_phone = parseInt(phone);
+				const { rahat } = appSettings.agency.contracts;
+				setFetching(true);
+				const balance = await getBeneficiaryBalance(parsed_phone, rahat);
+				setCurrentBalance(balance);
+				setFetching(false);
+			} catch (err) {
+				setCurrentBalance('0');
+				setFetching(false);
+			}
+		},
+		[appSettings.agency.contracts, getBeneficiaryBalance]
+	);
 
-	const contractAddress = appSettings && appSettings.agency ? appSettings.agency.contracts.rahat : '';
+	const fetchBeneficiaryDetails = useCallback(async () => {
+		const details = await getBeneficiaryDetails(id);
+		await fetchCurrentBalance(details.phone);
+		if (details && details.extras) setExtras(details.extras);
+		setBasicInfo(details);
+		if (details.projects && details.projects.length) {
+			const projects = details.projects.map(d => {
+				return { id: d._id, name: d.name };
+			});
+			setProjectList(projects);
+			// Render select options
+			const select_options = details.projects.map(d => {
+				return { label: d.name, value: d._id };
+			});
+			setProjectOptions(select_options);
+		}
+	}, [fetchCurrentBalance, getBeneficiaryDetails, id]);
+
+	useEffect(() => {
+		fetchBeneficiaryDetails();
+	}, [fetchBeneficiaryDetails]);
+
+	useEffect(() => {
+		issueBeneficiaryToken();
+	}, [issueBeneficiaryToken, isVerified]);
 
 	return (
 		<>
-			<UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
-
-			<Modal isOpen={modal} toggle={toggleModal.bind(null)}>
-				<ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
-				<ModalBody>
-					<FormGroup>
-						<Label>Project *</Label>
-						<Select
-							onChange={handleSelectProject}
-							closeMenuOnSelect={true}
-							defaultValue={[]}
-							options={projectOptions}
-							placeholder="--Select Project--"
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+			<ModalWrapper
+				title="Issue Tokens"
+				loading={loading}
+				open={projectModal}
+				toggle={toggleProjectModal}
+				handleSubmit={handleIssueSubmit}
+			>
+				<FormGroup>
+					<Label>Project *</Label>
+					<SelectWrapper
+						onChange={handleProjectChange}
+						maxMenuHeight={150}
+						data={projectOptions}
+						placeholder="--Select Project--"
+					/>{' '}
+					<br />
+					<Label>Tokens *</Label>
+					<InputGroup>
+						<Input
+							type="number"
+							name="tokens"
+							placeholder="Enter number of tokens"
+							value={inputTokens}
+							onChange={handleInputTokenChange}
+							required
 						/>
-						<br />
-						<Label>Tokens *</Label>
-						<InputGroup>
-							<Input
-								type="number"
-								name="tokens"
-								placeholder="Enter number of tokens"
-								onChange={handleTokenChange}
-								value={inputTokens || ''}
-							/>
-						</InputGroup>
-					</FormGroup>
-					<FormGroup>
-						{showAlert && availableBalance > 0 ? (
-							<div className="alert alert-success fade show" role="alert">
-								Availabe Balance: {availableBalance}
+					</InputGroup>
+				</FormGroup>
+				<FormGroup>
+					{showAlert && availableBalance > 0 ? (
+						<div className="alert alert-success fade show" role="alert">
+							Availabe Balance: {availableBalance}
+						</div>
+					) : showAlert ? (
+						<div>
+							<div className="alert alert-warning fade show" role="alert">
+								<p>Project has ZERO balance.</p>
 							</div>
-						) : showAlert ? (
-							<div>
-								<div className="alert alert-warning fade show" role="alert">
-									<p>
-										Project has ZERO balance. <Link to={`/projects/${selectedProject}`}>You can add here.</Link>
-									</p>
-								</div>
-							</div>
-						) : (
-							''
-						)}
-					</FormGroup>
-				</ModalBody>
-				<ModalFooter>
-					{loading ? (
-						<>
-							<div role="status" className="spinner-border-sm spinner-border text-secondary">
-								<span className="sr-only">Loading...</span>
-							</div>
-						</>
+						</div>
 					) : (
-						<>
-							{availableBalance && availableBalance > 0 ? (
-								<>
-									<Button onClick={handleIssueToken} type="button" color="primary">
-										Submit
-									</Button>
-									<Button color="secondary" onClick={toggleModal.bind(null)}>
-										Cancel
-									</Button>
-								</>
-							) : (
-								''
-							)}
-						</>
+						''
 					)}
-				</ModalFooter>
-			</Modal>
+				</FormGroup>
+			</ModalWrapper>
+
+			{/* Assign token modal */}
+			<ModalWrapper
+				title="Set Tokens"
+				open={assignTokenModal}
+				toggle={toggleAssignTokenModal}
+				handleSubmit={handleTokenInputSubmit}
+			>
+				<FormGroup>
+					<InputGroup>
+						<Input
+							type="number"
+							name="assignTokenAmount"
+							placeholder="Enter number of tokens (optional)"
+							value={assignTokenAmount}
+							onChange={handleAssignTokenChange}
+						/>
+					</InputGroup>
+				</FormGroup>
+			</ModalWrapper>
+
+			<p className="page-heading">Beneficiary</p>
+			<BreadCrumb redirect_path="beneficiaries" root_label="Beneficiary" current_label="Details" />
 			<Row>
-				<Col md="12">
-					<Card>
-						<CardBody>
-							<div>
-								<div className="d-flex align-items-center p-4 border-bottom">
-									<div className="mr-3">
-										<img src={profilePhoto} alt="user" className="rounded-circle" width="50" />
-									</div>
-									<div>
-										<h5 className="message-title mb-0">{beneficiary_detail ? beneficiary_detail.name : ''}</h5>
-										<p className="mb-0">Current balance: {tokenBalance}</p>
-									</div>
-									<div className="ml-auto">
-										<Button type="button" color="info" onClick={toggleModal}>
-											Issue Token
-										</Button>
-									</div>
-								</div>
-								<div className="details-table px-4">
-									<Table responsive borderless size="sm" className="mt-4">
-										<tbody>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Phone</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="phone"
-														id="phone"
-														defaultValue={beneficiary_detail ? beneficiary_detail.phone : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Email</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="email"
-														id="email"
-														defaultValue={beneficiary_detail ? beneficiary_detail.email : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Government ID</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="govt_id"
-														id="govt_id"
-														defaultValue={beneficiary_detail ? beneficiary_detail.govt_id : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Wallet Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="wallet_address"
-														id="wallet_address"
-														defaultValue={beneficiary_detail ? beneficiary_detail.wallet_address : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Permanent Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="address"
-														id="address"
-														defaultValue={beneficiary_detail ? beneficiary_detail.address : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Temporary Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="phone"
-														id="phone"
-														defaultValue={
-															beneficiary_detail && beneficiary_detail.address_temporary
-																? beneficiary_detail.address_temporary
-																: ''
-														}
-													/>
-												</td>
-											</tr>
-										</tbody>
-									</Table>
-								</div>
-							</div>
-						</CardBody>
-					</Card>
+				<Col md="7">
+					<DetailsCard
+						handleButtonClick={toggleAssignTokenModal}
+						title="Beneficiary Details"
+						button_name="Generate QR Code"
+						name="Name"
+						name_value={basicInfo.name ? basicInfo.name : ''}
+						imgUrl={basicInfo.photo ? basicInfo.photo : ''}
+						total="Total Issued"
+						total_value="-"
+					/>
+				</Col>
+				<Col md="5">
+					<Balance
+						action="issue_token"
+						title="Balance"
+						button_name="Issue Token"
+						data={currentBalance}
+						fetching={fetching}
+						loading={loading}
+						label="Current Balance"
+						handleIssueToken={handleIssueToken}
+					/>
 				</Col>
 			</Row>
+
+			{basicInfo && <BeneficiaryInfo basicInfo={basicInfo} extras={extras} />}
+
+			<ProjectInvovled projects={projectList} />
 		</>
 	);
-}
+};
+
+export default BenefDetails;
