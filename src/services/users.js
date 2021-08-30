@@ -80,6 +80,17 @@ export async function listUsers(params) {
 	return res.data;
 }
 
+export async function listUsersByRole(role) {
+	const res = await axios({
+		url: `${API.USERS}/roles/${role}`,
+		method: 'Get',
+		headers: {
+			access_token
+		}
+	});
+	return res.data;
+}
+
 export async function getUserById(userId) {
 	const res = await axios({
 		url: `${API.USERS}/${userId}`,

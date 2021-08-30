@@ -12,22 +12,17 @@ import {
 	PaginationItem,
 	PaginationLink,
 	CustomInput,
-	Modal,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
 	Table,
-	Form,
 	Row,
 	Col
 } from 'reactstrap';
 import displayPic from '../../assets/images/users/user_avatar.svg';
+import { History } from '../../utils/History';
 
 const searchOptions = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
 
 const Beneficiary = () => {
 	const { addToast } = useToasts();
-	const [model, setModel] = useState(false);
 
 	const [filter, setFilter] = useState({
 		searchPlaceholder: 'Enter phone number...',
@@ -35,7 +30,7 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, list, pagination, listAid, projectList, addBeneficiary } = useContext(BeneficiaryContext);
+	const { listBeneficiary, list, pagination, listAid, projectList } = useContext(BeneficiaryContext);
 
 	const handleFilterChange = e => {
 		let { value } = e.target;
@@ -76,8 +71,6 @@ const Beneficiary = () => {
 		fetchList({ start: 0, limit: pagination.limit });
 	};
 
-	const toggle = () => setModel(!model);
-
 	const fetchList = query => {
 		let params = { ...pagination, ...query };
 		listBeneficiary(params)
@@ -110,6 +103,8 @@ const Beneficiary = () => {
 		if (selectedProject) query.projectId = selectedProject;
 		return fetchList(query);
 	};
+
+	const handleAddClick = () => History.push('/add-beneficiary');
 
 	return (
 		<div className="main">
@@ -169,7 +164,7 @@ const Beneficiary = () => {
 							</Col>
 							<Col md="2">
 								<div>
-									<Button onClick={() => toggle()} className="btn" color="info">
+									<Button type="button" onClick={handleAddClick} className="btn" color="info">
 										Add New
 									</Button>
 								</div>
@@ -180,6 +175,7 @@ const Beneficiary = () => {
 						<Table className="no-wrap v-middle" responsive>
 							<thead>
 								<tr className="border-0">
+									<th className="border-0">S.N.</th>
 									<th className="border-0">Name</th>
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
@@ -189,9 +185,10 @@ const Beneficiary = () => {
 							</thead>
 							<tbody>
 								{list.length ? (
-									list.map(d => {
+									list.map((d, i) => {
 										return (
 											<tr key={d._id}>
+												<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 												<td>
 													<div className="d-flex no-block align-items-center">
 														<div className="mr-2">
@@ -253,139 +250,6 @@ const Beneficiary = () => {
 					</CardBody>
 				</Card>
 			</div>
-
-			<Modal isOpen={model} toggle={toggle}>
-				<Form
-					onSubmit={e => {
-						e.preventDefault();
-						addBeneficiary(e)
-							.then(d => {
-								addToast('Beneficiary Added successfully', {
-									appearance: 'success',
-									autoDismiss: true
-								});
-								fetchList();
-								toggle();
-							})
-							.catch(err =>
-								addToast(err.message, {
-									appearance: 'error',
-									autoDismiss: true
-								})
-							);
-					}}
-				>
-					<ModalHeader toggle={toggle}>
-						<div>
-							<h3>Add Beneficiary</h3>
-						</div>
-					</ModalHeader>
-					<ModalBody>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-								gridColumnGap: '10px'
-							}}
-						>
-							<div className="form-item">
-								<label htmlFor="aid">Project</label>
-								<br />
-
-								<CustomInput type="select" id="aid" name="aid" defaultValue="" className="form-field" required>
-									<option value="" disabled>
-										All
-									</option>
-									{projectList.map(e => (
-										<option key={e._id} value={e._id}>
-											{e.name}
-										</option>
-									))}
-								</CustomInput>
-							</div>
-							<div className="form-item">
-								<label htmlFor="name">Name</label>
-								<br />
-								<Input name="name" type="text" placeholder="Full Name" className="form-field" required />
-							</div>
-						</div>
-						<br />
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-								gridColumnGap: '10px'
-							}}
-						>
-							<div className="form-item">
-								<label htmlFor="email">Email</label>
-								<br />
-								<Input name="email" type="email" placeholder="Email Address" className="form-field" required />
-							</div>
-							<div className="form-item">
-								<label htmlFor="phone">Phone</label>
-								<br />
-								<Input name="phone" type="number" placeholder="Phone no" className="form-field" required />
-							</div>
-						</div>
-						<br />
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-								gridColumnGap: '10px'
-							}}
-						>
-							<div className="form-item">
-								<label htmlFor="wallet_address">Wallet Address</label>
-								<br />
-								<Input name="wallet_address" type="text" placeholder="Wallet Address" className="form-field" required />
-							</div>
-
-							<div className="form-item">
-								<label htmlFor="govt_id">Government Id</label>
-								<br />
-								<Input name="govt_id" type="text" placeholder="Govt Id" className="form-field" required />
-							</div>
-						</div>
-						<br />
-
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-								gridColumnGap: '10px'
-							}}
-						>
-							<div className="form-item">
-								<label htmlFor="address">Address</label>
-								<br />
-								<Input name="address" type="text" placeholder="Your Address" className="form-field" required />
-							</div>
-							<div className="form-item">
-								<label htmlFor="address_temporary">Temporary Address</label>
-								<br />
-								<Input
-									name="address_temporary"
-									type="text"
-									placeholder="Your temp Address"
-									className="form-field"
-									required
-								/>
-							</div>
-						</div>
-						<br />
-					</ModalBody>
-					<ModalFooter>
-						<Button color="primary">Submit</Button>
-
-						<Button color="secondary" onClick={toggle}>
-							Cancel
-						</Button>
-					</ModalFooter>
-				</Form>
-			</Modal>
-			<br />
 		</div>
 	);
 };
