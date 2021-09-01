@@ -26,8 +26,9 @@ export async function approveMobilizer(wallet, payload,contract_address) {
   const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
   const signerContract = contract.connect(wallet);
   const myContract = mapTestContract(signerContract);
-  const data = await myContract.addAdmin(payload.wallet_address);
-  if (!data) return "Mobilizer approve failed!";
+  const tx = await myContract.addAdmin(payload.wallet_address);
+  let minedTx = await tx.wait();
+  if (!minedTx) return "Mobilizer approve failed!";
   const res = await approveMobilizerToProject(payload.wallet_address, payload.projectId);
   getEth({address:payload.wallet_address});
   return res;
