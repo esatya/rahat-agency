@@ -30,7 +30,8 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, list, pagination, listAid, projectList } = useContext(BeneficiaryContext);
+
+	const { listBeneficiary, list, pagination, listProject, projectList } = useContext(BeneficiaryContext);
 
 	const handleFilterChange = e => {
 		let { value } = e.target;
@@ -83,8 +84,9 @@ const Beneficiary = () => {
 			});
 	};
 
+
 	const fetchProjectList = () => {
-		listAid()
+		listProject()
 			.then()
 			.catch(() => {
 				addToast('Something went wrong!', {

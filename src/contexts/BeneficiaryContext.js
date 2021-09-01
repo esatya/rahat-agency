@@ -38,15 +38,11 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
 	}, []);
 
-	const listAid = useCallback(() => {
-		return AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
-	}, []);
-
-	// async function listAid() {
-	// 	const d = await AidService.listAid({ start: 0, limit: 50 });
-	// 	dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
-	// 	return d;
-	// }
+	async function listProject() {
+		const d = await AidService.listAid({ start: 0, limit: 50 });
+		dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
+		return d;
+	}
 
 	function setAid(aid) {
 		dispatch({ type: ACTION.SET_AID, data: aid });
@@ -127,7 +123,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				beneficiary_detail: state.beneficiary,
 				clear,
 				setAid,
-				listAid,
+				listProject,
 				issueTokens,
 				addBeneficiary,
 				updateBeneficiary,
