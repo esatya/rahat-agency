@@ -1,39 +1,46 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import moment from 'moment';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
 import ReactDOM from 'react-dom';
 
 import { History } from '../../../utils/History';
 import '../../../assets/css/project.css';
-import qrGenerator from './qrGenerator';
+import QRGenerator from './qrGenerator';
+import { useReactToPrint } from 'react-to-print';
 
 export default function ProjectInfo({ projectDetails }) {
 	const { _id, social_mobilizer, project_manager, location, description, created_at } = projectDetails;
 
 	const handleEditClick = () => History.push(`/edit-project/${_id}`);
+	const qrComponentRef = useRef();
+	const handlePreQrPrint = useReactToPrint({
+		content: () => qrComponentRef.current
+	});
 
-	const printQr = async(data) =>{
-		console.log("generating")
-		ReactDOM.createPortal(qrGenerator,	document.getElementById('root'))
-const qrs= await qrGenerator({min:1,max:3,projectVersion:1,amount:10})
+	const printQr = async data => {
+		console.log('generating');
+		//ReactDOM.createPortal(qrGenerator,	document.getElementById('root'))
+		//const qrs= await qrGenerator({min:1,max:3,projectVersion:1,amount:10})
 
-// console.log({qrs});
-//var doc = new jsPDF();
+		//	console.log({ qrs });
+		//var doc = new jsPDF();
 
+		const printElement = document.createElement('iframe');
 
-var newWindow = window.open("", "newWindow", "width=800, height=600");
-console.log({newWindow})
-if(newWindow) newWindow.document.write(qrs);
-// document.write(qrs);
-// document.close();
-// setTimeout(function () {
-// 	newWindow.print();
-// 	newWindow.close();
-// }, 250);
-	}
+		// let newWindow = window.open('', 'Print QR', 'fullscreen=yes'),
+		// document = newWindow.document.open();
+		//  document.write("data");
+		//newWindow.document.body.innerHTML	(qrs);
+		// document.close();
+		// setTimeout(function () {
+		// 	newWindow.print();
+		// 	newWindow.close();
+		// }, 250);
+	};
 
 	return (
 		<div>
+			{0 && <QRGenerator props={{ min: 1, max: 3, projectVersion: 1, amount: 10 }} ref={qrComponentRef} />}
 			<Card>
 				<div className="stat-card-body" style={{ minHeight: 330 }}>
 					<Row>
@@ -43,26 +50,24 @@ if(newWindow) newWindow.document.write(qrs);
 							</CardTitle>
 						</Col>
 						<Col>
-
-						<div style={{ flex: 1, padding: 2,float:'right' }}>
-						<button
-							onClick={printQr}
-							type="button"
-							class="btn waves-effect waves-light btn-outline-info"
-							style={{ borderRadius: '8px', marginRight: '20px' }}
-						>
-							Pre-Generate Qr code
-						</button>
-						<button
-								type="button"
-								onClick={handleEditClick}
-								className="btn waves-effect waves-light btn-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Edit
-							</button>
-					</div>
-
+							<div style={{ flex: 1, padding: 2, float: 'right' }}>
+								<button
+									onClick={handlePreQrPrint}
+									type="button"
+									class="btn waves-effect waves-light btn-outline-info"
+									style={{ borderRadius: '8px', marginRight: '20px' }}
+								>
+									Pre-Generate Qr code
+								</button>
+								<button
+									type="button"
+									onClick={handleEditClick}
+									className="btn waves-effect waves-light btn-info"
+									style={{ borderRadius: '8px' }}
+								>
+									Edit
+								</button>
+							</div>
 						</Col>
 					</Row>
 					<Row>
