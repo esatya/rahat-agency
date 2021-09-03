@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { MobilizerContext } from '../../contexts/MobilizerContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
+import { History } from '../../utils/History';
 
 import {
 	Card,
@@ -40,9 +41,7 @@ const Mobilizer = () => {
 	const toggle = () => setModel(!model);
 
 	const fetchList = query => {
-		console.log('LSIISHD');
 		let params = { ...pagination, ...query };
-		console.log({ params });
 		listMobilizer(params)
 			.then()
 			.catch(() => {
@@ -88,6 +87,8 @@ const Mobilizer = () => {
 		return fetchList({ start: _start, limit: pagination.limit });
 	};
 
+	const handleAddClick = () => History.push('/add-mobilizers');
+
 	return (
 		<div className="main">
 			<div className="transaction-table-container">
@@ -108,7 +109,7 @@ const Mobilizer = () => {
 										name="customSelect"
 										defaultValue=""
 										onChange={handleFilterChange}
-										style={{ width: 'auto' }}
+										style={{ width: 'auto', marginRight: '5px' }}
 									>
 										<option value="phone">Search By Phone</option>
 										<option value="name">By Name</option>
@@ -124,7 +125,7 @@ const Mobilizer = () => {
 							</Col>
 							<Col md="2">
 								<div>
-									<Button onClick={() => toggle()} className="btn" color="info">
+									<Button onClick={handleAddClick} className="btn" color="info">
 										Add New
 									</Button>
 								</div>
@@ -135,6 +136,7 @@ const Mobilizer = () => {
 						<Table className="no-wrap v-middle" responsive>
 							<thead>
 								<tr className="border-0">
+									<th className="border-0">S.N.</th>
 									<th className="border-0">Name</th>
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
@@ -159,9 +161,9 @@ const Mobilizer = () => {
 											</td>
 											<td>{e.phone}</td>
 											<td>{e.address}</td>
-											<td className="blue-grey-text  text-darken-4 font-medium">
-												<Link className="btn btn-secondary" to={`/mobilizers/${e._id}`}>
-													Details
+											<td className="blue-grey-text text-darken-4 font-medium">
+												<Link to={`/mobilizers/${e._id}`}>
+													<i className="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>
