@@ -2,22 +2,36 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
+import Loading from '../../global/Loading';
 
-import { Card, 
-	CardBody, Row, Col, Input, ButtonGroup, Button, Table, CardSubtitle, CardTitle,Label,FormGroup,
-	InputGroup,
+import {
+	Card,
+	CardBody,
+	Row,
+	Col,
+	// Input,
+	// ButtonGroup,
+	Button,
+	Table,
+	CardSubtitle,
+	CardTitle,
+	Label,
+	FormGroup,
 	Modal,
 	ModalBody,
 	ModalHeader,
-	ModalFooter } from 'reactstrap';
-import Swal from 'sweetalert2';
+	ModalFooter
+} from 'reactstrap';
+// import Swal from 'sweetalert2';
 
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/user_avatar.svg';
-import IdPhoto from '../../../assets/images/id-icon-1.png';
-import UnlockWallet from '../../global/walletUnlock';
-import Loading from '../../global/Loading';
+// import IdPhoto from '../../../assets/images/id-icon-1.png';
+// import UnlockWallet from '../../global/walletUnlock';
+import PasscodeModal from '../../global/PasscodeModal';
+import MobilizerInfo from './mobilizerInfo';
+import BreadCrumb from '../../ui_components/breadcrumb';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
@@ -29,12 +43,12 @@ export default function DetailsForm(props) {
 		mobilizer,
 		getMobilizerDetails,
 		approveMobilizer,
-		changeMobilizerStatus,
+		// changeMobilizerStatus,
 		getMobilizerBalance,
 		getMobilizerTransactions,
 		transactionHistory,
 		getAvailableBalance,
-		listAid,
+		listAid
 	} = useContext(MobilizerContext);
 	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
@@ -43,11 +57,11 @@ export default function DetailsForm(props) {
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 	const [modal, setModal] = useState(false);
 	const [projectOptions, setProjectOptions] = useState([]);
-	const [inputTokens, setInputTokens] = useState(null);
+	// const [inputTokens, setInputTokens] = useState(null);
 	const [selectedProject, setSelectedProject] = useState('');
 	const [availableBalance, setAvailableBalance] = useState(null);
 	const [showAlert, setShowAlert] = useState(false);
-
+	const [fetchingBalance, setFetchingBalance] = useState(false);
 
 	const loadMobilizerDetails = () => {
 		getMobilizerDetails(mobilizerId)
@@ -66,9 +80,12 @@ export default function DetailsForm(props) {
 	const getBalance = async wallet => {
 		if (appSettings && appSettings.agency) {
 			try {
+				setFetchingBalance(true);
+
 				const { token } = appSettings.agency.contracts;
 				let d = await getMobilizerBalance(token, wallet);
 				setMobilizerBalance(d);
+				setFetchingBalance(false);
 			} catch {
 				addToast('Invalid Mobilizer wallet address!', {
 					appearance: 'error',
@@ -78,36 +95,35 @@ export default function DetailsForm(props) {
 		}
 	};
 
-	const handleChangeStatus = async status => {
-		let swal = await Swal.fire({
-			title: 'Are you sure?',
-			text: `Mobilizer will be marked as ${status}`,
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes'
-		});
-		if (swal.isConfirmed) {
-			try {
-				await changeMobilizerStatus(mobilizerId, status);
-				addToast(`Mobilizer marked as ${status}`, {
-					appearance: 'success',
-					autoDismiss: true
-				});
-			} catch (e) {
-				addToast('Something went wrong on server!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			}
-		}
-	};
+	// const handleChangeStatus = async status => {
+	// 	let swal = await Swal.fire({
+	// 		title: 'Are you sure?',
+	// 		text: `Mobilizer will be marked as ${status}`,
+	// 		icon: 'warning',
+	// 		showCancelButton: true,
+	// 		confirmButtonColor: '#3085d6',
+	// 		cancelButtonColor: '#d33',
+	// 		confirmButtonText: 'Yes'
+	// 	});
+	// 	if (swal.isConfirmed) {
+	// 		try {
+	// 			await changeMobilizerStatus(mobilizerId, status);
+	// 			addToast(`Mobilizer marked as ${status}`, {
+	// 				appearance: 'success',
+	// 				autoDismiss: true
+	// 			});
+	// 		} catch (e) {
+	// 			addToast('Something went wrong on server!', {
+	// 				appearance: 'error',
+	// 				autoDismiss: true
+	// 			});
+	// 		}
+	// 	}
+	// };
 
-	const handleTokenChange = e => {
-		setInputTokens(e.target.value);
-	};
-
+	// const handleTokenChange = e => {
+	// 	setInputTokens(e.target.value);
+	// };
 
 	const handleSelectProject = async e => {
 		try {
@@ -163,11 +179,10 @@ export default function DetailsForm(props) {
 	};
 
 	const resetTokenIssueForm = () => {
-		setInputTokens(null);
+		// setInputTokens(null);
 		setAvailableBalance('');
 		setShowAlert(false);
 	};
-
 
 	const handleMobilizerApprove = async e => {
 		e.preventDefault();
@@ -180,11 +195,10 @@ export default function DetailsForm(props) {
 		// 	cancelButtonColor: '#d33',
 		// 	confirmButtonText: 'Yes'
 		// });
-		// if (swal.isConfirmed) 
+		// if (swal.isConfirmed)
 		toggleModal();
 		togglePasscodeModal();
 	};
-
 
 	const fetchProjectList = () => {
 		listAid()
@@ -223,10 +237,12 @@ export default function DetailsForm(props) {
 
 	return (
 		<>
-			<UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet>
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
+			<p className="page-heading">Mobilizers</p>
+			<BreadCrumb redirect_path="mobilizers" root_label="Mobilizers" current_label="Details" />
 
-
+			{/* <UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet> */}
 
 			<Modal isOpen={modal} toggle={toggleModal.bind(null)}>
 				<ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
@@ -241,7 +257,6 @@ export default function DetailsForm(props) {
 							placeholder="--Select Project--"
 						/>
 						<br />
-				
 					</FormGroup>
 					<FormGroup>
 						{showAlert && availableBalance > 0 ? (
@@ -262,24 +277,97 @@ export default function DetailsForm(props) {
 					</FormGroup>
 				</ModalBody>
 				<ModalFooter>
-			
-						
-								<>
-									<Button onClick={handleMobilizerApprove} type="button" color="primary">
-										Submit
-									</Button>
-									<Button color="secondary" onClick={toggleModal.bind(null)}>
-										Cancel
-									</Button>
-								</>
-						
-						
+					<>
+						<Button onClick={handleMobilizerApprove} type="button" color="primary">
+							Submit
+						</Button>
+						<Button color="secondary" onClick={toggleModal.bind(null)}>
+							Cancel
+						</Button>
+					</>
 				</ModalFooter>
 			</Modal>
 
-
-
 			<Row>
+				<Col md="7">
+					<Card>
+						<div className="stat-card-body" style={{ minHeight: 120 }}>
+							<CardTitle className="title" style={{ flexBasis: '70%' }}>
+								Mobilizer Detail
+							</CardTitle>
+
+							<Row>
+								<Col md="8" sm="8" style={{ marginBottom: '10px' }}>
+									<div style={{ display: 'flex', alignItems: 'center' }}>
+										<img
+											src={mobilizer.photo ? `${IPFS_GATEWAY}/ipfs/${mobilizer.photo}` : profilePhoto}
+											alt="user"
+											className="rounded-circle"
+											width="45"
+											height="45"
+										/>
+										<div style={{ marginLeft: '20px' }}>
+											<p className="card-font-medium">{mobilizer ? mobilizer.name : ''}</p>
+											<div className="sub-title">Name</div>
+										</div>
+									</div>
+								</Col>
+								<Col md="4" sm="4">
+									{loading ? (
+										<button
+											type="button"
+											disabled={true}
+											className="btn btn-secondary"
+											style={{ borderRadius: '8px', float: 'right' }}
+										>
+											Approving, please wait...
+										</button>
+									) : mobilizer_status === 'active' ? (
+										<button
+											type="button"
+											disabled={true}
+											className="btn btn-success"
+											style={{ borderRadius: '8px', float: 'right' }}
+										>
+											<i className="fas fa-check-circle"></i> Approved
+										</button>
+									) : (
+										<button
+											type="button"
+											onClick={togglePasscodeModal}
+											className="btn waves-effect waves-light btn-outline-info"
+											style={{ borderRadius: '8px', float: 'right' }}
+										>
+											Approve
+										</button>
+									)}
+								</Col>
+							</Row>
+						</div>
+					</Card>
+				</Col>
+				<Col md="5">
+					<Card>
+						<div className="stat-card-body" style={{ minHeight: 120 }}>
+							<CardTitle className="title">Token</CardTitle>
+							<Row>
+								<Col md="6" sm="12" style={{ marginBottom: '10px' }}>
+									{fetchingBalance ? <Loading /> : <p className="card-font-bold">{mobilizerBalance || 0}</p>}
+
+									<div className="sub-title">Total Balance</div>
+								</Col>
+								<Col md="6" sm="12">
+									<p className="card-font-bold">0</p>
+									<div className="sub-title">Total Redeemed</div>
+								</Col>
+							</Row>
+						</div>
+					</Card>
+				</Col>
+			</Row>
+			<MobilizerInfo information={mobilizer} />
+
+			{/* <Row>
 				<Col md="12">
 					<Card>
 						<CardBody>
@@ -428,7 +516,7 @@ export default function DetailsForm(props) {
 						</CardBody>
 					</Card>
 				</Col>
-			</Row>
+			</Row> */}
 
 			<Row>
 				<Col md="12">

@@ -37,6 +37,10 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 								<div className="sub-title">Address</div>
 							</div>
 							<div className="card-data">
+								<p className="card-font-medium">{extras && extras.education ? extras.education : '-'}</p>
+								<div className="sub-title">Education</div>
+							</div>
+							<div className="card-data">
 								<p className="card-font-medium">{basicInfo.govt_id || '-'}</p>
 								<div className="sub-title">Government ID number</div>
 							</div>
@@ -51,8 +55,12 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 						</Col>
 						<Col>
 							<div className="card-data">
-								<p className="card-font-medium">{extras && extras.education ? extras.education : '-'}</p>
-								<div className="sub-title">Education</div>
+								<p className="card-font-medium">{basicInfo.phone || '-'}</p>
+								<div className="sub-title">Phone</div>
+							</div>
+							<div className="card-data">
+								<p className="card-font-medium">{extras && extras.profession ? extras.profession : '-'}</p>
+								<div className="sub-title">Profession</div>
 							</div>
 							<div className="card-data">
 								<p className="card-font-medium">{basicInfo.gender || '-'}</p>
@@ -68,10 +76,6 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 							</div>
 						</Col>
 						<Col>
-							<div className="card-data">
-								<p className="card-font-medium">{extras && extras.profession ? extras.profession : '-'}</p>
-								<div className="sub-title">Profession</div>
-							</div>
 							<img
 								src={basicInfo.govt_id_image ? `${IPFS_GATEWAY}/ipfs/${basicInfo.govt_id_image}` : IdImgPlaceholder}
 								alt="certificate"
