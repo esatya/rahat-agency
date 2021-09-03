@@ -270,7 +270,7 @@ const Add = () => {
 									</Col>
 									<Col md="4" sm="4">
 										<FormGroup>
-											<label htmlFor="mou_file">Signature upload</label>
+											<label htmlFor="signature_photo">Signature upload</label>
 											<br />
 											{extras.signature_photo ? (
 												<img

@@ -3,6 +3,7 @@ import { VendorContext } from '../../contexts/VendorContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
 import { History } from '../../utils/History';
+import moment from 'moment';
 
 import {
 	Card,
@@ -94,8 +95,8 @@ const Vendor = () => {
 				<Card>
 					<CardTitle className="mb-0 p-3">
 						<Row>
-							<Col md="4">Vendors</Col>
-							<Col md="6">
+							<Col md="2">Vendors</Col>
+							<Col md="8">
 								<div
 									style={{
 										float: 'right',
@@ -107,8 +108,20 @@ const Vendor = () => {
 										id="exampleCustomSelect"
 										name="customSelect"
 										defaultValue=""
+										// onChange={handleFilterChange}
+										style={{ width: 'auto', marginRight: '5px' }}
+									>
+										<option value="">Select status</option>
+										<option value="active">Active</option>
+										<option value="new">New</option>
+									</CustomInput>
+									<CustomInput
+										type="select"
+										id="exampleCustomSelect"
+										name="customSelect"
+										defaultValue=""
 										onChange={handleFilterChange}
-										style={{ width: 'auto' }}
+										style={{ width: 'auto', marginRight: '5px' }}
 									>
 										<option value="phone">Search By Phone</option>
 										<option value="name">By Name</option>
@@ -137,7 +150,9 @@ const Vendor = () => {
 								<tr className="border-0">
 									<th className="border-0">S.N.</th>
 									<th className="border-0">Name</th>
+									<th className="border-0">Status</th>
 									<th className="border-0">Phone</th>
+									<th className="border-0">Created Date </th>
 									<th className="border-0">Address</th>
 									<th className="border-0">Action</th>
 								</tr>
@@ -158,11 +173,14 @@ const Vendor = () => {
 													</div>
 												</div>
 											</td>
+											<td>{e.agencies[0].status}</td>
 											<td>{e.phone}</td>
+											<td>{moment(e.created_at).format('MMM Do YYYY')}</td>
+
 											<td>{e.address}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/vendors/${e._id}`}>
-													<i class="fas fa-eye fa-lg"></i>
+													<i className="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>

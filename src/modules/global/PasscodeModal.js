@@ -68,7 +68,7 @@ export default function PasscodeModal(props) {
 						{/* {children || 'No child elements supplied.'} */}
 						{/* <span>Close</span> */}
 						<div>
-							<h2 style={{ marginBottom: '50px', color: 'white' }}>
+							<h2 style={{ marginBottom: '25px', color: 'white' }}>
 								{title || 'Verify Passcode'} &nbsp;
 								<span style={{ cursor: 'pointer' }} onClick={toggleModal}>
 									<small>
@@ -77,6 +77,10 @@ export default function PasscodeModal(props) {
 								</span>
 							</h2>
 						</div>
+
+						<h5 style={{ marginBottom: '25px', color: 'white' }}>
+							Enter you passcode from RUMSAN WALLET to proceed transaction
+						</h5>
 
 						<div>
 							<div className="input-group" style={{ display: 'flex', justifyContent: 'center' }}>
