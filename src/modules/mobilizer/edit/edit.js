@@ -31,12 +31,7 @@ const Edit = ({ mobilizerId }) => {
 	const [existingIdentity, setExistingIdentity] = useState('');
 
 	const handleInputChange = e => {
-		console.log('e', e.target.value);
-		console.log('e', e.target.name);
-		const value = { ...formData, [e.target.name]: e.target.value };
-		console.log('value', value);
-
-		setFormData({ name: e.target.value });
+		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 	const handleCancelClick = () => History.push('/mobilizers');
 
@@ -76,7 +71,6 @@ const Edit = ({ mobilizerId }) => {
 
 		if (photo && photo.length) setExistingProfilePhoto(photo[0]);
 		if (govt_id_image) setExistingIdentity(govt_id_image);
-
 		setFormData({
 			name,
 			phone,
@@ -132,13 +126,7 @@ const Edit = ({ mobilizerId }) => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Name</Label>
-											<Input
-												type="text"
-												value={formData.name || ''}
-												name="name"
-												onChange={handleInputChange}
-												required
-											/>
+											<Input type="text" value={formData.name} name="name" onChange={handleInputChange} required />
 										</FormGroup>
 
 										<FormGroup>
@@ -171,6 +159,7 @@ const Edit = ({ mobilizerId }) => {
 										value={formData.wallet_address}
 										name="wallet_address"
 										onChange={handleInputChange}
+										disabled
 									/>
 								</FormGroup>
 

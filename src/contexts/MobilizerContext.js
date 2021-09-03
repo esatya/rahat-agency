@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from 'react';
+import React, { createContext, useReducer, useContext, useCallback } from 'react';
 import mobilizerReduce from '../reducers/mobilizerReducer';
 import * as Service from '../services/mobilizer';
 import * as AidService from '../services/aid';
@@ -74,11 +74,11 @@ export const MobilizerContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.SET_MOBILIZER, data: b });
 	}
 
-	async function getMobilizerDetails(id) {
+	const getMobilizerDetails = useCallback(async id => {
 		const data = await Service.get(id);
 		setMobilizer(data);
 		return data;
-	}
+	}, []);
 
 	function addMobilizer(payload) {
 		return new Promise((resolve, reject) => {
