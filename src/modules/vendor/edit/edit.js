@@ -120,7 +120,7 @@ const Edit = ({ vendorId }) => {
 		return select_options;
 	};
 
-	const loadBeneficiaryDetails = useCallback(async () => {
+	const loadVendorsDetails = useCallback(async () => {
 		const d = await getVendorDetails(vendorId);
 		const {
 			projects,
@@ -184,8 +184,8 @@ const Edit = ({ vendorId }) => {
 
 	useEffect(() => {
 		loadProjects();
-		loadBeneficiaryDetails();
-	}, [loadBeneficiaryDetails, loadProjects]);
+		loadVendorsDetails();
+	}, [loadVendorsDetails, loadProjects]);
 
 	return (
 		<div>
@@ -277,6 +277,7 @@ const Edit = ({ vendorId }) => {
 										value={formData.wallet_address}
 										name="wallet_address"
 										onChange={handleInputChange}
+										disabled
 										required
 									/>
 								</FormGroup>

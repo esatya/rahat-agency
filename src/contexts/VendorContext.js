@@ -89,16 +89,6 @@ export const VendorContextProvider = ({ children }) => {
 	}, []);
 
 	function addVendor(payload) {
-		// const formData = new FormData(e.target);
-		// let payload = {
-		//   name: formData.get("name"),
-		//   phone: formData.get("phone"),
-		//   wallet_address: formData.get("ethaddress"),
-		//   email: formData.get("email"),
-		//   address: formData.get("address"),
-		//   govt_id: formData.get("govt_id"),
-		// };
-
 		return new Promise((resolve, reject) => {
 			Service.add(payload)
 				.then(res => {
