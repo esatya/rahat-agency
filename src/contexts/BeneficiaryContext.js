@@ -4,7 +4,6 @@ import * as Service from '../services/beneficiary';
 import * as AidService from '../services/aid';
 import ACTION from '../actions/beneficiary';
 import { AppContext } from './AppSettingsContext';
-import { APP_CONSTANTS } from '../constants';
 
 const initialState = {
 	list: [],

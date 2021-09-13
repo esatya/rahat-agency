@@ -179,13 +179,13 @@ const Add = () => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Phone</Label>
-											<Input type="text" value={formData.phone} name="phone" onChange={handleInputChange} required />
+											<Input type="number" value={formData.phone} name="phone" onChange={handleInputChange} required />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Email</Label>
-											<Input type="text" value={formData.email} name="email" onChange={handleInputChange} />
+											<Input type="email" value={formData.email} name="email" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 								</Row>
