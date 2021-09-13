@@ -77,7 +77,12 @@ const Wallet = () => {
 		ws.current.onmessage = async e => {
 			const data = JSON.parse(e.data);
 			if (data.action === 'unauthorized') {
-				return addToast('User not authorized!', TOAST.ERROR);
+				addToast('User not authorized! please Signup', TOAST.WARNING);
+				window.location.replace(`/sign_up?wallet_address=${data.publicKey}`);
+			}
+			if (data.action === 'account-locked') {
+				addToast('User not activated! ', TOAST.WARNING);
+				window.location.replace(`/approval?wallet_address=${data.publicKey}`);
 			}
 			if (data.data && data.data.token) {
 				const { id, token } = data.data;
