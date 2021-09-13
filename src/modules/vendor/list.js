@@ -42,7 +42,7 @@ const Vendor = () => {
 	const toggle = () => setModel(!model);
 
 	const fetchList = query => {
-		let params = { ...pagination, ...query };
+		let params = { start: pagination.start, limit: pagination.limit, ...query };
 		listVendor(params)
 			.then()
 			.catch(() => {
@@ -70,6 +70,11 @@ const Vendor = () => {
 			});
 		}
 		fetchList({ start: 0, limit: pagination.limit });
+	};
+
+	const handleStatusChange = e => {
+		let { value } = e.target;
+		fetchList({ start: 0, limit: pagination.limit, status: value });
 	};
 
 	const handleSearchInputChange = e => {
@@ -108,7 +113,7 @@ const Vendor = () => {
 										id="exampleCustomSelect"
 										name="customSelect"
 										defaultValue=""
-										// onChange={handleFilterChange}
+										onChange={handleStatusChange}
 										style={{ width: 'auto', marginRight: '5px' }}
 									>
 										<option value="">Select status</option>
