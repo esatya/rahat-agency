@@ -13,6 +13,7 @@ import AgencyRegistration from '../modules/agency/register';
 import AuthWallet from '../modules/authentication/Wallet';
 import PassportControl from '../modules/passport';
 import SignUp from '../modules/authentication/SignUp';
+import Approval from '../modules/authentication/Approval';
 
 const App = () => {
 	return (
@@ -24,6 +25,7 @@ const App = () => {
 							<Switch>
 								<Route exact path="/auth/wallet" component={AuthWallet} />
 								<Route exact path="/sign_up" component={SignUp} />
+								<Route exact path="/approval" component={Approval} />
 								<Route path="/passport-control" component={PassportControl} />
 								<Route path="/setup" component={AgencyRegistration} />
 								{indexRoutes.map((prop, key) => {

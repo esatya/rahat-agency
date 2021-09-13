@@ -42,6 +42,25 @@ export function verifyToken(token) {
 	});
 }
 
+export function signUp(payload) {
+	return new Promise((resolve, reject) => {
+		axios
+			.post(`${API.USERS}/register`,payload)
+			.then(res => {
+				if (res) {
+					resolve({ sucess: true, status: 200 });
+				}
+				resolve({
+					success: false,
+					status: 500
+				});
+			})
+			.catch(err => {
+				reject(err.response.data);
+			});
+	});
+}
+
 export function loginUsingMetamask(payload) {
 	return new Promise((resolve, reject) => {
 		axios

@@ -1,6 +1,8 @@
 import { lazy } from 'react';
 const WalletLogin = lazy(() => import('../modules/authentication/Wallet'));
 const SignUp = lazy(() => import('../modules/authentication/SignUp'));
+const Approval = lazy(() => import('../modules/authentication/Approval'));
+
 
 var AuthRoutes = [
 	{
@@ -13,6 +15,11 @@ var AuthRoutes = [
 		path: '/sign_up',
 		name: 'SignUp',
 		component: SignUp
+	},
+	{
+		path: '/approval',
+		name: 'Approval',
+		component: Approval
 	}
 ];
 export default AuthRoutes;
