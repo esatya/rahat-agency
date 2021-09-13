@@ -1,45 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState,useContext,useEffect } from 'react';
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
 import Logo from '../../assets/images/rahat-logo-blue.png';
+import qs from 'query-string';
 // import { TOAST } from '../../constants';
 // import { useToasts } from 'react-toast-notifications';
+import { AppContext } from '../../contexts/AppSettingsContext';
+import { UserContext } from '../../contexts/UserContext';
 
-export default function SignUp() {
-	// const { addToast } = useToasts();
+import * as Service from '../../services/appSettings';
+import { useToasts } from 'react-toast-notifications';
+import { TOAST } from '../../constants';
+
+
+export default function SignUp(props) {
+	const { addToast } = useToasts();
+	const search = qs.parse(props.location.search);
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
-		phone: ''
+		phone: '',
+		wallet_address: search.wallet_address,
+		agency:'',
 	});
+	const {appSettings} = useContext(AppContext);
+	const {signUp} = useContext(UserContext);
 	const [loading, setLoading] = useState(false);
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	const handleFormSubmit = e => {
+	function getSettings() {
+		return new Promise((resolve, reject) => {
+			Service.getSettings()
+				.then(res => {
+					resolve(res);
+				})
+				.catch(err => reject(err));
+		});
+	}
+	const handleFormSubmit = async e => {
 		e.preventDefault();
+		try{
+		setLoading(true)
+		const res =await getSettings();
+		const payload = { ...formData ,agency:res.agency.id};
+		const user = await signUp(payload);
+		if(user.sucess){
+			setLoading(false);
+		}
+		addToast('Successfully Registered', TOAST.SUCCESS);
 
-		// const payload = { ...formData };
+	window.location.replace('/auth/login');		
+		}
+		catch(e){
+			addToast(e.error, TOAST.ERROR);
+			setLoading(false)
+		}
 
-		setLoading(true);
-		// addBeneficiary(payload)
-		// 	.then(() => {
-		// 		setLoading(false);
-		// 		addToast('Account created successfully', TOAST.SUCCESS);
-		// 		History.push('/auth/wallet');
-		// 	})
-		// 	.catch(err => {
-		// 		setLoading(false);
-		// 		addToast(err.message, TOAST.ERROR);
-		// 	});
 	};
+	// const loadAppSettings = () => {
+	// 	getAppSettings().then();
+	// };
+
+// 	const checkWallet = ()=>{
+// 		console.log("checkoing");
+// 		return 'asdas';
+// 	}
+
+
+// useEffect(()=>{
+// 	console.log("WRKIN");
+// },[])
+
 	return (
 		<>
 			<Row style={{ height: '100vh' }}>
 				<Col className="left-content">
 					<div className="text-center">
-						<img src={Logo} height="200" width="460" alt="rahat logo"></img>
+					<a href='/'>	<img src={Logo} height="200" width="460" alt="rahat logo"></img>
+            </a>
 						<div style={{ width: '410px' }}>
 							<p className="description">
 								Supporting vulnerable communities with a simple and efficient relief distribution platform.
@@ -51,8 +91,12 @@ export default function SignUp() {
 					<div className="text-center">
 						<p className="text-title">Rahat Agency App</p>
 						<p className="text-subheader">Create an account</p>
-						<div className="mt-4">
+						<div className="mt-4 m-n1">
 							<Form onSubmit={handleFormSubmit} style={{ textAlign: 'left', color: 'white' }}>
+							<FormGroup>
+									<Label>Wallet</Label>
+									<Input type="text" bsSize='sm' value={formData.wallet_address} name="name" onChange={handleInputChange} readOnly required />
+								</FormGroup>
 								<FormGroup>
 									<Label>Name</Label>
 									<Input type="text" value={formData.name} name="name" onChange={handleInputChange} required />

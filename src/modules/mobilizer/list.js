@@ -41,7 +41,7 @@ const Mobilizer = () => {
 	const toggle = () => setModel(!model);
 
 	const fetchList = query => {
-		let params = { ...pagination, ...query };
+		let params = { start:pagination.start,limit:pagination.limit, ...query };
 		listMobilizer(params)
 			.then()
 			.catch(() => {
