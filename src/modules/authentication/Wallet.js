@@ -8,6 +8,7 @@ import DataService from '../../services/db';
 import './wallet.css';
 import { useToasts } from 'react-toast-notifications';
 import { TOAST } from '../../constants';
+import { Link } from 'react-router-dom';
 
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');
@@ -128,7 +129,10 @@ const Wallet = () => {
 				</Col>
 				<Col className="right-content">
 					<p className="text-signup">
-						Haven’t registered? <span style={{ color: '#3F9EEB' }}>Sign up now </span>
+						Haven’t registered?{' '}
+						<Link to={`/sign_up`}>
+							<span style={{ color: '#3F9EEB' }}>Sign up</span>
+						</Link>
 					</p>
 					<div className=" text-center">
 						<p className="text-title">Rahat Agency App</p>

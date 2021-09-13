@@ -334,7 +334,8 @@ export default function DetailsForm(props) {
 									) : (
 										<button
 											type="button"
-											onClick={togglePasscodeModal}
+											onClick={toggleModal}
+											// onClick={togglePasscodeModal}
 											className="btn waves-effect waves-light btn-outline-info"
 											style={{ borderRadius: '8px', float: 'right' }}
 										>
