@@ -3,6 +3,7 @@ import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
 import Loading from '../../global/Loading';
+import ProjectInvovled from '../../ui_components/projects';
 
 import {
 	Card,
@@ -62,12 +63,20 @@ export default function DetailsForm(props) {
 	const [availableBalance, setAvailableBalance] = useState(null);
 	const [showAlert, setShowAlert] = useState(false);
 	const [fetchingBalance, setFetchingBalance] = useState(false);
+	const [projectList, setProjectList] = useState([]);
 
 	const loadMobilizerDetails = () => {
 		getMobilizerDetails(mobilizerId)
 			.then(d => {
 				getMobilizerTransactions(mobilizerId);
 				getBalance(d.wallet_address);
+
+				if (d.projects && d.projects.length) {
+					const projects = d.projects.map(d => {
+						return { id: d._id, name: d.name };
+					});
+					setProjectList(projects);
+				}
 			})
 			.catch(() => {
 				addToast('Something went wrong on server!', {
@@ -367,6 +376,7 @@ export default function DetailsForm(props) {
 				</Col>
 			</Row>
 			<MobilizerInfo information={mobilizer} />
+			<ProjectInvovled projects={projectList} />
 
 			{/* <Row>
 				<Col md="12">

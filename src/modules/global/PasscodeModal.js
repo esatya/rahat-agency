@@ -32,7 +32,7 @@ export default function PasscodeModal(props) {
 					changeIsverified(true);
 					setLoadingMessage('Wallet verified!');
 				} else {
-					setLoadingMessage('Verifying wallet, please wallet...');
+					setLoadingMessage('Verifying wallet, please wait...');
 					const w = await Wallet.loadWallet(input_value);
 					setWalletPasscode(input_value);
 					changeIsverified(true);
