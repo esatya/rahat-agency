@@ -10,6 +10,7 @@ import { UserContext } from '../../contexts/UserContext';
 import * as Service from '../../services/appSettings';
 import { useToasts } from 'react-toast-notifications';
 import { TOAST } from '../../constants';
+import { History } from '../../utils/History';
 
 
 export default function SignUp(props) {
@@ -22,7 +23,7 @@ export default function SignUp(props) {
 		wallet_address: search.wallet_address,
 		agency:'',
 	});
-	const {appSettings} = useContext(AppContext);
+	const {appSettings,getAppSettings} = useContext(AppContext);
 	const {signUp} = useContext(UserContext);
 	const [loading, setLoading] = useState(false);
 
@@ -30,28 +31,19 @@ export default function SignUp(props) {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	function getSettings() {
-		return new Promise((resolve, reject) => {
-			Service.getSettings()
-				.then(res => {
-					resolve(res);
-				})
-				.catch(err => reject(err));
-		});
-	}
 	const handleFormSubmit = async e => {
 		e.preventDefault();
 		try{
+			console.log(appSettings);
 		setLoading(true)
-		const res =await getSettings();
-		const payload = { ...formData ,agency:res.agency.id};
+		const payload = { ...formData ,agency:appSettings.agency.id};
 		const user = await signUp(payload);
 		if(user.sucess){
 			setLoading(false);
 		}
 		addToast('Successfully Registered', TOAST.SUCCESS);
 
-	window.location.replace('/auth/login');		
+	History.push('/auth/login');		
 		}
 		catch(e){
 			addToast(e.error, TOAST.ERROR);
@@ -59,19 +51,12 @@ export default function SignUp(props) {
 		}
 
 	};
-	// const loadAppSettings = () => {
-	// 	getAppSettings().then();
-	// };
-
-// 	const checkWallet = ()=>{
-// 		console.log("checkoing");
-// 		return 'asdas';
-// 	}
+	const loadAppSettings = () => {
+		getAppSettings().then()
+	};
 
 
-// useEffect(()=>{
-// 	console.log("WRKIN");
-// },[])
+useEffect(loadAppSettings,[]);
 
 	return (
 		<>
