@@ -28,6 +28,18 @@ export const UserContextProvider = ({ children }) => {
 		});
 	}
 
+	function signUp(payload) {
+		return new Promise((resolve, reject) => {
+			Service.signUp(payload)
+				.then(res => {
+					resolve(res);
+				})
+				.catch(err => {
+					reject(err);
+				});
+		});
+	}
+
 	function loginUsingMetamask(payload) {
 		return new Promise((resolve, reject) => {
 			Service.loginUsingMetamask(payload)
@@ -82,7 +94,8 @@ export const UserContextProvider = ({ children }) => {
 				verifyToken,
 				checkExistingUser,
 				getDashboardStats,
-				loginUsingMetamask
+				loginUsingMetamask,
+				signUp
 			}}
 		>
 			{children}
