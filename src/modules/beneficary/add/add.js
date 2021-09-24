@@ -12,7 +12,7 @@ import { blobToBase64 } from '../../../utils';
 
 const Add = () => {
 	const { addToast } = useToasts();
-	const { listAid, addBeneficiary } = useContext(BeneficiaryContext);
+	const { listProject, addBeneficiary } = useContext(BeneficiaryContext);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -96,7 +96,7 @@ const Add = () => {
 	const handleCancelClick = () => History.push('/beneficiaries');
 
 	const loadProjects = useCallback(async () => {
-		const projects = await listAid();
+		const projects = await listProject();
 		if (projects && projects.data.length) {
 			const select_options = projects.data.map(p => {
 				return {
@@ -106,7 +106,7 @@ const Add = () => {
 			});
 			setProjectList(select_options);
 		}
-	}, [listAid]);
+	}, [listProject]);
 
 	useEffect(() => {
 		loadProjects();

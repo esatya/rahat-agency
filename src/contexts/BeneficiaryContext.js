@@ -74,23 +74,6 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.updateBeneficiary(id, payload);
 	};
 
-	// const addBeneficiary = async event => {
-	// 	event.preventDefault();
-	// 	const formData = new FormData(event.target);
-
-	// 	let payload = {
-	// 		name: formData.get('name'),
-	// 		phone: formData.get('phone'),
-	// 		govt_id: formData.get('govt_id'),
-	// 		email: formData.get('email'),
-	// 		address: formData.get('address'),
-	// 		wallet_address: formData.get('wallet_address'),
-	// 		project_id: formData.get('aid')
-	// 	};
-	// 	let d = await Service.addBeneficiary(payload);
-	// 	return d;
-	// };
-
 	async function listBeneficiary(params) {
 		let res = await Service.listBeneficiary(params);
 		if (res) {
@@ -107,8 +90,9 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		for (let b of beneficiaries) await Service.addBeneficiary(b);
 	};
 
-	const getBeneficiaryDetails = useCallback(id => {
-		return Service.get(id);
+	const getBeneficiaryDetails = useCallback(async id => {
+		const data = await Service.get(id);
+		return data;
 	}, []);
 
 	return (
@@ -119,7 +103,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				list: state.list,
 				pagination: state.pagination,
 				tokenBalance: state.tokenBalance,
-				beneficiary_detail: state.beneficiary,
+				beneficiary: state.beneficiary,
 				clear,
 				setAid,
 				listProject,
