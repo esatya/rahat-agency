@@ -133,12 +133,12 @@ const Wallet = () => {
 					</div>
 				</Col>
 				<Col className="right-content">
-					<p className="text-signup">
+					{/* <p className="text-signup">
 						Haven’t registered?{' '}
 						<Link to={`/sign_up`}>
 							<span style={{ color: '#3F9EEB' }}>Sign up</span>
 						</Link>
-					</p>
+					</p> */}
 					<div className=" text-center">
 						<p className="text-title">Rahat Agency App</p>
 						<div className="mt-4 align-items-center">
