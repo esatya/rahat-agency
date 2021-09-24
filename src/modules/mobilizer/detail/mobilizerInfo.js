@@ -65,7 +65,7 @@ export default function MobilizerInfo(props) {
 										? `${IPFS_GATEWAY}/ipfs/${information.govt_id_image}`
 										: image
 								}
-								alt="certificate"
+								alt="goverment_id"
 								width="90%"
 								height="130px"
 								className="card-data"

@@ -14,7 +14,7 @@ const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 const Edit = ({ beneficiaryId }) => {
 	const { addToast } = useToasts();
-	const { listAid, updateBeneficiary, getBeneficiaryDetails } = useContext(BeneficiaryContext);
+	const { listProject, updateBeneficiary, getBeneficiaryDetails } = useContext(BeneficiaryContext);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -60,6 +60,7 @@ const Edit = ({ beneficiaryId }) => {
 	};
 
 	const handleInputChange = e => {
+		console.log('event', e.target.name, e.target.value);
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
@@ -125,19 +126,19 @@ const Edit = ({ beneficiaryId }) => {
 		}
 		setExtras(extras);
 		if (extras.group) setSelectedGroup(extras.group);
-		delete d.extras;
+		// delete d.extras;
 		setFormData({ name, phone, email, address, address_temporary, govt_id });
 		const { gender } = d;
 		if (gender !== 'U') setSelectedGender(gender);
-	}, [beneficiaryId, getBeneficiaryDetails]);
+	}, [getBeneficiaryDetails, beneficiaryId]);
 
 	const loadProjects = useCallback(async () => {
-		const projects = await listAid();
+		const projects = await listProject();
 		if (projects && projects.data.length) {
 			const select_options = createProjectSelectOptions(projects.data);
 			setProjectList(select_options);
 		}
-	}, [listAid]);
+	}, [listProject]);
 
 	useEffect(() => {
 		loadProjects();

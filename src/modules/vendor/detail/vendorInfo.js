@@ -10,6 +10,8 @@ export default function VendorInfo(props) {
 	const { information } = props;
 	const { id } = props.information;
 	const handleEditClick = () => History.push(`/edit-vendor/${id}`);
+
+	console.log(information.extra_files && information.extra_files.signature_photo);
 	return (
 		<div>
 			<Card>
@@ -83,29 +85,31 @@ export default function VendorInfo(props) {
 										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.identity_photo}`
 										: image
 								}
-								alt="certificate"
+								alt="identity_photo"
 								width="90%"
 								height="130px"
 								className="card-data"
 							/>
+							<br />
 							<img
 								src={
 									information.extra_files && information.extra_files.signature_photo
 										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.signature_photo}`
 										: image
 								}
-								alt="certificate"
+								alt="signature_photo"
 								width="90%"
 								height="130px"
 								className="card-data"
 							/>
+							<br />
 							<img
 								src={
 									information.extra_files && information.extra_files.mou_file
 										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.mou_file}`
 										: image
 								}
-								alt="certificate"
+								alt="mou_file"
 								width="90%"
 								height="130px"
 								className="card-data"
