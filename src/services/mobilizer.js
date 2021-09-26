@@ -59,7 +59,6 @@ export async function approveMobilizerToProject(wallet_address, projectId) {
 }
 
 export async function list(params) {
-	console.log('MOBILIXERS');
 	const res = await axios({
 		url: API.MOBILIZERS,
 		method: 'get',

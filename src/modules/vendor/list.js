@@ -157,8 +157,8 @@ const Vendor = () => {
 									<th className="border-0">Name</th>
 									<th className="border-0">Status</th>
 									<th className="border-0">Phone</th>
-									<th className="border-0">Created Date </th>
 									<th className="border-0">Address</th>
+									<th className="border-0">Registration Date </th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
@@ -180,9 +180,9 @@ const Vendor = () => {
 											</td>
 											<td>{e.agencies[0].status}</td>
 											<td>{e.phone}</td>
-											<td>{moment(e.created_at).format('MMM Do YYYY')}</td>
 
 											<td>{e.address}</td>
+											<td>{moment(e.created_at).format('MMM Do YYYY, hh:mm A')}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/vendors/${e._id}`}>
 													<i className="fas fa-eye fa-lg"></i>

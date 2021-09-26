@@ -5,6 +5,7 @@ import '../../../assets/css/project.css';
 import IdImgPlaceholder from '../../../assets/images/id-icon-1.png';
 import { formatWord } from '../../../utils';
 import { History } from '../../../utils/History';
+import moment from 'moment';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -74,6 +75,7 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 								<p className="card-font-medium">{extras && extras.child ? extras.child : '-'}</p>
 								<div className="sub-title">Number of family member(Child)</div>
 							</div>
+
 						</Col>
 						<Col>
 							<img
@@ -83,6 +85,10 @@ export default function BeneficiaryInfo({ basicInfo, extras }) {
 								height="60%"
 								className="card-data"
 							/>
+								<div className="card-data ">
+								<p className="card-font-medium">{ moment(extras.created_at).format('MMM Do YYYY, hh:mm A') || '-'}</p>
+								<div className="sub-title">Registration Date</div>
+							</div>
 						</Col>
 					</Row>
 				</div>

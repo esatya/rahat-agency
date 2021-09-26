@@ -3,7 +3,7 @@ import { Card, CardTitle, Col, Row } from 'reactstrap';
 import '../../../assets/css/project.css';
 import image from '../../../assets/images/id-icon-1.png';
 import { History } from '../../../utils/History';
-
+import moment from 'moment'
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function MobilizerInfo(props) {
@@ -70,6 +70,10 @@ export default function MobilizerInfo(props) {
 								height="130px"
 								className="card-data"
 							/>
+										<div className="card-data ">
+								<p className="card-font-medium">{ moment(information.created_at).format('MMM Do YYYY, hh:mm A') || '-'}</p>
+								<div className="sub-title">Registration Date</div>
+							</div>
 						</Col>
 					</Row>
 				</div>
