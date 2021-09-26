@@ -93,7 +93,6 @@ export const MobilizerContextProvider = ({ children }) => {
 	}
 
 	const updateMobilizer = (id, payload) => {
-		console.log(' mob', payload);
 		return Service.updateMobilizer(id, payload);
 	};
 
