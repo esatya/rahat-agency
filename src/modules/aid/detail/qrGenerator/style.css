@@ -14,9 +14,14 @@
 }
 .itemWrapper {
 	flex: 1;
-	padding: 25px;
+	padding: 20px;
 	justify-content: center;
 	align-items: center;
+}
+
+.textWrapper {
+	padding: 2px;
+	text-align: center;
 }
 @page {
 	size: A4;
