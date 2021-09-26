@@ -3,6 +3,8 @@ import { MobilizerContext } from '../../contexts/MobilizerContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
 import { History } from '../../utils/History';
+import moment from 'moment';
+
 
 import {
 	Card,
@@ -140,12 +142,14 @@ const Mobilizer = () => {
 									<th className="border-0">Name</th>
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
+									<th className="border-0">Registration Date</th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
 							<tbody>
 								{list.length ? (
 									list.map((e, i) => (
+										
 										<tr key={e._id}>
 											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
 											<td>
@@ -161,6 +165,7 @@ const Mobilizer = () => {
 											</td>
 											<td>{e.phone}</td>
 											<td>{e.address}</td>
+											<td>{moment(e.created_at).format('MMM Do YYYY, hh:mm A')}</td>
 											<td className="blue-grey-text text-darken-4 font-medium">
 												<Link to={`/mobilizers/${e._id}`}>
 													<i className="fas fa-eye fa-lg"></i>

@@ -3,7 +3,7 @@ import { Card, CardTitle, Col, Row } from 'reactstrap';
 import '../../../assets/css/project.css';
 import image from '../../../assets/images/id-icon-1.png';
 import { History } from '../../../utils/History';
-
+import moment from 'moment'
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function VendorInfo(props) {
@@ -53,6 +53,10 @@ export default function VendorInfo(props) {
 							<div className="card-data">
 								<p className="card-font-medium">{information.bank_account || '-'}</p>
 								<div className="sub-title">Bank account number</div>
+							</div>
+							<div className="card-data ">
+								<p className="card-font-medium">{ moment(information.created_at).format('MMM Do YYYY, hh:mm A') || '-'}</p>
+								<div className="sub-title">Registration Date</div>
 							</div>
 						</Col>
 						<Col md="4" sm="12">
