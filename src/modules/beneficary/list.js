@@ -18,6 +18,8 @@ import {
 } from 'reactstrap';
 import displayPic from '../../assets/images/users/user_avatar.svg';
 import { History } from '../../utils/History';
+import moment from 'moment';
+
 
 const searchOptions = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
 
@@ -181,7 +183,7 @@ const Beneficiary = () => {
 									<th className="border-0">Name</th>
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
-									<th className="border-0">Govt. ID</th>
+									<th className="border-0">Registration Date</th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
@@ -204,7 +206,7 @@ const Beneficiary = () => {
 												</td>
 												<td>{d.phone}</td>
 												<td>{d.address}</td>
-												<td>{d.govt_id ? d.govt_id : '-'}</td>
+												<td>{moment(d.created_at).format('MMM Do YYYY, hh:mm A')}</td>
 												<td>
 													<Link to={`/beneficiaries/${d._id}`}>
 														<i class="fas fa-eye fa-lg"></i>
