@@ -66,6 +66,7 @@
     "react-select": "^2.2.0",
     "react-stepzilla": "^6.0.2",
     "react-table-v6": "^6.8.6",
+    "react-to-print": "^2.13.0",
     "react-toast-notifications": "^2.4.0",
     "reactstrap": "^8.4.1",
     "redux-devtools-extension": "^2.13.8",
