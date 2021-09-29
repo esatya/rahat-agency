@@ -3,13 +3,15 @@ import { Card, CardTitle, Col, Row } from 'reactstrap';
 import '../../../assets/css/project.css';
 import image from '../../../assets/images/id-icon-1.png';
 import { History } from '../../../utils/History';
-
+import moment from 'moment'
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function VendorInfo(props) {
 	const { information } = props;
 	const { id } = props.information;
 	const handleEditClick = () => History.push(`/edit-vendor/${id}`);
+
+	console.log(information.extra_files && information.extra_files.signature_photo);
 	return (
 		<div>
 			<Card>
@@ -52,6 +54,10 @@ export default function VendorInfo(props) {
 								<p className="card-font-medium">{information.bank_account || '-'}</p>
 								<div className="sub-title">Bank account number</div>
 							</div>
+							<div className="card-data ">
+								<p className="card-font-medium">{ moment(information.created_at).format('MMM Do YYYY, hh:mm A') || '-'}</p>
+								<div className="sub-title">Registration Date</div>
+							</div>
 						</Col>
 						<Col md="4" sm="12">
 							<div className="card-data">
@@ -79,31 +85,35 @@ export default function VendorInfo(props) {
 						<Col md="4" sm="12">
 							<img
 								src={
-									information.photo && information.photo.length ? `${IPFS_GATEWAY}/ipfs/${information.photo[0]}` : image
+									information.extra_files && information.extra_files.identity_photo
+										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.identity_photo}`
+										: image
 								}
-								alt="certificate"
+								alt="identity_photo"
 								width="90%"
 								height="130px"
 								className="card-data"
 							/>
+							<br />
 							<img
 								src={
 									information.extra_files && information.extra_files.signature_photo
 										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.signature_photo}`
 										: image
 								}
-								alt="certificate"
+								alt="signature_photo"
 								width="90%"
 								height="130px"
 								className="card-data"
 							/>
+							<br />
 							<img
 								src={
 									information.extra_files && information.extra_files.mou_file
 										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.mou_file}`
 										: image
 								}
-								alt="certificate"
+								alt="mou_file"
 								width="90%"
 								height="130px"
 								className="card-data"

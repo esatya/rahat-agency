@@ -12,7 +12,7 @@ import { blobToBase64 } from '../../../utils';
 
 const Add = () => {
 	const { addToast } = useToasts();
-	const { listAid, addBeneficiary } = useContext(BeneficiaryContext);
+	const { listProject, addBeneficiary } = useContext(BeneficiaryContext);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -96,7 +96,7 @@ const Add = () => {
 	const handleCancelClick = () => History.push('/beneficiaries');
 
 	const loadProjects = useCallback(async () => {
-		const projects = await listAid();
+		const projects = await listProject();
 		if (projects && projects.data.length) {
 			const select_options = projects.data.map(p => {
 				return {
@@ -106,7 +106,7 @@ const Add = () => {
 			});
 			setProjectList(select_options);
 		}
-	}, [listAid]);
+	}, [listProject]);
 
 	useEffect(() => {
 		loadProjects();
@@ -179,13 +179,13 @@ const Add = () => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Phone</Label>
-											<Input type="text" value={formData.phone} name="phone" onChange={handleInputChange} required />
+											<Input type="number" value={formData.phone} name="phone" onChange={handleInputChange} required />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Email</Label>
-											<Input type="text" value={formData.email} name="email" onChange={handleInputChange} />
+											<Input type="email" value={formData.email} name="email" onChange={handleInputChange} />
 										</FormGroup>
 									</Col>
 								</Row>

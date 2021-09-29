@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import { Card, CardBody, CardTitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import { Card, CardBody, CardTitle,CardSubtitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
 import { TOAST, ROLES } from '../../../constants';
 import { UserContext } from '../../../contexts/UserContext';
@@ -90,11 +90,11 @@ const UserDetails = props => {
 	};
 
 	const sanitizeAndSetRoles = roles => {
+		if(!roles) return;
 		let data = roles.map(d => {
 			return { label: d, value: d };
 		});
-		if (data.length > 1) data = data.filter(f => f.value === ROLES.ADMIN);
-
+		//if (data.length > 1) data = data.filter(f => f.value === ROLES.ADMIN);
 		setExsitingRoles(data);
 	};
 
@@ -214,23 +214,29 @@ const UserDetails = props => {
 					<Card>
 						<CardBody>
 							<CardTitle className="mb-0">User Roles</CardTitle>
+							{existingRoles.length > 0 ?(
+								existingRoles.map((roles)=>{
+									return <CardSubtitle tag="h2" className=" mt-2 text-muted">{roles.label}</CardSubtitle>
+								})
+							):(
+								''
+							)}
 						</CardBody>
 						<CardBody>
 							<Form onSubmit={handleSubmitRoles}>
 								<Row>
 									<Col md="6">
+										
 										<FormGroup>
-											{existingRoles.length > 0 ? (
+											
 												<SelectWrapper
 													onChange={handleRoleChange}
 													maxMenuHeight={130}
-													currentValue={existingRoles}
+													currentValue={existingRoles || ''}
 													data={ROLES_LIST}
 													placeholder="--Select Role--"
 												/>
-											) : (
-												''
-											)}
+											
 										</FormGroup>
 									</Col>
 									<Col md="6"></Col>

@@ -21,6 +21,10 @@ module.exports = {
 		SUCCESS: {
 			appearance: 'success',
 			autoDismiss: true
+		},
+		WARNING: {
+			appearance: 'warning',
+			autoDismiss: true
 		}
 	},
 	PROJECT_STATUS: {

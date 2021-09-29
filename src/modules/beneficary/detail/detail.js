@@ -78,6 +78,7 @@ const BenefDetails = ({ params }) => {
 		setAssignTokenAmount('');
 		let newWindow = window.open('', 'Print QR', 'fullscreen=yes'),
 			document = newWindow.document.open();
+			console.log({newWindow});
 		document.write(html);
 		document.close();
 		setTimeout(function () {

@@ -32,7 +32,7 @@ export default function PasscodeModal(props) {
 					changeIsverified(true);
 					setLoadingMessage('Wallet verified!');
 				} else {
-					setLoadingMessage('Verifying wallet, please wallet...');
+					setLoadingMessage('Verifying wallet, please wait...');
 					const w = await Wallet.loadWallet(input_value);
 					setWalletPasscode(input_value);
 					changeIsverified(true);
@@ -68,7 +68,7 @@ export default function PasscodeModal(props) {
 						{/* {children || 'No child elements supplied.'} */}
 						{/* <span>Close</span> */}
 						<div>
-							<h2 style={{ marginBottom: '50px', color: 'white' }}>
+							<h2 style={{ marginBottom: '25px', color: 'white' }}>
 								{title || 'Verify Passcode'} &nbsp;
 								<span style={{ cursor: 'pointer' }} onClick={toggleModal}>
 									<small>
@@ -77,6 +77,10 @@ export default function PasscodeModal(props) {
 								</span>
 							</h2>
 						</div>
+
+						<h5 style={{ marginBottom: '25px', color: 'white' }}>
+							Enter you passcode from RUMSAN WALLET to proceed transaction
+						</h5>
 
 						<div>
 							<div className="input-group" style={{ display: 'flex', justifyContent: 'center' }}>
