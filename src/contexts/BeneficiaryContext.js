@@ -4,7 +4,6 @@ import * as Service from '../services/beneficiary';
 import * as AidService from '../services/aid';
 import ACTION from '../actions/beneficiary';
 import { AppContext } from './AppSettingsContext';
-import { APP_CONSTANTS } from '../constants';
 
 const initialState = {
 	list: [],
@@ -38,15 +37,11 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
 	}, []);
 
-	const listAid = useCallback(() => {
-		return AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
-	}, []);
-
-	// async function listAid() {
-	// 	const d = await AidService.listAid({ start: 0, limit: 50 });
-	// 	dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
-	// 	return d;
-	// }
+	async function listProject() {
+		const d = await AidService.listAid({ start: 0, limit: 50 });
+		dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
+		return d;
+	}
 
 	function setAid(aid) {
 		dispatch({ type: ACTION.SET_AID, data: aid });
@@ -79,23 +74,6 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.updateBeneficiary(id, payload);
 	};
 
-	// const addBeneficiary = async event => {
-	// 	event.preventDefault();
-	// 	const formData = new FormData(event.target);
-
-	// 	let payload = {
-	// 		name: formData.get('name'),
-	// 		phone: formData.get('phone'),
-	// 		govt_id: formData.get('govt_id'),
-	// 		email: formData.get('email'),
-	// 		address: formData.get('address'),
-	// 		wallet_address: formData.get('wallet_address'),
-	// 		project_id: formData.get('aid')
-	// 	};
-	// 	let d = await Service.addBeneficiary(payload);
-	// 	return d;
-	// };
-
 	async function listBeneficiary(params) {
 		let res = await Service.listBeneficiary(params);
 		if (res) {
@@ -112,8 +90,9 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		for (let b of beneficiaries) await Service.addBeneficiary(b);
 	};
 
-	const getBeneficiaryDetails = useCallback(id => {
-		return Service.get(id);
+	const getBeneficiaryDetails = useCallback(async id => {
+		const data = await Service.get(id);
+		return data;
 	}, []);
 
 	return (
@@ -124,10 +103,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				list: state.list,
 				pagination: state.pagination,
 				tokenBalance: state.tokenBalance,
-				beneficiary_detail: state.beneficiary,
+				beneficiary: state.beneficiary,
 				clear,
 				setAid,
-				listAid,
+				listProject,
 				issueTokens,
 				addBeneficiary,
 				updateBeneficiary,

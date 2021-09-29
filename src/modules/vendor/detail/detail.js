@@ -135,6 +135,7 @@ const Index = ({ params }) => {
 											alt="user"
 											className="rounded-circle"
 											width="45"
+											height="45"
 										/>
 										<div style={{ marginLeft: '20px' }}>
 											<p className="card-font-medium">{basicInfo.name}</p>
