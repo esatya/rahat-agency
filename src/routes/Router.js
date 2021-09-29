@@ -22,6 +22,8 @@ const Onboard = lazy(() => import('../modules/onboard'));
 // Mobilizer
 const Mobilizer = lazy(() => import('../modules/mobilizer'));
 const MobilizerDetails = lazy(() => import('../modules/mobilizer/detail/index'));
+const EditMobilizer = lazy(() => import('../modules/mobilizer/edit'));
+const AddMobilizer = lazy(() => import('../modules/mobilizer/add'));
 
 // Project
 const AidList = lazy(() => import('../modules/aid/list'));
@@ -175,13 +177,22 @@ let AppRoutes = [
 		component: Vendor,
 		showInSidebar: true
 	},
-
 	{
 		path: '/mobilizers',
 		name: 'Mobilizers',
 		icon: 'git-merge',
 		component: Mobilizer,
 		showInSidebar: true
+	},
+	{
+		path: '/add-mobilizers',
+		name: 'AddMobilizer',
+		component: AddMobilizer
+	},
+	{
+		path: '/edit-mobilizer/:id',
+		name: 'Mobilizer',
+		component: EditMobilizer
 	},
 	{
 		path: '/add_user',

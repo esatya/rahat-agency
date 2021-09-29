@@ -1,0 +1,46 @@
+.App {
+	text-align: center;
+}
+.printQr {
+	text-align: center;
+	margin-top: 5em;
+	margin-bottom: 10em;
+}
+.wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: space-between;
+	vertical-align: middle;
+}
+.itemWrapper {
+	flex: 1;
+	padding: 20px;
+	justify-content: center;
+	align-items: center;
+}
+
+.textWrapper {
+	padding: 2px;
+	text-align: center;
+}
+@page {
+	size: A4;
+	margin: 70pt 60pt 70pt;
+}
+@media print {
+	html,
+	body {
+		width: 210mm;
+		min-height: 297mm;
+		height: 297mm;
+		padding: 20px;
+	}
+	.no-printme {
+		display: none;
+	}
+	.printme {
+		width: initial;
+		min-height: initial;
+		page-break-after: always;
+	}
+}

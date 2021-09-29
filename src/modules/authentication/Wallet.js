@@ -8,6 +8,7 @@ import DataService from '../../services/db';
 import './wallet.css';
 import { useToasts } from 'react-toast-notifications';
 import { TOAST } from '../../constants';
+import { Link } from 'react-router-dom';
 
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');
@@ -76,7 +77,12 @@ const Wallet = () => {
 		ws.current.onmessage = async e => {
 			const data = JSON.parse(e.data);
 			if (data.action === 'unauthorized') {
-				return addToast('User not authorized!', TOAST.ERROR);
+				addToast('User not authorized! please Signup', TOAST.WARNING);
+				window.location.replace(`/sign_up?wallet_address=${data.publicKey}`);
+			}
+			if (data.action === 'account-locked') {
+				addToast('User not activated! ', TOAST.WARNING);
+				window.location.replace(`/approval?wallet_address=${data.publicKey}`);
 			}
 			if (data.data && data.data.token) {
 				const { id, token } = data.data;
@@ -127,9 +133,12 @@ const Wallet = () => {
 					</div>
 				</Col>
 				<Col className="right-content">
-					<p className="text-signup">
-						Haven’t registered? <span style={{ color: '#3F9EEB' }}>Sign up now </span>
-					</p>
+					{/* <p className="text-signup">
+						Haven’t registered?{' '}
+						<Link to={`/sign_up`}>
+							<span style={{ color: '#3F9EEB' }}>Sign up</span>
+						</Link>
+					</p> */}
 					<div className=" text-center">
 						<p className="text-title">Rahat Agency App</p>
 						<div className="mt-4 align-items-center">

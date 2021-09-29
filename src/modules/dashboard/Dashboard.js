@@ -1,13 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
-
 import TokenByProject from './tokens_by_project';
 import BeneficiaryByProject from './beneficiary_by_project';
 import { StatsCard } from '../ui_components/cards';
 import { TOAST } from '../../constants';
-
 import { UserContext } from '../../contexts/UserContext';
+import TransactionChart from '../ui_components/chart';
 
 const Dashboard = () => {
 	const { addToast } = useToasts();
@@ -127,6 +126,7 @@ const Dashboard = () => {
 					/>
 				</Col>
 			</Row>
+			<TransactionChart/>
 		</>
 	);
 };

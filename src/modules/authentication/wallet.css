@@ -45,6 +45,11 @@
 	color: #fff;
 	font-size: 14px;
 }
+.text-subheader {
+	color: #fff;
+	font-size: 16px;
+	text-align: left;
+}
 .text-tutorial {
 	color: #3f9eeb;
 	font-size: 14px;
