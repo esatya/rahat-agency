@@ -54,6 +54,7 @@ export async function listByAid(aid, params) {
 }
 
 export async function addBeneficiary(body) {
+	if (!body.wallet_address) body.wallet_address = body.phone;
 	const res = await axios({
 		url: API.BENEFICARIES,
 		method: 'post',
