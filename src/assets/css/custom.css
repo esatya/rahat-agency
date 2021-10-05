@@ -211,3 +211,10 @@ a {
 	background-color: #2b7ec1;
 	border-color: #2b7ec1;
 }
+
+.kobocard{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #2b7ec1;
+}
