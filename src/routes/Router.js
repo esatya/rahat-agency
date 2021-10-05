@@ -37,6 +37,11 @@ const ListUsers = lazy(() => import('../modules/user/list'));
 const AddUser = lazy(() => import('../modules/user/add'));
 const UserDetails = lazy(() => import('../modules/user/edit'));
 
+// Kobo tool
+const ListKobotool = lazy(() => import('../modules/kobotool/list'));
+const KoboToolboxSetting = lazy(() => import('../modules/kobotool/settings'));
+const KoboToolboxFormDetails = lazy(() => import('../modules/kobotool/forms/details'));
+
 // Vendor
 const Vendor = lazy(() => import('../modules/vendor'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
@@ -224,6 +229,16 @@ let AppRoutes = [
 		showInSidebar: false
 	},
 	{
+		path: '/kobo-toolbox-setting',
+		name: 'KoboToolboxSetting',
+		component: KoboToolboxSetting
+	},
+	{
+		path: '/kobo-toolbox/:id',
+		name: 'KoboToolboxFormDetails',
+		component: KoboToolboxFormDetails
+	},
+	{
 		collapse: true,
 		path: '/dashboard',
 		name: 'Administration',
@@ -243,6 +258,12 @@ let AppRoutes = [
 				name: 'Users',
 				icon: 'mdi mdi-adjust',
 				component: ListUsers
+			},
+			{
+				path: '/kobo-toolbox',
+				name: 'Kobo toolbox',
+				icon: 'mdi mdi-adjust',
+				component: ListKobotool
 			}
 		]
 	},
