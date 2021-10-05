@@ -104,7 +104,7 @@ const List = () => {
 				</FormGroup>
 			</AidModal>
 			<Card>
-				<CardTitle className="mb-0">
+				<CardTitle className="mb-0 pt-3">
 					<span style={{ paddingLeft: 26 }}>Projects</span>
 				</CardTitle>
 				<CardTitle className="mb-0 p-3">
