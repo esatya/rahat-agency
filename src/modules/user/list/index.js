@@ -50,7 +50,7 @@ const List = () => {
 	return (
 		<>
 			<Card>
-				<CardTitle className="mb-0">
+				<CardTitle className="mb-0 pt-3">
 					<span style={{ paddingLeft: 26 }}>Users</span>
 				</CardTitle>
 				<CardTitle className="mb-0 p-3">

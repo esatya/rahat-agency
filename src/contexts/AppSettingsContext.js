@@ -26,7 +26,8 @@ const initialState = {
 	isVerified: false,
 	loading: false,
 	openPasscodeModal: false,
-	walletActionMsg: null
+	walletActionMsg: null,
+	pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 }
 };
 
 export const AppContext = createContext(initialState);
@@ -83,6 +84,34 @@ export const AppContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.SET_APP_PASSCODE, data: passcode });
 	}, []);
 
+	function setKobotoolbox(payload) {
+		Service.setKobotoolbox(payload);
+	}
+
+	function getKobotoolboxForms(query) {
+		return new Promise((resolve, reject) => {
+			Service.getKobotoolboxForms(query)
+				.then(res => {
+					resolve(res);
+				})
+				.catch(err => {
+					reject(err);
+				});
+		});
+	}
+
+	function getKoboFormsData(assetId) {
+		return new Promise((resolve, reject) => {
+			Service.getKoboFormsData(assetId)
+				.then(res => {
+					resolve(res);
+				})
+				.catch(err => {
+					reject(err);
+				});
+		});
+	}
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -96,6 +125,7 @@ export const AppContextProvider = ({ children }) => {
 				loading: state.loading,
 				openPasscodeModal: state.openPasscodeModal,
 				walletActionMsg: state.walletActionMsg,
+				pagination: state.pagination,
 				setWalletActionMsg,
 				setPasscodeModal,
 				setLoading,
@@ -104,6 +134,9 @@ export const AppContextProvider = ({ children }) => {
 				setHasWallet,
 				setWallet,
 				setWalletPasscode,
+				setKobotoolbox,
+				getKobotoolboxForms,
+				getKoboFormsData,
 				changeIsverified,
 				initApp
 			}}

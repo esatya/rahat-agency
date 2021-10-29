@@ -70,6 +70,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.addBeneficiary(payload);
 	};
 
+	const addBeneficiaryInBulk = payload => {
+		return Service.addBeneficiaryInBulk(payload);
+	};
+
 	const updateBeneficiary = (id, payload) => {
 		return Service.updateBeneficiary(id, payload);
 	};
@@ -109,6 +113,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				listProject,
 				issueTokens,
 				addBeneficiary,
+				addBeneficiaryInBulk,
 				updateBeneficiary,
 				setBeneficiary,
 				listBeneficiary,
