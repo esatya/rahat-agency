@@ -1,30 +1,24 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { BeneficiaryContext } from '../../contexts/BeneficiaryContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
-import {
-	Card,
-	CardBody,
-	CardTitle,
-	Button,
-	Input,
-	Pagination,
-	PaginationItem,
-	PaginationLink,
-	CustomInput,
-	Table,
-	Row,
-	Col
-} from 'reactstrap';
-import displayPic from '../../assets/images/users/user_avatar.svg';
-import { History } from '../../utils/History';
+import { Card, CardBody, CardTitle, Button, Input, CustomInput, Table, Row, Col } from 'reactstrap';
 import moment from 'moment';
 
+import displayPic from '../../assets/images/users/user_avatar.svg';
+import { History } from '../../utils/History';
+import AdvancePagination from '../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../constants';
 
-const searchOptions = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
+const { PAGE_LIMIT } = APP_CONSTANTS;
+const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
 
 const Beneficiary = () => {
 	const { addToast } = useToasts();
+
+	const [totalRecords, setTotalRecords] = useState(null);
+	const [benfList, setBenfList] = useState([]);
+	const [searchValue, setSearchValue] = useState('');
 
 	const [filter, setFilter] = useState({
 		searchPlaceholder: 'Enter phone number...',
@@ -32,60 +26,67 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
+	const { listBeneficiary, pagination, listProject, projectList } = useContext(BeneficiaryContext);
 
-	const { listBeneficiary, list, pagination, listProject, projectList } = useContext(BeneficiaryContext);
-
-	const handleFilterChange = e => {
+	const handleFilterOptionChange = e => {
 		let { value } = e.target;
-		if (value === searchOptions.NAME) {
+		if (value === SEARCH_OPTIONS.NAME) {
 			setFilter({
 				searchPlaceholder: 'Enter name...',
-				searchBy: searchOptions.NAME
+				searchBy: SEARCH_OPTIONS.NAME
 			});
 		}
-		if (value === searchOptions.PROJECT) {
+		if (value === SEARCH_OPTIONS.PROJECT) {
 			setFilter({
 				searchPlaceholder: 'Select project...',
-				searchBy: searchOptions.PROJECT
+				searchBy: SEARCH_OPTIONS.PROJECT
 			});
 		}
-		if (value === searchOptions.PHONE) {
+		if (value === SEARCH_OPTIONS.PHONE) {
 			setFilter({
 				searchPlaceholder: 'Enter phone number...',
-				searchBy: searchOptions.PHONE
+				searchBy: SEARCH_OPTIONS.PHONE
 			});
 		}
+		setSearchValue('');
 		setSelectedProject('');
-		fetchList({ start: 0, limit: pagination.limit });
+		fetchList({ start: 0, limit: PAGE_LIMIT });
 	};
 
 	const handleSearchInputChange = e => {
 		const { value } = e.target;
-		if (filter.searchBy === searchOptions.PHONE) {
-			return fetchList({ start: 0, limit: pagination.limit, phone: value });
+		setSearchValue(value);
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE) {
+			return fetchList({ start: 0, limit: PAGE_LIMIT, phone: value });
 		}
-		if (filter.searchBy === searchOptions.NAME) {
-			return fetchList({ start: 0, limit: pagination.limit, name: value });
+		if (filter.searchBy === SEARCH_OPTIONS.NAME) {
+			return fetchList({ start: 0, limit: PAGE_LIMIT, name: value });
 		}
-		if (filter.searchBy === searchOptions.PROJECT) {
+		if (filter.searchBy === SEARCH_OPTIONS.PROJECT) {
 			setSelectedProject(value);
-			return fetchList({ start: 0, limit: pagination.limit, projectId: value });
+			return fetchList({ start: 0, limit: PAGE_LIMIT, projectId: value });
 		}
-		fetchList({ start: 0, limit: pagination.limit });
+		fetchList({ start: 0, limit: PAGE_LIMIT });
 	};
 
-	const fetchList = query => {
-		let params = { ...pagination, ...query };
-		listBeneficiary(params)
-			.then()
-			.catch(() => {
-				addToast('Something went wrong!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
+	const fetchList = async params => {
+		let query = { start: 0, limit: PAGE_LIMIT, ...params };
+		const data = await listBeneficiary(query);
+		setBenfList(data.data);
+		setTotalRecords(data.total);
+	};
+
+	const fetchTotalRecords = useCallback(async () => {
+		try {
+			const data = await listBeneficiary({ start: 0, limit: PAGE_LIMIT });
+			setTotalRecords(data.total);
+		} catch (err) {
+			addToast('Something went wrong!', {
+				appearance: 'error',
+				autoDismiss: true
 			});
-	};
-
+		}
+	}, [addToast, listBeneficiary]);
 
 	const fetchProjectList = () => {
 		listProject()
@@ -98,15 +99,31 @@ const Beneficiary = () => {
 			});
 	};
 
-	useEffect(fetchList, []);
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
+
 	useEffect(fetchProjectList, []);
 
-	const handlePagination = current_page => {
-		let _start = (current_page - 1) * pagination.limit;
-		const query = { start: _start, limit: pagination.limit };
-		if (selectedProject) query.projectId = selectedProject;
-		return fetchList(query);
-	};
+	const getQueryParams = useCallback(() => {
+		const params = {};
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE) params.phone = searchValue;
+		if (filter.searchBy === SEARCH_OPTIONS.NAME) params.name = searchValue;
+		if (filter.searchBy === SEARCH_OPTIONS.PROJECT) params.projectId = selectedProject;
+		return params;
+	}, [filter.searchBy, searchValue, selectedProject]);
+
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const params = getQueryParams();
+			const { currentPage, pageLimit } = paginationData;
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT, ...params };
+			const data = await listBeneficiary(query);
+			setBenfList(data.data);
+		},
+		[getQueryParams, listBeneficiary]
+	);
 
 	const handleAddClick = () => History.push('/add-beneficiary');
 
@@ -130,14 +147,14 @@ const Beneficiary = () => {
 										name="customSelect"
 										defaultValue=""
 										style={{ width: 'auto' }}
-										onChange={handleFilterChange}
+										onChange={handleFilterOptionChange}
 									>
 										<option value="phone">Search By Phone</option>
 										<option value="name">By Name</option>
 										<option value="project">By Project</option>
 									</CustomInput>
 									<div style={{ display: 'inline-flex' }}>
-										{filter.searchBy === searchOptions.PROJECT ? (
+										{filter.searchBy === SEARCH_OPTIONS.PROJECT ? (
 											<CustomInput
 												type="select"
 												id="aid"
@@ -188,11 +205,11 @@ const Beneficiary = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{list.length ? (
-									list.map((d, i) => {
+								{benfList.length > 0 ? (
+									benfList.map((d, i) => {
 										return (
 											<tr key={d._id}>
-												<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
+												<td>{(pagination.currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 												<td>
 													<div className="d-flex no-block align-items-center">
 														<div className="mr-2">
@@ -224,32 +241,13 @@ const Beneficiary = () => {
 							</tbody>
 						</Table>
 
-						{pagination.totalPages > 1 ? (
-							<Pagination
-								style={{
-									display: 'flex',
-									justifyContent: 'center',
-									marginTop: '50px'
-								}}
-							>
-								<PaginationItem>
-									<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-								</PaginationItem>
-								{[...Array(pagination.totalPages)].map((p, i) => (
-									<PaginationItem
-										key={i}
-										active={pagination.currentPage === i + 1 ? true : false}
-										onClick={() => handlePagination(i + 1)}
-									>
-										<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-									</PaginationItem>
-								))}
-								<PaginationItem>
-									<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.totalPages)} />
-								</PaginationItem>
-							</Pagination>
-						) : (
-							''
+						{totalRecords > 0 && (
+							<AdvancePagination
+								totalRecords={totalRecords}
+								pageLimit={PAGE_LIMIT}
+								pageNeighbours={1}
+								onPageChanged={onPageChanged}
+							/>
 						)}
 					</CardBody>
 				</Card>
