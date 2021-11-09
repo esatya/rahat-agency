@@ -67,6 +67,20 @@ export async function addBeneficiary(body) {
 	return res.data;
 }
 
+export async function addBeneficiaryInBulk(body) {
+	const res = await axios({
+		url: `${API.BENEFICARIES}/bulk`,
+		method: 'post',
+		headers: {
+			access_token
+		},
+		data: body
+	});
+
+	return res.data;
+}
+
+
 export async function updateBeneficiary(id, body) {
 	const res = await axios({
 		url: `${API.BENEFICARIES}/${id}`,

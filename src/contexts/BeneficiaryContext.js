@@ -70,20 +70,29 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.addBeneficiary(payload);
 	};
 
+	const addBeneficiaryInBulk = payload => {
+		return Service.addBeneficiaryInBulk(payload);
+	};
+
 	const updateBeneficiary = (id, payload) => {
 		return Service.updateBeneficiary(id, payload);
 	};
 
-	async function listBeneficiary(params) {
+	const listBeneficiary = useCallback(async params => {
 		let res = await Service.listBeneficiary(params);
-		if (res) {
-			dispatch({
-				type: ACTION.LIST,
-				res
-			});
-			return res;
-		}
-	}
+		return res;
+	}, []);
+
+	// async function listBeneficiary(params) {
+	// 	let res = await Service.listBeneficiary(params);
+	// 	if (res) {
+	// 		dispatch({
+	// 			type: ACTION.LIST,
+	// 			res
+	// 		});
+	// 		return res;
+	// 	}
+	// }
 
 	const importBeneficiary = async () => {
 		let beneficiaries = await Service.importBeneficiary({});
@@ -109,6 +118,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				listProject,
 				issueTokens,
 				addBeneficiary,
+				addBeneficiaryInBulk,
 				updateBeneficiary,
 				setBeneficiary,
 				listBeneficiary,

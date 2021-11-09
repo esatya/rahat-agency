@@ -285,7 +285,7 @@ let AppRoutes = [
 			},
 			{
 				path: '/kobo-toolbox',
-				name: 'Kobo toolbox',
+				name: 'KoBoToolbox',
 				icon: 'mdi mdi-adjust',
 				component: ListKobotool
 			}
