@@ -17,10 +17,13 @@ import { AppContext } from '../../../contexts/AppSettingsContext';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import { History } from '../../../utils/History';
 import { htmlResponse } from '../../../utils/printSingleBeneficiary';
+import { useHistory } from 'react-router-dom';
+// import { map } from 'lodash-es';
 
 const BenefDetails = ({ params }) => {
 	const { id } = params;
 	const { addToast } = useToasts();
+	const history = useHistory();
 
 	const { getBeneficiaryDetails, getBeneficiaryBalance, getAvailableBalance, issueTokens } = useContext(
 		BeneficiaryContext
@@ -31,7 +34,7 @@ const BenefDetails = ({ params }) => {
 	const [extras, setExtras] = useState({});
 	const [projectList, setProjectList] = useState([]);
 	const [currentBalance, setCurrentBalance] = useState('');
-	const [inputTokens, setInputTokens] = useState('');
+	// const [inputTokens, setInputTokens] = useState('');
 	const [projectOptions, setProjectOptions] = useState([]);
 	const [assignTokenAmount, setAssignTokenAmount] = useState('');
 
@@ -41,7 +44,7 @@ const BenefDetails = ({ params }) => {
 	const [assignTokenModal, setAssignTokenModal] = useState(false);
 
 	const [availableBalance, setAvailableBalance] = useState('');
-	const [showAlert, setShowAlert] = useState(false);
+	// const [showAlert, setShowAlert] = useState(false);
 	const [selectedProject, setSelectedProject] = useState('');
 
 	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
@@ -49,14 +52,14 @@ const BenefDetails = ({ params }) => {
 	const toggleProjectModal = () => {
 		// If opening modal, reset fields
 		if (!projectModal) {
-			setShowAlert(false);
+			// setShowAlert(false);
 			setAvailableBalance('');
-			setInputTokens('');
+			// setInputTokens('');
 			setSelectedProject('');
 		}
 		setProjectModal(!projectModal);
 	};
-	const handleInputTokenChange = e => setInputTokens(e.target.value);
+	// const handleInputTokenChange = e => setInputTokens(e.target.value);
 
 	const togglePasscodeModal = useCallback(() => {
 		setPasscodeModal(!passcodeModal);
@@ -78,7 +81,7 @@ const BenefDetails = ({ params }) => {
 		setAssignTokenAmount('');
 		let newWindow = window.open('', 'Print QR', 'fullscreen=yes'),
 			document = newWindow.document.open();
-			console.log({newWindow});
+		console.log({ newWindow });
 		document.write(html);
 		document.close();
 		setTimeout(function () {
@@ -93,11 +96,11 @@ const BenefDetails = ({ params }) => {
 			setLoading(true);
 			const balance = await getAvailableBalance(d.value);
 			setAvailableBalance(balance);
-			setShowAlert(true);
+			// setShowAlert(true);
 			setLoading(false);
 		} catch (err) {
 			setLoading(false);
-			setShowAlert(false);
+			// setShowAlert(false);
 			addToast('Failed to fetch project balance', TOAST.ERROR);
 		}
 	};
@@ -107,9 +110,12 @@ const BenefDetails = ({ params }) => {
 	const handleIssueSubmit = e => {
 		e.preventDefault();
 		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
-		if (inputTokens > availableBalance) return addToast('Input tokens must be less than available', TOAST.ERROR);
+		history.push(`/issue-budget/${id}`);
 		toggleProjectModal();
-		togglePasscodeModal();
+	};
+
+	const handleProjectClick = () => {
+		history.push(`/issue-budget/${id}`);
 	};
 
 	const submitRequest = useCallback(
@@ -130,7 +136,7 @@ const BenefDetails = ({ params }) => {
 
 	const issueBeneficiaryToken = useCallback(async () => {
 		const payload = {
-			claimable: +inputTokens,
+			// claimable: +inputTokens,
 			phone: +basicInfo.phone,
 			projectId: selectedProject
 		};
@@ -138,7 +144,14 @@ const BenefDetails = ({ params }) => {
 			setPasscodeModal(false);
 			return submitRequest(payload, wallet);
 		}
-	}, [basicInfo.phone, inputTokens, isVerified, selectedProject, submitRequest, wallet]);
+	}, [
+		basicInfo.phone,
+		// inputTokens,
+		isVerified,
+		selectedProject,
+		submitRequest,
+		wallet
+	]);
 
 	const fetchCurrentBalance = useCallback(
 		async phone => {
@@ -202,7 +215,19 @@ const BenefDetails = ({ params }) => {
 						placeholder="--Select Project--"
 					/>{' '}
 					<br />
-					<Label>Tokens *</Label>
+					<Label>Recent projects</Label>
+					<br />
+					{projectOptions.map(project => (
+						<button
+							type="button"
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px' }}
+							onClick={handleProjectClick}
+						>
+							{project.label || 'button'}
+						</button>
+					))}
+					{/* <Label>Tokens *</Label>
 					<InputGroup>
 						<Input
 							type="number"
@@ -212,9 +237,9 @@ const BenefDetails = ({ params }) => {
 							onChange={handleInputTokenChange}
 							required
 						/>
-					</InputGroup>
+					</InputGroup> */}
 				</FormGroup>
-				<FormGroup>
+				{/* <FormGroup>
 					{showAlert && availableBalance > 0 ? (
 						<div className="alert alert-success fade show" role="alert">
 							Availabe Balance: {availableBalance}
@@ -228,7 +253,7 @@ const BenefDetails = ({ params }) => {
 					) : (
 						''
 					)}
-				</FormGroup>
+				</FormGroup> */}
 			</ModalWrapper>
 
 			{/* Assign token modal */}
@@ -270,11 +295,11 @@ const BenefDetails = ({ params }) => {
 					<Balance
 						action="issue_token"
 						title="Balance"
-						button_name="Issue Token"
-						data={currentBalance}
+						button_name="Issue"
+						token_data={currentBalance}
+						package_data=""
 						fetching={fetching}
 						loading={loading}
-						label="Current Balance"
 						handleIssueToken={handleIssueToken}
 					/>
 				</Col>

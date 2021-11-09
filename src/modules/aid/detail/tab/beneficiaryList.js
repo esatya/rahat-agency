@@ -47,8 +47,7 @@ const List = ({ beneficiaries, projectId }) => {
 		hiddenFileInput.current.click();
 	};
 
-	const handleUploadListSubmit = () => {
-	};
+	const handleUploadListSubmit = () => {};
 
 	const handleFileChange = e => {
 		setUploadListModal(true);
