@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState,useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
@@ -52,11 +52,11 @@ export default function DetailsForm(props) {
 		getAvailableBalance,
 		listAid
 	} = useContext(MobilizerContext);
-	const { appSettings, isVerified, changeIsverified } = useContext(AppContext);
+	const { appSettings, isVerified,wallet } = useContext(AppContext);
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal));
 	const [modal, setModal] = useState(false);
 	const [projectOptions, setProjectOptions] = useState([]);
 	// const [inputTokens, setInputTokens] = useState(null);
@@ -154,9 +154,10 @@ export default function DetailsForm(props) {
 		}
 	};
 
-	const submitMobilizerApproval = e => {
+	const submitMobilizerApproval = useCallback(async () => {
 		if (!isVerified) return;
 		setLoading(true);
+		setPasscodeModal(false);
 		let payload = {
 			status: 'active',
 			wallet_address: mobilizer.wallet_address,
@@ -164,24 +165,20 @@ export default function DetailsForm(props) {
 		};
 		approveMobilizer(payload)
 			.then(() => {
-				changeIsverified(false);
 				setLoading(false);
-				togglePasscodeModal();
 				addToast('Mobilizer approved successfully.', {
 					appearance: 'success',
 					autoDismiss: true
 				});
 			})
 			.catch(() => {
-				changeIsverified(false);
 				setLoading(false);
-				togglePasscodeModal();
 				addToast('Invalid mobilizer wallet address!', {
 					appearance: 'error',
 					autoDismiss: true
 				});
 			});
-	};
+	},[addToast, approveMobilizer, isVerified, mobilizer.wallet_address, selectedProject]);
 
 	const toggleModal = () => {
 		setModal(prevState => !prevState);
@@ -241,7 +238,13 @@ export default function DetailsForm(props) {
 	useEffect(fetchProjectList, []);
 
 	useEffect(loadMobilizerDetails, []);
-	useEffect(submitMobilizerApproval, [isVerified]);
+
+	useEffect(() => {
+		if (isVerified && wallet) {
+			submitMobilizerApproval();
+		}
+	}, [submitMobilizerApproval, isVerified, wallet]);
+//	useEffect(submitMobilizerApproval, [isVerified]);
 
 	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : 'new';
 

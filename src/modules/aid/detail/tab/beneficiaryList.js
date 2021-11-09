@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { Pagination, PaginationItem, PaginationLink, Table, FormGroup, InputGroup, Input } from 'reactstrap';
+import { Pagination, PaginationItem, PaginationLink, Table, FormGroup, InputGroup, Input, Col, Row } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import QRCode from 'qrcode';
 
@@ -10,6 +10,8 @@ import { htmlResponse } from '../../../../utils/printBeneficiary';
 import ModalWrapper from '../../../global/CustomModal';
 import PasscodeModal from '../../../global/PasscodeModal';
 import GrowSpinner from '../../../global/GrowSpinner';
+import UploadList from './uploadList';
+import * as XLSX from 'xlsx';
 
 const ACTION = {
 	BULK_QR: 'bulk_qrcode_export',
@@ -27,12 +29,72 @@ const List = ({ beneficiaries, projectId }) => {
 	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
 	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
 	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [benefUploadFile, setBenefUploadFile] = useState('');
+	const [uploadListModal, setUploadListModal] = useState(false);
+	const [uploadData, setUploadData] = useState(null);
+
+	const hiddenFileInput = React.useRef(null);
 
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
+	const toggleUploadListModal = () => setUploadListModal(!uploadListModal);
 
 	const toggleAmountModal = action => {
 		if (action) setCurrentAction(action);
 		setAmountModal(!amountModal);
+	};
+
+	const handleFileUploadClick = event => {
+		hiddenFileInput.current.click();
+	};
+
+	const handleUploadListSubmit = () => {};
+
+	const handleFileChange = e => {
+		setUploadListModal(true);
+		readFile(e.target.files[0]);
+		e.target.value = '';
+		//setBenefUploadFile(e.target.files[0]);
+	};
+
+	const readFile = file => {
+		const reader = new FileReader();
+		reader.onload = evt => {
+			// evt = on_file_select event
+			/* Parse data */
+			const bstr = evt.target.result;
+			const wb = XLSX.read(bstr, { type: 'binary' });
+			/* Get first worksheet */
+			const wsname = wb.SheetNames[0];
+			const ws = wb.Sheets[wsname];
+			/* Convert array of arrays */
+			const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
+			/* Update state */
+			const jsonData = convertToJson(data);
+			setUploadData(jsonData);
+		};
+		reader.readAsBinaryString(file);
+	};
+
+	const convertToJson = csv => {
+		var lines = csv.split('\n');
+
+		var result = [];
+
+		var headers = lines[0].split(',');
+
+		for (var i = 1; i < lines.length; i++) {
+			var obj = {};
+			var currentline = lines[i].split(',');
+
+			for (var j = 0; j < headers.length; j++) {
+				obj[headers[j]] = currentline[j];
+			}
+
+			result.push(obj);
+		}
+
+		//return result; //JavaScript object
+		return result; //JSON
 	};
 
 	const handleAmountChange = e => setAmount(e.target.value);
@@ -161,27 +223,52 @@ const List = ({ beneficiaries, projectId }) => {
 					</InputGroup>
 				</FormGroup>
 			</ModalWrapper>
-			<div className="toolbar-flex-container">
+
+			<ModalWrapper
+				toggle={toggleUploadListModal}
+				open={uploadListModal}
+				title="Beneficiaries List"
+				handleSubmit={handleUploadListSubmit}
+				loading={loading}
+				size="xl"
+			>
+				<UploadList data={uploadData} />
+			</ModalWrapper>
+
+			<div>
 				{loading ? (
 					<GrowSpinner />
 				) : (
-					<div style={{ flex: 1, padding: 10 }}>
-						<button
-							onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
-							type="button"
-							className="btn waves-effect waves-light btn-outline-info"
-							style={{ borderRadius: '8px', marginRight: '20px' }}
-						>
-							Bulk Token Issue
-						</button>
-						<button
-							type="button"
-							onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-							className="btn waves-effect waves-light btn-outline-info"
-							style={{ borderRadius: '8px' }}
-						>
-							Bulk Generate QR Code
-						</button>
+					<div className="row">
+						<div style={{ flex: 1, padding: 10 }}>
+							<button
+								onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
+								type="button"
+								class="btn waves-effect waves-light btn-outline-info"
+								style={{ borderRadius: '8px', marginRight: '20px' }}
+							>
+								Bulk Token Issue
+							</button>
+							<button
+								type="button"
+								onClick={() => toggleAmountModal(ACTION.BULK_QR)}
+								class="btn waves-effect waves-light btn-outline-info"
+								style={{ borderRadius: '8px' }}
+							>
+								Bulk Generate QR Code
+							</button>
+						</div>
+						<div style={{ padding: 10, float: 'right' }}>
+							<button
+								type="button"
+								onClick={handleFileUploadClick}
+								class="btn waves-effect waves-light btn-outline-info"
+								style={{ borderRadius: '8px' }}
+							>
+								Upload Beneficiaries
+							</button>
+							<input type="file" ref={hiddenFileInput} onChange={handleFileChange} style={{ display: 'none' }} />
+						</div>
 					</div>
 				)}
 

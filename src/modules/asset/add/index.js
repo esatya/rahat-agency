@@ -114,6 +114,17 @@ export default function NewAsset({ match }) {
 								<option value="E">Euro</option>
 							</Input>
 						</FormGroup>
+						<br />
+						<FormGroup>
+							<button
+								type="button"
+								className="btn waves-effect waves-light btn-info"
+								style={{ borderRadius: '8px' }}
+								onClick=""
+							>
+								Add package
+							</button>
+						</FormGroup>
 					</div>
 				</CardBody>
 			</Card>
