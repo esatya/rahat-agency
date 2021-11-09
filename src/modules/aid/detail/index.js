@@ -5,12 +5,12 @@ import { useToasts } from 'react-toast-notifications';
 import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import DetailsCard from '../../global/DetailsCard';
-import Balance from '../../ui_components/balance';
 import ProjectInfo from './projectInfo';
 import PieChart from './pieChart';
 import Tabs from './tab';
 import { TOAST, PROJECT_STATUS } from '../../../constants';
 import BreadCrumb from '../../ui_components/breadcrumb';
+import Balance from '../../ui_components/balance';
 
 export default function Index(props) {
 	const { id } = props.match.params;
@@ -24,7 +24,7 @@ export default function Index(props) {
 		getProjectCapital,
 		getAidBalance
 	} = useContext(AidContext);
-	const { appSettings } = useContext(AppContext);
+	const { loading, appSettings } = useContext(AppContext);
 
 	const [projectDetails, setProjectDetails] = useState(null);
 	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
@@ -92,12 +92,15 @@ export default function Index(props) {
 				</Col>
 				<Col md="5">
 					<Balance
-						fetching={fetchingBlockchain}
-						title="Budget"
-						projectId={id}
+						action=""
+						title="Balance"
 						button_name="Add Budget"
-						data={available_tokens}
-						label="Available Budget"
+						token_data={available_tokens}
+						package_data=""
+						fetching={fetchingBlockchain}
+						loading={loading}
+						handleIssueToken=""
+						projectId={id}
 					/>
 				</Col>
 			</Row>

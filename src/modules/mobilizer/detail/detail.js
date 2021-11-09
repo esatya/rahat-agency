@@ -33,6 +33,7 @@ import profilePhoto from '../../../assets/images/users/user_avatar.svg';
 import PasscodeModal from '../../global/PasscodeModal';
 import MobilizerInfo from './mobilizerInfo';
 import BreadCrumb from '../../ui_components/breadcrumb';
+import Balance from '../../ui_components/balance';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
@@ -360,7 +361,17 @@ export default function DetailsForm(props) {
 					</Card>
 				</Col>
 				<Col md="5">
-					<Card>
+					<Balance
+						action=""
+						title="Balance"
+						button_name=""
+						token_data={mobilizerBalance}
+						package_data=""
+						fetching={fetchingBalance}
+						loading={loading}
+						handleIssueToken=""
+					/>
+					{/* <Card>
 						<div className="stat-card-body" style={{ minHeight: 120 }}>
 							<CardTitle className="title">Token</CardTitle>
 							<Row>
@@ -375,7 +386,7 @@ export default function DetailsForm(props) {
 								</Col>
 							</Row>
 						</div>
-					</Card>
+					</Card> */}
 				</Col>
 			</Row>
 			<MobilizerInfo information={mobilizer} />
