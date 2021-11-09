@@ -169,7 +169,7 @@ const List = ({ beneficiaries, projectId }) => {
 						<button
 							onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
 							type="button"
-							class="btn waves-effect waves-light btn-outline-info"
+							className="btn waves-effect waves-light btn-outline-info"
 							style={{ borderRadius: '8px', marginRight: '20px' }}
 						>
 							Bulk Token Issue
@@ -177,7 +177,7 @@ const List = ({ beneficiaries, projectId }) => {
 						<button
 							type="button"
 							onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-							class="btn waves-effect waves-light btn-outline-info"
+							className="btn waves-effect waves-light btn-outline-info"
 							style={{ borderRadius: '8px' }}
 						>
 							Bulk Generate QR Code

@@ -8,11 +8,12 @@ import TransactionHistory from './transactionHistory';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import displayPic from '../../../assets/images/users/user_avatar.svg';
-import Loading from '../../global/Loading';
+// import Loading from '../../global/Loading';
 import BreadCrumb from '../../ui_components/breadcrumb';
 import PasscodeModal from '../../global/PasscodeModal';
 import { TOAST } from '../../../constants';
 import { History } from '../../../utils/History';
+import Balance from '../../ui_components/balance';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -178,22 +179,16 @@ const Index = ({ params }) => {
 					</Card>
 				</Col>
 				<Col md="5">
-					<Card>
-						<div className="stat-card-body" style={{ minHeight: 120 }}>
-							<CardTitle className="title">Token</CardTitle>
-							<Row>
-								<Col md="6" sm="12" style={{ marginBottom: '10px' }}>
-									{fetchingBalance ? <Loading /> : <p className="card-font-bold">{vendorBalance}</p>}
-
-									<div className="sub-title">Total Balance</div>
-								</Col>
-								<Col md="6" sm="12">
-									<p className="card-font-bold">0</p>
-									<div className="sub-title">Total Redeemed</div>
-								</Col>
-							</Row>
-						</div>
-					</Card>
+					<Balance
+						action=""
+						title="Balance"
+						button_name=""
+						token_data={vendorBalance}
+						package_data=""
+						fetching={fetchingBalance}
+						loading={loading}
+						handleIssueToken=""
+					/>
 				</Col>
 			</Row>
 
