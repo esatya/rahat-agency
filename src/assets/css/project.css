@@ -16,6 +16,12 @@
 	padding: 20px 30px;
 }
 
+.spacing-budget {
+	background: #ffffff;
+	border-radius: 10px !important;
+	padding: 20px 10px;
+}
+
 .card-font-medium {
 	font-size: 18px !important;
 	font-weight: normal;
