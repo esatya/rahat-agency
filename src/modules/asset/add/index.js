@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Card, CardBody, FormGroup, Label, Input } from 'reactstrap';
+import {
+	Card,
+	CardBody,
+	FormGroup,
+	Label,
+	Input,
+	InputGroup,
+	InputGroupButtonDropdown,
+	DropdownToggle,
+	DropdownMenu,
+	DropdownItem
+} from 'reactstrap';
 import BreadCrumb from '../../ui_components/breadcrumb';
 import { blobToBase64 } from '../../../utils';
 import UploadPlaceholder from '../../../assets/images/download.png';
@@ -22,8 +33,13 @@ export default function NewAsset({ match }) {
 		govt_id: ''
 	});
 	const [pic, setPic] = useState('');
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+
 	const [selectedCurrency, setSelectedCurrency] = useState('');
 	// const [loading, setLoading] = useState(false);
+	const toggleDropDown = () => {
+		setDropdownOpen(!dropdownOpen);
+	};
 
 	const handleProfileUpload = async e => {
 		const file = e.target.files[0];
@@ -107,12 +123,17 @@ export default function NewAsset({ match }) {
 
 						<FormGroup>
 							<Label>Value in fiat currency</Label>
-							<Input type="select" name="currency" onChange={handleCurrencyChange}>
-								<option value="">--Select currency--</option>
-								<option value="N">Nepalese</option>
-								<option value="D">Dollar</option>
-								<option value="E">Euro</option>
-							</Input>
+							<InputGroup>
+								<InputGroupButtonDropdown addonType="prepend" isOpen={dropdownOpen} toggle={toggleDropDown}>
+									<DropdownToggle caret>Select currency</DropdownToggle>
+									<DropdownMenu>
+										<DropdownItem>Nepalese</DropdownItem>
+										<DropdownItem>Dollar</DropdownItem>
+										<DropdownItem>Euro</DropdownItem>
+									</DropdownMenu>
+								</InputGroupButtonDropdown>
+								<Input onChange={handleCurrencyChange} />
+							</InputGroup>
 						</FormGroup>
 						<br />
 						<FormGroup>
