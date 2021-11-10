@@ -15,13 +15,13 @@ export default function ProjectInfo({ projectDetails }) {
 
 	const [qrGenModal, setQrGenModal] = useState(false);
 	const [qrGenData, setQrGenData] = useState({ min: 0, max: 0, projectVersion: 0, amount: null });
-	const [qrGenLoading, setQrGenLoading] = useState(false);
+	// const [qrGenLoading, setQrGenLoading] = useState(false);
 
 	const toggleQrGen = () => {
 		setQrGenModal(!qrGenModal);
 		setQrGenData({ min: 0, max: 0, projectVersion: serial_index, amount: null });
 	};
-	const toggleQrGenLoading = () => setQrGenLoading(!qrGenLoading);
+	// const toggleQrGenLoading = () => setQrGenLoading(!qrGenLoading);
 
 	const qrComponentRef = useRef();
 	const printRef = useRef();
@@ -51,7 +51,7 @@ export default function ProjectInfo({ projectDetails }) {
 				open={qrGenModal}
 				title="Pre-Generate Qr-Code"
 				handleSubmit={handleQrGenSubmit}
-				loading={qrGenLoading}
+				// loading={qrGenLoading}
 			>
 				<FormGroup>
 					<Label>Number of Qr-code</Label>
@@ -90,7 +90,7 @@ export default function ProjectInfo({ projectDetails }) {
 								<button
 									onClick={toggleQrGen}
 									type="button"
-									class="btn waves-effect waves-light btn-outline-info"
+									className="btn waves-effect waves-light btn-outline-info"
 									style={{ borderRadius: '8px', marginRight: '20px' }}
 								>
 									Pre-Generate Qr code
