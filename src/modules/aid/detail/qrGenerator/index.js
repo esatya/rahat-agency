@@ -35,7 +35,7 @@ const QRGenerator = React.forwardRef(({ props }, ref) => {
 			{data.map((d, i) => {
 				return (
 					<div className="itemWrapper printme printQr" key={i}>
-						<img src={RahatLogo} width="190px" height="90px"></img>
+						<img alt="Rahat logo" src={RahatLogo} width="190px" height="90px"></img>
 						<QRCode
 							value={d.text}
 							size={200}
@@ -46,7 +46,9 @@ const QRGenerator = React.forwardRef(({ props }, ref) => {
 							renderAs={'svg'}
 						/>
 						<div className="textWrapper">
-							<strong><h3>{d.id}</h3></strong>
+							<strong>
+								<h3>{d.id}</h3>
+							</strong>
 						</div>
 					</div>
 				);

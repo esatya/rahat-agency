@@ -25,9 +25,12 @@ const BenefDetails = ({ params }) => {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
-	const { getBeneficiaryDetails, getBeneficiaryBalance, getAvailableBalance, issueTokens } = useContext(
-		BeneficiaryContext
-	);
+	const {
+		getBeneficiaryDetails,
+		getBeneficiaryBalance,
+		// getAvailableBalance,
+		issueTokens
+	} = useContext(BeneficiaryContext);
 	const { isVerified, wallet, loading, setLoading, appSettings } = useContext(AppContext);
 
 	const [basicInfo, setBasicInfo] = useState({});
@@ -43,7 +46,7 @@ const BenefDetails = ({ params }) => {
 	const [projectModal, setProjectModal] = useState(false);
 	const [assignTokenModal, setAssignTokenModal] = useState(false);
 
-	const [availableBalance, setAvailableBalance] = useState('');
+	// const [availableBalance, setAvailableBalance] = useState('');
 	// const [showAlert, setShowAlert] = useState(false);
 	const [selectedProject, setSelectedProject] = useState('');
 
@@ -53,7 +56,7 @@ const BenefDetails = ({ params }) => {
 		// If opening modal, reset fields
 		if (!projectModal) {
 			// setShowAlert(false);
-			setAvailableBalance('');
+			// setAvailableBalance('');
 			// setInputTokens('');
 			setSelectedProject('');
 		}
@@ -94,8 +97,8 @@ const BenefDetails = ({ params }) => {
 		try {
 			setSelectedProject(d.value);
 			setLoading(true);
-			const balance = await getAvailableBalance(d.value);
-			setAvailableBalance(balance);
+			// const balance = await getAvailableBalance(d.value);
+			// setAvailableBalance(balance);
 			// setShowAlert(true);
 			setLoading(false);
 		} catch (err) {
