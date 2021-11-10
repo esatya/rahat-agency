@@ -1,19 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import {
-	Button,
-	Card,
-	CardBody,
-	CardTitle,
-	Pagination,
-	PaginationItem,
-	PaginationLink,
-	FormGroup,
-	Label,
-	Input,
-	InputGroup,
-	Table,
-	CustomInput
-} from 'reactstrap';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
+import { Button, Card, CardBody, CardTitle, FormGroup, Label, Input, InputGroup, Table, CustomInput } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 import moment from 'moment';
@@ -21,6 +7,10 @@ import moment from 'moment';
 import { AidContext } from '../../../contexts/AidContext';
 import AidModal from '../../global/CustomModal';
 import { History } from '../../../utils/History';
+import AdvancePagination from '../../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../../constants';
+
+const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
 	const { aids, pagination, listAid, addAid } = useContext(AidContext);
@@ -31,19 +21,33 @@ const List = () => {
 	const [searchName, setSearchName] = useState('');
 	const [projectStatus, setProjectStatus] = useState('');
 
+	const [totalRecords, setTotalRecords] = useState(null);
+
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
 
 	const handleAddProjectClick = () => History.push('/add-project');
 
-	const handleProjectStatusChange = e => setProjectStatus(e.target.value);
+	const handleProjectStatusChange = e => {
+		const query = {};
+		const { value } = e.target;
+		if (value) query.status = value;
+		setProjectStatus(value);
+		loadAidList(query);
+	};
 
 	const handleInputChange = e => {
 		setaidPayload({ ...aidPayload, [e.target.name]: e.target.value });
 	};
 
-	const handleSearchInputChange = e => setSearchName(e.target.value);
+	const handleSearchInputChange = e => {
+		const query = {};
+		const { value } = e.target;
+		if (value) query.name = value;
+		setSearchName(value);
+		loadAidList(query);
+	};
 
 	const handleAidSubmit = e => {
 		e.preventDefault();
@@ -54,7 +58,7 @@ const List = () => {
 					appearance: 'success',
 					autoDismiss: true
 				});
-				loadAidList();
+				loadAidList({});
 				setaidPayload({ name: '' });
 			})
 			.catch(err => {
@@ -65,26 +69,50 @@ const List = () => {
 			});
 	};
 
-	const handlePagination = current_page => {
-		let _start = (current_page - 1) * pagination.limit;
-		return listAid({ start: _start, limit: pagination.limit });
-	};
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const params = {};
+			if (searchName) params.name = searchName;
+			if (projectStatus) params.status = projectStatus;
+			const { currentPage, pageLimit } = paginationData;
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT, ...params };
+			await listAid(query);
+		},
+		[listAid, projectStatus, searchName]
+	);
 
-	const loadAidList = () => {
-		let query = {};
-		if (searchName) query.name = searchName;
-		if (projectStatus) query.status = projectStatus;
-		listAid(query)
-			.then()
-			.catch(() => {
-				addToast('Something went wrong!', {
-					appearance: 'error',
-					autoDismiss: true
+	const loadAidList = useCallback(
+		query => {
+			listAid(query)
+				.then(d => {
+					setTotalRecords(d.total);
+				})
+				.catch(() => {
+					addToast('Something went wrong!', {
+						appearance: 'error',
+						autoDismiss: true
+					});
 				});
-			});
-	};
+		},
+		[addToast, listAid]
+	);
 
-	useEffect(loadAidList, [projectStatus, searchName]);
+	const fetchTotalRecords = useCallback(async () => {
+		try {
+			const data = await listAid({ start: 0, limit: PAGE_LIMIT });
+			setTotalRecords(data.total);
+		} catch (err) {
+			addToast('Something went wrong!', {
+				appearance: 'error',
+				autoDismiss: true
+			});
+		}
+	}, [addToast, listAid]);
+
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<>
@@ -184,32 +212,13 @@ const List = () => {
 						</tbody>
 					</Table>
 
-					{pagination.totalPages > 1 ? (
-						<Pagination
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								marginTop: '50px'
-							}}
-						>
-							<PaginationItem>
-								<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-							</PaginationItem>
-							{[...Array(pagination.totalPages)].map((p, i) => (
-								<PaginationItem
-									key={i}
-									active={pagination.currentPage === i + 1 ? true : false}
-									onClick={() => handlePagination(i + 1)}
-								>
-									<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-								</PaginationItem>
-							))}
-							<PaginationItem>
-								<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.totalPages)} />
-							</PaginationItem>
-						</Pagination>
-					) : (
-						''
+					{totalRecords > 0 && (
+						<AdvancePagination
+							totalRecords={totalRecords}
+							pageLimit={PAGE_LIMIT}
+							pageNeighbours={1}
+							onPageChanged={onPageChanged}
+						/>
 					)}
 				</CardBody>
 			</Card>

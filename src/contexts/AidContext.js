@@ -129,7 +129,7 @@ export const AidContextProvider = ({ children }) => {
 		});
 	}
 
-	function listAid(query) {
+	const listAid = useCallback(query => {
 		return new Promise((resolve, reject) => {
 			Service.listAid(query)
 				.then(res => {
@@ -140,7 +140,20 @@ export const AidContextProvider = ({ children }) => {
 					reject(err);
 				});
 		});
-	}
+	}, []);
+
+	// function listAid(query) {
+	// 	return new Promise((resolve, reject) => {
+	// 		Service.listAid(query)
+	// 			.then(res => {
+	// 				dispatch({ type: ACTION.LIST_AID_SUCCESS, res });
+	// 				resolve(res);
+	// 			})
+	// 			.catch(err => {
+	// 				reject(err);
+	// 			});
+	// 	});
+	// }
 
 	const bulkTokenIssueToBeneficiary = useCallback(
 		payload => {
