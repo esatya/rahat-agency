@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState,useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
-import Loading from '../../global/Loading';
 import ProjectInvovled from '../../ui_components/projects';
 
 import {
@@ -52,7 +51,7 @@ export default function DetailsForm(props) {
 		getAvailableBalance,
 		listAid
 	} = useContext(MobilizerContext);
-	const { appSettings, isVerified,wallet } = useContext(AppContext);
+	const { appSettings, isVerified, wallet } = useContext(AppContext);
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -178,7 +177,7 @@ export default function DetailsForm(props) {
 					autoDismiss: true
 				});
 			});
-	},[addToast, approveMobilizer, isVerified, mobilizer.wallet_address, selectedProject]);
+	}, [addToast, approveMobilizer, isVerified, mobilizer.wallet_address, selectedProject]);
 
 	const toggleModal = () => {
 		setModal(prevState => !prevState);
@@ -244,7 +243,7 @@ export default function DetailsForm(props) {
 			submitMobilizerApproval();
 		}
 	}, [submitMobilizerApproval, isVerified, wallet]);
-//	useEffect(submitMobilizerApproval, [isVerified]);
+	//	useEffect(submitMobilizerApproval, [isVerified]);
 
 	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : 'new';
 

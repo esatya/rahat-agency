@@ -32,11 +32,16 @@ export default function NewAsset({ match }) {
 		address_temporary: '',
 		govt_id: ''
 	});
+	const [itemsData, setItemsData] = useState({
+		item_name: '',
+		item_quantity: ''
+	});
 	const [pic, setPic] = useState('');
+	const [items, setItems] = useState([]);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
-
 	const [selectedCurrency, setSelectedCurrency] = useState('');
 	// const [loading, setLoading] = useState(false);
+
 	const toggleDropDown = () => {
 		setDropdownOpen(!dropdownOpen);
 	};
@@ -46,10 +51,20 @@ export default function NewAsset({ match }) {
 		const base64Url = await blobToBase64(file);
 		setPic(base64Url);
 	};
+
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-	const handleCurrencyChange = e => setSelectedCurrency(e.target.value);
+
+	const handleItemsInputChange = e => {
+		setItemsData({ ...itemsData, [e.target.name]: e.target.value });
+	};
+
+	const handleAddItem = () => {
+		setItems(items => [...items, itemsData]);
+	};
+
+	const handleCurrencyChange = e => setSelectedCurrency({ ...selectedCurrency, [e.target.name]: e.target.value });
 
 	// const handleFormSubmit = e => {
 	// 	e.preventDefault();
@@ -132,9 +147,47 @@ export default function NewAsset({ match }) {
 										<DropdownItem>Euro</DropdownItem>
 									</DropdownMenu>
 								</InputGroupButtonDropdown>
-								<Input onChange={handleCurrencyChange} />
+								<Input value={selectedCurrency} name="selectedCurrency" onChange={handleCurrencyChange} />
 							</InputGroup>
 						</FormGroup>
+
+						<FormGroup>
+							<Label>Items</Label>
+							<InputGroup>
+								<Input
+									type="text"
+									name="item_name"
+									value={itemsData.item_name}
+									placeholder="Enter name"
+									onChange={handleItemsInputChange}
+								/>
+								<Input
+									type="number"
+									name="item_quantity"
+									value={itemsData.item_quantity}
+									placeholder="Enter quantity"
+									onChange={handleItemsInputChange}
+								/>
+								<button type="button" className="btn waves-effect waves-light btn-info" onClick={handleAddItem}>
+									<i class="fas fa-plus"></i>
+								</button>
+							</InputGroup>
+						</FormGroup>
+						<FormGroup>
+							{items &&
+								items.map(item => (
+									<button
+										type="button"
+										className="btn waves-effect waves-light btn-outline-success"
+										style={{ borderRadius: '8px', marginRight: '10px', marginBottom: '10px' }}
+									>
+										{item.item_name || ''}
+										{','}
+										{item.item_quantity || '0'}
+									</button>
+								))}
+						</FormGroup>
+
 						<br />
 						<FormGroup>
 							<button
