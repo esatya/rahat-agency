@@ -33,10 +33,12 @@ const Institution = () => {
 		searchPlaceholder: 'Enter phone number...',
 		searchBy: 'phone'
 	});
+
+	const [currentPage, setCurrentPage] = useState(1);
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [searchValue, setSearchValue] = useState('');
 
-	const { listInstitution, institution, pagination, addInstitution } = useContext(InstitutionContext);
+	const { listInstitution, institution, addInstitution } = useContext(InstitutionContext);
 
 	const toggle = () => setModel(!model);
 
@@ -109,6 +111,7 @@ const Institution = () => {
 		async paginationData => {
 			const params = getQueryParams();
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
 			listInstitution(query);
@@ -183,7 +186,7 @@ const Institution = () => {
 								{institution.length ? (
 									institution.map((e, i) => (
 										<tr key={e._id}>
-											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
+											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>
 												<div className="d-flex no-block align-items-center">
 													<h5 className="mb-0 font-16 font-medium">{e.name}</h5>
