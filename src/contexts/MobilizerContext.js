@@ -104,7 +104,7 @@ export const MobilizerContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.RESET_LOADING });
 	}
 
-	async function listMobilizer(params) {
+	const listMobilizer = useCallback(async params => {
 		let res = await Service.list(params);
 		if (res) {
 			dispatch({
@@ -113,7 +113,7 @@ export const MobilizerContextProvider = ({ children }) => {
 			});
 			return res;
 		}
-	}
+	}, []);
 
 	async function getMobilizerTransactions(mobilizerId) {
 		let res = await Service.mobilizerTransactions(mobilizerId);

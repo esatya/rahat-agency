@@ -1,51 +1,62 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Button, Card, CardBody, CardTitle, Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
+import { Button, Card, CardBody, CardTitle, Table } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 
 import { UserContext } from '../../../contexts/UserContext';
 import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
+import AdvancePagination from '../../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../../constants';
+
+const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
 	const { listUsers } = useContext(UserContext);
 	const { addToast } = useToasts();
 
 	const [searchName, setSearchName] = useState('');
-	const [pagination, setPagination] = useState({
-		start: 0,
-		total_pages: 0,
-		current_page: 1,
-		limit: 10
-	});
+	const [currentPage, setCurrentPage] = useState(1);
 	const [users, setUsers] = useState([]);
+	const [totalRecords, setTotalRecords] = useState(null);
 
 	const handleAddUserClick = () => History.push('/add_user');
 
-	const handleSearchInputChange = e => setSearchName(e.target.value);
-
-	const handlePagination = current_page => {
-		let _start = (current_page - 1) * pagination.limit;
-		setPagination({ ...pagination, start: _start });
-	};
-
-	const fetchUserList = () => {
-		let query = {};
-		if (searchName) query.name = searchName;
-		if (pagination.start) query.start = pagination.start;
+	const handleSearchInputChange = e => {
+		const query = {};
+		const { value } = e.target;
+		if (value) query.name = value;
+		setSearchName(value);
 		listUsers(query)
 			.then(res => {
-				const { page, start, total, limit, data } = res;
-				const total_pages = Math.ceil(total / limit);
-				setUsers(data);
-				setPagination({ ...pagination, start, total_pages, current_page: page });
+				setTotalRecords(res.total);
+				setUsers(res.data);
 			})
 			.catch(err => {
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
 
-	useEffect(fetchUserList, [searchName, pagination.start]);
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT };
+			const d = await listUsers(query);
+			setUsers(d.data);
+		},
+		[listUsers]
+	);
+
+	const fetchTotalRecords = useCallback(async () => {
+		const data = await listUsers({ start: 0, limit: PAGE_LIMIT });
+		setTotalRecords(data.total);
+	}, [listUsers]);
+
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<>
@@ -90,7 +101,7 @@ const List = () => {
 								users.map((d, i) => {
 									return (
 										<tr key={d._id}>
-											<td>{(pagination.current_page - 1) * pagination.limit + i + 1}</td>
+											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>{`${d.name.first} ${d.name.last}`}</td>
 											<td>{d.email}</td>
 											<td>{d.phone || '-'}</td>
@@ -112,32 +123,13 @@ const List = () => {
 						</tbody>
 					</Table>
 
-					{pagination.total_pages > 1 ? (
-						<Pagination
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								marginTop: '50px'
-							}}
-						>
-							<PaginationItem>
-								<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-							</PaginationItem>
-							{[...Array(pagination.total_pages)].map((p, i) => (
-								<PaginationItem
-									key={i}
-									active={pagination.current_page === i + 1 ? true : false}
-									onClick={() => handlePagination(i + 1)}
-								>
-									<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-								</PaginationItem>
-							))}
-							<PaginationItem>
-								<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.total_pages)} />
-							</PaginationItem>
-						</Pagination>
-					) : (
-						''
+					{totalRecords > 0 && (
+						<AdvancePagination
+							totalRecords={totalRecords}
+							pageLimit={PAGE_LIMIT}
+							pageNeighbours={1}
+							onPageChanged={onPageChanged}
+						/>
 					)}
 				</CardBody>
 			</Card>

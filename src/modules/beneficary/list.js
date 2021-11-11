@@ -16,6 +16,7 @@ const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
 const Beneficiary = () => {
 	const { addToast } = useToasts();
 
+	const [currentPage, setCurrentPage] = useState(1);
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [benfList, setBenfList] = useState([]);
 	const [searchValue, setSearchValue] = useState('');
@@ -26,7 +27,7 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, pagination, listProject, projectList } = useContext(BeneficiaryContext);
+	const { listBeneficiary, listProject, projectList } = useContext(BeneficiaryContext);
 
 	const handleFilterOptionChange = e => {
 		let { value } = e.target;
@@ -117,6 +118,7 @@ const Beneficiary = () => {
 		async paginationData => {
 			const params = getQueryParams();
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
 			const data = await listBeneficiary(query);
@@ -209,7 +211,7 @@ const Beneficiary = () => {
 									benfList.map((d, i) => {
 										return (
 											<tr key={d._id}>
-												<td>{(pagination.currentPage - 1) * PAGE_LIMIT + i + 1}</td>
+												<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 												<td>
 													<div className="d-flex no-block align-items-center">
 														<div className="mr-2">
