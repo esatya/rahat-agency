@@ -30,13 +30,14 @@ const List = ({ projectId }) => {
 
 	const [amount, setAmount] = useState('');
 	const [amountModal, setAmountModal] = useState(false);
-	const [currentAction, setCurrentAction] = useState('');
 	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
 	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [uploadListModal, setUploadListModal] = useState(false);
 	const [uploadData, setUploadData] = useState(null);
+
 	const [totalRecords, setTotalRecords] = useState(null);
+	const [currentAction, setCurrentAction] = useState('');
 
 	const hiddenFileInput = React.useRef(null);
 
@@ -271,7 +272,7 @@ const List = ({ projectId }) => {
 							<button
 								onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
 								type="button"
-								class="btn waves-effect waves-light btn-outline-info"
+								className="btn waves-effect waves-light btn-outline-info"
 								style={{ borderRadius: '8px', marginRight: '20px' }}
 							>
 								Bulk Token Issue
@@ -279,7 +280,7 @@ const List = ({ projectId }) => {
 							<button
 								type="button"
 								onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-								class="btn waves-effect waves-light btn-outline-info"
+								className="btn waves-effect waves-light btn-outline-info"
 								style={{ borderRadius: '8px' }}
 							>
 								Bulk Generate QR Code
@@ -289,7 +290,7 @@ const List = ({ projectId }) => {
 							<button
 								type="button"
 								onClick={handleFileUploadClick}
-								class="btn waves-effect waves-light btn-outline-info"
+								className="btn waves-effect waves-light btn-outline-info"
 								style={{ borderRadius: '8px' }}
 							>
 								Upload Beneficiaries
@@ -300,7 +301,7 @@ const List = ({ projectId }) => {
 				)}
 
 				<div className="flex-item">
-					{/* <button type="button" class="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
+					{/* <button type="button" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
 						Add Beneficiary
 					</button> */}
 				</div>

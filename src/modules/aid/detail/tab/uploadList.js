@@ -1,28 +1,30 @@
-import React, { useContext, useEffect, useCallback } from 'react';
-import { Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
+import React, {
+	useEffect
+	// useContext,  useCallback
+} from 'react';
+import {
+	// Pagination, PaginationItem, PaginationLink,
+	Table
+} from 'reactstrap';
 
-import { AidContext } from '../../../../contexts/AidContext';
+// import { AidContext } from '../../../../contexts/AidContext';
 
 const List = ({ data }) => {
 	//const { vendor_pagination, vendors_list, vendorsByAid } = useContext(AidContext);
 
-	const handlePagination = current_page => {
-		// let _start = (current_page - 1) * vendor_pagination.limit;
-		// console.log({ _start });
-	};
+	// const handlePagination = current_page => {
+	// 	let _start = (current_page - 1) * vendor_pagination.limit;
+	// 	console.log({ _start });
+	// };
 
 	// const fetchVendorsByAId = useCallback(async () => {
 	// //	await vendorsByAid(projectId);
 	// }, [projectId, vendorsByAid]);
 
-	useEffect(() => {
-
-	}, [data]);
+	useEffect(() => {}, [data]);
 
 	return (
 		<>
-
-    
 			<Table className="no-wrap v-middle" responsive>
 				<thead>
 					<tr className="border-0">
@@ -54,7 +56,7 @@ const List = ({ data }) => {
 					)}
 				</tbody>
 			</Table>
-{/* 
+			{/* 
 			{data.totalPages > 1 ? (
 				<Pagination
 					style={{
