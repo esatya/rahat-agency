@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useCallback } from 'react';
 import userReduce from '../reducers/userReducer';
 import * as Service from '../services/users';
 
@@ -52,9 +52,9 @@ export const UserContextProvider = ({ children }) => {
 		});
 	}
 
-	function listUsers(params) {
+	const listUsers = useCallback(params => {
 		return Service.listUsers(params);
-	}
+	}, []);
 
 	function addUser(payload) {
 		return Service.addUser({ ...payload });
