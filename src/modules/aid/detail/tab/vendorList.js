@@ -1,23 +1,34 @@
-import React, { useContext, useEffect, useCallback } from 'react';
-import { Pagination, PaginationItem, PaginationLink, Table } from 'reactstrap';
+import React, { useContext, useEffect, useCallback, useState } from 'react';
+import { Table } from 'reactstrap';
 
 import { AidContext } from '../../../../contexts/AidContext';
+import AdvancePagination from '../../../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../../../constants';
+
+const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = ({ projectId }) => {
-	const { vendor_pagination, vendors_list, vendorsByAid } = useContext(AidContext);
+	const { vendors_list, vendorsByAid } = useContext(AidContext);
+	const [totalRecords, setTotalRecords] = useState(null);
 
-	const handlePagination = current_page => {
-		let _start = (current_page - 1) * vendor_pagination.limit;
-		console.log({ _start });
-	};
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const { currentPage, pageLimit } = paginationData;
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT };
+			await vendorsByAid(projectId, query);
+		},
+		[vendorsByAid, projectId]
+	);
 
-	const fetchVendorsByAId = useCallback(async () => {
-		await vendorsByAid(projectId);
-	}, [projectId, vendorsByAid]);
+	const fetchTotalRecords = useCallback(async () => {
+		const data = await vendorsByAid(projectId);
+		setTotalRecords(data.total);
+	}, [vendorsByAid, projectId]);
 
 	useEffect(() => {
-		fetchVendorsByAId();
-	}, [fetchVendorsByAId]);
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<>
@@ -53,32 +64,13 @@ const List = ({ projectId }) => {
 				</tbody>
 			</Table>
 
-			{vendor_pagination.totalPages > 1 ? (
-				<Pagination
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						marginTop: '50px'
-					}}
-				>
-					<PaginationItem>
-						<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-					</PaginationItem>
-					{[...Array(vendor_pagination.totalPages)].map((p, i) => (
-						<PaginationItem
-							key={i}
-							active={vendor_pagination.currentPage === i + 1 ? true : false}
-							onClick={() => handlePagination(i + 1)}
-						>
-							<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-						</PaginationItem>
-					))}
-					<PaginationItem>
-						<PaginationLink last href="#last_page" onClick={() => handlePagination(vendor_pagination.totalPages)} />
-					</PaginationItem>
-				</Pagination>
-			) : (
-				''
+			{totalRecords > 0 && (
+				<AdvancePagination
+					totalRecords={totalRecords}
+					pageLimit={PAGE_LIMIT}
+					pageNeighbours={1}
+					onPageChanged={onPageChanged}
+				/>
 			)}
 		</>
 	);
