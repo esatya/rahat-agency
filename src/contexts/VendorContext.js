@@ -112,7 +112,7 @@ export const VendorContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.RESET_LOADING });
 	}
 
-	async function listVendor(params) {
+	const listVendor = useCallback(async params => {
 		let res = await Service.list(params);
 		if (res) {
 			dispatch({
@@ -121,7 +121,18 @@ export const VendorContextProvider = ({ children }) => {
 			});
 			return res;
 		}
-	}
+	}, []);
+
+	// async function listVendor(params) {
+	// 	let res = await Service.list(params);
+	// 	if (res) {
+	// 		dispatch({
+	// 			type: ACTION.LIST,
+	// 			data: res
+	// 		});
+	// 		return res;
+	// 	}
+	// }
 
 	const getVendorTransactions = useCallback(async id => {
 		let res = await Service.vendorTransactions(id);
