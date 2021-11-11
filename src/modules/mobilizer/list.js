@@ -38,8 +38,9 @@ const Mobilizer = () => {
 	});
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [searchValue, setSearchValue] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
 
-	const { listMobilizer, list, pagination, addMobilizer } = useContext(MobilizerContext);
+	const { listMobilizer, list, addMobilizer } = useContext(MobilizerContext);
 
 	const toggle = () => setModel(!model);
 
@@ -98,6 +99,7 @@ const Mobilizer = () => {
 		async paginationData => {
 			const params = getQueryParams();
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
 			listMobilizer(query);
@@ -175,7 +177,7 @@ const Mobilizer = () => {
 								{list.length ? (
 									list.map((e, i) => (
 										<tr key={e._id}>
-											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
+											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>
 												<div className="d-flex no-block align-items-center">
 													<div className="mr-2">

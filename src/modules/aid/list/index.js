@@ -13,7 +13,7 @@ import { APP_CONSTANTS } from '../../../constants';
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
-	const { aids, pagination, listAid, addAid } = useContext(AidContext);
+	const { aids, listAid, addAid } = useContext(AidContext);
 	const { addToast } = useToasts();
 	const [aidModal, setaidModal] = useState(false);
 	const [aidPayload, setaidPayload] = useState({ name: '' });
@@ -22,6 +22,7 @@ const List = () => {
 	const [projectStatus, setProjectStatus] = useState('');
 
 	const [totalRecords, setTotalRecords] = useState(null);
+	const [currentPage, setCurrentPage] = useState(1);
 
 	const toggleModal = () => {
 		setaidModal(!aidModal);
@@ -75,6 +76,7 @@ const List = () => {
 			if (searchName) params.name = searchName;
 			if (projectStatus) params.status = projectStatus;
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
 			await listAid(query);
@@ -187,7 +189,7 @@ const List = () => {
 								aids.map((d, i) => {
 									return (
 										<tr key={d._id}>
-											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
+											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>{d.name}</td>
 											<td>{d.location || '-'}</td>
 											<td>

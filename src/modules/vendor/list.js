@@ -39,13 +39,14 @@ const Vendor = () => {
 	const [searchValue, setSearchValue] = useState('');
 
 	const [totalRecords, setTotalRecords] = useState(null);
+	const [currentPage, setCurrentPage] = useState(1);
 
-	const { listVendor, list, pagination, addVendor } = useContext(VendorContext);
+	const { listVendor, list, addVendor } = useContext(VendorContext);
 
 	const toggle = () => setModel(!model);
 
 	const fetchVendorsList = query => {
-		let params = { start: pagination.start, limit: PAGE_LIMIT, ...query };
+		let params = { start: 0, limit: PAGE_LIMIT, ...query };
 		listVendor(params)
 			.then(d => {
 				setTotalRecords(d.total);
@@ -106,6 +107,7 @@ const Vendor = () => {
 		async paginationData => {
 			const params = getQueryParams();
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
 			listVendor(query);
@@ -196,7 +198,7 @@ const Vendor = () => {
 								{list.length ? (
 									list.map((e, i) => (
 										<tr key={e._id}>
-											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
+											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>
 												<div className="d-flex no-block align-items-center">
 													<div className="mr-2">
