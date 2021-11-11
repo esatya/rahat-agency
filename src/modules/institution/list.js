@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { InstitutionContext } from '../../contexts/InstitutionContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
@@ -9,9 +9,6 @@ import {
 	CardTitle,
 	Button,
 	Input,
-	Pagination,
-	PaginationItem,
-	PaginationLink,
 	Modal,
 	ModalHeader,
 	ModalBody,
@@ -23,7 +20,11 @@ import {
 	CustomInput
 } from 'reactstrap';
 
-const searchOptions = { PHONE: 'phone', NAME: 'name' };
+import AdvancePagination from '../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../constants';
+
+const { PAGE_LIMIT } = APP_CONSTANTS;
+const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name' };
 
 const Institution = () => {
 	const { addToast } = useToasts();
@@ -32,15 +33,19 @@ const Institution = () => {
 		searchPlaceholder: 'Enter phone number...',
 		searchBy: 'phone'
 	});
+	const [totalRecords, setTotalRecords] = useState(null);
+	const [searchValue, setSearchValue] = useState('');
 
 	const { listInstitution, institution, pagination, addInstitution } = useContext(InstitutionContext);
 
 	const toggle = () => setModel(!model);
 
-	const fetchList = query => {
-		let params = { ...pagination, ...query };
+	const fetchInstitutionList = query => {
+		let params = { start: 0, limit: PAGE_LIMIT, ...query };
 		listInstitution(params)
-			.then()
+			.then(d => {
+				setTotalRecords(d.total);
+			})
 			.catch(() => {
 				addToast('Something went wrong!', {
 					appearance: 'error',
@@ -61,41 +66,64 @@ const Institution = () => {
 			});
 	};
 
-	useEffect(fetchList, []);
 	useEffect(loadInstitutionList, []);
 
 	const handleFilterChange = e => {
 		let { value } = e.target;
-		if (value === searchOptions.NAME) {
+		if (value === SEARCH_OPTIONS.NAME) {
 			setFilter({
 				searchPlaceholder: 'Enter name...',
-				searchBy: searchOptions.NAME
+				searchBy: SEARCH_OPTIONS.NAME
 			});
 		}
-		if (value === searchOptions.PHONE) {
+		if (value === SEARCH_OPTIONS.PHONE) {
 			setFilter({
 				searchPlaceholder: 'Enter phone number...',
-				searchBy: searchOptions.PHONE
+				searchBy: SEARCH_OPTIONS.PHONE
 			});
 		}
-		fetchList({ start: 0, limit: pagination.limit });
+		setSearchValue('');
+		fetchInstitutionList({});
 	};
 
 	const handleSearchInputChange = e => {
 		const { value } = e.target;
-		if (filter.searchBy === searchOptions.PHONE) {
-			return fetchList({ start: 0, limit: pagination.limit, phone: value });
+		setSearchValue(value);
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE && value) {
+			return fetchInstitutionList({ phone: value });
 		}
-		if (filter.searchBy === searchOptions.NAME) {
-			return fetchList({ start: 0, limit: pagination.limit, name: value });
+		if (filter.searchBy === SEARCH_OPTIONS.NAME && value) {
+			return fetchInstitutionList({ name: value });
 		}
-		fetchList({ start: 0, limit: pagination.limit });
+		fetchInstitutionList({});
 	};
 
-	const handlePagination = current_page => {
-		let _start = current_page * pagination.limit - 1;
-		return fetchList({ start: _start, limit: pagination.limit });
-	};
+	const getQueryParams = useCallback(() => {
+		const params = {};
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE && searchValue) params.phone = searchValue;
+		if (filter.searchBy === SEARCH_OPTIONS.NAME && searchValue) params.name = searchValue;
+		return params;
+	}, [filter.searchBy, searchValue]);
+
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const params = getQueryParams();
+			const { currentPage, pageLimit } = paginationData;
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT, ...params };
+			listInstitution(query);
+		},
+		[getQueryParams, listInstitution]
+	);
+
+	const fetchTotalRecords = useCallback(async () => {
+		const data = await listInstitution({ start: 0, limit: PAGE_LIMIT });
+		setTotalRecords(data.total);
+	}, [listInstitution]);
+
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<div className="main">
@@ -179,32 +207,13 @@ const Institution = () => {
 								)}
 							</tbody>
 						</Table>
-						{pagination.totalPages > 1 ? (
-							<Pagination
-								style={{
-									display: 'flex',
-									justifyContent: 'center',
-									marginTop: '50px'
-								}}
-							>
-								<PaginationItem>
-									<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-								</PaginationItem>
-								{[...Array(pagination.totalPages)].map((p, i) => (
-									<PaginationItem
-										key={i}
-										active={pagination.currentPage === i + 1 ? true : false}
-										onClick={() => handlePagination(i + 1)}
-									>
-										<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-									</PaginationItem>
-								))}
-								<PaginationItem>
-									<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.totalPages)} />
-								</PaginationItem>
-							</Pagination>
-						) : (
-							''
+						{totalRecords > 0 && (
+							<AdvancePagination
+								totalRecords={totalRecords}
+								pageLimit={PAGE_LIMIT}
+								pageNeighbours={1}
+								onPageChanged={onPageChanged}
+							/>
 						)}
 					</CardBody>
 				</Card>
@@ -220,7 +229,7 @@ const Institution = () => {
 									appearance: 'success',
 									autoDismiss: true
 								});
-								fetchList({});
+								fetchInstitutionList({});
 								toggle();
 							})
 							.catch(err =>

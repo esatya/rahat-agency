@@ -44,7 +44,7 @@ const Mobilizer = () => {
 	const toggle = () => setModel(!model);
 
 	const fetchMobilizersList = query => {
-		let params = { start: pagination.start, limit: PAGE_LIMIT, ...query };
+		let params = { start: 0, limit: PAGE_LIMIT, ...query };
 		listMobilizer(params)
 			.then(d => {
 				setTotalRecords(d.total);
