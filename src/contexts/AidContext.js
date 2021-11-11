@@ -91,19 +91,6 @@ export const AidContextProvider = ({ children }) => {
 		return res;
 	}, []);
 
-	// function vendorsByAid(aidId, params) {
-	// 	return new Promise((resolve, reject) => {
-	// 		Service.vendorsByAid(aidId, params)
-	// 			.then(res => {
-	// 				dispatch({ type: ACTION.VENDORS_LIST_SUCCESS, res });
-	// 				resolve(res);
-	// 			})
-	// 			.catch(err => {
-	// 				reject(err);
-	// 			});
-	// 	});
-	// }
-
 	const beneficiaryByAid = useCallback((aidId, params) => {
 		return new Promise((resolve, reject) => {
 			Service.beneficiaryByAid(aidId, params)
@@ -141,19 +128,6 @@ export const AidContextProvider = ({ children }) => {
 				});
 		});
 	}, []);
-
-	// function listAid(query) {
-	// 	return new Promise((resolve, reject) => {
-	// 		Service.listAid(query)
-	// 			.then(res => {
-	// 				dispatch({ type: ACTION.LIST_AID_SUCCESS, res });
-	// 				resolve(res);
-	// 			})
-	// 			.catch(err => {
-	// 				reject(err);
-	// 			});
-	// 	});
-	// }
 
 	const bulkTokenIssueToBeneficiary = useCallback(
 		payload => {
