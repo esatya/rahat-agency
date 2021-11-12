@@ -10,6 +10,7 @@ const Beneficiary = lazy(() => import('../modules/beneficary'));
 const BeneficiaryDetails = lazy(() => import('../modules/beneficary/detail/index'));
 const AddBeneficiary = lazy(() => import('../modules/beneficary/add'));
 const EditBeneficiary = lazy(() => import('../modules/beneficary/edit'));
+const issueBudget = lazy(() => import('../modules/beneficary/detail/issue'));
 
 // Institutions
 const InstitutionList = lazy(() => import('../modules/institution'));
@@ -30,7 +31,11 @@ const AidList = lazy(() => import('../modules/aid/list'));
 const AidDetails = lazy(() => import('../modules/aid/detail'));
 const AddProject = lazy(() => import('../modules/aid/add'));
 const EditProject = lazy(() => import('../modules/aid/edit'));
-const BudgetAdd = lazy(() => import('../modules/aid/detail/budgetAdd'));
+const addBudget = lazy(() => import('../modules/aid/detail/addBudget'));
+
+// Assets
+const AddAsset = lazy(() => import('../modules/asset/add'));
+const MintAsset = lazy(() => import('../modules/asset/detail'));
 
 // Users
 const ListUsers = lazy(() => import('../modules/user/list'));
@@ -142,9 +147,28 @@ let AppRoutes = [
 	},
 
 	{
-		path: '/add_budget/:projectId',
-		name: 'BudgetAdd',
-		component: BudgetAdd
+		path: '/add-budget/:projectId',
+		name: 'addBudget',
+		component: addBudget
+	},
+
+	{
+		path: '/issue-budget/:projectId',
+		name: 'issueBudget',
+		component: issueBudget
+	},
+	// ...........................Asset...........................
+
+	{
+		path: '/add-asset/:projectId',
+		name: 'AddAsset',
+		component: AddAsset
+	},
+
+	{
+		path: '/mint-asset/:projectId',
+		name: 'MintAsset',
+		component: MintAsset
 	},
 
 	//.............................Vendor ui......................

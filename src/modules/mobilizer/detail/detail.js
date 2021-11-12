@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState,useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
-import Loading from '../../global/Loading';
 import ProjectInvovled from '../../ui_components/projects';
 
 import {
@@ -33,6 +32,7 @@ import profilePhoto from '../../../assets/images/users/user_avatar.svg';
 import PasscodeModal from '../../global/PasscodeModal';
 import MobilizerInfo from './mobilizerInfo';
 import BreadCrumb from '../../ui_components/breadcrumb';
+import Balance from '../../ui_components/balance';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
@@ -51,7 +51,7 @@ export default function DetailsForm(props) {
 		getAvailableBalance,
 		listAid
 	} = useContext(MobilizerContext);
-	const { appSettings, isVerified,wallet } = useContext(AppContext);
+	const { appSettings, isVerified, wallet } = useContext(AppContext);
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -177,7 +177,7 @@ export default function DetailsForm(props) {
 					autoDismiss: true
 				});
 			});
-	},[addToast, approveMobilizer, isVerified, mobilizer.wallet_address, selectedProject]);
+	}, [addToast, approveMobilizer, isVerified, mobilizer.wallet_address, selectedProject]);
 
 	const toggleModal = () => {
 		setModal(prevState => !prevState);
@@ -243,7 +243,7 @@ export default function DetailsForm(props) {
 			submitMobilizerApproval();
 		}
 	}, [submitMobilizerApproval, isVerified, wallet]);
-//	useEffect(submitMobilizerApproval, [isVerified]);
+	//	useEffect(submitMobilizerApproval, [isVerified]);
 
 	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : 'new';
 
@@ -360,7 +360,17 @@ export default function DetailsForm(props) {
 					</Card>
 				</Col>
 				<Col md="5">
-					<Card>
+					<Balance
+						action=""
+						title="Balance"
+						button_name=""
+						token_data={mobilizerBalance}
+						package_data=""
+						fetching={fetchingBalance}
+						loading={loading}
+						handleIssueToken=""
+					/>
+					{/* <Card>
 						<div className="stat-card-body" style={{ minHeight: 120 }}>
 							<CardTitle className="title">Token</CardTitle>
 							<Row>
@@ -375,7 +385,7 @@ export default function DetailsForm(props) {
 								</Col>
 							</Row>
 						</div>
-					</Card>
+					</Card> */}
 				</Col>
 			</Row>
 			<MobilizerInfo information={mobilizer} />
