@@ -6,28 +6,33 @@ import '../../../assets/css/project.css';
 import Loading from '../../global/Loading';
 
 export default function Balance(props) {
-	const { title, data, button_name, label, projectId, fetching, action, handleIssueToken, loading } = props;
+	const {
+		title,
+		token_data,
+		package_data,
+		button_name,
+		projectId,
+		fetching,
+		action,
+		handleIssueToken,
+		loading
+	} = props;
 	const history = useHistory();
 	const handleClick = () => {
-		history.push(`/add_budget/${projectId}`);
+		history.push(`/add-budget/${projectId}`);
 	};
 	return (
 		<div>
 			<Card>
 				<div className="stat-card-body" style={{ minHeight: 120 }}>
-					<CardTitle className="title">{title || 'No Title'}</CardTitle>
 					<Row>
 						<Col>
-							{fetching ? <Loading /> : <p className="card-font-bold">{data || '0'}</p>}
-
-							<div style={{ marginTop: 0 }} className="sub-title">
-								{label || 'No Label'}
-							</div>
+							<CardTitle className="title">{title || 'No Title'}</CardTitle>
 						</Col>
 						<Col>
 							{loading ? (
 								<Loading />
-							) : (
+							) : button_name ? (
 								<button
 									type="button"
 									className="btn waves-effect waves-light btn-outline-info"
@@ -36,13 +41,27 @@ export default function Balance(props) {
 								>
 									{button_name || 'button'}
 								</button>
+							) : (
+								''
 							)}
 						</Col>
 					</Row>
-					{/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-						<div style={{ flexBasis: '70%' }}></div>
-						<div style={{ flexBasis: '30%' }}></div>
-					</div> */}
+					<Row>
+						<Col>
+							{fetching ? <Loading /> : <p className="card-font-bold">{token_data || '0'}</p>}
+
+							<div style={{ marginTop: 0 }} className="sub-title">
+								Tokens
+							</div>
+						</Col>
+						<Col>
+							{fetching ? <Loading /> : <p className="card-font-bold">{package_data || '0'}</p>}
+
+							<div style={{ marginTop: 0 }} className="sub-title">
+								Package
+							</div>
+						</Col>
+					</Row>
 				</div>
 			</Card>
 		</div>

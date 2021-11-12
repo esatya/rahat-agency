@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { Pagination, PaginationItem, PaginationLink, Table, FormGroup, InputGroup, Input, Col, Row } from 'reactstrap';
+import { Table, FormGroup, InputGroup, Input } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import QRCode from 'qrcode';
+import * as XLSX from 'xlsx';
 
 import { AidContext } from '../../../../contexts/AidContext';
 import { AppContext } from '../../../../contexts/AppSettingsContext';
@@ -11,27 +12,32 @@ import ModalWrapper from '../../../global/CustomModal';
 import PasscodeModal from '../../../global/PasscodeModal';
 import GrowSpinner from '../../../global/GrowSpinner';
 import UploadList from './uploadList';
-import * as XLSX from 'xlsx';
+import AdvancePagination from '../../../global/AdvancePagination';
+
+const { PAGE_LIMIT, BULK_BENEFICIARY_LIMIT } = APP_CONSTANTS;
 
 const ACTION = {
 	BULK_QR: 'bulk_qrcode_export',
 	BULK_ISSUE: 'bulk_token_issue'
 };
 
-const List = ({ beneficiaries, projectId }) => {
+const List = ({ projectId }) => {
 	const { addToast } = useToasts();
-	const { beneficiary_pagination, beneficiaryByAid, bulkTokenIssueToBeneficiary } = useContext(AidContext);
+	const { beneficiaryByAid, bulkTokenIssueToBeneficiary } = useContext(AidContext);
 	const { loading, setLoading, wallet, isVerified, appSettings } = useContext(AppContext);
+
+	const [benList, setBenList] = useState([]);
 
 	const [amount, setAmount] = useState('');
 	const [amountModal, setAmountModal] = useState(false);
-	const [currentAction, setCurrentAction] = useState('');
 	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
 	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
 	const [passcodeModal, setPasscodeModal] = useState(false);
-	const [benefUploadFile, setBenefUploadFile] = useState('');
 	const [uploadListModal, setUploadListModal] = useState(false);
 	const [uploadData, setUploadData] = useState(null);
+
+	const [totalRecords, setTotalRecords] = useState(null);
+	const [currentAction, setCurrentAction] = useState('');
 
 	const hiddenFileInput = React.useRef(null);
 
@@ -47,8 +53,7 @@ const List = ({ beneficiaries, projectId }) => {
 		hiddenFileInput.current.click();
 	};
 
-	const handleUploadListSubmit = () => {
-	};
+	const handleUploadListSubmit = () => {};
 
 	const handleFileChange = e => {
 		setUploadListModal(true);
@@ -106,10 +111,16 @@ const List = ({ beneficiaries, projectId }) => {
 		if (currentAction === ACTION.BULK_ISSUE) return handleBulkTokenIssue();
 	};
 
-	const handlePagination = current_page => {
-		let _start = (current_page - 1) * beneficiary_pagination.limit;
-		return beneficiaryByAid(projectId, { start: _start });
-	};
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const { currentPage, pageLimit } = paginationData;
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT };
+			const data = await beneficiaryByAid(projectId, query);
+			setBenList(data.data);
+		},
+		[beneficiaryByAid, projectId]
+	);
 
 	const convertQrToImg = async data => {
 		let result = [];
@@ -123,7 +134,7 @@ const List = ({ beneficiaries, projectId }) => {
 	const handleBulkTokenIssue = async () => {
 		let beneficiary_tokens = [];
 		if (!amount) return addToast('Please enter token amount', TOAST.ERROR);
-		const { data } = await beneficiaryByAid(projectId, { limit: APP_CONSTANTS.BULK_BENEFICIARY_LIMIT });
+		const { data } = await beneficiaryByAid(projectId, { limit: BULK_BENEFICIARY_LIMIT });
 		if (!data || !data.length) return addToast('No beneficiary available', TOAST.ERROR);
 		if (data.length) {
 			const beneficiary_phones = data.map(d => d.phone);
@@ -140,7 +151,7 @@ const List = ({ beneficiaries, projectId }) => {
 	};
 
 	const handleBulkQrExport = async () => {
-		const res = await beneficiaryByAid(projectId, { limit: APP_CONSTANTS.BULK_BENEFICIARY_LIMIT });
+		const res = await beneficiaryByAid(projectId, { limit: BULK_BENEFICIARY_LIMIT });
 		if (!res || !res.data.length) return addToast('No beneficiay available', TOAST.ERROR);
 		return printBulkQrCode(res.data);
 	};
@@ -197,6 +208,22 @@ const List = ({ beneficiaries, projectId }) => {
 		wallet
 	]);
 
+	const fetchTotalRecords = useCallback(async () => {
+		try {
+			const data = await beneficiaryByAid(projectId);
+			setTotalRecords(data.total);
+		} catch (err) {
+			addToast('Something went wrong!', {
+				appearance: 'error',
+				autoDismiss: true
+			});
+		}
+	}, [addToast, beneficiaryByAid, projectId]);
+
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
+
 	useEffect(() => {
 		submitBulkTokenIssue();
 	}, [submitBulkTokenIssue, isVerified]);
@@ -245,7 +272,7 @@ const List = ({ beneficiaries, projectId }) => {
 							<button
 								onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
 								type="button"
-								class="btn waves-effect waves-light btn-outline-info"
+								className="btn waves-effect waves-light btn-outline-info"
 								style={{ borderRadius: '8px', marginRight: '20px' }}
 							>
 								Bulk Token Issue
@@ -253,7 +280,7 @@ const List = ({ beneficiaries, projectId }) => {
 							<button
 								type="button"
 								onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-								class="btn waves-effect waves-light btn-outline-info"
+								className="btn waves-effect waves-light btn-outline-info"
 								style={{ borderRadius: '8px' }}
 							>
 								Bulk Generate QR Code
@@ -263,7 +290,7 @@ const List = ({ beneficiaries, projectId }) => {
 							<button
 								type="button"
 								onClick={handleFileUploadClick}
-								class="btn waves-effect waves-light btn-outline-info"
+								className="btn waves-effect waves-light btn-outline-info"
 								style={{ borderRadius: '8px' }}
 							>
 								Upload Beneficiaries
@@ -274,7 +301,7 @@ const List = ({ beneficiaries, projectId }) => {
 				)}
 
 				<div className="flex-item">
-					{/* <button type="button" class="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
+					{/* <button type="button" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
 						Add Beneficiary
 					</button> */}
 				</div>
@@ -289,8 +316,8 @@ const List = ({ beneficiaries, projectId }) => {
 					</tr>
 				</thead>
 				<tbody>
-					{beneficiaries.length > 0 ? (
-						beneficiaries.map(d => {
+					{benList.length > 0 ? (
+						benList.map(d => {
 							return (
 								<tr key={d._id}>
 									<td>{d.name}</td>
@@ -309,36 +336,13 @@ const List = ({ beneficiaries, projectId }) => {
 				</tbody>
 			</Table>
 
-			{beneficiary_pagination.totalPages > 1 ? (
-				<Pagination
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						marginTop: '50px'
-					}}
-				>
-					<PaginationItem>
-						<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-					</PaginationItem>
-					{[...Array(beneficiary_pagination.totalPages)].map((p, i) => (
-						<PaginationItem
-							key={i}
-							active={beneficiary_pagination.currentPage === i + 1 ? true : false}
-							onClick={() => handlePagination(i + 1)}
-						>
-							<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-						</PaginationItem>
-					))}
-					<PaginationItem>
-						<PaginationLink
-							last
-							href="#last_page"
-							onClick={() => handlePagination(beneficiary_pagination.totalPages)}
-						/>
-					</PaginationItem>
-				</Pagination>
-			) : (
-				''
+			{totalRecords > 0 && (
+				<AdvancePagination
+					totalRecords={totalRecords}
+					pageLimit={PAGE_LIMIT}
+					pageNeighbours={1}
+					onPageChanged={onPageChanged}
+				/>
 			)}
 		</>
 	);

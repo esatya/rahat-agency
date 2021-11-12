@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { MobilizerContext } from '../../contexts/MobilizerContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
 import { History } from '../../utils/History';
 import moment from 'moment';
-
 
 import {
 	Card,
@@ -12,9 +11,6 @@ import {
 	CardTitle,
 	Button,
 	Input,
-	Pagination,
-	PaginationItem,
-	PaginationLink,
 	Modal,
 	ModalHeader,
 	ModalBody,
@@ -27,8 +23,11 @@ import {
 } from 'reactstrap';
 
 import displayPic from '../../assets/images/users/user_avatar.svg';
+import AdvancePagination from '../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../constants';
 
-const searchOptions = { PHONE: 'phone', NAME: 'name' };
+const { PAGE_LIMIT } = APP_CONSTANTS;
+const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name' };
 
 const Mobilizer = () => {
 	const { addToast } = useToasts();
@@ -37,15 +36,20 @@ const Mobilizer = () => {
 		searchPlaceholder: 'Enter phone number...',
 		searchBy: 'phone'
 	});
+	const [totalRecords, setTotalRecords] = useState(null);
+	const [searchValue, setSearchValue] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
 
-	const { listMobilizer, list, pagination, addMobilizer } = useContext(MobilizerContext);
+	const { listMobilizer, list, addMobilizer } = useContext(MobilizerContext);
 
 	const toggle = () => setModel(!model);
 
-	const fetchList = query => {
-		let params = { start:pagination.start,limit:pagination.limit, ...query };
+	const fetchMobilizersList = query => {
+		let params = { start: 0, limit: PAGE_LIMIT, ...query };
 		listMobilizer(params)
-			.then()
+			.then(d => {
+				setTotalRecords(d.total);
+			})
 			.catch(() => {
 				addToast('Something went wrong!', {
 					appearance: 'error',
@@ -54,42 +58,65 @@ const Mobilizer = () => {
 			});
 	};
 
-	useEffect(fetchList, []);
-
 	const handleFilterChange = e => {
 		let { value } = e.target;
-		if (value === searchOptions.NAME) {
+		if (value === SEARCH_OPTIONS.NAME) {
 			setFilter({
 				searchPlaceholder: 'Enter name...',
-				searchBy: searchOptions.NAME
+				searchBy: SEARCH_OPTIONS.NAME
 			});
 		}
-		if (value === searchOptions.PHONE) {
+		if (value === SEARCH_OPTIONS.PHONE) {
 			setFilter({
 				searchPlaceholder: 'Enter phone number...',
-				searchBy: searchOptions.PHONE
+				searchBy: SEARCH_OPTIONS.PHONE
 			});
 		}
-		fetchList({ start: 0, limit: pagination.limit });
+		setSearchValue('');
+		fetchMobilizersList({ start: 0, limit: PAGE_LIMIT });
 	};
 
 	const handleSearchInputChange = e => {
 		const { value } = e.target;
-		if (filter.searchBy === searchOptions.PHONE) {
-			return fetchList({ start: 0, limit: pagination.limit, phone: value });
+		setSearchValue(value);
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE && value) {
+			return fetchMobilizersList({ start: 0, limit: PAGE_LIMIT, phone: value });
 		}
-		if (filter.searchBy === searchOptions.NAME) {
-			return fetchList({ start: 0, limit: pagination.limit, name: value });
+		if (filter.searchBy === SEARCH_OPTIONS.NAME && value) {
+			return fetchMobilizersList({ start: 0, limit: PAGE_LIMIT, name: value });
 		}
-		fetchList({ start: 0, limit: pagination.limit });
+		fetchMobilizersList({ start: 0, limit: PAGE_LIMIT });
 	};
 
-	const handlePagination = current_page => {
-		let _start = (current_page - 1) * pagination.limit;
-		return fetchList({ start: _start, limit: pagination.limit });
-	};
+	const getQueryParams = useCallback(() => {
+		const params = {};
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE && searchValue) params.phone = searchValue;
+		if (filter.searchBy === SEARCH_OPTIONS.NAME && searchValue) params.name = searchValue;
+		return params;
+	}, [filter.searchBy, searchValue]);
+
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const params = getQueryParams();
+			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT, ...params };
+			listMobilizer(query);
+		},
+		[getQueryParams, listMobilizer]
+	);
 
 	const handleAddClick = () => History.push('/add-mobilizers');
+
+	const fetchTotalRecords = useCallback(async () => {
+		const data = await listMobilizer({ start: 0, limit: PAGE_LIMIT });
+		setTotalRecords(data.total);
+	}, [listMobilizer]);
+
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<div className="main">
@@ -149,9 +176,8 @@ const Mobilizer = () => {
 							<tbody>
 								{list.length ? (
 									list.map((e, i) => (
-										
 										<tr key={e._id}>
-											<td>{(pagination.currentPage - 1) * pagination.limit + i + 1}</td>
+											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>
 												<div className="d-flex no-block align-items-center">
 													<div className="mr-2">
@@ -183,32 +209,13 @@ const Mobilizer = () => {
 							</tbody>
 						</Table>
 
-						{pagination.totalPages > 1 ? (
-							<Pagination
-								style={{
-									display: 'flex',
-									justifyContent: 'center',
-									marginTop: '50px'
-								}}
-							>
-								<PaginationItem>
-									<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-								</PaginationItem>
-								{[...Array(pagination.totalPages)].map((p, i) => (
-									<PaginationItem
-										key={i}
-										active={pagination.currentPage === i + 1 ? true : false}
-										onClick={() => handlePagination(i + 1)}
-									>
-										<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-									</PaginationItem>
-								))}
-								<PaginationItem>
-									<PaginationLink last href="#last_page" onClick={() => handlePagination(pagination.totalPages)} />
-								</PaginationItem>
-							</Pagination>
-						) : (
-							''
+						{totalRecords > 0 && (
+							<AdvancePagination
+								totalRecords={totalRecords}
+								pageLimit={PAGE_LIMIT}
+								pageNeighbours={1}
+								onPageChanged={onPageChanged}
+							/>
 						)}
 					</CardBody>
 				</Card>
@@ -224,7 +231,7 @@ const Mobilizer = () => {
 									appearance: 'success',
 									autoDismiss: true
 								});
-								fetchList({});
+								fetchMobilizersList({});
 								toggle();
 							})
 							.catch(err =>
