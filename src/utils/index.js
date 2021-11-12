@@ -12,3 +12,15 @@ export const blobToBase64 = blob => {
 		};
 	});
 };
+
+export const generateUID = length => {
+	if (!length) length = 16;
+	return window
+		.btoa(
+			Array.from(window.crypto.getRandomValues(new Uint8Array(length * 2)))
+				.map(b => String.fromCharCode(b))
+				.join('')
+		)
+		.replace(/[+/]/g, '')
+		.substring(0, length);
+};
