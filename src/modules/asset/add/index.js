@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, CardBody, FormGroup, Label, Input, InputGroup } from 'reactstrap';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
+import { Card, CardBody, FormGroup, Label, Input, InputGroup, Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
 import BreadCrumb from '../../ui_components/breadcrumb';
@@ -7,6 +7,9 @@ import { blobToBase64, generateUID } from '../../../utils';
 import UploadPlaceholder from '../../../assets/images/download.png';
 import { TOAST } from '../../../constants';
 import Select from 'react-select';
+import { AidContext } from '../../../contexts/AidContext';
+import { AppContext } from '../../../contexts/AppSettingsContext';
+import PasscodeModal from '../../global/PasscodeModal';
 
 const options = [
 	{ value: 'foods', label: 'Foods' },
@@ -14,14 +17,20 @@ const options = [
 	{ value: 'maternity', label: 'Maternity' }
 ];
 
+const TEST_TOKEN_ID = 1;
+
 export default function NewAsset({ match }) {
 	const { addToast } = useToasts();
 	const { projectId } = match.params;
 
+	const { createNft } = useContext(AidContext);
+	const { appSettings, isVerified, wallet } = useContext(AppContext);
+
 	const [formData, setFormData] = useState({
-		name: '',
-		quantity: '',
-		description: ''
+		name: 'Vegetable Token',
+		symbol: '10',
+		totalSupply: '10',
+		description: 'test NFT'
 	});
 	const [itemsData, setItemsData] = useState({
 		item_name: '',
@@ -29,10 +38,13 @@ export default function NewAsset({ match }) {
 	});
 	const [packageImg, setPackageImg] = useState('');
 	const [items, setItems] = useState([]);
-	const [fiatValue, setFiatValue] = useState('');
+	const [fiatValue, setFiatValue] = useState('1000');
 	const [selectedCategories, setSelectedCategories] = useState([]);
+	const [passcodeModal, setPasscodeModal] = useState(false);
 
-	// const toggleDropDown = () => setDropdownOpen(!dropdownOpen);
+	const togglePasscodeModal = useCallback(() => {
+		setPasscodeModal(!passcodeModal);
+	}, [passcodeModal]);
 
 	const handleProfileUpload = async e => {
 		const file = e.target.files[0];
@@ -66,58 +78,117 @@ export default function NewAsset({ match }) {
 	};
 
 	const handleRemoveItem = id => {
-		console.log({ id });
 		const filteredItems = items.filter(f => f.itemId !== id);
 		setItems(filteredItems);
 	};
 
 	const handleFiatInputChange = e => setFiatValue(e.target.value);
 
-	const handleFormSubmit = e => {
-		e.preventDefault();
-		// Upload package_img to IPFS
-		// Upload metadata to IPFS
-		// get CID of package_img and metadata
-		// Call Nft smart contract method
+	const validateNameAndSymbol = (name, symbol) => {
+		let errorMsg = '';
+		if (name.length > 15) errorMsg = 'Package name must be less than 15 characters';
+		if (symbol.length > 5) errorMsg = 'Package symbol must be less than 5 characters';
+		return errorMsg;
 	};
 
-	console.log('Categories==>', selectedCategories);
+	const submitNftDetails = useCallback(() => {
+		try {
+			if (isVerified && wallet) {
+				console.log('Submit=====>');
+				setPasscodeModal(false);
+				const { name, symbol, description } = formData;
+				const errorMsg = validateNameAndSymbol(name, symbol);
+				if (errorMsg) return addToast(errorMsg, TOAST.ERROR);
+				const _meta = { categories: selectedCategories, fiatValue: fiatValue, description: description, items: items };
+				const payload = { ...formData, metadata: _meta, project: projectId, packageImg: packageImg };
+				payload.tokenId = TEST_TOKEN_ID;
+				if (payload.description) delete payload.description;
+
+				const { contracts } = appSettings.agency;
+				return createNft(payload, contracts, wallet);
+			}
+		} catch (err) {
+			console.log('ERR==>', err);
+			return addToast(err.message, TOAST.ERROR);
+		}
+	}, [
+		addToast,
+		appSettings.agency,
+		createNft,
+		fiatValue,
+		formData,
+		isVerified,
+		items,
+		packageImg,
+		projectId,
+		selectedCategories,
+		wallet
+	]);
+
+	const handleFormSubmit = e => {
+		e.preventDefault();
+		return togglePasscodeModal();
+	};
+
+	useEffect(() => {
+		console.log('HELLO EFFECT!');
+		submitNftDetails();
+	}, [isVerified, submitNftDetails]);
+
+	console.log('Wallet==>', wallet);
 
 	return (
 		<>
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 			<p className="page-heading">Project</p>
 			<BreadCrumb redirect_path={`projects/${projectId}`} root_label="Details" current_label="Create Package" />
 
 			<Card>
 				<CardBody>
 					<form onSubmit={handleFormSubmit}>
-						<FormGroup>
-							<label htmlFor="packageImg">Upload Image</label>
-							<br />
-							{packageImg ? (
-								<img
-									src={packageImg}
-									alt="Profile"
-									width="200px"
-									height="200px"
-									style={{ borderRadius: '10px', marginBottom: '10px' }}
-								/>
-							) : (
-								<img src={UploadPlaceholder} alt="Profile" width="100px" height="100px" />
-							)}
-							<Input id="picUpload" name="package_img" type="file" onChange={handleProfileUpload} required />
-						</FormGroup>
+						<Row>
+							<Col md="4">
+								<FormGroup>
+									<label htmlFor="packageImg">Upload Image</label>
+									<br />
+									{packageImg ? (
+										<img
+											src={packageImg}
+											alt="Profile"
+											width="200px"
+											height="200px"
+											style={{ borderRadius: '10px', marginBottom: '10px' }}
+										/>
+									) : (
+										<img src={UploadPlaceholder} alt="Profile" width="100px" height="100px" />
+									)}
+									<Input id="picUpload" name="package_img" type="file" onChange={handleProfileUpload} required />
+								</FormGroup>
+							</Col>
+						</Row>
 
 						<FormGroup>
-							<Label>Name</Label>
-							<Input
-								type="text"
-								placeholder="Enter suitable name for your package"
-								value={formData.name}
-								name="name"
-								onChange={handleInputChange}
-								required
-							/>
+							<Label>
+								Enter package <b>Name</b> and <b>Symbol</b>
+							</Label>
+							<InputGroup>
+								<Input
+									type="text"
+									name="name"
+									value={formData.name}
+									placeholder="Eg: Vegetables Token"
+									onChange={handleInputChange}
+									required
+								/>
+								<Input
+									type="text"
+									name="symbol"
+									value={formData.symbol}
+									placeholder="Eg: VGT"
+									onChange={handleInputChange}
+									required
+								/>
+							</InputGroup>
 						</FormGroup>
 
 						<FormGroup>
@@ -138,8 +209,8 @@ export default function NewAsset({ match }) {
 							<Input
 								type="number"
 								placeholder="Enter quantity"
-								value={formData.quantity}
-								name="quantity"
+								value={formData.totalSupply}
+								name="totalSupply"
 								onChange={handleInputChange}
 								required
 							/>

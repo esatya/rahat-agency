@@ -141,6 +141,14 @@ export const AidContextProvider = ({ children }) => {
 		return Service.listFinancialInstitutions(params);
 	}
 
+	const createNft = useCallback((payload, contracts, wallet) => {
+		return Service.createNft(payload, contracts, wallet);
+	}, []);
+
+	// function createNft(payload, contracts, wallet) {
+	// 	return Service.createNft(payload, contracts, wallet);
+	// }
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -154,6 +162,7 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				createNft,
 				updateAid,
 				addAid,
 				listAid,

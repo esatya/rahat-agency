@@ -17,6 +17,26 @@ const mapTestContract = contract => ({
 	issueBulkToken: contract.issueBulkToken
 });
 
+export async function createNft(payload, contracts, wallet) {
+	// const res = await axios.post(`${API.NFT}`, payload, {
+	// 	headers: { access_token: access_token }
+	// });
+	// console.log('RES==>', res);
+
+	try {
+		const { rahat_admin } = contracts;
+		const contract = await getContractByProvider(rahat_admin, CONTRACT.RAHATADMIN);
+		const contractInstance = contract.connect(wallet);
+		const txn = await contractInstance.createAndsetProjectBudget_ERC1155('Demo', 'DM', '123', 10);
+		console.log('TXN==>', txn);
+		contractInstance.on('ProjectERC1155BudgetUpdated', async logs => {
+			console.log('Logs==>', logs);
+		});
+	} catch (err) {
+		throw err;
+	}
+}
+
 export async function addProjectBudget(wallet, aidId, supplyToken, contract_addr) {
 	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHATADMIN);
 	const signerContract = contract.connect(wallet);
