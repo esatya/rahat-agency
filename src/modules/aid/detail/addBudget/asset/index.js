@@ -12,8 +12,8 @@ export default function (props) {
 
 	const [packageList, setPackageList] = useState([]);
 
-	const handlePackageClick = () => {
-		history.push(`/add-asset/${projectId}/`);
+	const handleCreateClick = () => {
+		history.push(`/add-package/${projectId}/`);
 	};
 
 	const fetchPackageList = useCallback(async () => {
@@ -29,7 +29,7 @@ export default function (props) {
 	return (
 		<>
 			<button
-				onClick={handlePackageClick}
+				onClick={handleCreateClick}
 				type="button"
 				className="btn waves-effect waves-light btn-outline-info "
 				style={{ borderRadius: '8px', margin: '20px 0px' }}
@@ -58,7 +58,7 @@ export default function (props) {
 										{d.createdBy.name.first} {d.createdBy.name.last || ''}
 									</td>
 									<td className="blue-grey-text  text-darken-4 font-medium">
-										<Link to={`/mint-asset/${d._id}`}>
+										<Link to={`/mint-package/${d._id}/project/${projectId}`}>
 											<i class="fas fa-eye fa-lg"></i>
 										</Link>
 									</td>
