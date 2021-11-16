@@ -141,13 +141,17 @@ export const AidContextProvider = ({ children }) => {
 		return Service.listFinancialInstitutions(params);
 	}
 
-	const createNft = useCallback((payload, contracts, wallet) => {
-		return Service.createNft(payload, contracts, wallet);
-	}, []);
+	const createNft = useCallback(
+		(payload, contracts, wallet) => {
+			changeIsverified(false);
+			return Service.createNft(payload, contracts, wallet);
+		},
+		[changeIsverified]
+	);
 
-	// function createNft(payload, contracts, wallet) {
-	// 	return Service.createNft(payload, contracts, wallet);
-	// }
+	const listNftPackages = useCallback((projectId, query) => {
+		return Service.listNftPackages(projectId, query);
+	}, []);
 
 	return (
 		<AidContext.Provider
@@ -163,6 +167,7 @@ export const AidContextProvider = ({ children }) => {
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
 				createNft,
+				listNftPackages,
 				updateAid,
 				addAid,
 				listAid,

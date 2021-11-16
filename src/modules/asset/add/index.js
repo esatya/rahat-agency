@@ -103,13 +103,13 @@ export default function NewAsset({ match }) {
 				if (errorMsg) return addToast(errorMsg, TOAST.ERROR);
 				const _meta = { categories: selectedCategories, fiatValue: fiatValue, description: description, items: items };
 				const payload = { ...formData, metadata: _meta, project: projectId, packageImg: packageImg };
-				if (payload.description) delete payload.description;
+				delete payload.description;
 
 				const { contracts } = appSettings.agency;
 				await createNft(payload, contracts, wallet);
 				setLoading(false);
 				addToast('Package created successfully', TOAST.SUCCESS);
-				history.push(`/projects/${projectId}`);
+				history.push(`/add-budget/${projectId}`);
 			}
 		} catch (err) {
 			setLoading(false);
@@ -126,7 +126,8 @@ export default function NewAsset({ match }) {
 		packageImg,
 		projectId,
 		selectedCategories,
-		wallet
+		wallet,
+		history
 	]);
 
 	const handleFormSubmit = e => {
@@ -135,11 +136,8 @@ export default function NewAsset({ match }) {
 	};
 
 	useEffect(() => {
-		console.log('HELLO EFFECT!');
 		submitNftDetails();
 	}, [isVerified, submitNftDetails]);
-
-	console.log('Wallet==>', wallet);
 
 	return (
 		<>
