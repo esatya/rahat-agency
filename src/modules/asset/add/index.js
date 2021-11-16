@@ -1,6 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { Card, CardBody, FormGroup, Label, Input, InputGroup, Row, Col } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
+import { useHistory } from 'react-router-dom';
 
 import BreadCrumb from '../../ui_components/breadcrumb';
 import { blobToBase64, generateUID } from '../../../utils';
@@ -10,6 +11,7 @@ import Select from 'react-select';
 import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import PasscodeModal from '../../global/PasscodeModal';
+import GrowSpinner from '../../global/GrowSpinner';
 
 const options = [
 	{ value: 'foods', label: 'Foods' },
@@ -17,20 +19,20 @@ const options = [
 	{ value: 'maternity', label: 'Maternity' }
 ];
 
-const TEST_TOKEN_ID = 1;
-
 export default function NewAsset({ match }) {
+	const history = useHistory();
 	const { addToast } = useToasts();
 	const { projectId } = match.params;
 
 	const { createNft } = useContext(AidContext);
 	const { appSettings, isVerified, wallet } = useContext(AppContext);
+	const [loading, setLoading] = useState(false);
 
 	const [formData, setFormData] = useState({
-		name: 'Vegetable Token',
-		symbol: '10',
-		totalSupply: '10',
-		description: 'test NFT'
+		name: '',
+		symbol: '',
+		totalSupply: '',
+		description: ''
 	});
 	const [itemsData, setItemsData] = useState({
 		item_name: '',
@@ -38,7 +40,7 @@ export default function NewAsset({ match }) {
 	});
 	const [packageImg, setPackageImg] = useState('');
 	const [items, setItems] = useState([]);
-	const [fiatValue, setFiatValue] = useState('1000');
+	const [fiatValue, setFiatValue] = useState('');
 	const [selectedCategories, setSelectedCategories] = useState([]);
 	const [passcodeModal, setPasscodeModal] = useState(false);
 
@@ -91,24 +93,26 @@ export default function NewAsset({ match }) {
 		return errorMsg;
 	};
 
-	const submitNftDetails = useCallback(() => {
+	const submitNftDetails = useCallback(async () => {
 		try {
 			if (isVerified && wallet) {
-				console.log('Submit=====>');
 				setPasscodeModal(false);
+				setLoading(true);
 				const { name, symbol, description } = formData;
 				const errorMsg = validateNameAndSymbol(name, symbol);
 				if (errorMsg) return addToast(errorMsg, TOAST.ERROR);
 				const _meta = { categories: selectedCategories, fiatValue: fiatValue, description: description, items: items };
 				const payload = { ...formData, metadata: _meta, project: projectId, packageImg: packageImg };
-				payload.tokenId = TEST_TOKEN_ID;
 				if (payload.description) delete payload.description;
 
 				const { contracts } = appSettings.agency;
-				return createNft(payload, contracts, wallet);
+				await createNft(payload, contracts, wallet);
+				setLoading(false);
+				addToast('Package created successfully', TOAST.SUCCESS);
+				history.push(`/projects/${projectId}`);
 			}
 		} catch (err) {
-			console.log('ERR==>', err);
+			setLoading(false);
 			return addToast(err.message, TOAST.ERROR);
 		}
 	}, [
@@ -288,11 +292,15 @@ export default function NewAsset({ match }) {
 						</FormGroup>
 
 						<br />
-						<FormGroup>
-							<button type="submit" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
-								Create package
-							</button>
-						</FormGroup>
+						{loading ? (
+							<GrowSpinner />
+						) : (
+							<FormGroup>
+								<button type="submit" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
+									Create package
+								</button>
+							</FormGroup>
+						)}
 					</form>
 				</CardBody>
 			</Card>

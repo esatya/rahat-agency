@@ -6,6 +6,7 @@ import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
+import { CURRENCY } from '../constants';
 
 const access_token = getUserToken();
 
@@ -18,19 +19,20 @@ const mapTestContract = contract => ({
 });
 
 export async function createNft(payload, contracts, wallet) {
-	// const res = await axios.post(`${API.NFT}`, payload, {
-	// 	headers: { access_token: access_token }
-	// });
-	// console.log('RES==>', res);
-
 	try {
 		const { rahat_admin } = contracts;
 		const contract = await getContractByProvider(rahat_admin, CONTRACT.RAHATADMIN);
 		const contractInstance = contract.connect(wallet);
-		const txn = await contractInstance.createAndsetProjectBudget_ERC1155('Demo', 'DM', '123', 10);
-		console.log('TXN==>', txn);
-		contractInstance.on('ProjectERC1155BudgetUpdated', async logs => {
-			console.log('Logs==>', logs);
+		const { name, symbol, project, totalSupply } = payload;
+		await contractInstance.createAndsetProjectBudget_ERC1155(name, symbol, project, totalSupply);
+		contractInstance.on('ProjectERC1155BudgetUpdated', async (projectId, tokenId, projectCapital) => {
+			const token = tokenId.toNumber();
+			payload.tokenId = token;
+			payload.metadata.currency = CURRENCY.NP_RUPEES;
+			const res = await axios.post(`${API.NFT}`, payload, {
+				headers: { access_token: access_token }
+			});
+			return res.data;
 		});
 	} catch (err) {
 		throw err;
