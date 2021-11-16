@@ -1,20 +1,73 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { Card, CardBody, CardTitle, Col, Row, FormGroup, InputGroup, Label, Input } from 'reactstrap';
+import { useToasts } from 'react-toast-notifications';
+import { useHistory } from 'react-router-dom';
 
 import BreadCrumb from '../../ui_components/breadcrumb';
 import '../../../assets/css/project.css';
 import BackButton from '../../global/BackButton';
+import PasscodeModal from '../../global/PasscodeModal';
+import { TOAST } from '../../../constants';
 
 import { AidContext } from '../../../contexts/AidContext';
+import { AppContext } from '../../../contexts/AppSettingsContext';
 
 export default function NewAsset({ match }) {
 	const { packageId, projectId } = match.params;
+	const { addToast } = useToasts();
+	const history = useHistory();
 
-	const { getPackageDetails } = useContext(AidContext);
+	const { getPackageDetails, mintNft } = useContext(AidContext);
+	const { appSettings, isVerified, wallet } = useContext(AppContext);
+
 	const [packageDetails, setPackageDetails] = useState(null);
+	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [mintQty, setMintQty] = useState('');
+
+	const handleMintQty = e => setMintQty(e.target.value);
+
+	const togglePasscodeModal = useCallback(() => {
+		setPasscodeModal(!passcodeModal);
+	}, [passcodeModal]);
+
+	const submitMintNft = useCallback(async () => {
+		try {
+			if (isVerified && wallet) {
+				setPasscodeModal(false);
+				setLoading(true);
+				const { contracts } = appSettings.agency;
+				const payload = {
+					tokenId: packageDetails.tokenId,
+					projectCapital: mintQty,
+					projectId: projectId,
+					packageId: packageId
+				};
+				await mintNft({ payload, contracts, wallet });
+				setLoading(false);
+				addToast('Package minted successfully', TOAST.SUCCESS);
+				history.push(`/add-budget/${projectId}`);
+			}
+		} catch (err) {
+			setLoading(false);
+			addToast('Package mint failed', TOAST.ERROR);
+		}
+	}, [
+		isVerified,
+		wallet,
+		mintQty,
+		appSettings.agency,
+		mintNft,
+		packageId,
+		addToast,
+		history,
+		projectId,
+		packageDetails.tokenId
+	]);
 
 	const handleQuantitySubmit = e => {
 		e.preventDefault();
+		togglePasscodeModal();
 	};
 
 	const fetchPackageDetails = useCallback(async () => {
@@ -26,8 +79,14 @@ export default function NewAsset({ match }) {
 		fetchPackageDetails();
 	}, [fetchPackageDetails]);
 
+	useEffect(() => {
+		submitMintNft();
+	}, [isVerified, submitMintNft]);
+
 	return (
 		<>
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+
 			<p className="page-heading">Project</p>
 			<BreadCrumb redirect_path={`projects/${projectId}`} root_label="Details" current_label="Mint Package" />
 			<Card>
@@ -83,11 +142,24 @@ export default function NewAsset({ match }) {
 							</Label>
 							<form onSubmit={handleQuantitySubmit}>
 								<InputGroup>
-									<Input type="number" name="mintQty" placeholder="Enter quantity" required />
+									<Input
+										type="number"
+										value={mintQty || ''}
+										name="mintQty"
+										placeholder="Enter quantity"
+										onChange={handleMintQty}
+										required
+									/>
 									&nbsp;
-									<button type="submit" className="btn waves-effect waves-light btn-info">
-										Mint Now
-									</button>
+									{loading ? (
+										<button disabled={true} type="button" className="btn waves-effect waves-light btn-secondary">
+											Minting, Please wait...
+										</button>
+									) : (
+										<button type="submit" className="btn waves-effect waves-light btn-info">
+											Mint Now
+										</button>
+									)}
 								</InputGroup>
 							</form>
 						</FormGroup>
