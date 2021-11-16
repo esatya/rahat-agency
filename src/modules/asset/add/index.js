@@ -12,6 +12,7 @@ import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import PasscodeModal from '../../global/PasscodeModal';
 import GrowSpinner from '../../global/GrowSpinner';
+import BackButton from '../../global/BackButton';
 
 const options = [
 	{ value: 'foods', label: 'Foods' },
@@ -106,14 +107,16 @@ export default function NewAsset({ match }) {
 				delete payload.description;
 
 				const { contracts } = appSettings.agency;
-				await createNft(payload, contracts, wallet);
-				setLoading(false);
-				addToast('Package created successfully', TOAST.SUCCESS);
-				history.push(`/add-budget/${projectId}`);
+				const created = await createNft(payload, contracts, wallet);
+				if (created) {
+					setLoading(false);
+					addToast('Package created successfully', TOAST.SUCCESS);
+					history.push(`/add-budget/${projectId}`);
+				}
 			}
 		} catch (err) {
 			setLoading(false);
-			return addToast(err.message, TOAST.ERROR);
+			return addToast('Internal server error!', TOAST.ERROR);
 		}
 	}, [
 		addToast,
@@ -297,6 +300,7 @@ export default function NewAsset({ match }) {
 								<button type="submit" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
 									Create package
 								</button>
+								&nbsp; <BackButton />
 							</FormGroup>
 						)}
 					</form>

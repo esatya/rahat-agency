@@ -153,6 +153,10 @@ export const AidContextProvider = ({ children }) => {
 		return Service.listNftPackages(projectId, query);
 	}, []);
 
+	const getPackageDetails = useCallback(packageId => {
+		return Service.getPackageDetails(packageId);
+	}, []);
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -168,6 +172,7 @@ export const AidContextProvider = ({ children }) => {
 				total_tokens: state.total_tokens,
 				createNft,
 				listNftPackages,
+				getPackageDetails,
 				updateAid,
 				addAid,
 				listAid,
