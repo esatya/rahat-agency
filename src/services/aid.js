@@ -18,6 +18,7 @@ const mapTestContract = contract => ({
 	issueBulkToken: contract.issueBulkToken
 });
 
+// TODO: What if DB error occurs??
 export async function createNft(payload, contracts, wallet) {
 	try {
 		const { rahat_admin } = contracts;
@@ -32,11 +33,26 @@ export async function createNft(payload, contracts, wallet) {
 			const res = await axios.post(`${API.NFT}`, payload, {
 				headers: { access_token: access_token }
 			});
-			return res.data;
+			if (res.data) {
+				await contract.removeAllListeners();
+				return res.data;
+			}
 		});
 	} catch (err) {
 		throw err;
 	}
+}
+
+export async function listNftPackages(projectId, query) {
+	const res = await axios({
+		url: `${API.NFT}/${projectId}/list`,
+		method: 'get',
+		headers: {
+			access_token: access_token
+		},
+		query
+	});
+	return res.data;
 }
 
 export async function addProjectBudget(wallet, aidId, supplyToken, contract_addr) {
