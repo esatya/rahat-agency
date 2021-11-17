@@ -5,7 +5,8 @@ import { ethers } from 'ethers';
 import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
-import { getContractByProvider } from '../blockchain/abi';
+import { getContractByProvider, getContractInstance } from '../blockchain/abi';
+import { CURRENCY } from '../constants';
 
 const access_token = getUserToken();
 
@@ -16,6 +17,69 @@ const mapTestContract = contract => ({
 	issueToken: contract.issueToken,
 	issueBulkToken: contract.issueBulkToken
 });
+
+export async function createNft(payload, contracts, wallet) {
+	return new Promise(async (resolve, reject) => {
+		const { rahat_admin } = contracts;
+		// const contract = await getContractByProvider(rahat_admin, CONTRACT.RAHATADMIN);
+		// const contractInstance = contract.connect(wallet);
+		const contractInstance = await getContractInstance(rahat_admin, CONTRACT.RAHATADMIN, wallet);
+		const { name, symbol, project, totalSupply } = payload;
+		await contractInstance.createAndsetProjectBudget_ERC1155(name, symbol, project, totalSupply);
+		contractInstance.on('ProjectERC1155BudgetUpdated', async (projectId, tokenId, projectCapital) => {
+			const token = tokenId.toNumber();
+			payload.tokenId = token;
+			payload.metadata.currency = CURRENCY.NP_RUPEES;
+			const res = await axios.post(`${API.NFT}`, payload, {
+				headers: { access_token: access_token }
+			});
+			if (res.data) {
+				await contractInstance.removeAllListeners();
+				resolve(res.data);
+			} else reject('Package creation failed!');
+		});
+	});
+}
+
+export async function mintNft({ payload, contracts, wallet }) {
+	const { tokenId, projectCapital, projectId, packageId } = payload;
+	const { rahat_admin } = contracts;
+	const contractInstance = await getContractInstance(rahat_admin, CONTRACT.RAHATADMIN, wallet);
+	const txn = await contractInstance.setProjectBudget_ERC1155(projectId, projectCapital, tokenId);
+	if (txn) {
+		const res = await axios.patch(
+			`${API.NFT}/${packageId}/mint`,
+			{ mintQty: projectCapital },
+			{
+				headers: { access_token: access_token }
+			}
+		);
+		return res.data;
+	}
+}
+
+export async function listNftPackages(projectId, query) {
+	const res = await axios({
+		url: `${API.NFT}/${projectId}/list`,
+		method: 'get',
+		headers: {
+			access_token: access_token
+		},
+		query
+	});
+	return res.data;
+}
+
+export async function getPackageDetails(packageId) {
+	const res = await axios({
+		url: `${API.NFT}/${packageId}`,
+		method: 'get',
+		headers: {
+			access_token: access_token
+		}
+	});
+	return res.data;
+}
 
 export async function addProjectBudget(wallet, aidId, supplyToken, contract_addr) {
 	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHATADMIN);

@@ -1,4 +1,7 @@
 module.exports = {
+	CURRENCY: {
+		NP_RUPEES: 'NPR'
+	},
 	APP_CONSTANTS: {
 		PASSCODE_LENGTH: 6,
 		BULK_BENEFICIARY_LIMIT: 200,

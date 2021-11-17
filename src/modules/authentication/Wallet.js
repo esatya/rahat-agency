@@ -8,7 +8,6 @@ import DataService from '../../services/db';
 import './wallet.css';
 import { useToasts } from 'react-toast-notifications';
 import { TOAST } from '../../constants';
-import { Link } from 'react-router-dom';
 
 const API_SERVER = process.env.REACT_APP_API_SERVER;
 const WSS_SERVER = API_SERVER.replace('http', 'ws');

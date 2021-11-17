@@ -160,13 +160,13 @@ let AppRoutes = [
 	// ...........................Asset...........................
 
 	{
-		path: '/add-asset/:projectId',
+		path: '/add-package/:projectId',
 		name: 'AddAsset',
 		component: AddAsset
 	},
 
 	{
-		path: '/mint-asset/:projectId',
+		path: '/mint-package/:packageId/project/:projectId',
 		name: 'MintAsset',
 		component: MintAsset
 	},
