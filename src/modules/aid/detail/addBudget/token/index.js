@@ -1,17 +1,25 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { Button, CardTitle, Col, Form, FormGroup, Input, InputGroup, InputGroupAddon, Row } from 'reactstrap';
+import { useToasts } from 'react-toast-notifications';
+import { useHistory } from 'react-router-dom';
+
 import { AppContext } from '../../../../../contexts/AppSettingsContext';
 import { AidContext } from '../../../../../contexts/AidContext';
 
-import GrowSpinner from '../../../../global/GrowSpinner';
+import PasscodeModal from '../../../../global/PasscodeModal';
+import { TOAST } from '../../../../../constants';
 
-const Token = () => {
-	const { total_tokens, available_tokens } = useContext(AidContext);
+const Token = ({ projectId }) => {
+	const { addToast } = useToasts();
+	const history = useHistory();
 
-	const { loading } = useContext(AppContext);
+	const { total_tokens, available_tokens, addProjectBudget } = useContext(AidContext);
+
+	const { wallet, isVerified, appSettings } = useContext(AppContext);
 	const [inputTokens, setInputToken] = useState('');
 
 	const [passcodeModal, setPasscodeModal] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const handleInputChange = e => {
 		let { value } = e.target;
@@ -26,8 +34,38 @@ const Token = () => {
 		e.preventDefault();
 		togglePasscodeModal();
 	};
+
+	const submitProjectBudget = useCallback(async () => {
+		if (isVerified && wallet) {
+			try {
+				setPasscodeModal(false);
+				setLoading(true);
+				const { rahat_admin } = appSettings.agency.contracts;
+				const res = await addProjectBudget(wallet, projectId, inputTokens, rahat_admin);
+				if (res) {
+					setInputToken('');
+					setLoading(false);
+					addToast(`${inputTokens} tokens added to the project`, TOAST.SUCCESS);
+					history.push(`/projects/${projectId}`);
+				}
+			} catch (err) {
+				setPasscodeModal(false);
+				let err_msg = err.message ? err.message : 'Could not add token!';
+				// if (err.code === 4001) err_msg = err.message;
+				setLoading(false);
+				addToast(err_msg, TOAST.ERROR);
+			}
+		}
+	}, [addProjectBudget, addToast, appSettings.agency, inputTokens, isVerified, projectId, wallet, history]);
+
+	useEffect(() => {
+		submitProjectBudget();
+	}, [isVerified, submitProjectBudget]);
+
 	return (
 		<>
+			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+
 			<div className="spacing-budget">
 				<Row>
 					<Col md="6" sm="12">
@@ -42,27 +80,29 @@ const Token = () => {
 			</div>
 			<div className="spacing-budget">
 				<CardTitle className="title">Add Token</CardTitle>
-				{loading ? (
-					<GrowSpinner />
-				) : (
-					<Form onSubmit={handleTokenSubmit}>
-						<FormGroup>
-							<InputGroup>
-								<Input
-									type="number"
-									name="input_tokens"
-									value={inputTokens || ''}
-									onChange={handleInputChange}
-									placeholder="Enter number of token balance to be added"
-									required
-								/>
-								<InputGroupAddon addonType="append">
+				<Form onSubmit={handleTokenSubmit}>
+					<FormGroup>
+						<InputGroup>
+							<Input
+								type="number"
+								name="input_tokens"
+								value={inputTokens || ''}
+								onChange={handleInputChange}
+								placeholder="Enter number of token balance to be added"
+								required
+							/>
+							<InputGroupAddon addonType="append">
+								{loading ? (
+									<Button disabled={true} color="info">
+										Adding token, please wait...
+									</Button>
+								) : (
 									<Button color="info">Add Token</Button>
-								</InputGroupAddon>
-							</InputGroup>
-						</FormGroup>
-					</Form>
-				)}
+								)}
+							</InputGroupAddon>
+						</InputGroup>
+					</FormGroup>
+				</Form>
 			</div>
 		</>
 	);

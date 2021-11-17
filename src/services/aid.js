@@ -81,15 +81,14 @@ export async function getPackageDetails(packageId) {
 	return res.data;
 }
 
-export async function addProjectBudget(wallet, aidId, supplyToken, contract_addr) {
+export async function addProjectBudget(wallet, projectId, supplyToken, contract_addr) {
 	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHATADMIN);
 	const signerContract = contract.connect(wallet);
-	const myContract = mapTestContract(signerContract);
-	const res = await myContract.setProjectBudget(aidId, supplyToken);
+	const res = await signerContract.setProjectBudget_ERC20(projectId, supplyToken);
 	let d = await res.wait();
 	if (d) {
-		await tokenAllocate(aidId, supplyToken, d.transactionHash);
-		let project = await changeProjectStatus(aidId, 'active');
+		await tokenAllocate(projectId, supplyToken, d.transactionHash);
+		let project = await changeProjectStatus(projectId, 'active');
 		return project;
 	}
 }
@@ -160,8 +159,7 @@ export async function getProjectCapital(aidId, contract_address) {
 	try {
 		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
-		const myContract = mapTestContract(contract);
-		const data = await myContract.projectCapital(hashId);
+		const data = await contract.projectERC20Capital(hashId);
 		return data.toNumber();
 	} catch {
 		return 0;
