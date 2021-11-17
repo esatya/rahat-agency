@@ -141,6 +141,30 @@ export const AidContextProvider = ({ children }) => {
 		return Service.listFinancialInstitutions(params);
 	}
 
+	const createNft = useCallback(
+		(payload, contracts, wallet) => {
+			changeIsverified(false);
+			return Service.createNft(payload, contracts, wallet);
+		},
+		[changeIsverified]
+	);
+
+	const listNftPackages = useCallback((projectId, query) => {
+		return Service.listNftPackages(projectId, query);
+	}, []);
+
+	const getPackageDetails = useCallback(packageId => {
+		return Service.getPackageDetails(packageId);
+	}, []);
+
+	const mintNft = useCallback(
+		({ payload, contracts, wallet }) => {
+			changeIsverified(false);
+			return Service.mintNft({ payload, contracts, wallet });
+		},
+		[changeIsverified]
+	);
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -154,6 +178,10 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				mintNft,
+				createNft,
+				listNftPackages,
+				getPackageDetails,
 				updateAid,
 				addAid,
 				listAid,

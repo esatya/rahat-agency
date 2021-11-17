@@ -16,6 +16,9 @@ export default function BudgetAdd({ match }) {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
+	// const urlSearchParams = new URLSearchParams(window.location.search);
+	// const urlParams = Object.fromEntries(urlSearchParams.entries());
+
 	const [inputTokens, setInputToken] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 
@@ -80,7 +83,7 @@ export default function BudgetAdd({ match }) {
 									toggle('1');
 								}}
 							>
-								Token
+								Tokens
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -90,7 +93,7 @@ export default function BudgetAdd({ match }) {
 									toggle('2');
 								}}
 							>
-								Asset
+								Packages
 							</NavLink>
 						</NavItem>
 					</Nav>
