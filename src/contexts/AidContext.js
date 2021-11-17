@@ -49,9 +49,9 @@ export const AidContextProvider = ({ children }) => {
 	}
 
 	const addProjectBudget = useCallback(
-		async ({ projectId, supplyToken, rahat_admin, wallet }) => {
+		async (wallet, projectId, supplyToken, rahat_admin) => {
 			changeIsverified(false);
-			await Service.addProjectBudget(wallet, projectId, supplyToken, rahat_admin);
+			return Service.addProjectBudget(wallet, projectId, supplyToken, rahat_admin);
 		},
 		[changeIsverified]
 	);
