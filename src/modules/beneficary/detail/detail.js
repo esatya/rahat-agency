@@ -15,7 +15,6 @@ import { TOAST } from '../../../constants';
 
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
-import { History } from '../../../utils/History';
 import { htmlResponse } from '../../../utils/printSingleBeneficiary';
 import { useHistory } from 'react-router-dom';
 
@@ -24,14 +23,13 @@ const BenefDetails = ({ params }) => {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
-	const { getBeneficiaryDetails, getBeneficiaryBalance, issueTokens, listProject } = useContext(BeneficiaryContext);
-	const { isVerified, wallet, loading, setLoading, appSettings } = useContext(AppContext);
+	const { getBeneficiaryDetails, getBeneficiaryBalance, listProject } = useContext(BeneficiaryContext);
+	const { loading, setLoading, appSettings } = useContext(AppContext);
 
 	const [basicInfo, setBasicInfo] = useState({});
 	const [extras, setExtras] = useState({});
 	const [projectList, setProjectList] = useState([]);
 	const [currentBalance, setCurrentBalance] = useState('');
-	// const [inputTokens, setInputTokens] = useState('');
 	const [allProjects, setAllProjects] = useState([]);
 	const [assignTokenAmount, setAssignTokenAmount] = useState('');
 
@@ -110,41 +108,6 @@ const BenefDetails = ({ params }) => {
 		history.push(`/issue-budget/${selectedProject}/benf/${id}`);
 	};
 
-	const submitRequest = useCallback(
-		async (payload, wallet) => {
-			try {
-				setLoading(true);
-				await issueTokens(payload, wallet);
-				addToast(`${payload.claimable} tokens issued successfully`, TOAST.SUCCESS);
-				setLoading(false);
-				History.push('/beneficiaries');
-			} catch (err) {
-				setLoading(false);
-				addToast(err.message, TOAST.ERROR);
-			}
-		},
-		[addToast, issueTokens, setLoading]
-	);
-
-	const issueBeneficiaryToken = useCallback(async () => {
-		const payload = {
-			// claimable: +inputTokens,
-			phone: +basicInfo.phone,
-			projectId: selectedProject
-		};
-		if (isVerified && wallet) {
-			setPasscodeModal(false);
-			return submitRequest(payload, wallet);
-		}
-	}, [
-		basicInfo.phone,
-		// inputTokens,
-		isVerified,
-		selectedProject,
-		submitRequest,
-		wallet
-	]);
-
 	const fetchCurrentBalance = useCallback(
 		async phone => {
 			try {
@@ -172,10 +135,6 @@ const BenefDetails = ({ params }) => {
 				return { id: d._id, name: d.name };
 			});
 			setProjectList(projects);
-			// const select_options = details.projects.map(d => {
-			// 	return { label: d.name, value: d._id };
-			// });
-			// setBenefProjects(select_options);
 		}
 	}, [fetchCurrentBalance, getBeneficiaryDetails, id]);
 
@@ -192,10 +151,6 @@ const BenefDetails = ({ params }) => {
 	useEffect(() => {
 		fetchBeneficiaryDetails();
 	}, [fetchBeneficiaryDetails]);
-
-	useEffect(() => {
-		issueBeneficiaryToken();
-	}, [issueBeneficiaryToken, isVerified]);
 
 	useEffect(() => {
 		fetchAllProjects();

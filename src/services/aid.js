@@ -124,20 +124,6 @@ export async function changeProjectStatus(aidId, status) {
 	} catch {}
 }
 
-// Get Project Balance
-export async function loadAidBalance(aidId, contract_address) {
-	try {
-		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
-		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-		// const myContract = mapTestContract(contract);
-		const data = await contract.remainingProjectErc20Balances(hashId);
-		console.log({ data });
-		return data.toNumber();
-	} catch (e) {
-		return 0;
-	}
-}
-
 export async function bulkTokenIssueToBeneficiary({
 	wallet,
 	projectId,
@@ -152,6 +138,20 @@ export async function bulkTokenIssueToBeneficiary({
 		return myContract.issueBulkToken(projectId, phone_numbers, token_amounts);
 	} catch (e) {
 		throw new Error(e);
+	}
+}
+
+// Get available balance
+export async function loadAidBalance(aidId, contract_address) {
+	console.log({ aidId, contract_address });
+	try {
+		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
+		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+		const data = await contract.remainingProjectErc20Balances(hashId);
+		console.log({ data });
+		return data.toNumber();
+	} catch (e) {
+		return 0;
 	}
 }
 

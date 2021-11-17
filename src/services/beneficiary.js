@@ -6,15 +6,10 @@ import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
 const access_token = getUserToken();
 
-const mapTestContract = contract => ({
-	tokenBalance: contract.tokenBalance
-});
-
 export async function getBeneficiaryBalance(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-	const myContract = mapTestContract(contract);
-	const data = await myContract.tokenBalance(phone);
-	if (!data) return 'No balance!';
+	const data = await contract.erc20Balance(phone);
+	if (!data) return null;
 	return data.toNumber();
 }
 
@@ -79,7 +74,6 @@ export async function addBeneficiaryInBulk(body) {
 
 	return res.data;
 }
-
 
 export async function updateBeneficiary(id, body) {
 	const res = await axios({
