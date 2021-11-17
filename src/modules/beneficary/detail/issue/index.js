@@ -10,7 +10,7 @@ import AssetTab from './asset/index';
 export default function BudgetAdd({ match }) {
 	const [passcodeModal, setPasscodeModal] = useState(false);
 
-	const { projectId } = match.params;
+	const { projectId, benfId } = match.params;
 
 	const [activeTab, setActiveTab] = useState('1');
 
@@ -54,7 +54,7 @@ export default function BudgetAdd({ match }) {
 						<TabPane tabId="1">
 							<Row>
 								<Col sm="12">
-									<TokenTab />
+									<TokenTab benfId={benfId} projectId={projectId} />
 								</Col>
 							</Row>
 						</TabPane>

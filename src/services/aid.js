@@ -106,8 +106,7 @@ async function tokenAllocate(projectId, tokens, txHash) {
 export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
 	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
 	const signerContract = contract.connect(wallet);
-	const myContract = mapTestContract(signerContract);
-	const res = await myContract.issueToken(payload.projectId, payload.phone, payload.claimable);
+	const res = await signerContract.issueERC20ToBeneficiary(payload.projectId, payload.phone, payload.claimable);
 	let d = await res.wait();
 	return d;
 }
@@ -130,8 +129,9 @@ export async function loadAidBalance(aidId, contract_address) {
 	try {
 		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-		const myContract = mapTestContract(contract);
-		const data = await myContract.getProjectBalance(hashId);
+		// const myContract = mapTestContract(contract);
+		const data = await contract.remainingProjectErc20Balances(hashId);
+		console.log({ data });
 		return data.toNumber();
 	} catch (e) {
 		return 0;

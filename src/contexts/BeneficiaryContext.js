@@ -37,11 +37,11 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
 	}, []);
 
-	async function listProject() {
+	const listProject = useCallback(async () => {
 		const d = await AidService.listAid({ start: 0, limit: 50 });
 		dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
 		return d;
-	}
+	}, []);
 
 	function setAid(aid) {
 		dispatch({ type: ACTION.SET_AID, data: aid });
