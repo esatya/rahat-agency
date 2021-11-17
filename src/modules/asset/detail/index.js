@@ -34,11 +34,12 @@ export default function NewAsset({ match }) {
 	const submitMintNft = useCallback(async () => {
 		try {
 			if (isVerified && wallet) {
+				const { tokenId } = packageDetails;
 				setPasscodeModal(false);
 				setLoading(true);
 				const { contracts } = appSettings.agency;
 				const payload = {
-					tokenId: packageDetails.tokenId,
+					tokenId: tokenId,
 					projectCapital: mintQty,
 					projectId: projectId,
 					packageId: packageId
@@ -55,14 +56,14 @@ export default function NewAsset({ match }) {
 	}, [
 		isVerified,
 		wallet,
-		mintQty,
+		packageDetails,
 		appSettings.agency,
-		mintNft,
-		packageId,
-		addToast,
-		history,
+		mintQty,
 		projectId,
-		packageDetails.tokenId
+		packageId,
+		mintNft,
+		addToast,
+		history
 	]);
 
 	const handleQuantitySubmit = e => {

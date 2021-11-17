@@ -153,7 +153,7 @@ let AppRoutes = [
 	},
 
 	{
-		path: '/issue-budget/:projectId',
+		path: '/issue-budget/:projectId/benf/:benfId',
 		name: 'issueBudget',
 		component: issueBudget
 	},
