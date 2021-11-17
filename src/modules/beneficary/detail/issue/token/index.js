@@ -7,15 +7,24 @@ import { AppContext } from '../../../../../contexts/AppSettingsContext';
 import { AidContext } from '../../../../../contexts/AidContext';
 import PasscodeModal from '../../../../global/PasscodeModal';
 import { TOAST } from '../../../../../constants';
+import Loading from '../../../../global/Loading';
 
 const Token = ({ benfId, projectId }) => {
 	const history = useHistory();
 	const { addToast } = useToasts();
-	const { total_tokens, available_tokens, issueBenfToken, getBeneficiaryById } = useContext(AidContext);
+	const {
+		total_tokens,
+		available_tokens,
+		issueBenfToken,
+		getBeneficiaryById,
+		getProjectCapital,
+		getAidBalance
+	} = useContext(AidContext);
 
 	const { wallet, isVerified, appSettings } = useContext(AppContext);
 	const [inputTokens, setInputToken] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
 
 	const [passcodeModal, setPasscodeModal] = useState(false);
 
@@ -30,12 +39,12 @@ const Token = ({ benfId, projectId }) => {
 
 	const handleTokenSubmit = e => {
 		e.preventDefault();
+		if (inputTokens > total_tokens) return addToast(`Only ${total_tokens} tokens are available`, TOAST.ERROR);
 		togglePasscodeModal();
 	};
 
 	const submitTokenRequest = useCallback(async () => {
 		if (isVerified && wallet) {
-			console.log('Submit');
 			try {
 				setPasscodeModal(false);
 				setLoading(true);
@@ -72,8 +81,19 @@ const Token = ({ benfId, projectId }) => {
 		history
 	]);
 
+	const fetchProjectBalance = useCallback(async () => {
+		setFetchingBlockchain(true);
+		const { rahat_admin, rahat } = appSettings.agency.contracts;
+		await getProjectCapital(projectId, rahat_admin);
+		await getAidBalance(projectId, rahat);
+		setFetchingBlockchain(false);
+	}, [appSettings.agency.contracts, getAidBalance, getProjectCapital, projectId]);
+
 	useEffect(() => {
-		console.log('EFFECT');
+		fetchProjectBalance();
+	}, [fetchProjectBalance]);
+
+	useEffect(() => {
 		submitTokenRequest();
 	}, [isVerified, submitTokenRequest]);
 
@@ -84,11 +104,13 @@ const Token = ({ benfId, projectId }) => {
 			<div className="spacing-budget">
 				<Row>
 					<Col md="6" sm="12">
-						<p className="card-font-bold">{total_tokens}</p>
+						{fetchingBlockchain ? <Loading /> : <p className="card-font-bold">{total_tokens}</p>}
+
 						<div className="sub-title">Project Token</div>
 					</Col>
 					<Col md="6" sm="12">
-						<p className="card-font-bold">{available_tokens}</p>
+						{fetchingBlockchain ? <Loading /> : <p className="card-font-bold">{available_tokens}</p>}
+
 						<div className="sub-title">Available Token</div>
 					</Col>
 				</Row>
