@@ -10,7 +10,7 @@ import AssetTab from './asset/index';
 export default function BudgetAdd({ match }) {
 	const [passcodeModal, setPasscodeModal] = useState(false);
 
-	const { projectId } = match.params;
+	const { projectId, benfId } = match.params;
 
 	const [activeTab, setActiveTab] = useState('1');
 
@@ -25,7 +25,7 @@ export default function BudgetAdd({ match }) {
 		<div>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 			<p className="page-heading">Beneficiary</p>
-			<BreadCrumb redirect_path={`beneficiaries/${projectId}`} root_label="Details" current_label="Issue" />
+			<BreadCrumb redirect_path={`beneficiaries/${benfId}`} root_label="Details" current_label="Issue" />
 			<Card>
 				<div className="stat-card-body">
 					<Nav tabs>
@@ -36,7 +36,7 @@ export default function BudgetAdd({ match }) {
 									toggle('1');
 								}}
 							>
-								Token
+								Tokens
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -46,7 +46,7 @@ export default function BudgetAdd({ match }) {
 									toggle('2');
 								}}
 							>
-								Asset
+								Packages
 							</NavLink>
 						</NavItem>
 					</Nav>
@@ -54,7 +54,7 @@ export default function BudgetAdd({ match }) {
 						<TabPane tabId="1">
 							<Row>
 								<Col sm="12">
-									<TokenTab />
+									<TokenTab benfId={benfId} projectId={projectId} />
 								</Col>
 							</Row>
 						</TabPane>
