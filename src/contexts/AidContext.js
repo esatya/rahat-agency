@@ -176,7 +176,7 @@ export const AidContextProvider = ({ children }) => {
 	);
 
 	const getBeneficiaryById = useCallback(benfId => {
-		return BenfService.get(benfId);
+		return BenfService.getById(benfId);
 	}, []);
 
 	return (

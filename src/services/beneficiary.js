@@ -25,7 +25,7 @@ export async function listBeneficiary(params) {
 	return res.data;
 }
 
-export async function get(id) {
+export async function getById(id) {
 	const res = await axios({
 		url: API.BENEFICARIES + '/' + id,
 		method: 'get',

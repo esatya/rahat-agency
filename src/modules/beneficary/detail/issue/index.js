@@ -25,7 +25,7 @@ export default function BudgetAdd({ match }) {
 		<div>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 			<p className="page-heading">Beneficiary</p>
-			<BreadCrumb redirect_path={`beneficiaries/${projectId}`} root_label="Details" current_label="Issue" />
+			<BreadCrumb redirect_path={`beneficiaries/${benfId}`} root_label="Details" current_label="Issue" />
 			<Card>
 				<div className="stat-card-body">
 					<Nav tabs>
@@ -36,7 +36,7 @@ export default function BudgetAdd({ match }) {
 									toggle('1');
 								}}
 							>
-								Token
+								Tokens
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -46,7 +46,7 @@ export default function BudgetAdd({ match }) {
 									toggle('2');
 								}}
 							>
-								Asset
+								Packages
 							</NavLink>
 						</NavItem>
 					</Nav>
