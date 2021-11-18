@@ -1,4 +1,4 @@
-import React, { useState,useContext,useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Form, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
 import Logo from '../../assets/images/rahat-logo-blue.png';
 import qs from 'query-string';
@@ -7,11 +7,9 @@ import qs from 'query-string';
 import { AppContext } from '../../contexts/AppSettingsContext';
 import { UserContext } from '../../contexts/UserContext';
 
-import * as Service from '../../services/appSettings';
 import { useToasts } from 'react-toast-notifications';
 import { TOAST } from '../../constants';
 import { History } from '../../utils/History';
-
 
 export default function SignUp(props) {
 	const { addToast } = useToasts();
@@ -21,10 +19,10 @@ export default function SignUp(props) {
 		email: '',
 		phone: '',
 		wallet_address: search.wallet_address,
-		agency:'',
+		agency: ''
 	});
-	const {appSettings,getAppSettings} = useContext(AppContext);
-	const {signUp} = useContext(UserContext);
+	const { appSettings, getAppSettings } = useContext(AppContext);
+	const { signUp } = useContext(UserContext);
 	const [loading, setLoading] = useState(false);
 
 	const handleInputChange = e => {
@@ -33,38 +31,37 @@ export default function SignUp(props) {
 
 	const handleFormSubmit = async e => {
 		e.preventDefault();
-		try{
+		try {
 			console.log(appSettings);
-		setLoading(true)
-		const payload = { ...formData ,agency:appSettings.agency.id};
-		const user = await signUp(payload);
-		if(user.sucess){
+			setLoading(true);
+			const payload = { ...formData, agency: appSettings.agency.id };
+			const user = await signUp(payload);
+			if (user.sucess) {
+				setLoading(false);
+			}
+			addToast('Successfully Registered', TOAST.SUCCESS);
+
+			History.push('/auth/login');
+		} catch (e) {
+			addToast(e.error, TOAST.ERROR);
 			setLoading(false);
 		}
-		addToast('Successfully Registered', TOAST.SUCCESS);
-
-	History.push('/auth/login');		
-		}
-		catch(e){
-			addToast(e.error, TOAST.ERROR);
-			setLoading(false)
-		}
-
 	};
 	const loadAppSettings = () => {
-		getAppSettings().then()
+		getAppSettings().then();
 	};
 
-
-useEffect(loadAppSettings,[]);
+	useEffect(loadAppSettings, []);
 
 	return (
 		<>
 			<Row style={{ height: '100vh' }}>
 				<Col className="left-content">
 					<div className="text-center">
-					<a href='/'>	<img src={Logo} height="200" width="460" alt="rahat logo"></img>
-            </a>
+						<a href="/">
+							{' '}
+							<img src={Logo} height="200" width="460" alt="rahat logo"></img>
+						</a>
 						<div style={{ width: '410px' }}>
 							<p className="description">
 								Supporting vulnerable communities with a simple and efficient relief distribution platform.
@@ -78,9 +75,17 @@ useEffect(loadAppSettings,[]);
 						<p className="text-subheader">Create an account</p>
 						<div className="mt-4 m-n1">
 							<Form onSubmit={handleFormSubmit} style={{ textAlign: 'left', color: 'white' }}>
-							<FormGroup>
+								<FormGroup>
 									<Label>Wallet</Label>
-									<Input type="text" bsSize='sm' value={formData.wallet_address} name="name" onChange={handleInputChange} readOnly required />
+									<Input
+										type="text"
+										bsSize="sm"
+										value={formData.wallet_address}
+										name="name"
+										onChange={handleInputChange}
+										readOnly
+										required
+									/>
 								</FormGroup>
 								<FormGroup>
 									<Label>Name</Label>
