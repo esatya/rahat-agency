@@ -270,6 +270,7 @@ export default function NewAsset({ match }) {
 									placeholder="Eg: 1KG"
 									onChange={handleItemsInputChange}
 								/>
+								&nbsp;
 								<button type="button" className="btn waves-effect waves-light btn-info" onClick={handleAddItem}>
 									<i class="fas fa-plus"></i>
 								</button>
