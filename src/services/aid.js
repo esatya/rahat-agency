@@ -21,8 +21,6 @@ const mapTestContract = contract => ({
 export async function createNft(payload, contracts, wallet) {
 	return new Promise(async (resolve, reject) => {
 		const { rahat_admin } = contracts;
-		// const contract = await getContractByProvider(rahat_admin, CONTRACT.RAHATADMIN);
-		// const contractInstance = contract.connect(wallet);
 		const contractInstance = await getContractInstance(rahat_admin, CONTRACT.RAHATADMIN, wallet);
 		const { name, symbol, project, totalSupply } = payload;
 		await contractInstance.createAndsetProjectBudget_ERC1155(name, symbol, project, totalSupply);
@@ -107,6 +105,18 @@ export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
 	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
 	const signerContract = contract.connect(wallet);
 	const res = await signerContract.issueERC20ToBeneficiary(payload.projectId, payload.phone, payload.claimable);
+	let d = await res.wait();
+	return d;
+}
+
+export async function issueBeneficiaryPackage(wallet, payload, contract_addr) {
+	console.log('Payload==>', payload);
+	console.log('Wallet==>', wallet);
+	console.log('Contract==>', contract_addr);
+	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
+	const signerContract = contract.connect(wallet);
+	const { projectId, phone, amounts, packageTokens } = payload;
+	const res = await signerContract.issueERC1155ToBeneficiary(projectId, phone, amounts, packageTokens);
 	let d = await res.wait();
 	return d;
 }
