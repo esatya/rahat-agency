@@ -39,7 +39,7 @@ const Token = ({ benfId, projectId }) => {
 
 	const handleTokenSubmit = e => {
 		e.preventDefault();
-		if (inputTokens > total_tokens) return addToast(`Only ${total_tokens} tokens are available`, TOAST.ERROR);
+		if (inputTokens > available_tokens) return addToast(`Only ${available_tokens} tokens are available`, TOAST.ERROR);
 		togglePasscodeModal();
 	};
 
@@ -83,9 +83,9 @@ const Token = ({ benfId, projectId }) => {
 
 	const fetchProjectBalance = useCallback(async () => {
 		setFetchingBlockchain(true);
-		const { rahat_admin, rahat } = appSettings.agency.contracts;
+		const { rahat_admin } = appSettings.agency.contracts;
 		await getProjectCapital(projectId, rahat_admin);
-		await getAidBalance(projectId, rahat);
+		await getAidBalance(projectId, rahat_admin);
 		setFetchingBlockchain(false);
 	}, [appSettings.agency.contracts, getAidBalance, getProjectCapital, projectId]);
 

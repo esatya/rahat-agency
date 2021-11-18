@@ -143,12 +143,9 @@ export async function bulkTokenIssueToBeneficiary({
 
 // Get available balance
 export async function loadAidBalance(aidId, contract_address) {
-	console.log({ aidId, contract_address });
 	try {
-		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
-		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-		const data = await contract.remainingProjectErc20Balances(hashId);
-		console.log({ data });
+		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
+		const data = await contract.getProjecERC20Balance(aidId);
 		return data.toNumber();
 	} catch (e) {
 		return 0;
