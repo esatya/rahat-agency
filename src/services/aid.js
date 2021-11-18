@@ -109,16 +109,25 @@ export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
 	return d;
 }
 
+async function updateBenfIssuedPackage(benfId, issued_packages) {
+	let res = await axios.patch(
+		`${API.BENEFICARIES}/${benfId}/update-packages`,
+		{ issued_packages },
+		{
+			headers: { access_token }
+		}
+	);
+	return res.data;
+}
+
 export async function issueBeneficiaryPackage(wallet, payload, contract_addr) {
-	console.log('Payload==>', payload);
-	console.log('Wallet==>', wallet);
-	console.log('Contract==>', contract_addr);
 	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
 	const signerContract = contract.connect(wallet);
-	const { projectId, phone, amounts, packageTokens } = payload;
-	const res = await signerContract.issueERC1155ToBeneficiary(projectId, phone, amounts, packageTokens);
+	const { benfId, projectId, phone, amounts, packageTokens } = payload;
+	const phoneNumber = Number(phone);
+	const res = await signerContract.issueERC1155ToBeneficiary(projectId, phoneNumber, amounts, packageTokens);
 	let d = await res.wait();
-	return d;
+	if (d) return updateBenfIssuedPackage(benfId, packageTokens);
 }
 
 export async function changeProjectStatus(aidId, status) {

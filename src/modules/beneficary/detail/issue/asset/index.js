@@ -3,6 +3,7 @@ import { Table } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Card, CardBody } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
+import { useHistory } from 'react-router-dom';
 
 import { AidContext } from '../../../../../contexts/AidContext';
 import { AppContext } from '../../../../../contexts/AppSettingsContext';
@@ -18,6 +19,7 @@ const TOKEN_ISSUE_AMOUNT = 1;
 export default function (props) {
 	const { projectId, benfId } = props;
 	const { addToast } = useToasts();
+	const history = useHistory();
 
 	const { listNftPackages, getBeneficiaryById, issueBeneficiaryPackage } = useContext(AidContext);
 	const { isVerified, wallet, appSettings, currentBalanceTab } = useContext(AppContext);
@@ -35,7 +37,7 @@ export default function (props) {
 
 	const handleCheckboxClick = e => {
 		const { name, checked } = e.target;
-		if (checked) setSelectedPackages([...selectedPackages, name]);
+		if (checked) setSelectedPackages([...selectedPackages, Number(name)]);
 		else {
 			const filtered = selectedPackages.filter(f => f !== name);
 			setSelectedPackages(filtered);
@@ -69,6 +71,7 @@ export default function (props) {
 				setLoading(true);
 				const tokenAmounts = Array(selectedPackages.length).fill(TOKEN_ISSUE_AMOUNT);
 				const payload = {
+					benfId: benfId,
 					projectId: projectId,
 					phone: benfPhone,
 					amounts: tokenAmounts,
@@ -76,11 +79,12 @@ export default function (props) {
 				};
 				const { rahat } = appSettings.agency.contracts;
 				const res = await issueBeneficiaryPackage(wallet, payload, rahat);
-				console.log('RES==>', res);
-				setLoading(false);
-				addToast('HURRAY!!', TOAST.SUCCESS);
+				if (res) {
+					setLoading(false);
+					addToast('Package assigned successfully', TOAST.SUCCESS);
+					history.push(`/beneficiaries/${benfId}`);
+				}
 			} catch (err) {
-				console.log('ERR==>', err);
 				setLoading(false);
 				const errMsg = err.message ? err.message : 'Could not issue package';
 				addToast(errMsg, TOAST.ERROR);
@@ -89,8 +93,10 @@ export default function (props) {
 	}, [
 		addToast,
 		appSettings.agency.contracts,
+		benfId,
 		benfPhone,
 		currentBalanceTab,
+		history,
 		isVerified,
 		issueBeneficiaryPackage,
 		projectId,
@@ -117,7 +123,7 @@ export default function (props) {
 					<tr className="border-0">
 						<th className="border-0">Select</th>
 						<th className="border-0">Name</th>
-						<th className="border-0">Quantity</th>
+						<th className="border-0">Available Quantity</th>
 						<th className="border-0">Created By</th>
 						<th className="border-0">Details</th>
 					</tr>
