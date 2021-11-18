@@ -20,39 +20,6 @@ export default function BudgetAdd({ match }) {
 		if (activeTab !== tab) setActiveTab(tab);
 	};
 
-	// const addProjectBalance = useCallback(async () => {
-	// 	const { rahat_admin } = appSettings.agency.contracts;
-	// 	if (isVerified && wallet) {
-	// 		setPasscodeModal(false);
-	// 		setLoading(true);
-	// 		addProjectBudget({ projectId, supplyToken: inputTokens, rahat_admin, wallet })
-	// 			.then(() => {
-	// 				setInputToken('');
-	// 				setLoading(false);
-	// 				addToast(`${inputTokens} tokens added to the project`, TOAST.SUCCESS);
-	// 				history.push(`/projects/${projectId}`);
-	// 			})
-	// 			.catch(err => {
-	// 				setLoading(false);
-	// 				addToast(err.message, TOAST.ERROR);
-	// 			});
-	// 	}
-	// }, [
-	// 	addProjectBudget,
-	// 	addToast,
-	// 	appSettings.agency.contracts,
-	// 	history,
-	// 	inputTokens,
-	// 	isVerified,
-	// 	projectId,
-	// 	setLoading,
-	// 	wallet
-	// ]);
-
-	// useEffect(() => {
-	// 	addProjectBalance();
-	// }, [addProjectBalance, isVerified]);
-
 	return (
 		<div>
 			<p className="page-heading">Project</p>

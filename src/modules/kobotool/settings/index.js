@@ -1,14 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { Card, CardBody, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
-import { useToasts } from 'react-toast-notifications';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import { History } from '../../../utils/History';
-import { TOAST } from '../../../constants';
 import WalletUnlock from '../../../modules/global/walletUnlock';
 import BreadCrumb from '../../ui_components/breadcrumb';
 
 const KoboToolboxSettings = () => {
-	const { addToast } = useToasts();
 	const { setKobotoolbox } = useContext(AppContext);
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [formData, setFormData] = useState({

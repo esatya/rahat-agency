@@ -179,6 +179,14 @@ export const AidContextProvider = ({ children }) => {
 		return BenfService.getById(benfId);
 	}, []);
 
+	const issueBeneficiaryPackage = useCallback(
+		(wallet, payload, contract_addr) => {
+			changeIsverified(false);
+			return Service.issueBeneficiaryPackage(wallet, payload, contract_addr);
+		},
+		[changeIsverified]
+	);
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -192,6 +200,7 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				issueBeneficiaryPackage,
 				getBeneficiaryById,
 				issueBenfToken,
 				mintNft,

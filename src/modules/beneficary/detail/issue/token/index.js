@@ -8,6 +8,7 @@ import { AidContext } from '../../../../../contexts/AidContext';
 import PasscodeModal from '../../../../global/PasscodeModal';
 import { TOAST } from '../../../../../constants';
 import Loading from '../../../../global/Loading';
+import { BALANCE_TABS } from '../../../../../constants';
 
 const Token = ({ benfId, projectId }) => {
 	const history = useHistory();
@@ -21,7 +22,7 @@ const Token = ({ benfId, projectId }) => {
 		getAidBalance
 	} = useContext(AidContext);
 
-	const { wallet, isVerified, appSettings } = useContext(AppContext);
+	const { wallet, isVerified, appSettings, currentBalanceTab } = useContext(AppContext);
 	const [inputTokens, setInputToken] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
@@ -39,12 +40,12 @@ const Token = ({ benfId, projectId }) => {
 
 	const handleTokenSubmit = e => {
 		e.preventDefault();
-		if (inputTokens > total_tokens) return addToast(`Only ${total_tokens} tokens are available`, TOAST.ERROR);
+		if (inputTokens > available_tokens) return addToast(`Only ${available_tokens} tokens are available`, TOAST.ERROR);
 		togglePasscodeModal();
 	};
 
 	const submitTokenRequest = useCallback(async () => {
-		if (isVerified && wallet) {
+		if (isVerified && wallet && currentBalanceTab === BALANCE_TABS.TOKEN) {
 			try {
 				setPasscodeModal(false);
 				setLoading(true);
@@ -71,6 +72,7 @@ const Token = ({ benfId, projectId }) => {
 	}, [
 		isVerified,
 		wallet,
+		currentBalanceTab,
 		getBeneficiaryById,
 		benfId,
 		addToast,
@@ -83,9 +85,9 @@ const Token = ({ benfId, projectId }) => {
 
 	const fetchProjectBalance = useCallback(async () => {
 		setFetchingBlockchain(true);
-		const { rahat_admin, rahat } = appSettings.agency.contracts;
+		const { rahat_admin } = appSettings.agency.contracts;
 		await getProjectCapital(projectId, rahat_admin);
-		await getAidBalance(projectId, rahat);
+		await getAidBalance(projectId, rahat_admin);
 		setFetchingBlockchain(false);
 	}, [appSettings.agency.contracts, getAidBalance, getProjectCapital, projectId]);
 
@@ -93,6 +95,7 @@ const Token = ({ benfId, projectId }) => {
 		fetchProjectBalance();
 	}, [fetchProjectBalance]);
 
+	// TODO: Effect called on package issue. Temporarily fixed!
 	useEffect(() => {
 		submitTokenRequest();
 	}, [isVerified, submitTokenRequest]);

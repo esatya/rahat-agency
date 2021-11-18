@@ -55,7 +55,7 @@ export default function DetailsForm(props) {
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal));
+	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal), [passcodeModal]);
 	const [modal, setModal] = useState(false);
 	const [projectOptions, setProjectOptions] = useState([]);
 	// const [inputTokens, setInputTokens] = useState(null);
