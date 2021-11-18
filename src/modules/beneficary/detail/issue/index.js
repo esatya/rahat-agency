@@ -1,29 +1,22 @@
-import React, { useState, useCallback } from 'react';
+import React, { useContext } from 'react';
 import { Card, Col, Row, TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
 import classnames from 'classnames';
 import '../../../../assets/css/project.css';
-import PasscodeModal from '../../../global/PasscodeModal';
 import BreadCrumb from '../../../ui_components/breadcrumb';
 import TokenTab from './token/index';
 import AssetTab from './asset/index';
+import { AppContext } from '../../../../contexts/AppSettingsContext';
+import { BALANCE_TABS } from '../../../../constants';
 
 export default function BudgetAdd({ match }) {
-	const [passcodeModal, setPasscodeModal] = useState(false);
-
 	const { projectId, benfId } = match.params;
 
-	const [activeTab, setActiveTab] = useState('1');
+	const { currentBalanceTab, setCurrentBalanceTab } = useContext(AppContext);
 
-	const toggle = tab => {
-		if (activeTab !== tab) setActiveTab(tab);
-	};
-	const togglePasscodeModal = useCallback(() => {
-		setPasscodeModal(!passcodeModal);
-	}, [passcodeModal]);
+	const toggleTabs = tabName => setCurrentBalanceTab(tabName);
 
 	return (
 		<div>
-			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 			<p className="page-heading">Beneficiary</p>
 			<BreadCrumb redirect_path={`beneficiaries/${benfId}`} root_label="Details" current_label="Issue" />
 			<Card>
@@ -31,9 +24,9 @@ export default function BudgetAdd({ match }) {
 					<Nav tabs>
 						<NavItem>
 							<NavLink
-								className={classnames({ active: activeTab === '1' })}
+								className={classnames({ active: currentBalanceTab === BALANCE_TABS.TOKEN })}
 								onClick={() => {
-									toggle('1');
+									toggleTabs(BALANCE_TABS.TOKEN);
 								}}
 							>
 								Tokens
@@ -41,16 +34,16 @@ export default function BudgetAdd({ match }) {
 						</NavItem>
 						<NavItem>
 							<NavLink
-								className={classnames({ active: activeTab === '2' })}
+								className={classnames({ active: currentBalanceTab === BALANCE_TABS.PACKAGE })}
 								onClick={() => {
-									toggle('2');
+									toggleTabs(BALANCE_TABS.PACKAGE);
 								}}
 							>
 								Packages
 							</NavLink>
 						</NavItem>
 					</Nav>
-					<TabContent className="pt-2" activeTab={activeTab}>
+					<TabContent className="pt-2" activeTab={currentBalanceTab === BALANCE_TABS.TOKEN ? '1' : '2'}>
 						<TabPane tabId="1">
 							<Row>
 								<Col sm="12">
@@ -61,7 +54,7 @@ export default function BudgetAdd({ match }) {
 						<TabPane tabId="2">
 							<Row>
 								<Col sm="12">
-									<AssetTab projectId={projectId} />
+									<AssetTab projectId={projectId} benfId={benfId} />
 								</Col>
 							</Row>
 						</TabPane>

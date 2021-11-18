@@ -21,8 +21,6 @@ const mapTestContract = contract => ({
 export async function createNft(payload, contracts, wallet) {
 	return new Promise(async (resolve, reject) => {
 		const { rahat_admin } = contracts;
-		// const contract = await getContractByProvider(rahat_admin, CONTRACT.RAHATADMIN);
-		// const contractInstance = contract.connect(wallet);
 		const contractInstance = await getContractInstance(rahat_admin, CONTRACT.RAHATADMIN, wallet);
 		const { name, symbol, project, totalSupply } = payload;
 		await contractInstance.createAndsetProjectBudget_ERC1155(name, symbol, project, totalSupply);
@@ -111,6 +109,27 @@ export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
 	return d;
 }
 
+async function updateBenfIssuedPackage(benfId, issued_packages) {
+	let res = await axios.patch(
+		`${API.BENEFICARIES}/${benfId}/update-packages`,
+		{ issued_packages },
+		{
+			headers: { access_token }
+		}
+	);
+	return res.data;
+}
+
+export async function issueBeneficiaryPackage(wallet, payload, contract_addr) {
+	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
+	const signerContract = contract.connect(wallet);
+	const { benfId, projectId, phone, amounts, packageTokens } = payload;
+	const phoneNumber = Number(phone);
+	const res = await signerContract.issueERC1155ToBeneficiary(projectId, phoneNumber, amounts, packageTokens);
+	let d = await res.wait();
+	if (d) return updateBenfIssuedPackage(benfId, packageTokens);
+}
+
 export async function changeProjectStatus(aidId, status) {
 	try {
 		let res = await axios.patch(
@@ -143,12 +162,9 @@ export async function bulkTokenIssueToBeneficiary({
 
 // Get available balance
 export async function loadAidBalance(aidId, contract_address) {
-	console.log({ aidId, contract_address });
 	try {
-		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
-		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-		const data = await contract.remainingProjectErc20Balances(hashId);
-		console.log({ data });
+		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
+		const data = await contract.getProjecERC20Balance(aidId);
 		return data.toNumber();
 	} catch (e) {
 		return 0;

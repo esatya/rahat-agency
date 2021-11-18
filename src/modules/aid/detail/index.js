@@ -54,9 +54,9 @@ export default function Index(props) {
 	const fetchBalanceAndToken = useCallback(async () => {
 		try {
 			setFetchingBlockchain(true);
-			const { rahat, rahat_admin } = appSettings.agency.contracts;
+			const { rahat_admin } = appSettings.agency.contracts;
 			await getProjectCapital(id, rahat_admin);
-			await getAidBalance(id, rahat);
+			await getAidBalance(id, rahat_admin);
 		} catch (err) {
 			addToast(err.message, TOAST.ERROR);
 		} finally {

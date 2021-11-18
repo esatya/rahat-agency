@@ -126,7 +126,7 @@ const Dashboard = () => {
 					/>
 				</Col>
 			</Row>
-			<TransactionChart/>
+			<TransactionChart />
 		</>
 	);
 };
