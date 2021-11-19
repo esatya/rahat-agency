@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import '../../../assets/css/project.css';
 
 import Loading from '../../global/Loading';
+import { formatBalanceAndCurrency } from '../../../utils';
 
 export default function Balance(props) {
 	const {
@@ -55,7 +56,15 @@ export default function Balance(props) {
 							</div>
 						</Col>
 						<Col>
-							{fetching ? <Loading /> : <p className="card-font-bold">{package_data || '0'}</p>}
+							{fetching ? (
+								<Loading />
+							) : (
+								<p className="card-font-bold">
+									{package_data && package_data.currency
+										? formatBalanceAndCurrency(package_data.grandTotal, package_data.currency)
+										: '0'}
+								</p>
+							)}
 
 							<div style={{ marginTop: 0 }} className="sub-title">
 								Package
