@@ -160,6 +160,24 @@ export async function bulkTokenIssueToBeneficiary({
 	}
 }
 
+async function calculateAndGetTotalProjectBalance(payload) {
+	let res = await axios.post(`${API.NFT}/project-balance-fiat`, payload, {
+		headers: { access_token }
+	});
+	return res.data;
+}
+
+export async function getProjectPackageBalance(aidId, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
+	const data = await contract.getProjectERC1155Balances(aidId);
+	if (!data) return null;
+	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
+		const tokenQtys = data.balances.map(b => b.toNumber());
+		return calculateAndGetTotalProjectBalance({ tokenIds, tokenQtys });
+	}
+}
+
 // Get available balance
 export async function loadAidBalance(aidId, contract_address) {
 	try {
