@@ -21,6 +21,16 @@ export async function getVendorBalance(contract_address, wallet_addr) {
 	return data.toNumber();
 }
 
+export async function getVendorPackageBalance(contract_address, wallet_addresses, tokenIds) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT_ERC1155);
+	const data = await contract.balanceOfBatch(wallet_addresses, tokenIds);
+	if (!data) return null;
+	const dataNums = data.map(d => d.toNumber());
+	console.log('dataNums==>', dataNums);
+	// Calculate fiatValue for each dataNum and return;
+	return dataNums;
+}
+
 export async function approveVendor(wallet, payload, contract_address) {
 	try {
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
@@ -35,6 +45,17 @@ export async function approveVendor(wallet, payload, contract_address) {
 		console.log(e);
 		throw Error(e);
 	}
+}
+
+export async function getTokenIdsByProjects(projects) {
+	const res = await axios.post(
+		`${API.NFT}/fetch-project-tokens/`,
+		{ projects },
+		{
+			headers: { access_token: access_token }
+		}
+	);
+	return res.data;
 }
 
 export async function changeVendorStaus(vendorId, status) {
