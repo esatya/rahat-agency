@@ -14,10 +14,10 @@ const mapTestContract = contract => ({
 });
 
 export async function getVendorBalance(contract_address, wallet_addr) {
-	const contract = await getContractByProvider(contract_address, CONTRACT.AIDTOKEN);
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT_ERC20);
 	const myContract = mapTestContract(contract);
 	const data = await myContract.balanceOf(wallet_addr);
-	if (!data) return 'Vendor not found!';
+	if (!data) return null;
 	return data.toNumber();
 }
 

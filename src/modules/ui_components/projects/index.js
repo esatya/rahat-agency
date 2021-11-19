@@ -15,7 +15,7 @@ export default function ProjectsInvolved(props) {
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<div style={{ flexBasis: '50%' }}>
 							<div>
-								{projects ? (
+								{projects && projects.length > 0 ? (
 									projects.map(project => (
 										<button
 											key={project.id}
@@ -27,7 +27,7 @@ export default function ProjectsInvolved(props) {
 										</button>
 									))
 								) : (
-									<p style={{ color: '#2B7EC1' }}>No projects available...</p>
+									<p style={{ color: '#2B7EC1' }}>No projects available</p>
 								)}
 							</div>
 						</div>

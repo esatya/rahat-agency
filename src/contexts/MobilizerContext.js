@@ -25,8 +25,8 @@ export const MobilizerContextProvider = ({ children }) => {
 	}
 
 	async function getAvailableBalance(proejctId, rahatAdminContractAddr) {
-		const { rahat: rahatContractAddr } = appSettings.agency.contracts;
-		return AidService.loadAidBalance(proejctId, rahatContractAddr);
+		const { rahat_admin } = appSettings.agency.contracts;
+		return AidService.loadAidBalance(proejctId, rahat_admin);
 	}
 
 	async function listAid() {
