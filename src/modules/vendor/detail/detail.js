@@ -21,7 +21,14 @@ const Index = ({ params }) => {
 	const { addToast } = useToasts();
 	const { id } = params;
 
-	const { getVendorDetails, getVendorTransactions, getVendorBalance, approveVendor } = useContext(VendorContext);
+	const {
+		getVendorDetails,
+		getVendorTransactions,
+		getVendorBalance,
+		approveVendor,
+		getVendorPackageBalance,
+		getTokenIdsByProjects
+	} = useContext(VendorContext);
 	const { isVerified, wallet, appSettings } = useContext(AppContext);
 
 	const [basicInfo, setBasicInfo] = useState({});
@@ -34,6 +41,7 @@ const Index = ({ params }) => {
 	const [vendorBalance, setVendorBalance] = useState(null);
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [vendorStatus, setVendorStatus] = useState('');
+	const [vendorPackageBalance, setVendorPackageBalance] = useState(null);
 
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
@@ -70,21 +78,42 @@ const Index = ({ params }) => {
 		[appSettings, getVendorBalance]
 	);
 
+	const fetchTokenIdsByProjects = useCallback(
+		async projects => {
+			const projectIds = projects.map(p => p._id);
+			const res = await getTokenIdsByProjects(projectIds);
+			return res;
+		},
+		[getTokenIdsByProjects]
+	);
+
+	const fetchVendorPackageBalance = useCallback(
+		async (wallet_address, tokenIds) => {
+			const { rahat_erc1155 } = appSettings.agency.contracts;
+			const wallet_addresses = Array(tokenIds.length).fill(wallet_address);
+			const package_balance = await getVendorPackageBalance(rahat_erc1155, wallet_addresses, tokenIds);
+			setVendorPackageBalance(package_balance);
+		},
+		[appSettings.agency.contracts, getVendorPackageBalance]
+	);
+
 	const fetchVendorDetails = useCallback(async () => {
 		const details = await getVendorDetails(id);
-		console.log('Details===>', details);
-		if (details) {
-			setVendorStatus(details.agencies[0].status);
-			setBasicInfo(details);
-			await fetchVendorBalance(details.wallet_address);
-		}
-		if (details.projects && details.projects.length) {
+		if (details && details.projects && details.projects.length) {
+			const tokenIds = await await fetchTokenIdsByProjects(details.projects);
 			const projects = details.projects.map(d => {
 				return { id: d._id, name: d.name };
 			});
 			setProjectList(projects);
+			await fetchVendorPackageBalance(details.wallet_address, tokenIds);
 		}
-	}, [fetchVendorBalance, getVendorDetails, id]);
+		if (details) {
+			setVendorStatus(details.agencies[0].status);
+			setBasicInfo(details);
+
+			await fetchVendorBalance(details.wallet_address);
+		}
+	}, [fetchTokenIdsByProjects, fetchVendorBalance, fetchVendorPackageBalance, getVendorDetails, id]);
 
 	const fetchVendorTransactions = useCallback(async () => {
 		try {
@@ -185,7 +214,7 @@ const Index = ({ params }) => {
 						title="Balance"
 						button_name=""
 						token_data={vendorBalance}
-						package_data=""
+						package_data={vendorPackageBalance}
 						fetching={fetchingBalance}
 						loading={loading}
 						handleIssueToken=""
