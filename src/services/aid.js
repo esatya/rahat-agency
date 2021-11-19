@@ -160,8 +160,8 @@ export async function bulkTokenIssueToBeneficiary({
 	}
 }
 
-async function calculateAndGetTotalProjectBalance(payload) {
-	let res = await axios.post(`${API.NFT}/project-balance-fiat`, payload, {
+async function calculateTotalPackageBalance(payload) {
+	let res = await axios.post(`${API.NFT}/total-package-balance`, payload, {
 		headers: { access_token }
 	});
 	return res.data;
@@ -174,7 +174,7 @@ export async function getProjectPackageBalance(aidId, contract_address) {
 	if (data) {
 		const tokenIds = data.tokenIds.map(t => t.toNumber());
 		const tokenQtys = data.balances.map(b => b.toNumber());
-		return calculateAndGetTotalProjectBalance({ tokenIds, tokenQtys });
+		return calculateTotalPackageBalance({ tokenIds, tokenQtys });
 	}
 }
 

@@ -60,12 +60,12 @@ const Token = ({ benfId, projectId }) => {
 				const res = await issueBenfToken(payload, wallet, contracts);
 				if (res) {
 					setLoading(false);
-					addToast(`${inputTokens} tokens issued successfully`, TOAST.SUCCESS);
+					addToast(`${inputTokens} tokens assigend successfully`, TOAST.SUCCESS);
 					history.push(`/beneficiaries/${benfId}`);
 				}
 			} catch (err) {
 				setLoading(false);
-				const errMsg = err.message ? err.message : 'Could not issue tokens to beneficiary';
+				const errMsg = err.message ? err.message : 'Could not assign tokens to beneficiary';
 				addToast(errMsg, TOAST.ERROR);
 			}
 		}
