@@ -187,6 +187,10 @@ export const AidContextProvider = ({ children }) => {
 		[changeIsverified]
 	);
 
+	const getProjectPackageBalance = useCallback((aidId, contract_address) => {
+		return Service.getProjectPackageBalance(aidId, contract_address);
+	}, []);
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -200,6 +204,7 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				getProjectPackageBalance,
 				issueBeneficiaryPackage,
 				getBeneficiaryById,
 				issueBenfToken,

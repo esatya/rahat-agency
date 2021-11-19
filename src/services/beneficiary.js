@@ -6,11 +6,38 @@ import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
 const access_token = getUserToken();
 
+// Available tokens
 export async function getBeneficiaryBalance(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
 	const data = await contract.erc20Balance(phone);
 	if (!data) return null;
 	return data.toNumber();
+}
+
+// Total tokens
+export async function getTotalIssuedTokens(phone, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.erc20Issued(phone);
+	if (!data) return null;
+	return data.toNumber();
+}
+
+async function calculateTotalPackageBalance(payload) {
+	let res = await axios.post(`${API.NFT}/total-package-balance`, payload, {
+		headers: { access_token }
+	});
+	return res.data;
+}
+
+export async function getBeneficiaryPackageBalance(phone, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.getTotalERC1155Balance(phone);
+	if (!data) return null;
+	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
+		const tokenQtys = data.balances.map(b => b.toNumber());
+		return calculateTotalPackageBalance({ tokenIds, tokenQtys });
+	}
 }
 
 export async function listBeneficiary(params) {
