@@ -37,6 +37,14 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
 	}, []);
 
+	const getBenfPackageBalance = useCallback((phone, contract_address) => {
+		return Service.getBeneficiaryPackageBalance(phone, contract_address);
+	}, []);
+
+	const getTotalIssuedTokens = useCallback((phone, contract_address) => {
+		return Service.getTotalIssuedTokens(phone, contract_address);
+	}, []);
+
 	const listProject = useCallback(async () => {
 		const d = await AidService.listAid({ start: 0, limit: 50 });
 		dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
@@ -108,6 +116,8 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				issueTokens,
 				addBeneficiary,
 				addBeneficiaryInBulk,
+				getBenfPackageBalance,
+				getTotalIssuedTokens,
 				updateBeneficiary,
 				setBeneficiary,
 				listBeneficiary,

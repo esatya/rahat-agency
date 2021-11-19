@@ -23,8 +23,14 @@ const BenefDetails = ({ params }) => {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
-	const { getBeneficiaryDetails, getBeneficiaryBalance, listProject } = useContext(BeneficiaryContext);
-	const { loading, setLoading, appSettings } = useContext(AppContext);
+	const {
+		getBeneficiaryDetails,
+		getBeneficiaryBalance,
+		getBenfPackageBalance,
+		listProject,
+		getTotalIssuedTokens
+	} = useContext(BeneficiaryContext);
+	const { loading, appSettings } = useContext(AppContext);
 
 	const [basicInfo, setBasicInfo] = useState({});
 	const [extras, setExtras] = useState({});
@@ -38,9 +44,9 @@ const BenefDetails = ({ params }) => {
 	const [projectModal, setProjectModal] = useState(false);
 	const [assignTokenModal, setAssignTokenModal] = useState(false);
 
-	// const [availableBalance, setAvailableBalance] = useState('');
-	// const [showAlert, setShowAlert] = useState(false);
 	const [selectedProject, setSelectedProject] = useState('');
+	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
+	const [totalIssuedTokens, setTotalIssuedTokens] = useState(null);
 
 	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
 
@@ -84,20 +90,7 @@ const BenefDetails = ({ params }) => {
 		}, 250);
 	};
 
-	const handleProjectChange = async d => {
-		try {
-			setSelectedProject(d.value);
-			setLoading(true);
-			// const balance = await getAvailableBalance(d.value);
-			// setAvailableBalance(balance);
-			// setShowAlert(true);
-			setLoading(false);
-		} catch (err) {
-			setLoading(false);
-			// setShowAlert(false);
-			addToast('Failed to fetch project balance', TOAST.ERROR);
-		}
-	};
+	const handleProjectChange = d => setSelectedProject(d.value);
 
 	const handleIssueToken = () => toggleProjectModal();
 
@@ -115,6 +108,10 @@ const BenefDetails = ({ params }) => {
 				const { rahat } = appSettings.agency.contracts;
 				setFetching(true);
 				const balance = await getBeneficiaryBalance(parsed_phone, rahat);
+				const res = await getBenfPackageBalance(parsed_phone, rahat);
+				const issuedTokens = await getTotalIssuedTokens(parsed_phone, rahat);
+				setTotalIssuedTokens(issuedTokens);
+				setTotalPackageBalance(res);
 				setCurrentBalance(balance);
 				setFetching(false);
 			} catch (err) {
@@ -122,7 +119,7 @@ const BenefDetails = ({ params }) => {
 				setFetching(false);
 			}
 		},
-		[appSettings.agency.contracts, getBeneficiaryBalance]
+		[appSettings.agency.contracts, getBeneficiaryBalance, getBenfPackageBalance, getTotalIssuedTokens]
 	);
 
 	const fetchBeneficiaryDetails = useCallback(async () => {
@@ -215,14 +212,15 @@ const BenefDetails = ({ params }) => {
 			<Row>
 				<Col md="7">
 					<DetailsCard
+						fetching={fetching}
 						handleButtonClick={toggleAssignTokenModal}
 						title="Beneficiary Details"
 						button_name="Generate QR Code"
 						name="Name"
 						name_value={basicInfo.name ? basicInfo.name : ''}
 						imgUrl={basicInfo.photo ? basicInfo.photo : ''}
-						total="Total Issued"
-						total_value="-"
+						total="Issued Tokens"
+						total_value={totalIssuedTokens}
 					/>
 				</Col>
 				<Col md="5">
@@ -231,7 +229,7 @@ const BenefDetails = ({ params }) => {
 						title="Balance"
 						button_name="Issue"
 						token_data={currentBalance}
-						package_data=""
+						package_data={totalPackageBalance}
 						fetching={fetching}
 						loading={loading}
 						handleIssueToken={handleIssueToken}
