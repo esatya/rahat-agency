@@ -31,7 +31,7 @@ const Index = ({ params }) => {
 
 	const [fetchingBlockchain, setFetchingBlockChain] = useState(false);
 	const [fetchingBalance, setFetchingBalance] = useState(false);
-	const [vendorBalance, setVendorBalance] = useState('0');
+	const [vendorBalance, setVendorBalance] = useState(null);
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [vendorStatus, setVendorStatus] = useState('');
 
@@ -62,8 +62,8 @@ const Index = ({ params }) => {
 	const fetchVendorBalance = useCallback(
 		async wallet_address => {
 			setFetchingBalance(true);
-			const { token } = appSettings.agency.contracts;
-			const balance = await getVendorBalance(token, wallet_address);
+			const { rahat_erc20 } = appSettings.agency.contracts;
+			const balance = await getVendorBalance(rahat_erc20, wallet_address);
 			setVendorBalance(balance);
 			setFetchingBalance(false);
 		},
@@ -72,6 +72,7 @@ const Index = ({ params }) => {
 
 	const fetchVendorDetails = useCallback(async () => {
 		const details = await getVendorDetails(id);
+		console.log('Details===>', details);
 		if (details) {
 			setVendorStatus(details.agencies[0].status);
 			setBasicInfo(details);

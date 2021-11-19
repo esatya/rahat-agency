@@ -90,7 +90,6 @@ export default function DetailsForm(props) {
 		if (appSettings && appSettings.agency) {
 			try {
 				setFetchingBalance(true);
-
 				const { token } = appSettings.agency.contracts;
 				let d = await getMobilizerBalance(token, wallet);
 				setMobilizerBalance(d);
@@ -138,7 +137,6 @@ export default function DetailsForm(props) {
 		try {
 			setLoading(true);
 			setSelectedProject(e.value);
-			//const { rahat_admin } = appSettings.agency.contracts;
 			let d = await getAvailableBalance(e.value);
 			setAvailableBalance(d);
 			setShowAlert(true);
@@ -257,7 +255,7 @@ export default function DetailsForm(props) {
 			{/* <UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet> */}
 
 			<Modal isOpen={modal} toggle={toggleModal.bind(null)}>
-				<ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
+				<ModalHeader toggle={toggleModal.bind(null)}>Select Project</ModalHeader>
 				<ModalBody>
 					<FormGroup>
 						<Label>Project *</Label>
@@ -290,12 +288,18 @@ export default function DetailsForm(props) {
 				</ModalBody>
 				<ModalFooter>
 					<>
-						<Button onClick={handleMobilizerApprove} type="button" color="primary">
-							Submit
-						</Button>
-						<Button color="secondary" onClick={toggleModal.bind(null)}>
-							Cancel
-						</Button>
+						{loading ? (
+							'Please wait...'
+						) : (
+							<React.Fragment>
+								<Button onClick={handleMobilizerApprove} type="button" color="primary">
+									Submit
+								</Button>
+								<Button color="secondary" onClick={toggleModal.bind(null)}>
+									Cancel
+								</Button>
+							</React.Fragment>
+						)}
 					</>
 				</ModalFooter>
 			</Modal>
