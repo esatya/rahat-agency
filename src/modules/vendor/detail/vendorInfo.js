@@ -3,7 +3,7 @@ import { Card, CardTitle, Col, Row } from 'reactstrap';
 import '../../../assets/css/project.css';
 import image from '../../../assets/images/id-icon-1.png';
 import { History } from '../../../utils/History';
-import moment from 'moment'
+import moment from 'moment';
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function VendorInfo(props) {
@@ -11,7 +11,6 @@ export default function VendorInfo(props) {
 	const { id } = props.information;
 	const handleEditClick = () => History.push(`/edit-vendor/${id}`);
 
-	console.log(information.extra_files && information.extra_files.signature_photo);
 	return (
 		<div>
 			<Card>
@@ -55,7 +54,9 @@ export default function VendorInfo(props) {
 								<div className="sub-title">Bank account number</div>
 							</div>
 							<div className="card-data ">
-								<p className="card-font-medium">{ moment(information.created_at).format('MMM Do YYYY, hh:mm A') || '-'}</p>
+								<p className="card-font-medium">
+									{moment(information.created_at).format('MMM Do YYYY, hh:mm A') || '-'}
+								</p>
 								<div className="sub-title">Registration Date</div>
 							</div>
 						</Col>

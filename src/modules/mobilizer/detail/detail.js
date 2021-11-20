@@ -9,8 +9,6 @@ import {
 	CardBody,
 	Row,
 	Col,
-	// Input,
-	// ButtonGroup,
 	Button,
 	Table,
 	CardSubtitle,
@@ -22,13 +20,11 @@ import {
 	ModalHeader,
 	ModalFooter
 } from 'reactstrap';
-// import Swal from 'sweetalert2';
 
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/user_avatar.svg';
-// import IdPhoto from '../../../assets/images/id-icon-1.png';
-// import UnlockWallet from '../../global/walletUnlock';
+
 import PasscodeModal from '../../global/PasscodeModal';
 import MobilizerInfo from './mobilizerInfo';
 import BreadCrumb from '../../ui_components/breadcrumb';
@@ -44,13 +40,14 @@ export default function DetailsForm(props) {
 		mobilizer,
 		getMobilizerDetails,
 		approveMobilizer,
-		// changeMobilizerStatus,
 		getMobilizerBalance,
 		getMobilizerTransactions,
 		transactionHistory,
 		getAvailableBalance,
-		listAid
+		listAid,
+		getMobilizerPackageBalance
 	} = useContext(MobilizerContext);
+
 	const { appSettings, isVerified, wallet } = useContext(AppContext);
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
@@ -58,87 +55,47 @@ export default function DetailsForm(props) {
 	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal), [passcodeModal]);
 	const [modal, setModal] = useState(false);
 	const [projectOptions, setProjectOptions] = useState([]);
-	// const [inputTokens, setInputTokens] = useState(null);
 	const [selectedProject, setSelectedProject] = useState('');
 	const [availableBalance, setAvailableBalance] = useState(null);
 	const [showAlert, setShowAlert] = useState(false);
-	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [projectList, setProjectList] = useState([]);
 
-	const loadMobilizerDetails = () => {
-		getMobilizerDetails(mobilizerId)
-			.then(d => {
-				getMobilizerTransactions(mobilizerId);
-				getBalance(d.wallet_address);
+	const [fetchingBalance, setFetchingBalance] = useState(false);
+	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
 
-				if (d.projects && d.projects.length) {
-					const projects = d.projects.map(d => {
-						return { id: d._id, name: d.name };
-					});
-					setProjectList(projects);
-				}
-			})
-			.catch(() => {
-				addToast('Something went wrong on server!', {
-					appearance: 'error',
-					autoDismiss: true
+	const fetchTokenAndPackageBalance = useCallback(
+		async wallet_address => {
+			setFetchingBalance(true);
+			const { rahat } = appSettings.agency.contracts;
+			const tokenBalance = await getMobilizerBalance(rahat, wallet_address);
+			setMobilizerBalance(tokenBalance);
+			const packageBalance = await getMobilizerPackageBalance(rahat, wallet_address);
+			if (packageBalance && packageBalance.grandTotal > 0) setTotalPackageBalance(packageBalance);
+			setFetchingBalance(false);
+		},
+		[appSettings.agency.contracts, getMobilizerBalance, getMobilizerPackageBalance]
+	);
+
+	const fetchMobilizerDetails = useCallback(async () => {
+		try {
+			const mob = await getMobilizerDetails(mobilizerId);
+			if (mob.projects && mob.projects.length) {
+				const projects = mob.projects.map(d => {
+					return { id: d._id, name: d.name };
 				});
-			});
-	};
-
-	const getBalance = async wallet => {
-		if (appSettings && appSettings.agency) {
-			try {
-				setFetchingBalance(true);
-
-				const { token } = appSettings.agency.contracts;
-				let d = await getMobilizerBalance(token, wallet);
-				setMobilizerBalance(d);
-				setFetchingBalance(false);
-			} catch {
-				addToast('Invalid Mobilizer wallet address!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
+				setProjectList(projects);
 			}
+			if (mob.wallet_address) await fetchTokenAndPackageBalance(mob.wallet_address);
+			await getMobilizerTransactions(mobilizerId);
+		} catch (err) {
+			console.log('ERR==>', err);
 		}
-	};
-
-	// const handleChangeStatus = async status => {
-	// 	let swal = await Swal.fire({
-	// 		title: 'Are you sure?',
-	// 		text: `Mobilizer will be marked as ${status}`,
-	// 		icon: 'warning',
-	// 		showCancelButton: true,
-	// 		confirmButtonColor: '#3085d6',
-	// 		cancelButtonColor: '#d33',
-	// 		confirmButtonText: 'Yes'
-	// 	});
-	// 	if (swal.isConfirmed) {
-	// 		try {
-	// 			await changeMobilizerStatus(mobilizerId, status);
-	// 			addToast(`Mobilizer marked as ${status}`, {
-	// 				appearance: 'success',
-	// 				autoDismiss: true
-	// 			});
-	// 		} catch (e) {
-	// 			addToast('Something went wrong on server!', {
-	// 				appearance: 'error',
-	// 				autoDismiss: true
-	// 			});
-	// 		}
-	// 	}
-	// };
-
-	// const handleTokenChange = e => {
-	// 	setInputTokens(e.target.value);
-	// };
+	}, [fetchTokenAndPackageBalance, getMobilizerDetails, getMobilizerTransactions, mobilizerId]);
 
 	const handleSelectProject = async e => {
 		try {
 			setLoading(true);
 			setSelectedProject(e.value);
-			//const { rahat_admin } = appSettings.agency.contracts;
 			let d = await getAvailableBalance(e.value);
 			setAvailableBalance(d);
 			setShowAlert(true);
@@ -185,7 +142,6 @@ export default function DetailsForm(props) {
 	};
 
 	const resetTokenIssueForm = () => {
-		// setInputTokens(null);
 		setAvailableBalance('');
 		setShowAlert(false);
 	};
@@ -236,14 +192,15 @@ export default function DetailsForm(props) {
 
 	useEffect(fetchProjectList, []);
 
-	useEffect(loadMobilizerDetails, []);
+	useEffect(() => {
+		fetchMobilizerDetails();
+	}, [fetchMobilizerDetails]);
 
 	useEffect(() => {
 		if (isVerified && wallet) {
 			submitMobilizerApproval();
 		}
 	}, [submitMobilizerApproval, isVerified, wallet]);
-	//	useEffect(submitMobilizerApproval, [isVerified]);
 
 	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : 'new';
 
@@ -254,10 +211,8 @@ export default function DetailsForm(props) {
 			<p className="page-heading">Mobilizers</p>
 			<BreadCrumb redirect_path="mobilizers" root_label="Mobilizers" current_label="Details" />
 
-			{/* <UnlockWallet open={passcodeModal} onClose={e => setPasscodeModal(e)}></UnlockWallet> */}
-
 			<Modal isOpen={modal} toggle={toggleModal.bind(null)}>
-				<ModalHeader toggle={toggleModal.bind(null)}>Issue Token</ModalHeader>
+				<ModalHeader toggle={toggleModal.bind(null)}>Select Project</ModalHeader>
 				<ModalBody>
 					<FormGroup>
 						<Label>Project *</Label>
@@ -290,12 +245,18 @@ export default function DetailsForm(props) {
 				</ModalBody>
 				<ModalFooter>
 					<>
-						<Button onClick={handleMobilizerApprove} type="button" color="primary">
-							Submit
-						</Button>
-						<Button color="secondary" onClick={toggleModal.bind(null)}>
-							Cancel
-						</Button>
+						{loading ? (
+							'Please wait...'
+						) : (
+							<React.Fragment>
+								<Button onClick={handleMobilizerApprove} type="button" color="primary">
+									Submit
+								</Button>
+								<Button color="secondary" onClick={toggleModal.bind(null)}>
+									Cancel
+								</Button>
+							</React.Fragment>
+						)}
 					</>
 				</ModalFooter>
 			</Modal>
@@ -362,185 +323,18 @@ export default function DetailsForm(props) {
 				<Col md="5">
 					<Balance
 						action=""
-						title="Balance"
+						title="Issued"
 						button_name=""
 						token_data={mobilizerBalance}
-						package_data=""
+						package_data={totalPackageBalance}
 						fetching={fetchingBalance}
 						loading={loading}
 						handleIssueToken=""
 					/>
-					{/* <Card>
-						<div className="stat-card-body" style={{ minHeight: 120 }}>
-							<CardTitle className="title">Token</CardTitle>
-							<Row>
-								<Col md="6" sm="12" style={{ marginBottom: '10px' }}>
-									{fetchingBalance ? <Loading /> : <p className="card-font-bold">{mobilizerBalance || 0}</p>}
-
-									<div className="sub-title">Total Balance</div>
-								</Col>
-								<Col md="6" sm="12">
-									<p className="card-font-bold">0</p>
-									<div className="sub-title">Total Redeemed</div>
-								</Col>
-							</Row>
-						</div>
-					</Card> */}
 				</Col>
 			</Row>
 			<MobilizerInfo information={mobilizer} />
 			<ProjectInvovled projects={projectList} />
-
-			{/* <Row>
-				<Col md="12">
-					<Card>
-						<CardBody>
-							<div className="">
-								<div className="d-flex align-items-center p-4 border-bottom">
-									<div className="mr-3">
-										<img
-											src={mobilizer.photo ? `${IPFS_GATEWAY}/ipfs/${mobilizer.photo}` : profilePhoto}
-											alt="user"
-											className="rounded-circle"
-											width="50"
-										/>
-									</div>
-									<div>
-										<h5 className="message-title mb-0">{mobilizer ? mobilizer.name : ''}</h5>
-										<p className="mb-0">Current balance: {mobilizerBalance || 0}</p>
-									</div>
-									<div className="ml-auto" style={{ padding: 5 }}>
-										{mobilizer_status !== 'new' ? (
-											<ButtonGroup>
-												<Button
-													onClick={() => handleChangeStatus('active')}
-													disabled={mobilizer_status === 'suspended' ? false : true}
-													color="success"
-												>
-													Activate
-												</Button>
-												<Button
-													onClick={() => handleChangeStatus('suspended')}
-													disabled={mobilizer_status === 'active' ? false : true}
-													color="danger"
-												>
-													Suspend
-												</Button>
-											</ButtonGroup>
-										) : loading ? (
-											<Loading />
-										) : (
-											<Button onClick={toggleModal} className="btn" color="info">
-												Approve
-											</Button>
-										)}
-									</div>
-								</div>
-								<div className="details-table px-4">
-									<Table responsive borderless size="sm" className="mt-4">
-										<tbody>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Status</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="status"
-														id="status"
-														defaultValue={mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Phone</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="phone"
-														id="phone"
-														defaultValue={mobilizer ? mobilizer.phone : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Email</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="email"
-														id="email"
-														defaultValue={mobilizer ? mobilizer.email : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Government ID</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="govt_id"
-														id="govt_id"
-														defaultValue={mobilizer ? mobilizer.govt_id : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold">Wallet Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="wallet_address"
-														id="wallet_address"
-														defaultValue={mobilizer ? mobilizer.wallet_address : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold"> Address</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="address"
-														id="address"
-														defaultValue={mobilizer && mobilizer.address ? mobilizer.address : ''}
-													/>
-												</td>
-											</tr>
-											<tr className="d-flex">
-												<td className="col-3 font-bold"> Organization</td>
-												<td className="col-9">
-													<Input
-														readOnly
-														type="text"
-														name="organization"
-														id="organization"
-														defaultValue={mobilizer && mobilizer.organization ? mobilizer.organization : ''}
-													/>
-												</td>
-											</tr>
-										</tbody>
-									</Table>
-								</div>
-
-								<div className="text-center">
-									<img
-										src={mobilizer.govt_id_image ? `${IPFS_GATEWAY}/ipfs/${mobilizer.govt_id_image}` : IdPhoto}
-										alt="user"
-										className="img-fluid"
-										height="auto"
-										width="38%"
-									/>
-								</div>
-							</div>
-						</CardBody>
-					</Card>
-				</Col>
-			</Row> */}
 
 			<Row>
 				<Col md="12">
