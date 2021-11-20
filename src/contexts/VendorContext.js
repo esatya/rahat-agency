@@ -25,6 +25,10 @@ export const VendorContextProvider = ({ children }) => {
 		return Service.getVendorBalance(contract_addr, wallet_address);
 	}, []);
 
+	const getVendorPackageBalance = useCallback((contract_address, wallet_addresses, tokenIds) => {
+		return Service.getVendorPackageBalance(contract_address, wallet_addresses, tokenIds);
+	}, []);
+
 	const listAid = useCallback(async () => {
 		const d = await AidService.listAid({ limit: APP_CONSTANTS.FETCH_LIMIT });
 		dispatch({ type: ACTION.LIST_AID, data: { aids: d.data } });
@@ -145,6 +149,10 @@ export const VendorContextProvider = ({ children }) => {
 		}
 	}, []);
 
+	const getTokenIdsByProjects = useCallback(projects => {
+		return Service.getTokenIdsByProjects(projects);
+	}, []);
+
 	return (
 		<VendorContext.Provider
 			value={{
@@ -161,6 +169,8 @@ export const VendorContextProvider = ({ children }) => {
 				clear,
 				addVendor,
 				updateVendor,
+				getVendorPackageBalance,
+				getTokenIdsByProjects,
 				setVendor,
 				setLoading,
 				resetLoading,

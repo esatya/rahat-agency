@@ -1,10 +1,13 @@
 import React from 'react';
 import { Card, CardTitle, Col, Row } from 'reactstrap';
 import { useHistory } from 'react-router-dom';
-import '../../../assets/css/project.css';
+import { useToasts } from 'react-toast-notifications';
 
+import '../../../assets/css/project.css';
 import Loading from '../../global/Loading';
 import { formatBalanceAndCurrency } from '../../../utils';
+import { getUser } from '../../../utils/sessionManager';
+import { ROLES, PROJECT_STATUS, TOAST } from '../.../../../../constants';
 
 export default function Balance(props) {
 	const {
@@ -16,12 +19,21 @@ export default function Balance(props) {
 		fetching,
 		action,
 		handleIssueToken,
-		loading
+		loading,
+		projectStatus
 	} = props;
+
 	const history = useHistory();
+	const { addToast } = useToasts();
+
 	const handleClick = () => {
+		const currentUser = getUser();
+		const isManager = currentUser && currentUser.roles.includes(ROLES.MANAGER);
+		if (isManager && projectStatus === PROJECT_STATUS.SUSPENDED)
+			return addToast('Access denied for this operation!', TOAST.ERROR);
 		history.push(`/add-budget/${projectId}`);
 	};
+
 	return (
 		<div>
 			<Card>
@@ -60,7 +72,7 @@ export default function Balance(props) {
 								<Loading />
 							) : (
 								<p className="card-font-bold">
-									{package_data && package_data.currency
+									{package_data && package_data.grandTotal > 0
 										? formatBalanceAndCurrency(package_data.grandTotal, package_data.currency)
 										: '0'}
 								</p>
