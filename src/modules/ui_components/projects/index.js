@@ -23,7 +23,7 @@ export default function ProjectsInvolved(props) {
 											className="btn waves-effect waves-light btn-outline-info"
 											style={{ borderRadius: '8px', marginRight: '15px', marginBottom: '10px' }}
 										>
-											{project.name || 'button'}
+											{project.name || 'No data'}
 										</button>
 									))
 								) : (
