@@ -4,6 +4,8 @@ import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
+import { calculateTotalPackageBalance } from './aid';
+
 const access_token = getUserToken();
 
 // Available tokens
@@ -20,13 +22,6 @@ export async function getTotalIssuedTokens(phone, contract_address) {
 	const data = await contract.erc20Issued(phone);
 	if (!data) return null;
 	return data.toNumber();
-}
-
-async function calculateTotalPackageBalance(payload) {
-	let res = await axios.post(`${API.NFT}/total-package-balance`, payload, {
-		headers: { access_token }
-	});
-	return res.data;
 }
 
 export async function getBeneficiaryPackageBalance(phone, contract_address) {

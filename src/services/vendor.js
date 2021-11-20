@@ -4,6 +4,7 @@ import API from '../constants/api';
 import { getUserToken } from '../utils/sessionManager';
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
+import { calculateTotalPackageBalance } from './aid';
 
 const access_token = getUserToken();
 const faucet_auth_token = process.env.REACT_APP_BLOCKCHAIN_FAUCET_AUTH_TOKEN;
@@ -25,10 +26,8 @@ export async function getVendorPackageBalance(contract_address, wallet_addresses
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT_ERC1155);
 	const data = await contract.balanceOfBatch(wallet_addresses, tokenIds);
 	if (!data) return null;
-	const dataNums = data.map(d => d.toNumber());
-	console.log('dataNums==>', dataNums);
-	// Calculate fiatValue for each dataNum and return;
-	return dataNums;
+	const tokenQtys = data.map(d => d.toNumber());
+	return calculateTotalPackageBalance({ tokenIds, tokenQtys });
 }
 
 export async function approveVendor(wallet, payload, contract_address) {
