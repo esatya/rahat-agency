@@ -95,17 +95,19 @@ export default function Index(props) {
 					)}
 				</Col>
 				<Col md="5">
-					<Balance
-						action=""
-						title="Balance"
-						button_name="Add Budget"
-						token_data={available_tokens}
-						package_data={totalFiatBalance}
-						fetching={fetchingBlockchain}
-						loading={loading}
-						handleIssueToken=""
-						projectId={id}
-					/>
+					{projectDetails && (
+						<Balance
+							action=""
+							title="Balance"
+							button_name="Add Budget"
+							token_data={available_tokens}
+							package_data={totalFiatBalance}
+							fetching={fetchingBlockchain}
+							loading={loading}
+							projectStatus={projectDetails.status}
+							projectId={id}
+						/>
+					)}
 				</Col>
 			</Row>
 

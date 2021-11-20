@@ -160,7 +160,7 @@ export async function bulkTokenIssueToBeneficiary({
 	}
 }
 
-async function calculateTotalPackageBalance(payload) {
+export async function calculateTotalPackageBalance(payload) {
 	let res = await axios.post(`${API.NFT}/total-package-balance`, payload, {
 		headers: { access_token }
 	});
