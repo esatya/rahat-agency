@@ -29,7 +29,7 @@ export default function Balance(props) {
 	const handleClick = () => {
 		const currentUser = getUser();
 		const isManager = currentUser && currentUser.roles.includes(ROLES.MANAGER);
-		if (isManager && projectStatus === PROJECT_STATUS.SUSPENDED)
+		if (isManager || projectStatus === PROJECT_STATUS.SUSPENDED)
 			return addToast('Access denied for this operation!', TOAST.ERROR);
 		history.push(`/add-budget/${projectId}`);
 	};
