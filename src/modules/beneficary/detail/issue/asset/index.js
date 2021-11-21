@@ -21,7 +21,9 @@ export default function (props) {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
-	const { listNftPackages, getBeneficiaryById, issueBeneficiaryPackage } = useContext(AidContext);
+	const { listNftPackages, getBeneficiaryById, issueBeneficiaryPackage, getBeneficiaryIssuedTokens } = useContext(
+		AidContext
+	);
 	const { isVerified, wallet, appSettings, currentBalanceTab } = useContext(AppContext);
 
 	const [packageList, setPackageList] = useState([]);
@@ -49,11 +51,32 @@ export default function (props) {
 		togglePasscodeModal();
 	};
 
+	const appendIssuedQtyToList = useCallback((packages, issuedQtys) => {
+		let finalResult = [];
+		for (let i = 0; i < packages.length; i++) {
+			packages[i].issuedQty = issuedQtys[i];
+			finalResult.push(packages[i]);
+		}
+		setPackageList(finalResult);
+	}, []);
+
+	const fetchIssuedQtys = useCallback(
+		async packages => {
+			const { rahat } = appSettings.agency.contracts;
+			const issuedQtys = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
+			if (packages.length && issuedQtys.length) return appendIssuedQtyToList(packages, issuedQtys);
+		},
+		[appSettings.agency.contracts, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
+	);
+
 	const fetchPackageList = useCallback(async () => {
 		const query = {};
 		const d = await listNftPackages(projectId, query);
-		if (d && d.data) setPackageList(d.data);
-	}, [projectId, listNftPackages]);
+		if (d && d.data) {
+			setPackageList(d.data);
+			fetchIssuedQtys(d.data);
+		}
+	}, [listNftPackages, projectId, fetchIssuedQtys]);
 
 	const fetchBenfDetail = useCallback(async () => {
 		const benf = await getBeneficiaryById(benfId);
@@ -123,7 +146,8 @@ export default function (props) {
 					<tr className="border-0">
 						<th className="border-0">Select</th>
 						<th className="border-0">Name</th>
-						<th className="border-0">Available Quantity</th>
+						<th className="border-0">Issued Qty.</th>
+						<th className="border-0">Available Qty.</th>
 						<th className="border-0">Created By</th>
 						<th className="border-0">Details</th>
 					</tr>
@@ -139,6 +163,7 @@ export default function (props) {
 									<td>
 										{d.name} ({d.symbol})
 									</td>
+									<td>{d.issuedQty ? d.issuedQty : '0'}</td>
 									<td>{d.totalSupply}</td>
 									<td>
 										{d.createdBy.name.first} {d.createdBy.name.last || ''}
