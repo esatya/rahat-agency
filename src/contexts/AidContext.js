@@ -191,6 +191,10 @@ export const AidContextProvider = ({ children }) => {
 		return Service.getProjectPackageBalance(aidId, contract_address);
 	}, []);
 
+	const getBeneficiaryIssuedTokens = useCallback((phone, contract_address) => {
+		return BenfService.getBeneficiaryIssuedTokens(phone, contract_address);
+	}, []);
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -226,7 +230,8 @@ export const AidContextProvider = ({ children }) => {
 				changeProjectStatus,
 				getProjectCapital,
 				listFinancialInstitutions,
-				bulkTokenIssueToBeneficiary
+				bulkTokenIssueToBeneficiary,
+				getBeneficiaryIssuedTokens
 			}}
 		>
 			{children}
