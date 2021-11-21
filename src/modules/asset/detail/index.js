@@ -12,6 +12,9 @@ import { TOAST } from '../../../constants';
 import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 
+import IMG_PLACEHOLDER from '../../../assets/images/placeholder.jpg';
+const IPFS_URL = process.env.REACT_APP_IPFS_GATEWAY;
+
 export default function NewAsset({ match }) {
 	const { packageId, projectId } = match.params;
 	const { addToast } = useToasts();
@@ -94,6 +97,23 @@ export default function NewAsset({ match }) {
 				<div className="stat-card-body">
 					<CardTitle className="title">Mint Package</CardTitle>
 					<CardBody className="pl-0">
+						<Row>
+							<Col>
+								<div style={{ marginBottom: '25px' }}>
+									{packageDetails && packageDetails.metadata ? (
+										<img
+											height={200}
+											width={200}
+											src={`${IPFS_URL}/ipfs/${packageDetails.metadata.packageImgURI}`}
+											alt="Nft DP"
+										/>
+									) : (
+										<img height={200} width={200} src={IMG_PLACEHOLDER} alt="Nft DP" />
+									)}
+								</div>
+							</Col>
+							<Col></Col>
+						</Row>
 						<Row>
 							<Col>
 								<div style={{ marginBottom: '25px' }}>
