@@ -44,7 +44,7 @@ export default function (props) {
 		const { name, checked } = e.target;
 		if (checked) setSelectedPackages([...selectedPackages, Number(name)]);
 		else {
-			const filtered = selectedPackages.filter(f => f !== name);
+			const filtered = selectedPackages.filter(f => f !== Number(name));
 			setSelectedPackages(filtered);
 		}
 	};
@@ -145,6 +145,8 @@ export default function (props) {
 	useEffect(() => {
 		submitBenfPackageRequest();
 	}, [isVerified, submitBenfPackageRequest]);
+
+	console.log('=======>', selectedPackages);
 
 	return (
 		<>
