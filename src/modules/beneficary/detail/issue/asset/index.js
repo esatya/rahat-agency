@@ -13,6 +13,7 @@ import PasscodeModal from '../../../../global/PasscodeModal';
 import { TOAST } from '../../../../../constants';
 import GrowSpinner from '../../../../global/GrowSpinner';
 import { BALANCE_TABS } from '../../../../../constants';
+import MiniSpinner from '../../../../global/MiniSpinner';
 
 const TOKEN_ISSUE_AMOUNT = 1;
 
@@ -32,6 +33,8 @@ export default function (props) {
 	const [selectedPackages, setSelectedPackages] = useState([]); // Array of selected package tokenIDs
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
+
+	const [fetchingIssuedQty, setFetchingIssuedQty] = useState(false);
 
 	const togglePasscodeModal = useCallback(() => {
 		setPasscodeModal(!passcodeModal);
@@ -54,17 +57,23 @@ export default function (props) {
 	const appendIssuedQtyToList = useCallback((packages, issuedQtys) => {
 		let finalResult = [];
 		for (let i = 0; i < packages.length; i++) {
-			packages[i].issuedQty = issuedQtys[i];
-			finalResult.push(packages[i]);
+			const ind = packages.findIndex(f => f.tokenId === packages[i].tokenId);
+			if (ind > -1) {
+				packages[i].issuedQty = issuedQtys[ind];
+				finalResult.push(packages[i]);
+			}
 		}
+
 		setPackageList(finalResult);
 	}, []);
 
 	const fetchIssuedQtys = useCallback(
 		async packages => {
+			setFetchingIssuedQty(true);
 			const { rahat } = appSettings.agency.contracts;
 			const issuedQtys = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
 			if (packages.length && issuedQtys.length) return appendIssuedQtyToList(packages, issuedQtys);
+			setFetchingIssuedQty(false);
 		},
 		[appSettings.agency.contracts, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
 	);
@@ -163,7 +172,7 @@ export default function (props) {
 									<td>
 										{d.name} ({d.symbol})
 									</td>
-									<td>{d.issuedQty ? d.issuedQty : '0'}</td>
+									<td>{fetchingIssuedQty ? <MiniSpinner /> : d.issuedQty ? d.issuedQty : '0'}</td>
 									<td>{d.totalSupply}</td>
 									<td>
 										{d.createdBy.name.first} {d.createdBy.name.last || ''}
