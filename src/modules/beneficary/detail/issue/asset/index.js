@@ -146,8 +146,6 @@ export default function (props) {
 		submitBenfPackageRequest();
 	}, [isVerified, submitBenfPackageRequest]);
 
-	console.log('=======>', selectedPackages);
-
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
