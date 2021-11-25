@@ -7,7 +7,7 @@ module.exports = {
 		PASSCODE_LENGTH: 6,
 		BULK_BENEFICIARY_LIMIT: 200,
 		FETCH_LIMIT: 100,
-		PAGE_LIMIT: 1
+		PAGE_LIMIT: 10
 	},
 	ROLES: { ADMIN: 'Admin', MANAGER: 'Manager' },
 	DEFAULT_TOKEN: {
