@@ -11,7 +11,8 @@ import { AppContext } from '../../../../../contexts/AppSettingsContext';
 import BackButton from '../../../../global/BackButton';
 import PasscodeModal from '../../../../global/PasscodeModal';
 import { TOAST } from '../../../../../constants';
-import GrowSpinner from '../../../../global/GrowSpinner';
+import MaskLoader from '../../../../global/MaskLoader';
+
 import { BALANCE_TABS } from '../../../../../constants';
 import MiniSpinner from '../../../../global/MiniSpinner';
 
@@ -33,7 +34,7 @@ export default function (props) {
 	const [benfPhone, setBenfPhone] = useState('');
 	const [selectedPackages, setSelectedPackages] = useState([]); // Array of selected package tokenIDs
 	const [passcodeModal, setPasscodeModal] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [masking, setMasking] = useState(false);
 
 	const [fetchingIssuedQty, setFetchingIssuedQty] = useState(false);
 
@@ -101,7 +102,7 @@ export default function (props) {
 			try {
 				if (!benfPhone) return addToast('Beneficiary phone is required', TOAST.ERROR);
 				setPasscodeModal(false);
-				setLoading(true);
+				setMasking(true);
 				const tokenAmounts = Array(selectedPackages.length).fill(TOKEN_ISSUE_AMOUNT);
 				const payload = {
 					benfId: benfId,
@@ -113,12 +114,12 @@ export default function (props) {
 				const { rahat } = appSettings.agency.contracts;
 				const res = await issueBeneficiaryPackage(wallet, payload, rahat);
 				if (res) {
-					setLoading(false);
+					setMasking(false);
 					addToast('Package assigned successfully', TOAST.SUCCESS);
 					history.push(`/beneficiaries/${benfId}`);
 				}
 			} catch (err) {
-				setLoading(false);
+				setMasking(false);
 				const errMsg = err.message ? err.message : 'Could not issue package';
 				addToast(errMsg, TOAST.ERROR);
 			}
@@ -149,6 +150,7 @@ export default function (props) {
 
 	return (
 		<>
+			<MaskLoader message="Assigning package, please wait..." isOpen={masking} />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
 			<Table className="no-wrap v-middle" responsive>
@@ -209,22 +211,18 @@ export default function (props) {
 						)}
 					</div>
 					<hr />
-					{loading ? (
-						<GrowSpinner />
-					) : (
-						<div>
-							<button
-								onClick={handleIssueClick}
-								type="button"
-								className="btn waves-effect waves-light btn-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Issue package
-							</button>{' '}
-							&nbsp;
-							<BackButton />
-						</div>
-					)}
+					<div>
+						<button
+							onClick={handleIssueClick}
+							type="button"
+							className="btn waves-effect waves-light btn-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Issue package
+						</button>{' '}
+						&nbsp;
+						<BackButton />
+					</div>
 				</CardBody>
 			</Card>
 		</>

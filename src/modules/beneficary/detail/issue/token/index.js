@@ -9,6 +9,7 @@ import PasscodeModal from '../../../../global/PasscodeModal';
 import { TOAST } from '../../../../../constants';
 import Loading from '../../../../global/Loading';
 import { BALANCE_TABS } from '../../../../../constants';
+import MaskLoader from '../../../../global/MaskLoader';
 
 const Token = ({ benfId, projectId }) => {
 	const history = useHistory();
@@ -24,7 +25,8 @@ const Token = ({ benfId, projectId }) => {
 
 	const { wallet, isVerified, appSettings, currentBalanceTab } = useContext(AppContext);
 	const [inputTokens, setInputToken] = useState('');
-	const [loading, setLoading] = useState(false);
+	const [masking, setMasking] = useState(false);
+
 	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
 
 	const [passcodeModal, setPasscodeModal] = useState(false);
@@ -48,7 +50,7 @@ const Token = ({ benfId, projectId }) => {
 		if (isVerified && wallet && currentBalanceTab === BALANCE_TABS.TOKEN) {
 			try {
 				setPasscodeModal(false);
-				setLoading(true);
+				setMasking(true);
 				const benf = await getBeneficiaryById(benfId);
 				if (!benf) return addToast('Beneficiary not found!', TOAST.ERROR);
 				const { contracts } = appSettings.agency;
@@ -59,12 +61,12 @@ const Token = ({ benfId, projectId }) => {
 				};
 				const res = await issueBenfToken(payload, wallet, contracts);
 				if (res) {
-					setLoading(false);
+					setMasking(false);
 					addToast(`${inputTokens} tokens assigend successfully`, TOAST.SUCCESS);
 					history.push(`/beneficiaries/${benfId}`);
 				}
 			} catch (err) {
-				setLoading(false);
+				setMasking(false);
 				const errMsg = err.message ? err.message : 'Could not assign tokens to beneficiary';
 				addToast(errMsg, TOAST.ERROR);
 			}
@@ -102,6 +104,7 @@ const Token = ({ benfId, projectId }) => {
 
 	return (
 		<>
+			<MaskLoader message="Assigning tokens, please wait..." isOpen={masking} />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
 			<div className="spacing-budget">
@@ -132,13 +135,7 @@ const Token = ({ benfId, projectId }) => {
 								required
 							/>
 							<InputGroupAddon addonType="append">
-								{loading ? (
-									<Button disabled={true} color="info">
-										Issueing tokens, please wait...
-									</Button>
-								) : (
-									<Button color="info">Issue Token</Button>
-								)}
+								<Button color="info">Issue Token</Button>
 							</InputGroupAddon>
 						</InputGroup>
 					</FormGroup>
