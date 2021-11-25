@@ -1,4 +1,4 @@
-import { formatWord } from '../src/utils/index';
+import { formatWord } from '../../src/utils/index';
 
 describe('utils', () => {
 	it('should replace _ with " "', () => {
