@@ -16,6 +16,7 @@ import { BALANCE_TABS } from '../../../../../constants';
 import MiniSpinner from '../../../../global/MiniSpinner';
 
 const TOKEN_ISSUE_AMOUNT = 1;
+const FETCH_LIMIT = 50;
 
 export default function (props) {
 	const { projectId, benfId } = props;
@@ -72,14 +73,14 @@ export default function (props) {
 			setFetchingIssuedQty(true);
 			const { rahat } = appSettings.agency.contracts;
 			const issuedQtys = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
-			if (packages.length && issuedQtys.length) return appendIssuedQtyToList(packages, issuedQtys);
+			if (packages.length && issuedQtys.length) await appendIssuedQtyToList(packages, issuedQtys);
 			setFetchingIssuedQty(false);
 		},
 		[appSettings.agency.contracts, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
 	);
 
 	const fetchPackageList = useCallback(async () => {
-		const query = {};
+		const query = { limit: FETCH_LIMIT };
 		const d = await listNftPackages(projectId, query);
 		if (d && d.data) {
 			setPackageList(d.data);
