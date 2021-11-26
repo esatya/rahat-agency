@@ -1,6 +1,6 @@
 {
 	"name": "rahat-agency",
-	"version": "2.1.0",
+	"version": "2.5.0",
 	"homepage": "/",
 	"description": "Front end web interface for Rahat Agency",
 	"main": "index.js",
