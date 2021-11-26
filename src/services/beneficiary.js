@@ -37,11 +37,12 @@ export async function getBeneficiaryPackageBalance(phone, contract_address) {
 
 export async function getBeneficiaryIssuedTokens(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-	const data = await contract.getTotalERC1155Balance(phone);
+	const data = await contract.getTotalERC1155Issued(phone);
 	if (!data) return null;
 	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
 		const tokenQtys = data.balances.map(b => b.toNumber());
-		return tokenQtys;
+		return { tokenIds, tokenQtys };
 	}
 }
 
