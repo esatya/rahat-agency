@@ -7,6 +7,8 @@ import { AppContext } from '../../../../../contexts/AppSettingsContext';
 import { AidContext } from '../../../../../contexts/AidContext';
 
 import PasscodeModal from '../../../../global/PasscodeModal';
+import MaskLoader from '../../../../global/MaskLoader';
+
 import { TOAST } from '../../../../../constants';
 
 const Token = ({ projectId }) => {
@@ -19,7 +21,7 @@ const Token = ({ projectId }) => {
 	const [inputTokens, setInputToken] = useState('');
 
 	const [passcodeModal, setPasscodeModal] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [masking, setMasking] = useState(false);
 
 	const handleInputChange = e => {
 		let { value } = e.target;
@@ -39,12 +41,12 @@ const Token = ({ projectId }) => {
 		if (isVerified && wallet) {
 			try {
 				setPasscodeModal(false);
-				setLoading(true);
+				setMasking(true);
 				const { rahat_admin } = appSettings.agency.contracts;
 				const res = await addProjectBudget(wallet, projectId, inputTokens, rahat_admin);
 				if (res) {
 					setInputToken('');
-					setLoading(false);
+					setMasking(false);
 					addToast(`${inputTokens} tokens added to the project`, TOAST.SUCCESS);
 					history.push(`/projects/${projectId}`);
 				}
@@ -52,7 +54,7 @@ const Token = ({ projectId }) => {
 				setPasscodeModal(false);
 				let err_msg = err.message ? err.message : 'Could not add token!';
 				// if (err.code === 4001) err_msg = err.message;
-				setLoading(false);
+				setMasking(false);
 				addToast(err_msg, TOAST.ERROR);
 			}
 		}
@@ -64,6 +66,7 @@ const Token = ({ projectId }) => {
 
 	return (
 		<>
+			<MaskLoader message="Adding token, please wait..." isOpen={masking} />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
 			<div className="spacing-budget">
@@ -92,13 +95,7 @@ const Token = ({ projectId }) => {
 								required
 							/>
 							<InputGroupAddon addonType="append">
-								{loading ? (
-									<Button disabled={true} color="info">
-										Adding token, please wait...
-									</Button>
-								) : (
-									<Button color="info">Add Token</Button>
-								)}
+								<Button color="info">Add Token</Button>
 							</InputGroupAddon>
 						</InputGroup>
 					</FormGroup>
