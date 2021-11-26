@@ -4,6 +4,7 @@ import API from '../constants/api';
 import { getUserToken } from '../utils/sessionManager';
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
+import { calculateTotalPackageBalance } from './aid';
 
 const access_token = getUserToken();
 const faucet_auth_token = process.env.REACT_APP_BLOCKCHAIN_FAUCET_AUTH_TOKEN;
@@ -14,11 +15,19 @@ const mapTestContract = contract => ({
 });
 
 export async function getVendorBalance(contract_address, wallet_addr) {
-	const contract = await getContractByProvider(contract_address, CONTRACT.AIDTOKEN);
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT_ERC20);
 	const myContract = mapTestContract(contract);
 	const data = await myContract.balanceOf(wallet_addr);
-	if (!data) return 'Vendor not found!';
+	if (!data) return null;
 	return data.toNumber();
+}
+
+export async function getVendorPackageBalance(contract_address, wallet_addresses, tokenIds) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT_ERC1155);
+	const data = await contract.balanceOfBatch(wallet_addresses, tokenIds);
+	if (!data) return null;
+	const tokenQtys = data.map(d => d.toNumber());
+	return calculateTotalPackageBalance({ tokenIds, tokenQtys });
 }
 
 export async function approveVendor(wallet, payload, contract_address) {
@@ -35,6 +44,17 @@ export async function approveVendor(wallet, payload, contract_address) {
 		console.log(e);
 		throw Error(e);
 	}
+}
+
+export async function getTokenIdsByProjects(projects) {
+	const res = await axios.post(
+		`${API.NFT}/fetch-project-tokens/`,
+		{ projects },
+		{
+			headers: { access_token: access_token }
+		}
+	);
+	return res.data;
 }
 
 export async function changeVendorStaus(vendorId, status) {

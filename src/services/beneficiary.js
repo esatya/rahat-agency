@@ -4,18 +4,46 @@ import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
+import { calculateTotalPackageBalance } from './aid';
+
 const access_token = getUserToken();
 
-const mapTestContract = contract => ({
-	tokenBalance: contract.tokenBalance
-});
-
+// Available tokens
 export async function getBeneficiaryBalance(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-	const myContract = mapTestContract(contract);
-	const data = await myContract.tokenBalance(phone);
-	if (!data) return 'No balance!';
+	const data = await contract.erc20Balance(phone);
+	if (!data) return null;
 	return data.toNumber();
+}
+
+// Total tokens
+export async function getTotalIssuedTokens(phone, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.erc20Issued(phone);
+	if (!data) return null;
+	return data.toNumber();
+}
+
+export async function getBeneficiaryPackageBalance(phone, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.getTotalERC1155Balance(phone);
+	if (!data) return null;
+	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
+		const tokenQtys = data.balances.map(b => b.toNumber());
+		return calculateTotalPackageBalance({ tokenIds, tokenQtys });
+	}
+}
+
+export async function getBeneficiaryIssuedTokens(phone, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.getTotalERC1155Issued(phone);
+	if (!data) return null;
+	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
+		const tokenQtys = data.balances.map(b => b.toNumber());
+		return { tokenIds, tokenQtys };
+	}
 }
 
 export async function listBeneficiary(params) {
@@ -30,7 +58,7 @@ export async function listBeneficiary(params) {
 	return res.data;
 }
 
-export async function get(id) {
+export async function getById(id) {
 	const res = await axios({
 		url: API.BENEFICARIES + '/' + id,
 		method: 'get',
@@ -79,7 +107,6 @@ export async function addBeneficiaryInBulk(body) {
 
 	return res.data;
 }
-
 
 export async function updateBeneficiary(id, body) {
 	const res = await axios({

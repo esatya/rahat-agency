@@ -37,11 +37,19 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
 	}, []);
 
-	async function listProject() {
+	const getBenfPackageBalance = useCallback((phone, contract_address) => {
+		return Service.getBeneficiaryPackageBalance(phone, contract_address);
+	}, []);
+
+	const getTotalIssuedTokens = useCallback((phone, contract_address) => {
+		return Service.getTotalIssuedTokens(phone, contract_address);
+	}, []);
+
+	const listProject = useCallback(async () => {
 		const d = await AidService.listAid({ start: 0, limit: 50 });
 		dispatch({ type: ACTION.LIST_AID, data: { projectList: d.data } });
 		return d;
-	}
+	}, []);
 
 	function setAid(aid) {
 		dispatch({ type: ACTION.SET_AID, data: aid });
@@ -83,24 +91,13 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return res;
 	}, []);
 
-	// async function listBeneficiary(params) {
-	// 	let res = await Service.listBeneficiary(params);
-	// 	if (res) {
-	// 		dispatch({
-	// 			type: ACTION.LIST,
-	// 			res
-	// 		});
-	// 		return res;
-	// 	}
-	// }
-
 	const importBeneficiary = async () => {
 		let beneficiaries = await Service.importBeneficiary({});
 		for (let b of beneficiaries) await Service.addBeneficiary(b);
 	};
 
 	const getBeneficiaryDetails = useCallback(async id => {
-		const data = await Service.get(id);
+		const data = await Service.getById(id);
 		return data;
 	}, []);
 
@@ -119,6 +116,8 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				issueTokens,
 				addBeneficiary,
 				addBeneficiaryInBulk,
+				getBenfPackageBalance,
+				getTotalIssuedTokens,
 				updateBeneficiary,
 				setBeneficiary,
 				listBeneficiary,

@@ -1,73 +1,27 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Card, Col, Row, TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
 import classnames from 'classnames';
-import { useToasts } from 'react-toast-notifications';
-import { useHistory } from 'react-router-dom';
+
 import '../../../../assets/css/project.css';
-import { AidContext } from '../../../../contexts/AidContext';
-import { AppContext } from '../../../../contexts/AppSettingsContext';
-import PasscodeModal from '../../../global/PasscodeModal';
-import { TOAST } from '../../../../constants';
+
 import BreadCrumb from '../../../ui_components/breadcrumb';
 import TokenTab from './token/index';
 import AssetTab from './asset/index';
 
 export default function BudgetAdd({ match }) {
-	const { addToast } = useToasts();
-	const history = useHistory();
-
-	const [inputTokens, setInputToken] = useState('');
-	const [passcodeModal, setPasscodeModal] = useState(false);
+	// const urlSearchParams = new URLSearchParams(window.location.search);
+	// const urlParams = Object.fromEntries(urlSearchParams.entries());
 
 	const { projectId } = match.params;
 
-	const { addProjectBudget } = useContext(AidContext);
-	const { wallet, isVerified, setLoading, appSettings } = useContext(AppContext);
 	const [activeTab, setActiveTab] = useState('1');
 
 	const toggle = tab => {
 		if (activeTab !== tab) setActiveTab(tab);
 	};
-	const togglePasscodeModal = useCallback(() => {
-		setPasscodeModal(!passcodeModal);
-	}, [passcodeModal]);
-
-	const addProjectBalance = useCallback(async () => {
-		const { rahat_admin } = appSettings.agency.contracts;
-		if (isVerified && wallet) {
-			setPasscodeModal(false);
-			setLoading(true);
-			addProjectBudget({ projectId, supplyToken: inputTokens, rahat_admin, wallet })
-				.then(() => {
-					setInputToken('');
-					setLoading(false);
-					addToast(`${inputTokens} tokens added to the project`, TOAST.SUCCESS);
-					history.push(`/projects/${projectId}`);
-				})
-				.catch(err => {
-					setLoading(false);
-					addToast(err.message, TOAST.ERROR);
-				});
-		}
-	}, [
-		addProjectBudget,
-		addToast,
-		appSettings.agency.contracts,
-		history,
-		inputTokens,
-		isVerified,
-		projectId,
-		setLoading,
-		wallet
-	]);
-
-	useEffect(() => {
-		addProjectBalance();
-	}, [addProjectBalance, isVerified]);
 
 	return (
 		<div>
-			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 			<p className="page-heading">Project</p>
 			<BreadCrumb redirect_path={`projects/${projectId}`} root_label="Details" current_label="Add Budget" />
 			<Card>
@@ -80,7 +34,7 @@ export default function BudgetAdd({ match }) {
 									toggle('1');
 								}}
 							>
-								Token
+								Tokens
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -90,7 +44,7 @@ export default function BudgetAdd({ match }) {
 									toggle('2');
 								}}
 							>
-								Asset
+								Packages
 							</NavLink>
 						</NavItem>
 					</Nav>
@@ -98,7 +52,7 @@ export default function BudgetAdd({ match }) {
 						<TabPane tabId="1">
 							<Row>
 								<Col sm="12">
-									<TokenTab />
+									<TokenTab projectId={projectId} />
 								</Col>
 							</Row>
 						</TabPane>

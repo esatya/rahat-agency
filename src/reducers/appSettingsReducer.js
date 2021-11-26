@@ -26,6 +26,12 @@ export default (state, action) => {
 				loading: action.data
 			};
 
+		case ACTION.SET_BALANCE__CURRENT_TAB:
+			return {
+				...state,
+				currentBalanceTab: action.data
+			};
+
 		case ACTION.SET_WALLET_ACTION_MSG:
 			return {
 				...state,
