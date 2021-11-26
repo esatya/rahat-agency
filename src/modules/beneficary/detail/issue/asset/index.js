@@ -56,25 +56,37 @@ export default function (props) {
 		togglePasscodeModal();
 	};
 
-	const appendIssuedQtyToList = useCallback((packages, issuedQtys) => {
-		let finalResult = [];
-		for (let i = 0; i < packages.length; i++) {
-			const ind = packages.findIndex(f => f.tokenId === packages[i].tokenId);
-			if (ind > -1) {
-				packages[i].issuedQty = issuedQtys[ind];
-				finalResult.push(packages[i]);
-			}
+	const checkHasIndex = useCallback((tokenId, tokenIds) => {
+		let dataIndex = null;
+		for (let i = 0; i < tokenIds.length; i++) {
+			const ind = tokenIds.findIndex(t => t === tokenId);
+			if (ind > -1) dataIndex = ind;
 		}
-
-		setPackageList(finalResult);
+		return dataIndex;
 	}, []);
+
+	const appendIssuedQtyToList = useCallback(
+		({ packages, tokenIds, tokenQtys }) => {
+			let finalResult = [];
+			for (let i = 0; i < packages.length; i++) {
+				const dataIndex = checkHasIndex(packages[i].tokenId, tokenIds);
+				if (dataIndex > -1) {
+					packages[i].issuedQty = tokenQtys[dataIndex];
+					finalResult.push(packages[i]);
+				} else finalResult.push(packages[i]);
+			}
+
+			setPackageList(finalResult);
+		},
+		[checkHasIndex]
+	);
 
 	const fetchIssuedQtys = useCallback(
 		async packages => {
 			setFetchingIssuedQty(true);
 			const { rahat } = appSettings.agency.contracts;
-			const issuedQtys = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
-			if (packages.length && issuedQtys.length) await appendIssuedQtyToList(packages, issuedQtys);
+			const { tokenIds, tokenQtys } = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
+			if (packages.length && tokenQtys.length) await appendIssuedQtyToList({ packages, tokenIds, tokenQtys });
 			setFetchingIssuedQty(false);
 		},
 		[appSettings.agency.contracts, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
