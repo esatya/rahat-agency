@@ -4,33 +4,40 @@ import API from '../constants/api';
 import { getUserToken } from '../utils/sessionManager';
 import CONTRACT from '../constants/contracts';
 import { getContractByProvider } from '../blockchain/abi';
+import { calculateTotalPackageBalance } from './aid';
 
 const access_token = getUserToken();
 const faucet_auth_token = process.env.REACT_APP_BLOCKCHAIN_FAUCET_AUTH_TOKEN;
 
-const mapTestContract = contract => ({
-	addAdmin: contract.addAdmin,
-	balanceOf: contract.balanceOf
-});
-
+// Token balance
 export async function getMobilizerBalance(contract_address, wallet_addr) {
-	const contract = await getContractByProvider(contract_address, CONTRACT.AIDTOKEN);
-	const myContract = mapTestContract(contract);
-	const data = await myContract.balanceOf(wallet_addr);
-	if (!data) return 'Mobilizer not found!';
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.erc20IssuedBy(wallet_addr);
+	if (!data) return null;
 	return data.toNumber();
+}
+
+export async function getMobilizerPackageBalance(contract_address, wallet_addr) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.getTotalERC1155IssuedBy(wallet_addr);
+	if (!data) return null;
+	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
+		const tokenQtys = data.balances.map(b => b.toNumber());
+		return calculateTotalPackageBalance({ tokenIds, tokenQtys });
+	}
 }
 
 export async function approveMobilizer(wallet, payload, contract_address) {
 	try {
+		const { wallet_address, projectId } = payload;
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
 		const signerContract = contract.connect(wallet);
-		const myContract = mapTestContract(signerContract);
-		const tx = await myContract.addAdmin(payload.wallet_address);
+		const tx = await signerContract.addMobilizer(wallet_address, projectId);
 		let minedTx = await tx.wait();
 		if (!minedTx) return 'Mobilizer approve failed!';
-		const res = await approveMobilizerToProject(payload.wallet_address, payload.projectId);
-		getEth({ address: payload.wallet_address });
+		const res = await approveMobilizerToProject(wallet_address, projectId);
+		getEth({ address: wallet_address });
 		return res;
 	} catch (e) {
 		console.log(e);

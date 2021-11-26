@@ -1,4 +1,8 @@
 module.exports = {
+	CURRENCY: {
+		NP_RUPEES: 'NPR'
+	},
+	BALANCE_TABS: { TOKEN: 'Token', PACKAGE: 'Package' },
 	APP_CONSTANTS: {
 		PASSCODE_LENGTH: 6,
 		BULK_BENEFICIARY_LIMIT: 200,

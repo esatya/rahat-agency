@@ -4,6 +4,7 @@ import * as Service from '../services/appSettings';
 import appReduce from '../reducers/appSettingsReducer';
 import ACTION from '../actions/appSettings';
 import DataService from '../services/db';
+import { BALANCE_TABS } from '../constants';
 
 const initialState = {
 	settings: {
@@ -27,7 +28,8 @@ const initialState = {
 	loading: false,
 	openPasscodeModal: false,
 	walletActionMsg: null,
-	pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 }
+	pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 },
+	currentBalanceTab: BALANCE_TABS.TOKEN
 };
 
 export const AppContext = createContext(initialState);
@@ -54,6 +56,10 @@ export const AppContextProvider = ({ children }) => {
 
 	function setPasscodeModal(flag) {
 		dispatch({ type: ACTION.SET_PASSCODE_MODAL, data: flag });
+	}
+
+	function setCurrentBalanceTab(tabName) {
+		dispatch({ type: ACTION.SET_BALANCE__CURRENT_TAB, data: tabName });
 	}
 
 	function setLoading(flag) {
@@ -126,6 +132,8 @@ export const AppContextProvider = ({ children }) => {
 				openPasscodeModal: state.openPasscodeModal,
 				walletActionMsg: state.walletActionMsg,
 				pagination: state.pagination,
+				currentBalanceTab: state.currentBalanceTab,
+				setCurrentBalanceTab,
 				setWalletActionMsg,
 				setPasscodeModal,
 				setLoading,

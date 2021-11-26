@@ -22,12 +22,14 @@ export default function Index(props) {
 		getAidDetails,
 		changeProjectStatus,
 		getProjectCapital,
-		getAidBalance
+		getAidBalance,
+		getProjectPackageBalance
 	} = useContext(AidContext);
 	const { loading, appSettings } = useContext(AppContext);
 
 	const [projectDetails, setProjectDetails] = useState(null);
 	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
+	const [totalFiatBalance, setTotalFiatBalance] = useState(null);
 
 	const handleStatusChange = status => {
 		const success_label = status === PROJECT_STATUS.SUSPENDED ? 'Suspended' : 'Activated';
@@ -51,24 +53,26 @@ export default function Index(props) {
 			});
 	};
 
-	const fetchBalanceAndToken = useCallback(async () => {
+	const fetchPackageAndTokenBalance = useCallback(async () => {
 		try {
 			setFetchingBlockchain(true);
-			const { rahat, rahat_admin } = appSettings.agency.contracts;
+			const { rahat_admin } = appSettings.agency.contracts;
 			await getProjectCapital(id, rahat_admin);
-			await getAidBalance(id, rahat);
+			await getAidBalance(id, rahat_admin);
+			const res = await getProjectPackageBalance(id, rahat_admin);
+			setTotalFiatBalance(res);
 		} catch (err) {
 			addToast(err.message, TOAST.ERROR);
 		} finally {
 			setFetchingBlockchain(false);
 		}
-	}, [addToast, appSettings.agency.contracts, getAidBalance, getProjectCapital, id]);
+	}, [addToast, appSettings.agency.contracts, getAidBalance, getProjectCapital, id, getProjectPackageBalance]);
 
 	useEffect(fetchProjectDetails, []);
 
 	useEffect(() => {
-		fetchBalanceAndToken();
-	}, [fetchBalanceAndToken]);
+		fetchPackageAndTokenBalance();
+	}, [fetchPackageAndTokenBalance]);
 
 	return (
 		<>
@@ -91,17 +95,19 @@ export default function Index(props) {
 					)}
 				</Col>
 				<Col md="5">
-					<Balance
-						action=""
-						title="Balance"
-						button_name="Add Budget"
-						token_data={available_tokens}
-						package_data=""
-						fetching={fetchingBlockchain}
-						loading={loading}
-						handleIssueToken=""
-						projectId={id}
-					/>
+					{projectDetails && (
+						<Balance
+							action=""
+							title="Balance"
+							button_name="Add Budget"
+							token_data={available_tokens}
+							package_data={totalFiatBalance}
+							fetching={fetchingBlockchain}
+							loading={loading}
+							projectStatus={projectDetails.status}
+							projectId={id}
+						/>
+					)}
 				</Col>
 			</Row>
 

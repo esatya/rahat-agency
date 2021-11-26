@@ -4,6 +4,7 @@ import * as Service from '../services/aid';
 import ACTION from '../actions/aid';
 import { AppContext } from './AppSettingsContext';
 import { get } from '../services/institution';
+import * as BenfService from '../services/beneficiary';
 
 const initialState = {
 	aids: [],
@@ -49,9 +50,9 @@ export const AidContextProvider = ({ children }) => {
 	}
 
 	const addProjectBudget = useCallback(
-		async ({ projectId, supplyToken, rahat_admin, wallet }) => {
+		async (wallet, projectId, supplyToken, rahat_admin) => {
 			changeIsverified(false);
-			await Service.addProjectBudget(wallet, projectId, supplyToken, rahat_admin);
+			return Service.addProjectBudget(wallet, projectId, supplyToken, rahat_admin);
 		},
 		[changeIsverified]
 	);
@@ -141,6 +142,59 @@ export const AidContextProvider = ({ children }) => {
 		return Service.listFinancialInstitutions(params);
 	}
 
+	const createNft = useCallback(
+		(payload, contracts, wallet) => {
+			changeIsverified(false);
+			return Service.createNft(payload, contracts, wallet);
+		},
+		[changeIsverified]
+	);
+
+	const listNftPackages = useCallback((projectId, query) => {
+		return Service.listNftPackages(projectId, query);
+	}, []);
+
+	const getPackageDetails = useCallback(packageId => {
+		return Service.getPackageDetails(packageId);
+	}, []);
+
+	const mintNft = useCallback(
+		({ payload, contracts, wallet }) => {
+			changeIsverified(false);
+			return Service.mintNft({ payload, contracts, wallet });
+		},
+		[changeIsverified]
+	);
+
+	const issueBenfToken = useCallback(
+		async (payload, wallet, contracts) => {
+			changeIsverified(false);
+			const { rahat } = contracts;
+			return Service.issueBeneficiaryToken(wallet, payload, rahat);
+		},
+		[changeIsverified]
+	);
+
+	const getBeneficiaryById = useCallback(benfId => {
+		return BenfService.getById(benfId);
+	}, []);
+
+	const issueBeneficiaryPackage = useCallback(
+		(wallet, payload, contract_addr) => {
+			changeIsverified(false);
+			return Service.issueBeneficiaryPackage(wallet, payload, contract_addr);
+		},
+		[changeIsverified]
+	);
+
+	const getProjectPackageBalance = useCallback((aidId, contract_address) => {
+		return Service.getProjectPackageBalance(aidId, contract_address);
+	}, []);
+
+	const getBeneficiaryIssuedTokens = useCallback((phone, contract_address) => {
+		return BenfService.getBeneficiaryIssuedTokens(phone, contract_address);
+	}, []);
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -154,6 +208,14 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				getProjectPackageBalance,
+				issueBeneficiaryPackage,
+				getBeneficiaryById,
+				issueBenfToken,
+				mintNft,
+				createNft,
+				listNftPackages,
+				getPackageDetails,
 				updateAid,
 				addAid,
 				listAid,
@@ -168,7 +230,8 @@ export const AidContextProvider = ({ children }) => {
 				changeProjectStatus,
 				getProjectCapital,
 				listFinancialInstitutions,
-				bulkTokenIssueToBeneficiary
+				bulkTokenIssueToBeneficiary,
+				getBeneficiaryIssuedTokens
 			}}
 		>
 			{children}
