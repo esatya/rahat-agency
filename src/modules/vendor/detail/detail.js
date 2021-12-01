@@ -1,6 +1,7 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { Row, Col, Card, CardTitle } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
+import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 
 import VendorInfo from './vendorInfo';
 import ProjectInvovled from '../../ui_components/projects';
@@ -14,6 +15,7 @@ import PasscodeModal from '../../global/PasscodeModal';
 import { TOAST } from '../../../constants';
 import { History } from '../../../utils/History';
 import Balance from '../../ui_components/balance';
+import { VENDOR_STATUS } from '../../../constants';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -45,12 +47,18 @@ const Index = ({ params }) => {
 
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
+	const handleSwitchChange = e => {
+		const _status = e === true ? VENDOR_STATUS.ACTIVE : VENDOR_STATUS.SUSPENDED;
+		setVendorStatus(_status);
+		togglePasscodeModal();
+	};
+
 	const handleApproveVendor = useCallback(async () => {
 		setPasscodeModal(false);
 		const { wallet_address } = basicInfo;
 		try {
 			const payload = {
-				status: 'active',
+				status: vendorStatus,
 				wallet_address: wallet_address,
 				vendorId: id
 			};
@@ -58,14 +66,14 @@ const Index = ({ params }) => {
 			const approved = await approveVendor(payload);
 			if (approved) {
 				setLoading(false);
-				addToast('Vendor approved successfully', TOAST.SUCCESS);
+				addToast('Vendor status updated successfully', TOAST.SUCCESS);
 				History.push('/vendors');
 			}
 		} catch (err) {
 			setLoading(false);
 			addToast(err.message, TOAST.ERROR);
 		}
-	}, [addToast, approveVendor, basicInfo, id]);
+	}, [addToast, approveVendor, basicInfo, id, vendorStatus]);
 
 	const fetchVendorBalance = useCallback(
 		async wallet_address => {
@@ -182,26 +190,18 @@ const Index = ({ params }) => {
 											className="btn btn-secondary"
 											style={{ borderRadius: '8px', float: 'right' }}
 										>
-											Approving, please wait...
-										</button>
-									) : vendorStatus === 'active' ? (
-										<button
-											type="button"
-											disabled={true}
-											className="btn btn-success"
-											style={{ borderRadius: '8px', float: 'right' }}
-										>
-											<i className="fas fa-check-circle"></i> Approved
+											Changing status, please wait...
 										</button>
 									) : (
-										<button
-											type="button"
-											onClick={togglePasscodeModal}
-											className="btn waves-effect waves-light btn-outline-info"
-											style={{ borderRadius: '8px', float: 'right' }}
-										>
-											Approve
-										</button>
+										<BootstrapSwitchButton
+											checked={vendorStatus === VENDOR_STATUS.ACTIVE ? true : false}
+											onlabel="Suspend"
+											offlabel="Activate"
+											width={140}
+											height={30}
+											onstyle="success"
+											onChange={handleSwitchChange}
+										/>
 									)}
 								</Col>
 							</Row>

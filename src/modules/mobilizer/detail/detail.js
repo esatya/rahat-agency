@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
-import ProjectInvovled from '../../ui_components/projects';
+import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 
 import {
 	Card,
@@ -21,6 +21,7 @@ import {
 	ModalFooter
 } from 'reactstrap';
 
+import ProjectInvovled from '../../ui_components/projects';
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/user_avatar.svg';
@@ -29,9 +30,12 @@ import PasscodeModal from '../../global/PasscodeModal';
 import MobilizerInfo from './mobilizerInfo';
 import BreadCrumb from '../../ui_components/breadcrumb';
 import Balance from '../../ui_components/balance';
+import { TOAST } from '../../../constants';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
+
+const STATUS = { ACTIVE: 'active', SUSPENDED: 'suspended', NEW: 'new' };
 
 export default function DetailsForm(props) {
 	const mobilizerId = props.params.id;
@@ -52,7 +56,6 @@ export default function DetailsForm(props) {
 	const [mobilizerBalance, setMobilizerBalance] = useState('');
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal), [passcodeModal]);
 	const [modal, setModal] = useState(false);
 	const [projectOptions, setProjectOptions] = useState([]);
 	const [selectedProject, setSelectedProject] = useState('');
@@ -62,6 +65,10 @@ export default function DetailsForm(props) {
 
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
+
+	const [mobilizerStatus, setMobilizerStatus] = useState('');
+
+	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal), [passcodeModal]);
 
 	const fetchTokenAndPackageBalance = useCallback(
 		async wallet_address => {
@@ -110,31 +117,39 @@ export default function DetailsForm(props) {
 		}
 	};
 
+	const handleSwitchChange = e => {
+		const _status = e === true ? STATUS.ACTIVE : STATUS.SUSPENDED;
+		setMobilizerStatus(_status);
+		toggleModal();
+	};
+
 	const submitMobilizerApproval = useCallback(async () => {
-		if (!isVerified) return;
-		setLoading(true);
-		setPasscodeModal(false);
-		let payload = {
-			status: 'active',
-			wallet_address: mobilizer.wallet_address,
-			projectId: selectedProject
-		};
-		approveMobilizer(payload)
-			.then(() => {
-				setLoading(false);
-				addToast('Mobilizer approved successfully.', {
-					appearance: 'success',
-					autoDismiss: true
+		if (isVerified && wallet) {
+			setLoading(true);
+			setPasscodeModal(false);
+			let payload = {
+				status: mobilizerStatus,
+				wallet_address: mobilizer.wallet_address,
+				projectId: selectedProject
+			};
+			approveMobilizer(payload)
+				.then(() => {
+					setLoading(false);
+					addToast('Mobilizer status successfully.', {
+						appearance: 'success',
+						autoDismiss: true
+					});
+				})
+				.catch(err => {
+					setLoading(false);
+					const errMsg = err.message ? err.message : 'Internal server error!';
+					addToast(errMsg, {
+						appearance: 'error',
+						autoDismiss: true
+					});
 				});
-			})
-			.catch(() => {
-				setLoading(false);
-				addToast('Invalid mobilizer wallet address!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	}, [addToast, approveMobilizer, isVerified, mobilizer.wallet_address, selectedProject]);
+		}
+	}, [addToast, approveMobilizer, isVerified, mobilizer.wallet_address, mobilizerStatus, selectedProject, wallet]);
 
 	const toggleModal = () => {
 		setModal(prevState => !prevState);
@@ -148,16 +163,7 @@ export default function DetailsForm(props) {
 
 	const handleMobilizerApprove = async e => {
 		e.preventDefault();
-		// let swal = await Swal.fire({
-		// 	title: 'Are you sure?',
-		// 	text: `You want to approve this mobilizer!`,
-		// 	icon: 'warning',
-		// 	showCancelButton: true,
-		// 	confirmButtonColor: '#3085d6',
-		// 	cancelButtonColor: '#d33',
-		// 	confirmButtonText: 'Yes'
-		// });
-		// if (swal.isConfirmed)
+		if (!selectedProject) return addToast('Please select proejct', TOAST.ERROR);
 		toggleModal();
 		togglePasscodeModal();
 	};
@@ -197,12 +203,10 @@ export default function DetailsForm(props) {
 	}, [fetchMobilizerDetails]);
 
 	useEffect(() => {
-		if (isVerified && wallet) {
-			submitMobilizerApproval();
-		}
-	}, [submitMobilizerApproval, isVerified, wallet]);
+		submitMobilizerApproval();
+	}, [submitMobilizerApproval, isVerified]);
 
-	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : 'new';
+	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : STATUS.NEW;
 
 	return (
 		<>
@@ -293,27 +297,18 @@ export default function DetailsForm(props) {
 											className="btn btn-secondary"
 											style={{ borderRadius: '8px', float: 'right' }}
 										>
-											Approving, please wait...
-										</button>
-									) : mobilizer_status === 'active' ? (
-										<button
-											type="button"
-											disabled={true}
-											className="btn btn-success"
-											style={{ borderRadius: '8px', float: 'right' }}
-										>
-											<i className="fas fa-check-circle"></i> Approved
+											Changing status, please wait...
 										</button>
 									) : (
-										<button
-											type="button"
-											onClick={toggleModal}
-											// onClick={togglePasscodeModal}
-											className="btn waves-effect waves-light btn-outline-info"
-											style={{ borderRadius: '8px', float: 'right' }}
-										>
-											Approve
-										</button>
+										<BootstrapSwitchButton
+											checked={mobilizer_status === STATUS.ACTIVE ? true : false}
+											onlabel="Suspend"
+											offlabel="Activate"
+											width={140}
+											height={30}
+											onstyle="success"
+											onChange={handleSwitchChange}
+										/>
 									)}
 								</Col>
 							</Row>
