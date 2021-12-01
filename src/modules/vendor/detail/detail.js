@@ -107,6 +107,10 @@ const Index = ({ params }) => {
 
 	const fetchVendorDetails = useCallback(async () => {
 		const details = await getVendorDetails(id);
+		if (details) {
+			setVendorStatus(details.agencies[0].status);
+			setBasicInfo(details);
+		}
 		if (details && details.projects && details.projects.length) {
 			const tokenIds = await await fetchTokenIdsByProjects(details.projects);
 			const projects = details.projects.map(d => {
@@ -115,12 +119,7 @@ const Index = ({ params }) => {
 			setProjectList(projects);
 			await fetchVendorPackageBalance(details.wallet_address, tokenIds);
 		}
-		if (details) {
-			setVendorStatus(details.agencies[0].status);
-			setBasicInfo(details);
-
-			await fetchVendorBalance(details.wallet_address);
-		}
+		await fetchVendorBalance(details.wallet_address);
 	}, [fetchTokenIdsByProjects, fetchVendorBalance, fetchVendorPackageBalance, getVendorDetails, id]);
 
 	const fetchVendorTransactions = useCallback(async () => {
