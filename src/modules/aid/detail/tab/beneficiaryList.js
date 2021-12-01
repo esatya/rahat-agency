@@ -3,6 +3,7 @@ import { Table, FormGroup, InputGroup, Input } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import QRCode from 'qrcode';
 import * as XLSX from 'xlsx';
+import { Link } from 'react-router-dom';
 
 import { AidContext } from '../../../../contexts/AidContext';
 import { AppContext } from '../../../../contexts/AppSettingsContext';
@@ -10,9 +11,9 @@ import { APP_CONSTANTS, TOAST } from '../../../../constants';
 import { htmlResponse } from '../../../../utils/printBeneficiary';
 import ModalWrapper from '../../../global/CustomModal';
 import PasscodeModal from '../../../global/PasscodeModal';
-import GrowSpinner from '../../../global/GrowSpinner';
 import UploadList from './uploadList';
 import AdvancePagination from '../../../global/AdvancePagination';
+import MaskLoader from '../../../global/MaskLoader';
 
 const { PAGE_LIMIT, BULK_BENEFICIARY_LIMIT } = APP_CONSTANTS;
 
@@ -174,6 +175,7 @@ const List = ({ projectId }) => {
 	const submitBulkTokenIssue = useCallback(async () => {
 		if (wallet && isVerified) {
 			try {
+				console.log('SUBMIT');
 				setPasscodeModal(false);
 				setLoading(true);
 				const { contracts } = appSettings.agency;
@@ -230,6 +232,7 @@ const List = ({ projectId }) => {
 
 	return (
 		<>
+			<MaskLoader isOpen={loading} message="Assigning tokens in bulk." />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
 			<ModalWrapper
@@ -264,41 +267,37 @@ const List = ({ projectId }) => {
 			</ModalWrapper>
 
 			<div>
-				{loading ? (
-					<GrowSpinner />
-				) : (
-					<div className="row">
-						<div style={{ flex: 1, padding: 10 }}>
-							<button
-								onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
-								type="button"
-								className="btn waves-effect waves-light btn-outline-info"
-								style={{ borderRadius: '8px', marginRight: '20px' }}
-							>
-								Bulk Token Issue
-							</button>
-							<button
-								type="button"
-								onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-								className="btn waves-effect waves-light btn-outline-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Bulk Generate QR Code
-							</button>
-						</div>
-						<div style={{ padding: 10, float: 'right' }}>
-							<button
-								type="button"
-								onClick={handleFileUploadClick}
-								className="btn waves-effect waves-light btn-outline-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Upload Beneficiaries
-							</button>
-							<input type="file" ref={hiddenFileInput} onChange={handleFileChange} style={{ display: 'none' }} />
-						</div>
+				<div className="row">
+					<div style={{ flex: 1, padding: 10 }}>
+						<button
+							onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
+							type="button"
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px', marginRight: '20px' }}
+						>
+							Bulk Token Issue
+						</button>
+						<button
+							type="button"
+							onClick={() => toggleAmountModal(ACTION.BULK_QR)}
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Bulk Generate QR Code
+						</button>
 					</div>
-				)}
+					<div style={{ padding: 10, float: 'right' }}>
+						<button
+							type="button"
+							onClick={handleFileUploadClick}
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Upload Beneficiaries
+						</button>
+						<input type="file" ref={hiddenFileInput} onChange={handleFileChange} style={{ display: 'none' }} />
+					</div>
+				</div>
 
 				<div className="flex-item">
 					{/* <button type="button" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
@@ -320,7 +319,11 @@ const List = ({ projectId }) => {
 						benList.map(d => {
 							return (
 								<tr key={d._id}>
-									<td>{d.name}</td>
+									<td>
+										<Link style={{ color: '#2b7ec1' }} to={`/beneficiaries/${d._id}`}>
+											{d.name}
+										</Link>
+									</td>
 									<td>{d.address || '-'}</td>
 									<td>{d.phone}</td>
 									<td>{d.govt_id || '-'}</td>
