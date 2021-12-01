@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useCallback, useState } from 'react';
 import { Table } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import { AidContext } from '../../../../contexts/AidContext';
 import AdvancePagination from '../../../global/AdvancePagination';
@@ -47,7 +48,11 @@ const List = ({ projectId }) => {
 						vendors_list.map(d => {
 							return (
 								<tr key={d._id}>
-									<td>{d.name}</td>
+									<td>
+										<Link style={{ color: '#2b7ec1' }} to={`/vendors/${d._id}`}>
+											{d.name}
+										</Link>
+									</td>
 									<td>{d.address || '-'}</td>
 									<td>{d.phone}</td>
 									<td>{d.email}</td>
