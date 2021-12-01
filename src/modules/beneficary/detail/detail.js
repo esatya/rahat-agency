@@ -124,7 +124,6 @@ const BenefDetails = ({ params }) => {
 
 	const fetchBeneficiaryDetails = useCallback(async () => {
 		const details = await getBeneficiaryDetails(id);
-		await fetchCurrentBalance(details.phone);
 		if (details && details.extras) setExtras(details.extras);
 		setBasicInfo(details);
 		if (details.projects && details.projects.length) {
@@ -133,6 +132,7 @@ const BenefDetails = ({ params }) => {
 			});
 			setProjectList(projects);
 		}
+		await fetchCurrentBalance(details.phone);
 	}, [fetchCurrentBalance, getBeneficiaryDetails, id]);
 
 	const fetchAllProjects = useCallback(async () => {
