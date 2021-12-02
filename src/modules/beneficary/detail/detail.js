@@ -181,7 +181,7 @@ const BenefDetails = ({ params }) => {
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
-			{/* Add project modal */}
+			{/* Add to project modal */}
 			<ModalWrapper
 				title="Add to project"
 				loading={loading}
@@ -199,7 +199,7 @@ const BenefDetails = ({ params }) => {
 					/>{' '}
 				</FormGroup>
 			</ModalWrapper>
-			{/* End Add project modal */}
+			{/* End Add to project modal */}
 
 			<ModalWrapper
 				title="Issue Tokens"
