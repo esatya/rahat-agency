@@ -39,6 +39,7 @@ const List = ({ projectId }) => {
 
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentAction, setCurrentAction] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
 
 	const hiddenFileInput = React.useRef(null);
 
@@ -115,6 +116,7 @@ const List = ({ projectId }) => {
 	const onPageChanged = useCallback(
 		async paginationData => {
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT };
 			const data = await beneficiaryByAid(projectId, query);
@@ -308,6 +310,7 @@ const List = ({ projectId }) => {
 			<Table className="no-wrap v-middle" responsive>
 				<thead>
 					<tr className="border-0">
+						<th className="border-0">S.N.</th>
 						<th className="border-0">Name</th>
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
@@ -316,9 +319,10 @@ const List = ({ projectId }) => {
 				</thead>
 				<tbody>
 					{benList.length > 0 ? (
-						benList.map(d => {
+						benList.map((d, i) => {
 							return (
 								<tr key={d._id}>
+									<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 									<td>
 										<Link style={{ color: '#2b7ec1' }} to={`/beneficiaries/${d._id}`}>
 											{d.name}
