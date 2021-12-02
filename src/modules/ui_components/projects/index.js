@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import '../../../assets/css/project.css';
 
 export default function ProjectsInvolved(props) {
-	const { projects } = props;
+	const { projects, showAddBtn, handleAddBtnClick } = props;
 	const history = useHistory();
 
 	const handleProjectClick = projectId => {
@@ -17,7 +17,12 @@ export default function ProjectsInvolved(props) {
 			<Card>
 				<div className="stat-card-body" style={{ minHeight: 120 }}>
 					<CardTitle className="title" style={{ flexBasis: '90%' }}>
-						Projects Involved
+						Projects Involved &nbsp;
+						{showAddBtn && (
+							<a href="#add_project" onClick={handleAddBtnClick} title="Add project">
+								<i className="fas fa-plus"></i>
+							</a>
+						)}
 					</CardTitle>
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<div style={{ flexBasis: '50%' }}>

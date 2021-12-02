@@ -81,6 +81,19 @@ export async function listByAid(aid, params) {
 	return res.data;
 }
 
+export async function addBeneficiaryToProject(benfId, projectId) {
+	const res = await axios({
+		url: `${API.BENEFICARIES}/${benfId}/add-to-project`,
+		method: 'post',
+		headers: {
+			access_token
+		},
+		data: { projectId }
+	});
+
+	return res.data;
+}
+
 export async function addBeneficiary(body) {
 	if (!body.wallet_address) body.wallet_address = body.phone;
 	const res = await axios({
