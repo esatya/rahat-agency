@@ -1,7 +1,8 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
-import { Row, Col, Card, CardTitle } from 'reactstrap';
+import { Row, Col, Card, CardTitle, FormGroup, Label } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
+import { useHistory } from 'react-router-dom';
 
 import VendorInfo from './vendorInfo';
 import ProjectInvovled from '../../ui_components/projects';
@@ -16,12 +17,15 @@ import { TOAST } from '../../../constants';
 import { History } from '../../../utils/History';
 import Balance from '../../ui_components/balance';
 import { VENDOR_STATUS } from '../../../constants';
+import ModalWrapper from '../../global/CustomModal';
+import SelectWrapper from '../../global/SelectWrapper';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 const Index = ({ params }) => {
 	const { addToast } = useToasts();
 	const { id } = params;
+	const history = useHistory();
 
 	const {
 		getVendorDetails,
@@ -29,7 +33,9 @@ const Index = ({ params }) => {
 		getVendorBalance,
 		approveVendor,
 		getVendorPackageBalance,
-		getTokenIdsByProjects
+		getTokenIdsByProjects,
+		listProjects,
+		addVendorToProject
 	} = useContext(VendorContext);
 	const { isVerified, wallet, appSettings } = useContext(AppContext);
 
@@ -45,6 +51,15 @@ const Index = ({ params }) => {
 	const [vendorStatus, setVendorStatus] = useState('');
 	const [vendorPackageBalance, setVendorPackageBalance] = useState(null);
 
+	const [addProjectModal, setAddProjectModal] = useState(false);
+	const [allProjects, setAllProjects] = useState([]);
+	const [selectedProject, setSelectedProject] = useState('');
+
+	const toggleAddProjectModal = () => {
+		if (!addProjectModal) setSelectedProject('');
+		setAddProjectModal(!addProjectModal);
+	};
+
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
 	const handleSwitchChange = e => {
@@ -52,6 +67,26 @@ const Index = ({ params }) => {
 		setVendorStatus(_status);
 		togglePasscodeModal();
 	};
+
+	const handleAddBtnClick = e => {
+		e.preventDefault();
+		toggleAddProjectModal();
+	};
+
+	const handleAddprojectSubmit = async e => {
+		e.preventDefault();
+		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
+		try {
+			await addVendorToProject(id, selectedProject);
+			addToast('Vendor added to the project', TOAST.SUCCESS);
+			history.push('/vendors');
+		} catch (err) {
+			const errMsg = err.message ? err.message : 'Internal server error';
+			addToast(errMsg, TOAST.ERROR);
+		}
+	};
+
+	const handleProjectChange = d => setSelectedProject(d.value);
 
 	const handleApproveVendor = useCallback(async () => {
 		setPasscodeModal(false);
@@ -105,8 +140,17 @@ const Index = ({ params }) => {
 		[appSettings.agency.contracts, getVendorPackageBalance]
 	);
 
+	const sanitizeSelectOptions = useCallback(projects => {
+		const select_options = projects.map(d => {
+			return { label: d.name, value: d._id };
+		});
+		setAllProjects(select_options);
+	}, []);
+
 	const fetchVendorDetails = useCallback(async () => {
 		const details = await getVendorDetails(id);
+		const projects = await listProjects();
+		if (projects.length) sanitizeSelectOptions(projects);
 		if (details) {
 			setVendorStatus(details.agencies[0].status);
 			setBasicInfo(details);
@@ -120,7 +164,15 @@ const Index = ({ params }) => {
 			await fetchVendorPackageBalance(details.wallet_address, tokenIds);
 		}
 		await fetchVendorBalance(details.wallet_address);
-	}, [fetchTokenIdsByProjects, fetchVendorBalance, fetchVendorPackageBalance, getVendorDetails, id]);
+	}, [
+		fetchTokenIdsByProjects,
+		fetchVendorBalance,
+		fetchVendorPackageBalance,
+		getVendorDetails,
+		id,
+		listProjects,
+		sanitizeSelectOptions
+	]);
 
 	const fetchVendorTransactions = useCallback(async () => {
 		try {
@@ -147,9 +199,30 @@ const Index = ({ params }) => {
 		}
 	}, [handleApproveVendor, isVerified, wallet]);
 
+	console.log({ selectedProject });
+
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+
+			{/* Add to project modal */}
+			<ModalWrapper
+				title="Add to project"
+				open={addProjectModal}
+				toggle={toggleAddProjectModal}
+				handleSubmit={handleAddprojectSubmit}
+			>
+				<FormGroup>
+					<Label>Project *</Label>
+					<SelectWrapper
+						onChange={handleProjectChange}
+						maxMenuHeight={150}
+						data={allProjects}
+						placeholder="--Select Project--"
+					/>{' '}
+				</FormGroup>
+			</ModalWrapper>
+			{/* End Add to project modal */}
 
 			<p className="page-heading">Vendors</p>
 			<BreadCrumb redirect_path="vendors" root_label="Vendors" current_label="Details" />
@@ -222,7 +295,7 @@ const Index = ({ params }) => {
 			</Row>
 
 			<VendorInfo information={basicInfo} />
-			<ProjectInvovled projects={projectList} />
+			<ProjectInvovled projects={projectList} handleAddBtnClick={handleAddBtnClick} showAddBtn={true} />
 			<TransactionHistory fetching={fetchingBlockchain} transactions={transactionList} />
 		</>
 	);
