@@ -28,7 +28,8 @@ const BenefDetails = ({ params }) => {
 		getBeneficiaryBalance,
 		getBenfPackageBalance,
 		listProject,
-		getTotalIssuedTokens
+		getTotalIssuedTokens,
+		addBenfToProject
 	} = useContext(BeneficiaryContext);
 	const { loading, appSettings } = useContext(AppContext);
 
@@ -47,8 +48,13 @@ const BenefDetails = ({ params }) => {
 	const [selectedProject, setSelectedProject] = useState('');
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
 	const [totalIssuedTokens, setTotalIssuedTokens] = useState(null);
+	const [addProjectModal, setAddProjectModal] = useState(false);
 
 	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
+	const toggleAddProjectModal = () => {
+		if (!addProjectModal) setSelectedProject('');
+		setAddProjectModal(!addProjectModal);
+	};
 
 	const toggleProjectModal = () => {
 		// If opening modal, reset fields
@@ -90,6 +96,24 @@ const BenefDetails = ({ params }) => {
 		}, 250);
 	};
 
+	const handleAddBtnClick = e => {
+		e.preventDefault();
+		toggleAddProjectModal();
+	};
+
+	const handleAddprojectSubmit = async e => {
+		e.preventDefault();
+		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
+		try {
+			await addBenfToProject(id, selectedProject);
+			addToast('Beneficiary added to the project', TOAST.SUCCESS);
+			history.push('/beneficiaries');
+		} catch (err) {
+			const errMsg = err.message ? err.message : 'Internal server error';
+			addToast(errMsg, TOAST.ERROR);
+		}
+	};
+
 	const handleProjectChange = d => setSelectedProject(d.value);
 
 	const handleIssueToken = () => toggleProjectModal();
@@ -124,7 +148,6 @@ const BenefDetails = ({ params }) => {
 
 	const fetchBeneficiaryDetails = useCallback(async () => {
 		const details = await getBeneficiaryDetails(id);
-		await fetchCurrentBalance(details.phone);
 		if (details && details.extras) setExtras(details.extras);
 		setBasicInfo(details);
 		if (details.projects && details.projects.length) {
@@ -133,6 +156,7 @@ const BenefDetails = ({ params }) => {
 			});
 			setProjectList(projects);
 		}
+		await fetchCurrentBalance(details.phone);
 	}, [fetchCurrentBalance, getBeneficiaryDetails, id]);
 
 	const fetchAllProjects = useCallback(async () => {
@@ -156,6 +180,27 @@ const BenefDetails = ({ params }) => {
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+
+			{/* Add to project modal */}
+			<ModalWrapper
+				title="Add to project"
+				loading={loading}
+				open={addProjectModal}
+				toggle={toggleAddProjectModal}
+				handleSubmit={handleAddprojectSubmit}
+			>
+				<FormGroup>
+					<Label>Project *</Label>
+					<SelectWrapper
+						onChange={handleProjectChange}
+						maxMenuHeight={150}
+						data={allProjects}
+						placeholder="--Select Project--"
+					/>{' '}
+				</FormGroup>
+			</ModalWrapper>
+			{/* End Add to project modal */}
+
 			<ModalWrapper
 				title="Issue Tokens"
 				loading={loading}
@@ -239,7 +284,7 @@ const BenefDetails = ({ params }) => {
 
 			{basicInfo && <BeneficiaryInfo basicInfo={basicInfo} extras={extras} />}
 
-			<ProjectInvovled projects={projectList} />
+			<ProjectInvovled handleAddBtnClick={handleAddBtnClick} showAddBtn={true} projects={projectList} />
 		</>
 	);
 };
