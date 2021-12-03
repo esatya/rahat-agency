@@ -6,6 +6,8 @@ import ACTION from '../actions/vendor';
 import { AppContext } from './AppSettingsContext';
 import { APP_CONSTANTS } from '../constants';
 
+const FETCH_FIFTY = 50;
+
 const initialState = {
 	list: [],
 	pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 },
@@ -153,6 +155,15 @@ export const VendorContextProvider = ({ children }) => {
 		return Service.getTokenIdsByProjects(projects);
 	}, []);
 
+	const listProjects = useCallback(async () => {
+		const d = await AidService.listAid({ start: 0, limit: FETCH_FIFTY });
+		return d.data;
+	}, []);
+
+	const addVendorToProject = (vendorId, projectId) => {
+		return Service.addVendorToProject(vendorId, projectId);
+	};
+
 	return (
 		<VendorContext.Provider
 			value={{
@@ -163,12 +174,14 @@ export const VendorContextProvider = ({ children }) => {
 				loading: state.loading,
 				pagination: state.pagination,
 				transactionHistory: state.transactionHistory,
+				listProjects,
 				listVendor,
 				listAid,
 				setAid,
 				clear,
 				addVendor,
 				updateVendor,
+				addVendorToProject,
 				getVendorPackageBalance,
 				getTokenIdsByProjects,
 				setVendor,

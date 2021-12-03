@@ -36,6 +36,11 @@ module.exports = {
 		ACTIVE: 'active',
 		SUSPENDED: 'suspended'
 	},
+	VENDOR_STATUS: {
+		ACTIVE: 'active',
+		NEW: 'new',
+		SUSPENDED: 'suspended'
+	},
 	GROUPS: {
 		DIFFERENTLY_ABLED: {
 			label: 'Differently Abled',

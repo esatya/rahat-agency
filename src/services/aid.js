@@ -10,14 +10,6 @@ import { CURRENCY } from '../constants';
 
 const access_token = getUserToken();
 
-const mapTestContract = contract => ({
-	setProjectBudget: contract.setProjectBudget,
-	projectCapital: contract.projectCapital,
-	getProjectBalance: contract.getProjectBalance,
-	issueToken: contract.issueToken,
-	issueBulkToken: contract.issueBulkToken
-});
-
 export async function createNft(payload, contracts, wallet) {
 	return new Promise(async (resolve, reject) => {
 		const { rahat_admin } = contracts;
@@ -152,8 +144,7 @@ export async function bulkTokenIssueToBeneficiary({
 	try {
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
 		const signerContract = contract.connect(wallet);
-		const myContract = mapTestContract(signerContract);
-		return myContract.issueBulkToken(projectId, phone_numbers, token_amounts);
+		return signerContract.issueBulkERC20(projectId, phone_numbers, token_amounts);
 	} catch (e) {
 		throw new Error(e);
 	}

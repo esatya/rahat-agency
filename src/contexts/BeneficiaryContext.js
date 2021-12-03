@@ -55,6 +55,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.SET_AID, data: aid });
 	}
 
+	const addBenfToProject = (benfId, projectId) => {
+		return Service.addBeneficiaryToProject(benfId, projectId);
+	};
+
 	function clear() {
 		dispatch({
 			type: ACTION.LIST,
@@ -115,6 +119,7 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				listProject,
 				issueTokens,
 				addBeneficiary,
+				addBenfToProject,
 				addBeneficiaryInBulk,
 				getBenfPackageBalance,
 				getTotalIssuedTokens,

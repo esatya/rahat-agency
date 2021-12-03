@@ -9,25 +9,27 @@ import { APP_CONSTANTS } from '../../../../constants';
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = ({ projectId }) => {
-	const { vendors_list, vendorsByAid } = useContext(AidContext);
+	const { listMobilizersByProject } = useContext(AidContext);
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentPage, setCurrentPage] = useState(1);
+	const [mobilizers, setMobilizers] = useState([]);
 
 	const onPageChanged = useCallback(
 		async paginationData => {
 			const { currentPage, pageLimit } = paginationData;
 			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
-			const query = { start, limit: PAGE_LIMIT };
-			await vendorsByAid(projectId, query);
+			const query = { start, limit: PAGE_LIMIT, projectId };
+			const res = await listMobilizersByProject(query);
+			if (res) setMobilizers(res.data);
 		},
-		[vendorsByAid, projectId]
+		[projectId, listMobilizersByProject]
 	);
 
 	const fetchTotalRecords = useCallback(async () => {
-		const data = await vendorsByAid(projectId);
+		const data = await listMobilizersByProject({ projectId });
 		setTotalRecords(data.total);
-	}, [vendorsByAid, projectId]);
+	}, [listMobilizersByProject, projectId]);
 
 	useEffect(() => {
 		fetchTotalRecords();
@@ -43,24 +45,22 @@ const List = ({ projectId }) => {
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
 						<th className="border-0">Email</th>
-						<th className="border-0">Shop</th>
 					</tr>
 				</thead>
 				<tbody>
-					{vendors_list.length > 0 ? (
-						vendors_list.map((d, i) => {
+					{mobilizers.length > 0 ? (
+						mobilizers.map((d, i) => {
 							return (
 								<tr key={d._id}>
 									<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 									<td>
-										<Link style={{ color: '#2b7ec1' }} to={`/vendors/${d._id}`}>
+										<Link style={{ color: '#2b7ec1' }} to={`/mobilizers/${d._id}`}>
 											{d.name}
 										</Link>
 									</td>
 									<td>{d.address || '-'}</td>
-									<td>{d.phone}</td>
-									<td>{d.email}</td>
-									<td>{d.shop_name || '-'}</td>
+									<td>{d.phone || '-'}</td>
+									<td>{d.email || '-'}</td>
 								</tr>
 							);
 						})
@@ -68,6 +68,7 @@ const List = ({ projectId }) => {
 						<tr>
 							<td colSpan={2}></td>
 							<td>No data available.</td>
+							<td colSpan={2}></td>
 						</tr>
 					)}
 				</tbody>
