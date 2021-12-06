@@ -1,6 +1,7 @@
 import { formatWord, blobToBase64, formatBalanceAndCurrency, generateUID } from '../../src/utils/index';
 import 'regenerator-runtime/runtime';
 
+
 describe('utils', () => {
 	it('should replace _ with " "', () => {
 		expect(formatWord('raktim_shrestha')).toEqual('raktim shrestha');
@@ -19,4 +20,5 @@ describe('utils', () => {
 	it('should format balance and currency', () => {
 		expect(formatBalanceAndCurrency(20, 'yen')).toEqual('YEN\xa020');
 	});
+
 });
