@@ -48,6 +48,7 @@ export async function mintNft({ payload, contracts, wallet }) {
 	}
 }
 
+
 export async function listNftPackages(projectId, query) {
 	const res = await axios({
 		url: `${API.NFT}/${projectId}/list?${qs.stringify(query)}`,

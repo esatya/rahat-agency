@@ -13,6 +13,7 @@ const agency_details = {
 	phone: '1231231232'
 };
 
+
 describe('Agency Reducer Tests', () => {
 	describe('Reducer', () => {
 		it('Should verify LIST_SUCCESS case of Agency Reducer', () => {
@@ -41,5 +42,6 @@ describe('Agency Reducer Tests', () => {
 				}
 			});
 		});
+
 	});
 });
