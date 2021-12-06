@@ -24,6 +24,7 @@ export async function getTotalIssuedTokens(phone, contract_address) {
 	return data.toNumber();
 }
 
+
 export async function getBeneficiaryPackageBalance(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
 	const data = await contract.getTotalERC1155Balance(phone);

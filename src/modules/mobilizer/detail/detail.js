@@ -83,6 +83,7 @@ export default function DetailsForm(props) {
 		[appSettings.agency.contracts, getMobilizerBalance, getMobilizerPackageBalance]
 	);
 
+
 	const fetchMobilizerDetails = useCallback(async () => {
 		try {
 			const mob = await getMobilizerDetails(mobilizerId);
@@ -205,6 +206,7 @@ export default function DetailsForm(props) {
 	useEffect(() => {
 		submitMobilizerApproval();
 	}, [submitMobilizerApproval, isVerified]);
+
 
 	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : STATUS.NEW;
 

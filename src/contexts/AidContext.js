@@ -219,6 +219,7 @@ export const AidContextProvider = ({ children }) => {
 				total_tokens: state.total_tokens,
 				uploadBenfToProject,
 				listMobilizersByProject,
+
 				getProjectPackageBalance,
 				issueBeneficiaryPackage,
 				getBeneficiaryById,

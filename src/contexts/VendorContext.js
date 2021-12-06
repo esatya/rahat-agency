@@ -164,6 +164,7 @@ export const VendorContextProvider = ({ children }) => {
 		return Service.addVendorToProject(vendorId, projectId);
 	};
 
+
 	return (
 		<VendorContext.Provider
 			value={{
