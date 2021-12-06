@@ -32,9 +32,8 @@ describe('Agency Reducer Tests', () => {
 			const state = initialState;
 			const newState = agencyReducer(state, {
 				type: 'GET_AGENCY_SUCCESS',
-				res: { data: agency_details }
+				res: { agency: agency_details }
 			});
-			console.log(newState);
 			expect(newState).toMatchObject({
 				agency_details: {
 					name: 'eSatya',
