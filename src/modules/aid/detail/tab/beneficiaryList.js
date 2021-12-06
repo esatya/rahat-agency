@@ -24,7 +24,7 @@ const ACTION = {
 
 const List = ({ projectId }) => {
 	const { addToast } = useToasts();
-	const { beneficiaryByAid, bulkTokenIssueToBeneficiary } = useContext(AidContext);
+	const { beneficiaryByAid, bulkTokenIssueToBeneficiary, uploadBenfToProject } = useContext(AidContext);
 	const { loading, setLoading, wallet, isVerified, appSettings } = useContext(AppContext);
 
 	const [benList, setBenList] = useState([]);
@@ -34,8 +34,11 @@ const List = ({ projectId }) => {
 	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
 	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
 	const [passcodeModal, setPasscodeModal] = useState(false);
+
 	const [uploadListModal, setUploadListModal] = useState(false);
-	const [uploadData, setUploadData] = useState(null);
+	const [previewData, setUploadPreview] = useState(null);
+	const [benfUploadFile, setBenfUploadFile] = useState(null);
+	const [uploading, setUploading] = useState(false);
 
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentAction, setCurrentAction] = useState('');
@@ -55,13 +58,32 @@ const List = ({ projectId }) => {
 		hiddenFileInput.current.click();
 	};
 
-	const handleUploadListSubmit = () => {};
+	const handleUploadListSubmit = async e => {
+		e.preventDefault();
+		if (!benfUploadFile) return addToast('Please select excel file to upload', TOAST.ERROR);
+		try {
+			setUploading(true);
+			const form_data = new FormData();
+			form_data.append('file', benfUploadFile);
+			const res = await uploadBenfToProject(projectId, form_data);
+			setUploading(false);
+			toggleUploadListModal();
+			addToast(`${res.uploaded_beneficiaries} beneficiaries uploaded successfully`, TOAST.SUCCESS);
+			fetchTotalRecords();
+		} catch (err) {
+			setUploading(false);
+			toggleUploadListModal();
+			const errMsg = err.message ? err.message : 'Internal server error';
+			addToast(errMsg, TOAST.ERROR);
+		}
+	};
 
 	const handleFileChange = e => {
 		setUploadListModal(true);
-		readFile(e.target.files[0]);
+		const file = e.target.files[0];
+		readFile(file);
 		e.target.value = '';
-		//setBenefUploadFile(e.target.files[0]);
+		setBenfUploadFile(file);
 	};
 
 	const readFile = file => {
@@ -78,30 +100,25 @@ const List = ({ projectId }) => {
 			const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
 			/* Update state */
 			const jsonData = convertToJson(data);
-			setUploadData(jsonData);
+			setUploadPreview(jsonData);
 		};
 		reader.readAsBinaryString(file);
 	};
 
 	const convertToJson = csv => {
-		var lines = csv.split('\n');
+		let result = [];
+		let lines = csv.split('\n');
+		let headers = lines[0].split(',');
 
-		var result = [];
+		for (let i = 1; i < lines.length; i++) {
+			let obj = {};
+			let currentline = lines[i].split(',');
 
-		var headers = lines[0].split(',');
-
-		for (var i = 1; i < lines.length; i++) {
-			var obj = {};
-			var currentline = lines[i].split(',');
-
-			for (var j = 0; j < headers.length; j++) {
+			for (let j = 0; j < headers.length; j++) {
 				obj[headers[j]] = currentline[j];
 			}
-
 			result.push(obj);
 		}
-
-		//return result; //JavaScript object
 		return result; //JSON
 	};
 
@@ -177,7 +194,6 @@ const List = ({ projectId }) => {
 	const submitBulkTokenIssue = useCallback(async () => {
 		if (wallet && isVerified) {
 			try {
-				console.log('SUBMIT');
 				setPasscodeModal(false);
 				setLoading(true);
 				const { contracts } = appSettings.agency;
@@ -260,12 +276,12 @@ const List = ({ projectId }) => {
 			<ModalWrapper
 				toggle={toggleUploadListModal}
 				open={uploadListModal}
-				title="Beneficiaries List"
+				title="Beneficiary Upload Preview"
 				handleSubmit={handleUploadListSubmit}
-				loading={loading}
+				loading={uploading}
 				size="xl"
 			>
-				<UploadList data={uploadData} />
+				<UploadList data={previewData} />
 			</ModalWrapper>
 
 			<div>
@@ -297,7 +313,13 @@ const List = ({ projectId }) => {
 						>
 							Upload Beneficiaries
 						</button>
-						<input type="file" ref={hiddenFileInput} onChange={handleFileChange} style={{ display: 'none' }} />
+						<input
+							type="file"
+							ref={hiddenFileInput}
+							onChange={handleFileChange}
+							accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+							style={{ display: 'none' }}
+						/>
 					</div>
 				</div>
 
