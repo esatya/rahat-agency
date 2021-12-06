@@ -1,27 +1,31 @@
-import React, {
-	useEffect
-	// useContext,  useCallback
-} from 'react';
-import {
-	// Pagination, PaginationItem, PaginationLink,
-	Table
-} from 'reactstrap';
+import React, { useEffect, useCallback, useState } from 'react';
+import { Table } from 'reactstrap';
+import AdvancePagination from '../../../global/AdvancePagination';
+import { APP_CONSTANTS } from '../../../../constants';
 
-// import { AidContext } from '../../../../contexts/AidContext';
+const { PAGE_LIMIT } = APP_CONSTANTS;
 
-const List = ({ data }) => {
-	//const { vendor_pagination, vendors_list, vendorsByAid } = useContext(AidContext);
+const UploadList = ({ data }) => {
+	const [totalRecords, setTotalRecords] = useState(null);
+	const [records, setRecords] = useState([]);
 
-	// const handlePagination = current_page => {
-	// 	let _start = (current_page - 1) * vendor_pagination.limit;
-	// 	console.log({ _start });
-	// };
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const { currentPage, pageLimit } = paginationData;
+			const offset = (currentPage - 1) * pageLimit;
+			const sliced_data = data.slice(offset, offset + pageLimit);
+			setRecords(sliced_data);
+		},
+		[data]
+	);
 
-	// const fetchVendorsByAId = useCallback(async () => {
-	// //	await vendorsByAid(projectId);
-	// }, [projectId, vendorsByAid]);
+	const fetchTotalRecords = useCallback(() => {
+		if (data) setTotalRecords(data.length);
+	}, [data]);
 
-	useEffect(() => {}, [data]);
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<>
@@ -36,8 +40,8 @@ const List = ({ data }) => {
 					</tr>
 				</thead>
 				<tbody>
-					{data && data.length > 0 ? (
-						data.map(d => {
+					{records && records.length > 0 ? (
+						records.map(d => {
 							return (
 								<tr key={d._id}>
 									<td>{d.name}</td>
@@ -56,36 +60,17 @@ const List = ({ data }) => {
 					)}
 				</tbody>
 			</Table>
-			{/* 
-			{data.totalPages > 1 ? (
-				<Pagination
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						marginTop: '50px'
-					}}
-				>
-					<PaginationItem>
-						<PaginationLink first href="#first_page" onClick={() => handlePagination(1)} />
-					</PaginationItem>
-					{[...Array(data.totalPages)].map((p, i) => (
-						<PaginationItem
-							key={i}
-							active={data.currentPage === i + 1 ? true : false}
-							onClick={() => handlePagination(i + 1)}
-						>
-							<PaginationLink href={`#page=${i + 1}`}>{i + 1}</PaginationLink>
-						</PaginationItem>
-					))}
-					<PaginationItem>
-						<PaginationLink last href="#last_page" onClick={() => handlePagination(data.totalPages)} />
-					</PaginationItem>
-				</Pagination>
-			) : (
-				''
-			)} */}
+
+			{totalRecords > 0 && (
+				<AdvancePagination
+					totalRecords={totalRecords}
+					pageLimit={PAGE_LIMIT}
+					pageNeighbours={1}
+					onPageChanged={onPageChanged}
+				/>
+			)}
 		</>
 	);
 };
 
-export default List;
+export default UploadList;
