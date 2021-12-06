@@ -29,6 +29,7 @@ export async function getMobilizerPackageBalance(contract_address, wallet_addr) 
 }
 
 export async function approveMobilizer(wallet, payload, contract_address) {
+	console.log('Payload==>', payload);
 	try {
 		const { wallet_address, projectId } = payload;
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
