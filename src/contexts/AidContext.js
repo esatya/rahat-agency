@@ -200,6 +200,10 @@ export const AidContextProvider = ({ children }) => {
 		return MobilizerService.list(params);
 	}, []);
 
+	const uploadBenfToProject = (projectId, payload) => {
+		return Service.uploadBenfToProject(projectId, payload);
+	};
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -213,6 +217,7 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				uploadBenfToProject,
 				listMobilizersByProject,
 				getProjectPackageBalance,
 				issueBeneficiaryPackage,
