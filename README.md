@@ -25,7 +25,7 @@ Rahat’s main features are:
 ## Installing
 
 1 Update .env file to add url of your Rahat server
-`REACT_APP_API_SERVER=http://localhost:3800 REACT_APP_BLOCKCHAIN_EXPLORER=http://157.245.125.194:8090`
+`REACT_APP_API_SERVER=http://localhost:3800 REACT_APP_BLOCKCHAIN_EXPLORER={netowrk gateway}`
 
 2.  Install required dependencies and compile smart contracts
     `yarn install`

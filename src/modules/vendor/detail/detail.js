@@ -36,6 +36,7 @@ const Index = ({ params }) => {
 		getTokenIdsByProjects,
 		listProjects,
 		addVendorToProject
+
 	} = useContext(VendorContext);
 	const { isVerified, wallet, appSettings } = useContext(AppContext);
 
@@ -50,7 +51,6 @@ const Index = ({ params }) => {
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [vendorStatus, setVendorStatus] = useState('');
 	const [vendorPackageBalance, setVendorPackageBalance] = useState(null);
-
 	const [addProjectModal, setAddProjectModal] = useState(false);
 	const [allProjects, setAllProjects] = useState([]);
 	const [selectedProject, setSelectedProject] = useState('');
@@ -59,6 +59,7 @@ const Index = ({ params }) => {
 		if (!addProjectModal) setSelectedProject('');
 		setAddProjectModal(!addProjectModal);
 	};
+
 
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
@@ -155,6 +156,7 @@ const Index = ({ params }) => {
 			setVendorStatus(details.agencies[0].status);
 			setBasicInfo(details);
 		}
+
 		if (details && details.projects && details.projects.length) {
 			const tokenIds = await await fetchTokenIdsByProjects(details.projects);
 			const projects = details.projects.map(d => {
@@ -173,6 +175,7 @@ const Index = ({ params }) => {
 		listProjects,
 		sanitizeSelectOptions
 	]);
+
 
 	const fetchVendorTransactions = useCallback(async () => {
 		try {

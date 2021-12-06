@@ -30,6 +30,7 @@ const BenefDetails = ({ params }) => {
 		listProject,
 		getTotalIssuedTokens,
 		addBenfToProject
+
 	} = useContext(BeneficiaryContext);
 	const { loading, appSettings } = useContext(AppContext);
 
@@ -49,6 +50,7 @@ const BenefDetails = ({ params }) => {
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
 	const [totalIssuedTokens, setTotalIssuedTokens] = useState(null);
 	const [addProjectModal, setAddProjectModal] = useState(false);
+
 
 	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
 	const toggleAddProjectModal = () => {
@@ -114,6 +116,7 @@ const BenefDetails = ({ params }) => {
 		}
 	};
 
+
 	const handleProjectChange = d => setSelectedProject(d.value);
 
 	const handleIssueToken = () => toggleProjectModal();
@@ -157,6 +160,7 @@ const BenefDetails = ({ params }) => {
 			setProjectList(projects);
 		}
 		await fetchCurrentBalance(details.phone);
+
 	}, [fetchCurrentBalance, getBeneficiaryDetails, id]);
 
 	const fetchAllProjects = useCallback(async () => {
