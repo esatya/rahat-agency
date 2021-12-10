@@ -9,7 +9,7 @@ module.exports = {
 		FETCH_LIMIT: 100,
 		PAGE_LIMIT: 10
 	},
-	ROLES: { ADMIN: 'Admin', MANAGER: 'Manager' },
+	ROLES: { ADMIN: 'Admin', MANAGER: 'Manager', MOBILIZER: 'Mobilizer' },
 	DEFAULT_TOKEN: {
 		NAME: 'Ether',
 		SYMBOL: 'ETH'
