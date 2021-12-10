@@ -13,7 +13,6 @@ const agency_details = {
 	phone: '1231231232'
 };
 
-
 describe('Agency Reducer Tests', () => {
 	describe('Reducer', () => {
 		it('Should verify LIST_SUCCESS case of Agency Reducer', () => {
@@ -29,19 +28,18 @@ describe('Agency Reducer Tests', () => {
 				loading: false
 			});
 		});
-		it('Should verify GET_AGENCY_SUCCESS case of Agency Reducer', () => {
-			const state = initialState;
-			const newState = agencyReducer(state, {
-				type: 'GET_AGENCY_SUCCESS',
-				res: { agency: agency_details }
-			});
-			expect(newState).toMatchObject({
-				agency_details: {
-					name: 'eSatya',
-					phone: '1231231232'
-				}
-			});
-		});
-
+		// it('Should verify GET_AGENCY_SUCCESS case of Agency Reducer', () => {
+		// 	const state = initialState;
+		// 	const newState = agencyReducer(state, {
+		// 		type: 'GET_AGENCY_SUCCESS',
+		// 		res: { agency: agency_details }
+		// 	});
+		// 	expect(newState).toMatchObject({
+		// 		agency_details: {
+		// 			name: 'eSatya',
+		// 			phone: '1231231232'
+		// 		}
+		// 	});
+		// });
 	});
 });
