@@ -245,6 +245,13 @@ export function getAidDetails(aidId) {
 	});
 }
 
+export async function uploadBenfToProject(projectId, payload) {
+	let res = await axios.post(`${API.PROJECTS}/${projectId}/upload-beneficiaries`, payload, {
+		headers: { access_token }
+	});
+	return res.data;
+}
+
 export function addAid(payload) {
 	return new Promise((resolve, reject) => {
 		axios
