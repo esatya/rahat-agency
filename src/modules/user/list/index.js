@@ -7,7 +7,7 @@ import { UserContext } from '../../../contexts/UserContext';
 import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
 import AdvancePagination from '../../global/AdvancePagination';
-import { APP_CONSTANTS } from '../../../constants';
+import { APP_CONSTANTS, ROLES } from '../../../constants';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
@@ -21,6 +21,13 @@ const List = () => {
 	const [totalRecords, setTotalRecords] = useState(null);
 
 	const handleAddUserClick = () => History.push('/add_user');
+
+	function renderSingleRole(roles) {
+		if (roles.includes(ROLES.ADMIN)) return ROLES.ADMIN;
+		if (roles.includes(ROLES.MANAGER)) return ROLES.MANAGER;
+		if (roles.includes(ROLES.MOBILIZER)) return ROLES.MOBILIZER;
+		return '-';
+	}
 
 	const handleSearchInputChange = e => {
 		const query = {};
@@ -105,7 +112,7 @@ const List = () => {
 											<td>{`${d.name.first} ${d.name.last}`}</td>
 											<td>{d.email}</td>
 											<td>{d.phone || '-'}</td>
-											<td>{d.roles.toString()}</td>
+											<td>{renderSingleRole(d.roles)}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/${d._id}/users`}>
 													<i class="fas fa-eye fa-lg"></i>
