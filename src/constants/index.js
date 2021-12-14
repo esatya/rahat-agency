@@ -3,6 +3,7 @@ module.exports = {
 		NP_RUPEES: 'NPR'
 	},
 	BALANCE_TABS: { TOKEN: 'Token', PACKAGE: 'Package' },
+	MAX_QR_GEN: 1000,
 	APP_CONSTANTS: {
 		PASSCODE_LENGTH: 6,
 		BULK_BENEFICIARY_LIMIT: 200,
