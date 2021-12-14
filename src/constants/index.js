@@ -3,13 +3,14 @@ module.exports = {
 		NP_RUPEES: 'NPR'
 	},
 	BALANCE_TABS: { TOKEN: 'Token', PACKAGE: 'Package' },
+	MAX_QR_GEN: 1000,
 	APP_CONSTANTS: {
 		PASSCODE_LENGTH: 6,
 		BULK_BENEFICIARY_LIMIT: 200,
 		FETCH_LIMIT: 100,
 		PAGE_LIMIT: 10
 	},
-	ROLES: { ADMIN: 'Admin', MANAGER: 'Manager' },
+	ROLES: { ADMIN: 'Admin', MANAGER: 'Manager', MOBILIZER: 'Mobilizer' },
 	DEFAULT_TOKEN: {
 		NAME: 'Ether',
 		SYMBOL: 'ETH'
