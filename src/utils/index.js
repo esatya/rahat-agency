@@ -1,4 +1,7 @@
 import { CURRENCY } from '../constants';
+
+const DEF_SHOW_CHARS = 20;
+
 export const formatWord = word => {
 	if (!word) return '-';
 	return word.replace(/_/g, ' ');
@@ -35,4 +38,10 @@ export const formatBalanceAndCurrency = (amount, currency) => {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 0
 	});
+};
+
+export const dottedString = function (inputStr, len) {
+	if (!len) len = DEF_SHOW_CHARS;
+	if (!inputStr) inputStr = '-';
+	return inputStr.length > len ? inputStr.substring(0, len) + '...' : inputStr;
 };
