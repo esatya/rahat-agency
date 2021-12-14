@@ -45,7 +45,7 @@ export function verifyToken(token) {
 export function signUp(payload) {
 	return new Promise((resolve, reject) => {
 		axios
-			.post(`${API.USERS}/register`,payload)
+			.post(`${API.USERS}/register`, payload)
 			.then(res => {
 				if (res) {
 					resolve({ sucess: true, status: 200 });
@@ -88,6 +88,7 @@ export function checkExistingUser(payload) {
 }
 
 export async function listUsers(params) {
+	params.hideMobilizers = true;
 	const res = await axios({
 		url: `${API.USERS}`,
 		method: 'Get',
