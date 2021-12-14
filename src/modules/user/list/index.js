@@ -8,6 +8,7 @@ import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
 import AdvancePagination from '../../global/AdvancePagination';
 import { APP_CONSTANTS, ROLES } from '../../../constants';
+import { dottedString } from '../../../utils';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
@@ -109,7 +110,7 @@ const List = () => {
 									return (
 										<tr key={d._id}>
 											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
-											<td>{`${d.name.first} ${d.name.last}`}</td>
+											<td>{dottedString(`${d.name.first} ${d.name.last}`)}</td>
 											<td>{d.email}</td>
 											<td>{d.phone || '-'}</td>
 											<td>{renderSingleRole(d.roles)}</td>

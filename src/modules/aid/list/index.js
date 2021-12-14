@@ -9,6 +9,7 @@ import AidModal from '../../global/CustomModal';
 import { History } from '../../../utils/History';
 import AdvancePagination from '../../global/AdvancePagination';
 import { APP_CONSTANTS } from '../../../constants';
+import { dottedString } from '../../../utils';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
@@ -190,8 +191,8 @@ const List = () => {
 									return (
 										<tr key={d._id}>
 											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
-											<td>{d.name}</td>
-											<td>{d.location || '-'}</td>
+											<td>{dottedString(d.name)}</td>
+											<td>{dottedString(d.location)}</td>
 											<td>
 												{d.project_manager ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
 											</td>
