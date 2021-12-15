@@ -13,6 +13,7 @@ import BreadCrumb from '../../ui_components/breadcrumb';
 import PasscodeModal from '../../global/PasscodeModal';
 import { TOAST } from '../../../constants';
 import { History } from '../../../utils/History';
+import { formatErrorMsg } from '../../../utils';
 import Balance from '../../ui_components/balance';
 import { VENDOR_STATUS, STATUS_ACTIONS } from '../../../constants';
 import ModalWrapper from '../../global/CustomModal';
@@ -34,7 +35,8 @@ const Index = ({ params }) => {
 		getVendorPackageBalance,
 		getTokenIdsByProjects,
 		listProjects,
-		addVendorToProject
+		addVendorToProject,
+		changeVendorStatus
 	} = useContext(VendorContext);
 	const { isVerified, wallet, appSettings } = useContext(AppContext);
 
@@ -129,11 +131,23 @@ const Index = ({ params }) => {
 		toggleVendorApproveModal();
 	};
 
-	const rejectVendor = () => {};
+	const rejectVendor = async status => {
+		try {
+			setLoading(true);
+			await changeVendorStatus(id, status);
+			setLoading(false);
+			addToast('Vendor status updated successfully', TOAST.SUCCESS);
+			History.push('/vendors');
+		} catch (err) {
+			setLoading(false);
+			const errMessage = formatErrorMsg(err);
+			addToast(errMessage, TOAST.ERROR);
+		}
+	};
 
 	const handleApproveRejectClick = actionName => {
 		if (actionName === STATUS_ACTIONS.APPROVE) return openApprovalModal(STATUS_ACTIONS.APPROVE);
-		if (actionName === STATUS_ACTIONS.REJECT) return rejectVendor(STATUS_ACTIONS.REJECT);
+		if (actionName === STATUS_ACTIONS.REJECT) return rejectVendor(VENDOR_STATUS.SUSPENDED);
 	};
 
 	const fetchVendorBalance = useCallback(
@@ -174,23 +188,29 @@ const Index = ({ params }) => {
 	}, []);
 
 	const fetchVendorDetails = useCallback(async () => {
-		const details = await getVendorDetails(id);
-		const projects = await listProjects();
-		if (projects.length) sanitizeSelectOptions(projects);
-		if (details) {
-			setVendorStatus(details.agencies[0].status);
-			setBasicInfo(details);
-		}
+		try {
+			const details = await getVendorDetails(id);
+			const projects = await listProjects();
+			if (projects.length) sanitizeSelectOptions(projects);
+			if (details) {
+				setVendorStatus(details.agencies[0].status);
+				setBasicInfo(details);
+			}
 
-		if (details && details.projects && details.projects.length) {
-			const tokenIds = await await fetchTokenIdsByProjects(details.projects);
-			const projects = details.projects.map(d => {
-				return { id: d._id, name: d.name };
-			});
-			setProjectList(projects);
-			await fetchVendorPackageBalance(details.wallet_address, tokenIds);
+			if (details && details.projects && details.projects.length) {
+				const tokenIds = await await fetchTokenIdsByProjects(details.projects);
+				const projects = details.projects.map(d => {
+					return { id: d._id, name: d.name };
+				});
+				setProjectList(projects);
+				await fetchVendorPackageBalance(details.wallet_address, tokenIds);
+			}
+			await fetchVendorBalance(details.wallet_address);
+		} catch (err) {
+			setFetchingBalance(false);
+			setVendorPackageBalance(0);
+			setVendorBalance(0);
 		}
-		await fetchVendorBalance(details.wallet_address);
 	}, [
 		fetchTokenIdsByProjects,
 		fetchVendorBalance,
