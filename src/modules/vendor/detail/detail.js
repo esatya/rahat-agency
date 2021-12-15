@@ -1,7 +1,6 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { Row, Col, Card, CardTitle, FormGroup, Label } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
-import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import { useHistory } from 'react-router-dom';
 
 import VendorInfo from './vendorInfo';
@@ -10,15 +9,15 @@ import TransactionHistory from './transactionHistory';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import displayPic from '../../../assets/images/users/user_avatar.svg';
-// import Loading from '../../global/Loading';
 import BreadCrumb from '../../ui_components/breadcrumb';
 import PasscodeModal from '../../global/PasscodeModal';
 import { TOAST } from '../../../constants';
 import { History } from '../../../utils/History';
 import Balance from '../../ui_components/balance';
-import { VENDOR_STATUS } from '../../../constants';
+import { VENDOR_STATUS, STATUS_ACTIONS } from '../../../constants';
 import ModalWrapper from '../../global/CustomModal';
 import SelectWrapper from '../../global/SelectWrapper';
+import StatusBox from './statusBox';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -36,7 +35,6 @@ const Index = ({ params }) => {
 		getTokenIdsByProjects,
 		listProjects,
 		addVendorToProject
-
 	} = useContext(VendorContext);
 	const { isVerified, wallet, appSettings } = useContext(AppContext);
 
@@ -55,17 +53,23 @@ const Index = ({ params }) => {
 	const [allProjects, setAllProjects] = useState([]);
 	const [selectedProject, setSelectedProject] = useState('');
 
+	// WIP
+	const [vendorApproveModal, setVendorApproveModal] = useState(false);
+	const [inputStatus, setInputStatus] = useState('');
+
+	const toggleVendorApproveModal = () => setVendorApproveModal(!vendorApproveModal);
+	// END WIP
+
 	const toggleAddProjectModal = () => {
 		if (!addProjectModal) setSelectedProject('');
 		setAddProjectModal(!addProjectModal);
 	};
 
-
 	const togglePasscodeModal = () => setPasscodeModal(!passcodeModal);
 
-	const handleSwitchChange = e => {
-		const _status = e === true ? VENDOR_STATUS.ACTIVE : VENDOR_STATUS.SUSPENDED;
-		setVendorStatus(_status);
+	const handleSwitchChange = flag => {
+		const _status = flag === true ? VENDOR_STATUS.ACTIVE : VENDOR_STATUS.SUSPENDED;
+		setInputStatus(_status);
 		togglePasscodeModal();
 	};
 
@@ -89,17 +93,25 @@ const Index = ({ params }) => {
 
 	const handleProjectChange = d => setSelectedProject(d.value);
 
+	const submitApproveProject = e => {
+		e.preventDefault();
+		if (!selectedProject) return addToast('Please select project', TOAST.ERROR);
+		toggleVendorApproveModal();
+		togglePasscodeModal();
+	};
+
 	const handleApproveVendor = useCallback(async () => {
 		setPasscodeModal(false);
 		const { wallet_address } = basicInfo;
 		try {
 			const payload = {
-				status: vendorStatus,
+				status: inputStatus,
 				wallet_address: wallet_address,
 				vendorId: id
 			};
 			setLoading(true);
 			const approved = await approveVendor(payload);
+			if (selectedProject) await addVendorToProject(id, selectedProject);
 			if (approved) {
 				setLoading(false);
 				addToast('Vendor status updated successfully', TOAST.SUCCESS);
@@ -109,7 +121,19 @@ const Index = ({ params }) => {
 			setLoading(false);
 			addToast(err.message, TOAST.ERROR);
 		}
-	}, [addToast, approveVendor, basicInfo, id, vendorStatus]);
+	}, [addToast, addVendorToProject, approveVendor, basicInfo, id, inputStatus, selectedProject]);
+
+	const openApprovalModal = () => {
+		setInputStatus(VENDOR_STATUS.ACTIVE);
+		toggleVendorApproveModal();
+	};
+
+	const rejectVendor = () => {};
+
+	const handleApproveRejectClick = actionName => {
+		if (actionName === STATUS_ACTIONS.APPROVE) return openApprovalModal(STATUS_ACTIONS.APPROVE);
+		if (actionName === STATUS_ACTIONS.REJECT) return rejectVendor(STATUS_ACTIONS.REJECT);
+	};
 
 	const fetchVendorBalance = useCallback(
 		async wallet_address => {
@@ -176,7 +200,6 @@ const Index = ({ params }) => {
 		sanitizeSelectOptions
 	]);
 
-
 	const fetchVendorTransactions = useCallback(async () => {
 		try {
 			setFetchingBlockChain(true);
@@ -202,8 +225,6 @@ const Index = ({ params }) => {
 		}
 	}, [handleApproveVendor, isVerified, wallet]);
 
-	console.log({ selectedProject });
-
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
@@ -214,6 +235,25 @@ const Index = ({ params }) => {
 				open={addProjectModal}
 				toggle={toggleAddProjectModal}
 				handleSubmit={handleAddprojectSubmit}
+			>
+				<FormGroup>
+					<Label>Project *</Label>
+					<SelectWrapper
+						onChange={handleProjectChange}
+						maxMenuHeight={150}
+						data={allProjects}
+						placeholder="--Select Project--"
+					/>{' '}
+				</FormGroup>
+			</ModalWrapper>
+			{/* End Add to project modal */}
+
+			{/* Assign to vendor and approve modal */}
+			<ModalWrapper
+				title="Add to project"
+				open={vendorApproveModal}
+				toggle={toggleVendorApproveModal}
+				handleSubmit={submitApproveProject}
 			>
 				<FormGroup>
 					<Label>Project *</Label>
@@ -258,7 +298,15 @@ const Index = ({ params }) => {
 									</div>
 								</Col>
 								<Col md="4" sm="4">
-									{loading ? (
+									{vendorStatus && (
+										<StatusBox
+											vendorStatus={vendorStatus}
+											handleApproveRejectClick={handleApproveRejectClick}
+											handleSwitchChange={handleSwitchChange}
+											loading={loading}
+										/>
+									)}
+									{/* {loading ? (
 										<button
 											type="button"
 											disabled={true}
@@ -277,7 +325,7 @@ const Index = ({ params }) => {
 											onstyle="success"
 											onChange={handleSwitchChange}
 										/>
-									)}
+									)} */}
 								</Col>
 							</Row>
 						</div>
@@ -291,7 +339,6 @@ const Index = ({ params }) => {
 						token_data={vendorBalance}
 						package_data={vendorPackageBalance}
 						fetching={fetchingBalance}
-						loading={loading}
 						handleIssueToken=""
 					/>
 				</Col>
