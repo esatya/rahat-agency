@@ -104,6 +104,7 @@ const Index = ({ params }) => {
 		setPasscodeModal(false);
 		const { wallet_address } = basicInfo;
 		try {
+			if (!inputStatus) return addToast('No status supplied', TOAST.ERROR);
 			const payload = {
 				status: inputStatus,
 				wallet_address: wallet_address,
