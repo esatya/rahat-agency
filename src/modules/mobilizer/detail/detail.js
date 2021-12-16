@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
-import { Link } from 'react-router-dom';
-import BootstrapSwitchButton from 'bootstrap-switch-button-react';
+import { Link, useHistory } from 'react-router-dom';
 
 import {
 	Card,
@@ -21,7 +20,6 @@ import {
 	ModalFooter
 } from 'reactstrap';
 
-import ProjectInvovled from '../../ui_components/projects';
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import profilePhoto from '../../../assets/images/users/user_avatar.svg';
@@ -30,16 +28,17 @@ import PasscodeModal from '../../global/PasscodeModal';
 import MobilizerInfo from './mobilizerInfo';
 import BreadCrumb from '../../ui_components/breadcrumb';
 import Balance from '../../ui_components/balance';
-import { TOAST } from '../../../constants';
+import { TOAST, MOBIZ_STATUS } from '../../../constants';
+import ProjectsByStatus from './projectsByStatus';
+import { formatErrorMsg } from '../../../utils';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
-const STATUS = { ACTIVE: 'active', SUSPENDED: 'suspended', NEW: 'new' };
-
 export default function DetailsForm(props) {
 	const mobilizerId = props.params.id;
 	const { addToast } = useToasts();
+	const history = useHistory();
 	const {
 		mobilizer,
 		getMobilizerDetails,
@@ -49,7 +48,8 @@ export default function DetailsForm(props) {
 		transactionHistory,
 		getAvailableBalance,
 		listAid,
-		getMobilizerPackageBalance
+		getMobilizerPackageBalance,
+		changeMobStatusInProject
 	} = useContext(MobilizerContext);
 
 	const { appSettings, isVerified, wallet } = useContext(AppContext);
@@ -61,12 +61,13 @@ export default function DetailsForm(props) {
 	const [selectedProject, setSelectedProject] = useState('');
 	const [availableBalance, setAvailableBalance] = useState(null);
 	const [showAlert, setShowAlert] = useState(false);
-	const [projectList, setProjectList] = useState([]);
 
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
 
 	const [mobilizerStatus, setMobilizerStatus] = useState('');
+	const [mobilizerProjects, setMobilizerProjects] = useState([]);
+	const [statusInput, setStatusInput] = useState('');
 
 	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal), [passcodeModal]);
 
@@ -83,22 +84,31 @@ export default function DetailsForm(props) {
 		[appSettings.agency.contracts, getMobilizerBalance, getMobilizerPackageBalance]
 	);
 
+	const showActiveInactiveStatus = useCallback(projects => {
+		const statusOnly = projects.map(p => p.status);
+		if (statusOnly.includes(MOBIZ_STATUS.ACTIVE)) setMobilizerStatus(MOBIZ_STATUS.ACTIVE);
+		else setMobilizerStatus(MOBIZ_STATUS.SUSPENDED);
+	}, []);
 
 	const fetchMobilizerDetails = useCallback(async () => {
 		try {
 			const mob = await getMobilizerDetails(mobilizerId);
 			if (mob.projects && mob.projects.length) {
-				const projects = mob.projects.map(d => {
-					return { id: d._id, name: d.name };
-				});
-				setProjectList(projects);
+				showActiveInactiveStatus(mob.projects);
+				setMobilizerProjects(mob.projects);
 			}
 			if (mob.wallet_address) await fetchTokenAndPackageBalance(mob.wallet_address);
 			await getMobilizerTransactions(mobilizerId);
 		} catch (err) {
 			console.log('ERR==>', err);
 		}
-	}, [fetchTokenAndPackageBalance, getMobilizerDetails, getMobilizerTransactions, mobilizerId]);
+	}, [
+		fetchTokenAndPackageBalance,
+		getMobilizerDetails,
+		getMobilizerTransactions,
+		mobilizerId,
+		showActiveInactiveStatus
+	]);
 
 	const handleSelectProject = async e => {
 		try {
@@ -118,39 +128,51 @@ export default function DetailsForm(props) {
 		}
 	};
 
-	const handleSwitchChange = e => {
-		const _status = e === true ? STATUS.ACTIVE : STATUS.SUSPENDED;
-		setMobilizerStatus(_status);
-		toggleModal();
+	const changeMobilizerStatus = async (projectId, status) => {
+		const payload = { projectId, status };
+		try {
+			await changeMobStatusInProject(mobilizerId, payload);
+			addToast('Mobilizer status updated successfully', TOAST.SUCCESS);
+			history.push('/mobilizers');
+		} catch (err) {
+			const errMsg = formatErrorMsg(err);
+			addToast(errMsg, TOAST.ERROR);
+		}
+	};
+
+	const handleApproveReject = (projectId, status) => {
+		// const _status = e === true ? MOBIZ_STATUS.ACTIVE : MOBIZ_STATUS.SUSPENDED;
+		return changeMobilizerStatus(projectId, status);
+		// if (status === MOBIZ_STATUS.ACTIVE)
+		// 	setStatusInput(status);
+		// 	togglePasscodeModal();
+		// } else changeMobilizerStatus(projectId);
 	};
 
 	const submitMobilizerApproval = useCallback(async () => {
 		if (isVerified && wallet) {
+			if (!statusInput) return addToast('Status not supplied', TOAST.ERROR);
+			if (!selectedProject) return addToast('Please select proejct', TOAST.ERROR);
 			setLoading(true);
 			setPasscodeModal(false);
 			let payload = {
-				status: mobilizerStatus,
+				status: statusInput,
 				wallet_address: mobilizer.wallet_address,
 				projectId: selectedProject
 			};
 			approveMobilizer(payload)
 				.then(() => {
 					setLoading(false);
-					addToast('Mobilizer status successfully.', {
-						appearance: 'success',
-						autoDismiss: true
-					});
+					addToast('Mobilizer status updated successfully', TOAST.SUCCESS);
+					history.push('/mobilizers');
 				})
 				.catch(err => {
 					setLoading(false);
-					const errMsg = err.message ? err.message : 'Internal server error!';
-					addToast(errMsg, {
-						appearance: 'error',
-						autoDismiss: true
-					});
+					const errMsg = formatErrorMsg(err);
+					addToast(errMsg, TOAST.ERROR);
 				});
 		}
-	}, [addToast, approveMobilizer, isVerified, mobilizer.wallet_address, mobilizerStatus, selectedProject, wallet]);
+	}, [addToast, approveMobilizer, history, isVerified, mobilizer.wallet_address, selectedProject, statusInput, wallet]);
 
 	const toggleModal = () => {
 		setModal(prevState => !prevState);
@@ -204,11 +226,9 @@ export default function DetailsForm(props) {
 	}, [fetchMobilizerDetails]);
 
 	useEffect(() => {
+		console.log('APPROVAL EFFECT==>');
 		submitMobilizerApproval();
 	}, [submitMobilizerApproval, isVerified]);
-
-
-	const mobilizer_status = mobilizer && mobilizer.agencies ? mobilizer.agencies[0].status : STATUS.NEW;
 
 	return (
 		<>
@@ -292,7 +312,19 @@ export default function DetailsForm(props) {
 									</div>
 								</Col>
 								<Col md="4" sm="4">
-									{loading ? (
+									{mobilizerStatus === MOBIZ_STATUS.ACTIVE ? (
+										<div>
+											<i className="fa fa-circle text-success"></i>
+											&nbsp; Active
+										</div>
+									) : (
+										<div>
+											<i className="fa fa-circle text-danger"></i>
+											&nbsp; Inactive
+										</div>
+									)}
+
+									{/* {loading ? (
 										<button
 											type="button"
 											disabled={true}
@@ -309,9 +341,9 @@ export default function DetailsForm(props) {
 											width={140}
 											height={30}
 											onstyle="success"
-											onChange={handleSwitchChange}
+											onChange={handleApproveReject}
 										/>
-									)}
+									)} */}
 								</Col>
 							</Row>
 						</div>
@@ -325,13 +357,14 @@ export default function DetailsForm(props) {
 						token_data={mobilizerBalance}
 						package_data={totalPackageBalance}
 						fetching={fetchingBalance}
-						loading={loading}
 						handleIssueToken=""
 					/>
 				</Col>
 			</Row>
 			<MobilizerInfo information={mobilizer} />
-			<ProjectInvovled projects={projectList} />
+			{/* <ProjectInvovled projects={projectList} /> */}
+
+			<ProjectsByStatus mobilizerProjects={mobilizerProjects} handleApproveReject={handleApproveReject} />
 
 			<Row>
 				<Col md="12">

@@ -43,6 +43,11 @@ module.exports = {
 		NEW: 'new',
 		SUSPENDED: 'suspended'
 	},
+	MOBIZ_STATUS: {
+		ACTIVE: 'active',
+		NEW: 'new',
+		SUSPENDED: 'suspended'
+	},
 	GROUPS: {
 		DIFFERENTLY_ABLED: {
 			label: 'Differently Abled',
