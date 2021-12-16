@@ -7,8 +7,8 @@ import { UserContext } from '../../../contexts/UserContext';
 import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
 import AdvancePagination from '../../global/AdvancePagination';
-import { APP_CONSTANTS, ROLES } from '../../../constants';
-import { dottedString } from '../../../utils';
+import { APP_CONSTANTS } from '../../../constants';
+import { dottedString, renderSingleRole } from '../../../utils';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
@@ -22,13 +22,6 @@ const List = () => {
 	const [totalRecords, setTotalRecords] = useState(null);
 
 	const handleAddUserClick = () => History.push('/add_user');
-
-	function renderSingleRole(roles) {
-		if (roles.includes(ROLES.ADMIN)) return ROLES.ADMIN;
-		if (roles.includes(ROLES.MANAGER)) return ROLES.MANAGER;
-		if (roles.includes(ROLES.MOBILIZER)) return ROLES.MOBILIZER;
-		return '-';
-	}
 
 	const handleSearchInputChange = e => {
 		const query = {};
