@@ -56,6 +56,12 @@ export async function changeMobilizerStaus(mobilizerId, status) {
 	);
 }
 
+export async function changeMobStatusInProject(mobilizerId, payload) {
+	return axios.patch(`${API.MOBILIZERS}/${mobilizerId}/project-status/`, payload, {
+		headers: { access_token: access_token }
+	});
+}
+
 export async function approveMobilizerToProject(wallet_address, projectId) {
 	return axios.patch(
 		`${API.MOBILIZERS}/approve/`,
