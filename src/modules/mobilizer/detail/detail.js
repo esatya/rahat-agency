@@ -126,7 +126,6 @@ export default function DetailsForm(props) {
 	};
 
 	const handleApproveReject = (projectId, status) => {
-		// const _status = e === true ? MOBIZ_STATUS.ACTIVE : MOBIZ_STATUS.SUSPENDED;
 		if (status === MOBIZ_STATUS.SUSPENDED) return suspendMobilizer(projectId, status);
 		setSelectedProject(projectId);
 		setStatusInput(status);
@@ -143,7 +142,7 @@ export default function DetailsForm(props) {
 	const submitMobilizerApproval = useCallback(async () => {
 		if (isVerified && wallet) {
 			if (!statusInput) return addToast('Status not supplied', TOAST.ERROR);
-			if (!selectedProject) return addToast('Please select proejct', TOAST.ERROR);
+			if (!selectedProject) return addToast('Please select a proejct', TOAST.ERROR);
 			setLoading(true);
 			setPasscodeModal(false);
 			let payload = {
@@ -184,7 +183,7 @@ export default function DetailsForm(props) {
 
 	const handleMobilizerApprove = async e => {
 		e.preventDefault();
-		if (!selectedProject) return addToast('Please select proejct', TOAST.ERROR);
+		if (!selectedProject) return addToast('Please select a proejct', TOAST.ERROR);
 		toggleModal();
 		togglePasscodeModal();
 	};
@@ -230,7 +229,7 @@ export default function DetailsForm(props) {
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
-			<MaskLoader message="Changing mobilizer status" isOpen={loading} />
+			<MaskLoader message="Approving mobilizer" isOpen={loading} />
 
 			<p className="page-heading">Mobilizers</p>
 			<BreadCrumb redirect_path="mobilizers" root_label="Mobilizers" current_label="Details" />
@@ -311,8 +310,8 @@ export default function DetailsForm(props) {
 					/>
 				</Col>
 			</Row>
-			<MobilizerInfo information={mobilizer} />
 
+			<MobilizerInfo information={mobilizer} />
 			<ProjectsByStatus mobilizerProjects={mobilizerProjects} handleApproveReject={handleApproveReject} />
 
 			<Row>
