@@ -130,6 +130,10 @@ export const MobilizerContextProvider = ({ children }) => {
 		return Service.getMobilizerPackageBalance(contract_addr, wallet_address);
 	}, []);
 
+	const changeMobStatusInProject = useCallback((mobId, payload) => {
+		return Service.changeMobStatusInProject(mobId, payload);
+	}, []);
+
 	return (
 		<MobilizerContext.Provider
 			value={{
@@ -155,7 +159,8 @@ export const MobilizerContextProvider = ({ children }) => {
 				getMobilizerBalance,
 				getMobilizerTransactions,
 				getMobilizerPackageBalance,
-				getAvailableBalance
+				getAvailableBalance,
+				changeMobStatusInProject
 			}}
 		>
 			{children}

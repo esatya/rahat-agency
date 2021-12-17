@@ -29,21 +29,17 @@ export async function getMobilizerPackageBalance(contract_address, wallet_addr) 
 }
 
 export async function approveMobilizer(wallet, payload, contract_address) {
-	console.log('Payload==>', payload);
-	try {
-		const { wallet_address, projectId } = payload;
-		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-		const signerContract = contract.connect(wallet);
-		const tx = await signerContract.addMobilizer(wallet_address, projectId);
-		let minedTx = await tx.wait();
-		if (!minedTx) return 'Mobilizer approve failed!';
-		const res = await approveMobilizerToProject(wallet_address, projectId);
-		getEth({ address: wallet_address });
-		return res;
-	} catch (e) {
-		console.log(e);
-		throw Error(e);
-	}
+	let res = null;
+	const { wallet_address, projectId, isActivateOnly, mobilizerId, status } = payload;
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const signerContract = contract.connect(wallet);
+	const tx = await signerContract.addMobilizer(wallet_address, projectId);
+	await tx.wait();
+	// if (!minedTx) return 'Mobilizer approve failed!';
+	if (isActivateOnly) res = await changeMobStatusInProject(mobilizerId, { projectId, status });
+	else res = await approveMobilizerToProject(wallet_address, projectId);
+	getEth({ address: wallet_address });
+	return res;
 }
 
 export async function changeMobilizerStaus(mobilizerId, status) {
@@ -54,6 +50,12 @@ export async function changeMobilizerStaus(mobilizerId, status) {
 			headers: { access_token: access_token }
 		}
 	);
+}
+
+export async function changeMobStatusInProject(mobilizerId, payload) {
+	return axios.patch(`${API.MOBILIZERS}/${mobilizerId}/project-status/`, payload, {
+		headers: { access_token: access_token }
+	});
 }
 
 export async function approveMobilizerToProject(wallet_address, projectId) {
