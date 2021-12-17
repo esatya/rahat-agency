@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useToasts } from 'react-toast-notifications';
 import Select from 'react-select';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import {
 	Card,
@@ -31,6 +31,8 @@ import Balance from '../../ui_components/balance';
 import { TOAST, MOBIZ_STATUS } from '../../../constants';
 import ProjectsByStatus from './projectsByStatus';
 import { formatErrorMsg } from '../../../utils';
+import MaskLoader from '../../global/MaskLoader';
+import StatusBox from './statusBox';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
@@ -46,7 +48,6 @@ export default function DetailsForm(props) {
 		getMobilizerBalance,
 		getMobilizerTransactions,
 		transactionHistory,
-		getAvailableBalance,
 		listAid,
 		getMobilizerPackageBalance,
 		changeMobStatusInProject
@@ -59,15 +60,14 @@ export default function DetailsForm(props) {
 	const [modal, setModal] = useState(false);
 	const [projectOptions, setProjectOptions] = useState([]);
 	const [selectedProject, setSelectedProject] = useState('');
-	const [availableBalance, setAvailableBalance] = useState(null);
-	const [showAlert, setShowAlert] = useState(false);
 
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
 
-	const [mobilizerStatus, setMobilizerStatus] = useState('');
+	const [mobilizerStatus, setMobilizerStatus] = useState(null);
 	const [mobilizerProjects, setMobilizerProjects] = useState([]);
 	const [statusInput, setStatusInput] = useState('');
+	const [isActivateOnly, setIsActivateOnly] = useState(false); // Diff. Activate withing project or new approval
 
 	const togglePasscodeModal = useCallback(() => setPasscodeModal(!passcodeModal), [passcodeModal]);
 
@@ -85,6 +85,7 @@ export default function DetailsForm(props) {
 	);
 
 	const showActiveInactiveStatus = useCallback(projects => {
+		if (projects.length < 1) return setMobilizerStatus(null);
 		const statusOnly = projects.map(p => p.status);
 		if (statusOnly.includes(MOBIZ_STATUS.ACTIVE)) setMobilizerStatus(MOBIZ_STATUS.ACTIVE);
 		else setMobilizerStatus(MOBIZ_STATUS.SUSPENDED);
@@ -110,25 +111,9 @@ export default function DetailsForm(props) {
 		showActiveInactiveStatus
 	]);
 
-	const handleSelectProject = async e => {
-		try {
-			setLoading(true);
-			setSelectedProject(e.value);
-			let d = await getAvailableBalance(e.value);
-			setAvailableBalance(d);
-			setShowAlert(true);
-			setLoading(false);
-		} catch {
-			setShowAlert(false);
-			addToast('Failed to fetch availabe balance!', {
-				appearance: 'error',
-				autoDismiss: true
-			});
-			setLoading(false);
-		}
-	};
+	const handleSelectProject = e => setSelectedProject(e.value);
 
-	const changeMobilizerStatus = async (projectId, status) => {
+	const suspendMobilizer = async (projectId, status) => {
 		const payload = { projectId, status };
 		try {
 			await changeMobStatusInProject(mobilizerId, payload);
@@ -142,11 +127,17 @@ export default function DetailsForm(props) {
 
 	const handleApproveReject = (projectId, status) => {
 		// const _status = e === true ? MOBIZ_STATUS.ACTIVE : MOBIZ_STATUS.SUSPENDED;
-		return changeMobilizerStatus(projectId, status);
-		// if (status === MOBIZ_STATUS.ACTIVE)
-		// 	setStatusInput(status);
-		// 	togglePasscodeModal();
-		// } else changeMobilizerStatus(projectId);
+		if (status === MOBIZ_STATUS.SUSPENDED) return suspendMobilizer(projectId, status);
+		setSelectedProject(projectId);
+		setStatusInput(status);
+		setIsActivateOnly(true);
+		togglePasscodeModal();
+	};
+
+	const handleApproveClick = () => {
+		setStatusInput(MOBIZ_STATUS.ACTIVE);
+		setIsActivateOnly(false);
+		toggleModal();
 	};
 
 	const submitMobilizerApproval = useCallback(async () => {
@@ -158,7 +149,9 @@ export default function DetailsForm(props) {
 			let payload = {
 				status: statusInput,
 				wallet_address: mobilizer.wallet_address,
-				projectId: selectedProject
+				projectId: selectedProject,
+				isActivateOnly,
+				mobilizerId
 			};
 			approveMobilizer(payload)
 				.then(() => {
@@ -172,16 +165,21 @@ export default function DetailsForm(props) {
 					addToast(errMsg, TOAST.ERROR);
 				});
 		}
-	}, [addToast, approveMobilizer, history, isVerified, mobilizer.wallet_address, selectedProject, statusInput, wallet]);
+	}, [
+		addToast,
+		approveMobilizer,
+		history,
+		isActivateOnly,
+		isVerified,
+		mobilizer.wallet_address,
+		mobilizerId,
+		selectedProject,
+		statusInput,
+		wallet
+	]);
 
 	const toggleModal = () => {
 		setModal(prevState => !prevState);
-		resetTokenIssueForm();
-	};
-
-	const resetTokenIssueForm = () => {
-		setAvailableBalance('');
-		setShowAlert(false);
 	};
 
 	const handleMobilizerApprove = async e => {
@@ -226,13 +224,13 @@ export default function DetailsForm(props) {
 	}, [fetchMobilizerDetails]);
 
 	useEffect(() => {
-		console.log('APPROVAL EFFECT==>');
 		submitMobilizerApproval();
 	}, [submitMobilizerApproval, isVerified]);
 
 	return (
 		<>
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
+			<MaskLoader message="Changing mobilizer status" isOpen={loading} />
 
 			<p className="page-heading">Mobilizers</p>
 			<BreadCrumb redirect_path="mobilizers" root_label="Mobilizers" current_label="Details" />
@@ -251,39 +249,16 @@ export default function DetailsForm(props) {
 						/>
 						<br />
 					</FormGroup>
-					<FormGroup>
-						{showAlert && availableBalance > 0 ? (
-							<div className="alert alert-success fade show" role="alert">
-								Availabe Balance: {availableBalance}
-							</div>
-						) : showAlert ? (
-							<div>
-								<div className="alert alert-warning fade show" role="alert">
-									<p>
-										Project has ZERO balance. <Link to={`/projects/${selectedProject}`}>You can add here.</Link>
-									</p>
-								</div>
-							</div>
-						) : (
-							''
-						)}
-					</FormGroup>
 				</ModalBody>
 				<ModalFooter>
-					<>
-						{loading ? (
-							'Please wait...'
-						) : (
-							<React.Fragment>
-								<Button onClick={handleMobilizerApprove} type="button" color="primary">
-									Submit
-								</Button>
-								<Button color="secondary" onClick={toggleModal.bind(null)}>
-									Cancel
-								</Button>
-							</React.Fragment>
-						)}
-					</>
+					<React.Fragment>
+						<Button onClick={handleMobilizerApprove} type="button" color="primary">
+							Submit
+						</Button>
+						<Button color="secondary" onClick={toggleModal.bind(null)}>
+							Cancel
+						</Button>
+					</React.Fragment>
 				</ModalFooter>
 			</Modal>
 
@@ -312,38 +287,13 @@ export default function DetailsForm(props) {
 									</div>
 								</Col>
 								<Col md="4" sm="4">
-									{mobilizerStatus === MOBIZ_STATUS.ACTIVE ? (
-										<div>
-											<i className="fa fa-circle text-success"></i>
-											&nbsp; Active
-										</div>
+									{mobilizerStatus ? (
+										<StatusBox mobilizerStatus={mobilizerStatus} />
 									) : (
-										<div>
-											<i className="fa fa-circle text-danger"></i>
-											&nbsp; Inactive
-										</div>
+										<Button color="success" type="button" onClick={handleApproveClick}>
+											Approve
+										</Button>
 									)}
-
-									{/* {loading ? (
-										<button
-											type="button"
-											disabled={true}
-											className="btn btn-secondary"
-											style={{ borderRadius: '8px', float: 'right' }}
-										>
-											Changing status, please wait...
-										</button>
-									) : (
-										<BootstrapSwitchButton
-											checked={mobilizer_status === STATUS.ACTIVE ? true : false}
-											onlabel="Suspend"
-											offlabel="Activate"
-											width={140}
-											height={30}
-											onstyle="success"
-											onChange={handleApproveReject}
-										/>
-									)} */}
 								</Col>
 							</Row>
 						</div>
@@ -362,7 +312,6 @@ export default function DetailsForm(props) {
 				</Col>
 			</Row>
 			<MobilizerInfo information={mobilizer} />
-			{/* <ProjectInvovled projects={projectList} /> */}
 
 			<ProjectsByStatus mobilizerProjects={mobilizerProjects} handleApproveReject={handleApproveReject} />
 
