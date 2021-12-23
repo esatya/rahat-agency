@@ -3,6 +3,10 @@ import { Table } from 'reactstrap';
 import { useHistory, Link } from 'react-router-dom';
 
 import { AidContext } from '../../../../../contexts/AidContext';
+import AdvancePagination from '../../../../global/AdvancePagination';
+
+import { APP_CONSTANTS } from '../../../../../constants';
+const { PAGE_LIMIT } = APP_CONSTANTS;
 
 export default function (props) {
 	const history = useHistory();
@@ -11,20 +15,31 @@ export default function (props) {
 	const { listNftPackages } = useContext(AidContext);
 
 	const [packageList, setPackageList] = useState([]);
+	const [totalRecords, setTotalRecords] = useState(null);
 
 	const handleCreateClick = () => {
 		history.push(`/add-package/${projectId}/`);
 	};
 
-	const fetchPackageList = useCallback(async () => {
-		const query = {};
-		const d = await listNftPackages(projectId, query);
-		if (d && d.data) setPackageList(d.data);
-	}, [projectId, listNftPackages]);
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const { currentPage, pageLimit } = paginationData;
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT };
+			const data = await listNftPackages(projectId, query);
+			if (data) setPackageList(data.data);
+		},
+		[listNftPackages, projectId]
+	);
+
+	const fetchTotalRecords = useCallback(async () => {
+		const data = await listNftPackages(projectId);
+		if (data) setTotalRecords(data.total);
+	}, [listNftPackages, projectId]);
 
 	useEffect(() => {
-		fetchPackageList();
-	}, [fetchPackageList]);
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
 
 	return (
 		<>
@@ -73,6 +88,15 @@ export default function (props) {
 					)}{' '}
 				</tbody>
 			</Table>
+
+			{totalRecords > 0 && (
+				<AdvancePagination
+					totalRecords={totalRecords}
+					pageLimit={PAGE_LIMIT}
+					pageNeighbours={1}
+					onPageChanged={onPageChanged}
+				/>
+			)}
 		</>
 	);
 }

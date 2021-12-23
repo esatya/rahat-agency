@@ -3,6 +3,7 @@ import { Table, FormGroup, InputGroup, Input } from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 import QRCode from 'qrcode';
 import * as XLSX from 'xlsx';
+import { Link } from 'react-router-dom';
 
 import { AidContext } from '../../../../contexts/AidContext';
 import { AppContext } from '../../../../contexts/AppSettingsContext';
@@ -10,9 +11,9 @@ import { APP_CONSTANTS, TOAST } from '../../../../constants';
 import { htmlResponse } from '../../../../utils/printBeneficiary';
 import ModalWrapper from '../../../global/CustomModal';
 import PasscodeModal from '../../../global/PasscodeModal';
-import GrowSpinner from '../../../global/GrowSpinner';
 import UploadList from './uploadList';
 import AdvancePagination from '../../../global/AdvancePagination';
+import MaskLoader from '../../../global/MaskLoader';
 
 const { PAGE_LIMIT, BULK_BENEFICIARY_LIMIT } = APP_CONSTANTS;
 
@@ -23,7 +24,7 @@ const ACTION = {
 
 const List = ({ projectId }) => {
 	const { addToast } = useToasts();
-	const { beneficiaryByAid, bulkTokenIssueToBeneficiary } = useContext(AidContext);
+	const { beneficiaryByAid, bulkTokenIssueToBeneficiary, uploadBenfToProject } = useContext(AidContext);
 	const { loading, setLoading, wallet, isVerified, appSettings } = useContext(AppContext);
 
 	const [benList, setBenList] = useState([]);
@@ -33,11 +34,15 @@ const List = ({ projectId }) => {
 	const [beneficiaryPhones, setBeneficiaryPhones] = useState([]); // For bulk issue
 	const [beneficiaryTokens, setBeneficiaryTokens] = useState([]); // For bulk issue
 	const [passcodeModal, setPasscodeModal] = useState(false);
+
 	const [uploadListModal, setUploadListModal] = useState(false);
-	const [uploadData, setUploadData] = useState(null);
+	const [previewData, setUploadPreview] = useState(null);
+	const [benfUploadFile, setBenfUploadFile] = useState(null);
+	const [uploading, setUploading] = useState(false);
 
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentAction, setCurrentAction] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
 
 	const hiddenFileInput = React.useRef(null);
 
@@ -53,13 +58,32 @@ const List = ({ projectId }) => {
 		hiddenFileInput.current.click();
 	};
 
-	const handleUploadListSubmit = () => {};
+	const handleUploadListSubmit = async e => {
+		e.preventDefault();
+		if (!benfUploadFile) return addToast('Please select excel file to upload', TOAST.ERROR);
+		try {
+			setUploading(true);
+			const form_data = new FormData();
+			form_data.append('file', benfUploadFile);
+			const res = await uploadBenfToProject(projectId, form_data);
+			setUploading(false);
+			toggleUploadListModal();
+			addToast(`${res.uploaded_beneficiaries} beneficiaries uploaded successfully`, TOAST.SUCCESS);
+			fetchTotalRecords();
+		} catch (err) {
+			setUploading(false);
+			toggleUploadListModal();
+			const errMsg = err.message ? err.message : 'Internal server error';
+			addToast(errMsg, TOAST.ERROR);
+		}
+	};
 
 	const handleFileChange = e => {
 		setUploadListModal(true);
-		readFile(e.target.files[0]);
+		const file = e.target.files[0];
+		readFile(file);
 		e.target.value = '';
-		//setBenefUploadFile(e.target.files[0]);
+		setBenfUploadFile(file);
 	};
 
 	const readFile = file => {
@@ -76,30 +100,25 @@ const List = ({ projectId }) => {
 			const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
 			/* Update state */
 			const jsonData = convertToJson(data);
-			setUploadData(jsonData);
+			setUploadPreview(jsonData);
 		};
 		reader.readAsBinaryString(file);
 	};
 
 	const convertToJson = csv => {
-		var lines = csv.split('\n');
+		let result = [];
+		let lines = csv.split('\n');
+		let headers = lines[0].split(',');
 
-		var result = [];
+		for (let i = 1; i < lines.length; i++) {
+			let obj = {};
+			let currentline = lines[i].split(',');
 
-		var headers = lines[0].split(',');
-
-		for (var i = 1; i < lines.length; i++) {
-			var obj = {};
-			var currentline = lines[i].split(',');
-
-			for (var j = 0; j < headers.length; j++) {
+			for (let j = 0; j < headers.length; j++) {
 				obj[headers[j]] = currentline[j];
 			}
-
 			result.push(obj);
 		}
-
-		//return result; //JavaScript object
 		return result; //JSON
 	};
 
@@ -114,6 +133,7 @@ const List = ({ projectId }) => {
 	const onPageChanged = useCallback(
 		async paginationData => {
 			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT };
 			const data = await beneficiaryByAid(projectId, query);
@@ -230,6 +250,7 @@ const List = ({ projectId }) => {
 
 	return (
 		<>
+			<MaskLoader isOpen={loading} message="Assigning tokens in bulk." />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
 			<ModalWrapper
@@ -255,50 +276,52 @@ const List = ({ projectId }) => {
 			<ModalWrapper
 				toggle={toggleUploadListModal}
 				open={uploadListModal}
-				title="Beneficiaries List"
+				title="Beneficiary Upload Preview"
 				handleSubmit={handleUploadListSubmit}
-				loading={loading}
+				loading={uploading}
 				size="xl"
 			>
-				<UploadList data={uploadData} />
+				<UploadList data={previewData} />
 			</ModalWrapper>
 
 			<div>
-				{loading ? (
-					<GrowSpinner />
-				) : (
-					<div className="row">
-						<div style={{ flex: 1, padding: 10 }}>
-							<button
-								onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
-								type="button"
-								className="btn waves-effect waves-light btn-outline-info"
-								style={{ borderRadius: '8px', marginRight: '20px' }}
-							>
-								Bulk Token Issue
-							</button>
-							<button
-								type="button"
-								onClick={() => toggleAmountModal(ACTION.BULK_QR)}
-								className="btn waves-effect waves-light btn-outline-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Bulk Generate QR Code
-							</button>
-						</div>
-						<div style={{ padding: 10, float: 'right' }}>
-							<button
-								type="button"
-								onClick={handleFileUploadClick}
-								className="btn waves-effect waves-light btn-outline-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Upload Beneficiaries
-							</button>
-							<input type="file" ref={hiddenFileInput} onChange={handleFileChange} style={{ display: 'none' }} />
-						</div>
+				<div className="row">
+					<div style={{ flex: 1, padding: 10 }}>
+						<button
+							onClick={() => toggleAmountModal(ACTION.BULK_ISSUE)}
+							type="button"
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px', marginRight: '20px' }}
+						>
+							Bulk Token Issue
+						</button>
+						<button
+							type="button"
+							onClick={() => toggleAmountModal(ACTION.BULK_QR)}
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Bulk Generate QR Code
+						</button>
 					</div>
-				)}
+					<div style={{ padding: 10, float: 'right' }}>
+						<button
+							type="button"
+							onClick={handleFileUploadClick}
+							className="btn waves-effect waves-light btn-outline-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Upload Beneficiaries
+						</button>
+						<input
+							type="file"
+							ref={hiddenFileInput}
+							onChange={handleFileChange}
+							accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+							style={{ display: 'none' }}
+						/>
+					</div>
+				</div>
 
 				<div className="flex-item">
 					{/* <button type="button" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
@@ -309,6 +332,7 @@ const List = ({ projectId }) => {
 			<Table className="no-wrap v-middle" responsive>
 				<thead>
 					<tr className="border-0">
+						<th className="border-0">S.N.</th>
 						<th className="border-0">Name</th>
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
@@ -317,10 +341,15 @@ const List = ({ projectId }) => {
 				</thead>
 				<tbody>
 					{benList.length > 0 ? (
-						benList.map(d => {
+						benList.map((d, i) => {
 							return (
 								<tr key={d._id}>
-									<td>{d.name}</td>
+									<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
+									<td>
+										<Link style={{ color: '#2b7ec1' }} to={`/beneficiaries/${d._id}`}>
+											{d.name}
+										</Link>
+									</td>
 									<td>{d.address || '-'}</td>
 									<td>{d.phone}</td>
 									<td>{d.govt_id || '-'}</td>
