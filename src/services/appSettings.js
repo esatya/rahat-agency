@@ -1,6 +1,7 @@
 import API from '../constants/api';
 import axios from 'axios';
 import { getUserToken } from '../utils/sessionManager';
+
 const access_token = getUserToken();
 
 export function getSettings() {
@@ -10,44 +11,58 @@ export function getSettings() {
 			.then(res => {
 				resolve(res.data);
 			})
-			.catch(err => {
-				reject(err);
+			.catch(() => {
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
-
 export async function setKobotoolbox(payload) {
-	const res = await axios({
-		url: `${API.APP}/kobotoolbox/setup`,
-		method: 'put',
-		headers: {
-			access_token
-		},
-		data: payload
+	return new Promise((resolve, reject) => {
+		axios
+			.put(`${API.APP}/kobotoolbox/setup`, { data: payload }, { headers: { access_token: access_token } })
+			.then(res => {
+				if (res && res.data) {
+					resolve(res.data);
+				}
+				reject(res.data);
+			})
+			.catch(() => {
+				reject({ statusText: 'FAIL', data: {} });
+			});
 	});
-
-	return res.data;
 }
-
 export async function getKobotoolboxForms(query) {
-	const res = await axios({
-		url: `${API.APP}/kobotoolbox`,
-		method: 'get',
-		headers: {
-			access_token
-		},
-		query
+	return new Promise((resolve, reject) => {
+		axios
+			.get(`${API.APP}/kobotoolbox`, {
+				headers: { access_token: access_token },
+				query
+			})
+			.then(res => {
+				if (res && res.data) {
+					resolve(res.data);
+				}
+				reject(res.data);
+			})
+			.catch(() => {
+				reject({ statusText: 'FAIL', data: {} });
+			});
 	});
-	return res.data;
 }
-
 export async function getKoboFormsData(assetId) {
-	const res = await axios({
-		url: `${API.APP}/kobotoolbox/${assetId}`,
-		method: 'get',
-		headers: {
-			access_token
-		}
+	return new Promise((resolve, reject) => {
+		axios
+			.get(`${API.APP}/kobotoolbox/${assetId}`, {
+				headers: { access_token: access_token }
+			})
+			.then(res => {
+				if (res && res.data) {
+					resolve(res.data);
+				}
+				reject(res.data);
+			})
+			.catch(() => {
+				reject({ statusText: 'FAIL', data: {} });
+			});
 	});
-	return res.data;
 }
