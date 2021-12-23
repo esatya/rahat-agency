@@ -4,6 +4,7 @@ import classnames from 'classnames';
 
 import BeneficiaryList from './beneficiaryList';
 import VendorList from './vendorList';
+import MobilizersList from './mobilizersList';
 
 const Tabs = ({ projectId }) => {
 	const [activeTab, setActiveTab] = useState('1');
@@ -24,7 +25,7 @@ const Tabs = ({ projectId }) => {
 									toggle('1');
 								}}
 							>
-								Beneficiaries List
+								Beneficiaries
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -34,7 +35,17 @@ const Tabs = ({ projectId }) => {
 									toggle('2');
 								}}
 							>
-								Vendor List
+								Vendors
+							</NavLink>
+						</NavItem>
+						<NavItem>
+							<NavLink
+								className={classnames({ active: activeTab === '3' })}
+								onClick={() => {
+									toggle('3');
+								}}
+							>
+								Mobilizers
 							</NavLink>
 						</NavItem>
 					</Nav>
@@ -50,6 +61,13 @@ const Tabs = ({ projectId }) => {
 							<Row>
 								<Col sm="12">
 									<VendorList projectId={projectId} />
+								</Col>
+							</Row>
+						</TabPane>
+						<TabPane tabId="3">
+							<Row>
+								<Col sm="12">
+									<MobilizersList projectId={projectId} />
 								</Col>
 							</Row>
 						</TabPane>

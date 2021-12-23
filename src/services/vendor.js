@@ -151,7 +151,18 @@ export async function approve({ vendorId }) {
 		},
 		data: { vendorId }
 	});
+	return res.data;
+}
 
+export async function addVendorToProject(vendorId, projectId) {
+	const res = await axios({
+		url: `${API.VENDORS}/${vendorId}/add-to-project`,
+		method: 'post',
+		headers: {
+			access_token
+		},
+		data: { projectId }
+	});
 	return res.data;
 }
 

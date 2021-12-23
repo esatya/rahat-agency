@@ -7,6 +7,7 @@ import '../../../assets/css/project.css';
 import QRGenerator from './qrGenerator';
 import ReactToPrint from 'react-to-print';
 import ModalWrapper from '../../global/CustomModal';
+import { MAX_QR_GEN } from '../../../constants';
 
 export default function ProjectInfo({ projectDetails }) {
 	const { _id, social_mobilizer, project_manager, location, description, created_at, serial_index } = projectDetails;
@@ -35,7 +36,7 @@ export default function ProjectInfo({ projectDetails }) {
 	// });
 	const handleQrGenData = e => {
 		console.log(e.target.name);
-		if (e.target.name === 'max' && e.target.value > 100) return;
+		if (e.target.name === 'max' && e.target.value > MAX_QR_GEN) return;
 
 		setQrGenData({ ...qrGenData, [e.target.name]: e.target.value || null });
 	};
@@ -58,11 +59,11 @@ export default function ProjectInfo({ projectDetails }) {
 					<Input
 						type="number"
 						name="max"
-						placeholder="please enter no. between 0 - 100"
+						placeholder="please enter no. between 0 - 1000"
 						value={qrGenData.max || ''}
 						onChange={handleQrGenData}
-						min={0}
-						max={100}
+						min={1}
+						max={MAX_QR_GEN}
 						required
 					/>
 				</FormGroup>

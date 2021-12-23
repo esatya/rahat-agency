@@ -11,8 +11,8 @@ import Select from 'react-select';
 import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import PasscodeModal from '../../global/PasscodeModal';
-import GrowSpinner from '../../global/GrowSpinner';
 import BackButton from '../../global/BackButton';
+import MaskLoader from '../../global/MaskLoader';
 
 const options = [
 	{ value: 'foods', label: 'Foods' },
@@ -27,7 +27,7 @@ export default function NewAsset({ match }) {
 
 	const { createNft } = useContext(AidContext);
 	const { appSettings, isVerified, wallet } = useContext(AppContext);
-	const [loading, setLoading] = useState(false);
+	const [masking, setMasking] = useState(false);
 
 	const [formData, setFormData] = useState({
 		name: '',
@@ -98,7 +98,7 @@ export default function NewAsset({ match }) {
 		try {
 			if (isVerified && wallet) {
 				setPasscodeModal(false);
-				setLoading(true);
+				setMasking(true);
 				const { name, symbol, description } = formData;
 				const errorMsg = validateNameAndSymbol(name, symbol);
 				if (errorMsg) return addToast(errorMsg, TOAST.ERROR);
@@ -109,13 +109,13 @@ export default function NewAsset({ match }) {
 				const { contracts } = appSettings.agency;
 				const created = await createNft(payload, contracts, wallet);
 				if (created) {
-					setLoading(false);
+					setMasking(false);
 					addToast('Package created successfully', TOAST.SUCCESS);
 					history.push(`/add-budget/${projectId}`);
 				}
 			}
 		} catch (err) {
-			setLoading(false);
+			setMasking(false);
 			return addToast('Internal server error!', TOAST.ERROR);
 		}
 	}, [
@@ -144,6 +144,7 @@ export default function NewAsset({ match }) {
 
 	return (
 		<>
+			<MaskLoader message="Creating package, please wait..." isOpen={masking} />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 			<p className="page-heading">Project</p>
 			<BreadCrumb redirect_path={`projects/${projectId}`} root_label="Details" current_label="Create Package" />
@@ -197,6 +198,31 @@ export default function NewAsset({ match }) {
 						</FormGroup>
 
 						<FormGroup>
+							<Label>Quantity</Label>
+							<Input
+								type="number"
+								placeholder="Enter quantity"
+								value={formData.totalSupply}
+								name="totalSupply"
+								onChange={handleInputChange}
+								required
+							/>
+						</FormGroup>
+
+						<FormGroup>
+							<Label>Value in fiat currency</Label>
+							<InputGroup>
+								<Input
+									placeholder="Enter total worth of the package"
+									value={fiatValue}
+									name="fiat_value"
+									onChange={handleFiatInputChange}
+									required
+								/>
+							</InputGroup>
+						</FormGroup>
+
+						<FormGroup>
 							<Label>Category</Label>
 							<Select
 								defaultValue={[]}
@@ -210,18 +236,6 @@ export default function NewAsset({ match }) {
 						</FormGroup>
 
 						<FormGroup>
-							<Label>Quantity</Label>
-							<Input
-								type="number"
-								placeholder="Enter quantity"
-								value={formData.totalSupply}
-								name="totalSupply"
-								onChange={handleInputChange}
-								required
-							/>
-						</FormGroup>
-
-						<FormGroup>
 							<Label>Description</Label>
 							<Input
 								type="text"
@@ -230,27 +244,6 @@ export default function NewAsset({ match }) {
 								name="description"
 								onChange={handleInputChange}
 							/>
-						</FormGroup>
-
-						<FormGroup>
-							<Label>Value in fiat currency</Label>
-							<InputGroup>
-								{/* <InputGroupButtonDropdown addonType="prepend" isOpen={dropdownOpen} toggle={toggleDropDown}>
-									<DropdownToggle caret>Select currency</DropdownToggle>
-									<DropdownMenu onChange={handleCurrencyChange}>
-										<DropdownItem>Nepalese</DropdownItem>
-										<DropdownItem>Dollar</DropdownItem>
-										<DropdownItem>Euro</DropdownItem>
-									</DropdownMenu>
-								</InputGroupButtonDropdown> */}
-								<Input
-									placeholder="Enter total worth of the package"
-									value={fiatValue}
-									name="fiat_value"
-									onChange={handleFiatInputChange}
-									required
-								/>
-							</InputGroup>
 						</FormGroup>
 
 						<FormGroup>
@@ -294,16 +287,12 @@ export default function NewAsset({ match }) {
 						</FormGroup>
 
 						<br />
-						{loading ? (
-							<GrowSpinner />
-						) : (
-							<FormGroup>
-								<button type="submit" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
-									Create package
-								</button>
-								&nbsp; <BackButton />
-							</FormGroup>
-						)}
+						<FormGroup>
+							<button type="submit" className="btn waves-effect waves-light btn-info" style={{ borderRadius: '8px' }}>
+								Create package
+							</button>
+							&nbsp; <BackButton />
+						</FormGroup>
 					</form>
 				</CardBody>
 			</Card>

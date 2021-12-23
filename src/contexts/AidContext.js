@@ -5,6 +5,7 @@ import ACTION from '../actions/aid';
 import { AppContext } from './AppSettingsContext';
 import { get } from '../services/institution';
 import * as BenfService from '../services/beneficiary';
+import * as MobilizerService from '../services/mobilizer';
 
 const initialState = {
 	aids: [],
@@ -195,6 +196,14 @@ export const AidContextProvider = ({ children }) => {
 		return BenfService.getBeneficiaryIssuedTokens(phone, contract_address);
 	}, []);
 
+	const listMobilizersByProject = useCallback(params => {
+		return MobilizerService.list(params);
+	}, []);
+
+	const uploadBenfToProject = (projectId, payload) => {
+		return Service.uploadBenfToProject(projectId, payload);
+	};
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -208,6 +217,9 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				uploadBenfToProject,
+				listMobilizersByProject,
+
 				getProjectPackageBalance,
 				issueBeneficiaryPackage,
 				getBeneficiaryById,

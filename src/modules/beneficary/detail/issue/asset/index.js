@@ -11,10 +11,13 @@ import { AppContext } from '../../../../../contexts/AppSettingsContext';
 import BackButton from '../../../../global/BackButton';
 import PasscodeModal from '../../../../global/PasscodeModal';
 import { TOAST } from '../../../../../constants';
-import GrowSpinner from '../../../../global/GrowSpinner';
+import MaskLoader from '../../../../global/MaskLoader';
+
 import { BALANCE_TABS } from '../../../../../constants';
+import MiniSpinner from '../../../../global/MiniSpinner';
 
 const TOKEN_ISSUE_AMOUNT = 1;
+const FETCH_LIMIT = 50;
 
 export default function (props) {
 	const { projectId, benfId } = props;
@@ -31,7 +34,9 @@ export default function (props) {
 	const [benfPhone, setBenfPhone] = useState('');
 	const [selectedPackages, setSelectedPackages] = useState([]); // Array of selected package tokenIDs
 	const [passcodeModal, setPasscodeModal] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [masking, setMasking] = useState(false);
+
+	const [fetchingIssuedQty, setFetchingIssuedQty] = useState(false);
 
 	const togglePasscodeModal = useCallback(() => {
 		setPasscodeModal(!passcodeModal);
@@ -41,7 +46,7 @@ export default function (props) {
 		const { name, checked } = e.target;
 		if (checked) setSelectedPackages([...selectedPackages, Number(name)]);
 		else {
-			const filtered = selectedPackages.filter(f => f !== name);
+			const filtered = selectedPackages.filter(f => f !== Number(name));
 			setSelectedPackages(filtered);
 		}
 	};
@@ -51,26 +56,44 @@ export default function (props) {
 		togglePasscodeModal();
 	};
 
-	const appendIssuedQtyToList = useCallback((packages, issuedQtys) => {
-		let finalResult = [];
-		for (let i = 0; i < packages.length; i++) {
-			packages[i].issuedQty = issuedQtys[i];
-			finalResult.push(packages[i]);
+	const checkHasIndex = useCallback((tokenId, tokenIds) => {
+		let dataIndex = null;
+		for (let i = 0; i < tokenIds.length; i++) {
+			const ind = tokenIds.findIndex(t => t === tokenId);
+			if (ind > -1) dataIndex = ind;
 		}
-		setPackageList(finalResult);
+		return dataIndex;
 	}, []);
+
+	const appendIssuedQtyToList = useCallback(
+		({ packages, tokenIds, tokenQtys }) => {
+			let finalResult = [];
+			for (let i = 0; i < packages.length; i++) {
+				const dataIndex = checkHasIndex(packages[i].tokenId, tokenIds);
+				if (dataIndex > -1) {
+					packages[i].issuedQty = tokenQtys[dataIndex];
+					finalResult.push(packages[i]);
+				} else finalResult.push(packages[i]);
+			}
+
+			setPackageList(finalResult);
+		},
+		[checkHasIndex]
+	);
 
 	const fetchIssuedQtys = useCallback(
 		async packages => {
+			setFetchingIssuedQty(true);
 			const { rahat } = appSettings.agency.contracts;
-			const issuedQtys = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
-			if (packages.length && issuedQtys.length) return appendIssuedQtyToList(packages, issuedQtys);
+			const { tokenIds, tokenQtys } = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
+			if (packages.length && tokenQtys.length) await appendIssuedQtyToList({ packages, tokenIds, tokenQtys });
+			setFetchingIssuedQty(false);
 		},
 		[appSettings.agency.contracts, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
 	);
 
 	const fetchPackageList = useCallback(async () => {
-		const query = {};
+		const query = { limit: FETCH_LIMIT };
 		const d = await listNftPackages(projectId, query);
 		if (d && d.data) {
 			setPackageList(d.data);
@@ -91,7 +114,7 @@ export default function (props) {
 			try {
 				if (!benfPhone) return addToast('Beneficiary phone is required', TOAST.ERROR);
 				setPasscodeModal(false);
-				setLoading(true);
+				setMasking(true);
 				const tokenAmounts = Array(selectedPackages.length).fill(TOKEN_ISSUE_AMOUNT);
 				const payload = {
 					benfId: benfId,
@@ -103,12 +126,12 @@ export default function (props) {
 				const { rahat } = appSettings.agency.contracts;
 				const res = await issueBeneficiaryPackage(wallet, payload, rahat);
 				if (res) {
-					setLoading(false);
+					setMasking(false);
 					addToast('Package assigned successfully', TOAST.SUCCESS);
 					history.push(`/beneficiaries/${benfId}`);
 				}
 			} catch (err) {
-				setLoading(false);
+				setMasking(false);
 				const errMsg = err.message ? err.message : 'Could not issue package';
 				addToast(errMsg, TOAST.ERROR);
 			}
@@ -139,6 +162,7 @@ export default function (props) {
 
 	return (
 		<>
+			<MaskLoader message="Assigning package, please wait..." isOpen={masking} />
 			<PasscodeModal isOpen={passcodeModal} toggleModal={togglePasscodeModal}></PasscodeModal>
 
 			<Table className="no-wrap v-middle" responsive>
@@ -163,7 +187,7 @@ export default function (props) {
 									<td>
 										{d.name} ({d.symbol})
 									</td>
-									<td>{d.issuedQty ? d.issuedQty : '0'}</td>
+									<td>{fetchingIssuedQty ? <MiniSpinner /> : d.issuedQty ? d.issuedQty : '0'}</td>
 									<td>{d.totalSupply}</td>
 									<td>
 										{d.createdBy.name.first} {d.createdBy.name.last || ''}
@@ -199,22 +223,18 @@ export default function (props) {
 						)}
 					</div>
 					<hr />
-					{loading ? (
-						<GrowSpinner />
-					) : (
-						<div>
-							<button
-								onClick={handleIssueClick}
-								type="button"
-								className="btn waves-effect waves-light btn-info"
-								style={{ borderRadius: '8px' }}
-							>
-								Issue package
-							</button>{' '}
-							&nbsp;
-							<BackButton />
-						</div>
-					)}
+					<div>
+						<button
+							onClick={handleIssueClick}
+							type="button"
+							className="btn waves-effect waves-light btn-info"
+							style={{ borderRadius: '8px' }}
+						>
+							Issue package
+						</button>{' '}
+						&nbsp;
+						<BackButton />
+					</div>
 				</CardBody>
 			</Card>
 		</>

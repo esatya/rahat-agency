@@ -152,7 +152,13 @@ const AddProject = () => {
 								</FormGroup>
 								<FormGroup>
 									<Label htmlFor="benefUpload">Beneficiary Upload(.xlxs file)</Label>
-									<Input id="benefUpload" type="file" name="file" onChange={handleFileChange} />
+									<Input
+										id="benefUpload"
+										type="file"
+										name="file"
+										onChange={handleFileChange}
+										accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+									/>
 								</FormGroup>
 								<FormGroup>
 									<Label>Description</Label>
