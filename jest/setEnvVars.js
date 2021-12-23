@@ -6,3 +6,6 @@ process.env.REACT_APP_BLOCKCHAIN_FAUCET = 'http://195.179.200.228:3001/gimmie';
 process.env.REACT_APP_BLOCKCHAIN_FAUCET_AUTH_TOKEN = 'asdfghjk';
 process.env.REACT_APP_BLOCKCHAIN_EXPLORER = 'http://157.245.125.194:8080';
 process.env.REACT_APP_IPFS_GATEWAY = 'https://ipfs.test.rumsan.net/ipfs';
+process.env.REACT_APP_PRIVATE_KEY = 'asder1234';
+process.env.REACT_APP_DEFAULT_IPFS = 'http://ipfsUrl.com';
+process.env.REACT_APP_DEFAULT_IPFS_DOWNLOAD = 'http://ipfsDownload.com';
