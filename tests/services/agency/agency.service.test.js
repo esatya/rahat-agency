@@ -26,38 +26,23 @@ describe('Agency api calls', () => {
 			phone: '1231231232',
 			email: 'esatya@gmail.com'
 		};
-		axios.post.mockResolvedValueOnce(response);
+		axios.post.mockResolvedValueOnce(response).mockRejectedValueOnce();
 		const DeployAgencyToken = await deployAgencyToken(agencyId, payload);
+
+		// SUCCESS: must send api, headers, payload and id while calling deployAgencyToken API.
 		expect(axios.post).toHaveBeenCalledWith(`${API.AGENCY}/${agencyId}/token`, payload, {
 			headers: { access_token: access_token }
 		});
-		expect(DeployAgencyToken).toMatchObject(response.data); //response.data
-	});
-	// it('Deploy agency token failed', async () => {
-	// 	const response = {
-	// 		statusText: null,
-	// 		data: {
-	// 			_id: '5ff99ccbc00c1432b1ecd902',
-	// 			name: 'eSatya',
-	// 			phone: '1231231232',
-	// 			email: 'esatya@gmail.com',
-	// 			address: 'kupondole'
-	// 		}
-	// 	};
-	// 	const payload = {
-	// 		name: 'eSatya',
-	// 		phone: '1231231232',
-	// 		email: 'esatya@gmail.com'
-	// 	};
-	// 	const deployAgencyTokenFailed = axios.post.mockRejectedValueOnce(await deployAgencyToken(agencyId, payload));
-	// 	console.log('failure', deployAgencyTokenFailed);
-	// const DeployAgencyToken = await deployAgencyToken(agencyId, payload);
+		// SUCCESS: must match the response from API with provided response type
+		expect(DeployAgencyToken).toMatchObject(response.data);
 
-	// expect(axios.post).toHaveBeenCalledWith(`${API.AGENCY}/${agencyId}/token`, payload, {
-	// 	headers: { access_token: access_token }
-	// });
-	// expect(DeployAgencyToken).toBeCalledWith(new Error('some error'));
-	// });
+		// FAIL TEST CASES
+		deployAgencyToken().catch(e => {
+			// FAIL: if no agency ID and payload is provided
+			expect(e).toMatchObject({ statusText: 'FAIL', data: {} });
+		});
+	});
+
 	it('Get agency details', async () => {
 		const response = {
 			statusText: 'OK',
@@ -98,11 +83,21 @@ describe('Agency api calls', () => {
 				id: '5ff99ccbc00c1432b1ecd902'
 			}
 		};
-		axios.get.mockResolvedValueOnce(response);
+		axios.get.mockResolvedValueOnce(response).mockRejectedValueOnce();
 		const AgencyDetails = await getAgencyDetails(agencyId);
+
+		// SUCCESS: must send api, headers and id while calling getAgencyDetail API.
 		expect(axios.get).toHaveBeenCalledWith(`${API.AGENCY}/${agencyId}`, { headers: { access_token: access_token } });
-		expect(AgencyDetails).toMatchObject(response.data); //response.data
+		// SUCCESS: must match the response from API with provided response type
+		expect(AgencyDetails).toMatchObject(response.data);
+
+		// FAIL TEST CASES
+		getAgencyDetails('').catch(e => {
+			// FAIL: if no agency id is provided
+			expect(e).toMatchObject({ statusText: 'FAIL', data: {} });
+		});
 	});
+
 	it('List agency', async () => {
 		const query = {};
 		const response = {
@@ -115,13 +110,23 @@ describe('Agency api calls', () => {
 				address: 'kupondole'
 			}
 		};
-		axios.get.mockResolvedValueOnce(response);
+		axios.get.mockResolvedValueOnce(response).mockRejectedValueOnce();
 		const ListAgency = await listAgency(query);
+
+		// SUCCESS: must send api, headers and query while calling listAgency API.
 		expect(axios.get).toHaveBeenCalledWith(`${API.AGENCY}?${qs.stringify(query)}`, {
 			headers: { access_token: access_token }
 		});
-		expect(ListAgency).toMatchObject(response.data); //response.data
+		// SUCCESS: must match the response from API with provided response type
+		expect(ListAgency).toMatchObject(response.data);
+
+		// FAIL TEST CASES
+		listAgency().catch(e => {
+			// FAIL: if no query is provided
+			expect(e).toMatchObject({ statusText: 'FAIL', data: {} });
+		});
 	});
+
 	it('Approve agency', async () => {
 		const response = {
 			statusText: 'OK',
@@ -133,13 +138,22 @@ describe('Agency api calls', () => {
 				address: 'kupondole'
 			}
 		};
-		axios.patch.mockResolvedValueOnce(response);
+		axios.patch.mockResolvedValueOnce(response).mockRejectedValueOnce();
 		const ApproveAgency = await approveAgency(agencyId);
+
+		// SUCCESS: must send api, headers and query while calling approveAgency API.
 		expect(axios.patch).toHaveBeenCalledWith(
 			`${API.AGENCY}/${agencyId}/approve`,
 			{},
 			{ headers: { access_token: access_token } }
 		);
-		expect(ApproveAgency).toMatchObject(response.data); //response.data
+		// SUCCESS: must match the response from API with provided response type
+		expect(ApproveAgency).toMatchObject(response.data);
+
+		// FAIL TEST CASES
+		approveAgency('').catch(e => {
+			// FAIL: if no agency ID is provided
+			expect(e).toMatchObject({ statusText: 'FAIL', data: {} });
+		});
 	});
 });
