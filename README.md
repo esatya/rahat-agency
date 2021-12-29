@@ -1,4 +1,7 @@
 <p align="center">
+  <a href='https://coveralls.io/github/esatya/rahat-agency?branch=master'>
+    <img src='https://coveralls.io/repos/github/esatya/rahat-agency/badge.svg?branch=master' alt='Coverage Status' /></a>
+
   <a href="https://github.com/esatya/rahat-agency/blob/master/CONTRIBUTING.md">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome!" />
   </a>
@@ -44,6 +47,6 @@ When you deploy Rahat for production. Please make sure you backup the server's p
 
 # Contributing
 
-Everyone is very welcome to contribute on the codebase of Rahat. Please reach us in Gitter in case of any query/feedback/suggestion.
+Everyone is very welcome to contribute on the codebase of Rahat. Please reach us in [Gitter](https://gitter.im/bockies/community?utm_source=badge&utm_medium=badge&utm_content=badge) in case of any query/feedback/suggestion.
 
 For more information on the contributing procedure, see [Contribution](https://github.com/esatya/rahat-agency/blob/master/CONTRIBUTING.md)
