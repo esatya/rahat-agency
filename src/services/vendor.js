@@ -41,74 +41,85 @@ export async function approveVendor(wallet, payload, contract_address) {
 		getEth({ address: payload.wallet_address });
 		return res;
 	} catch (e) {
-		console.log(e);
 		throw Error(e);
 	}
 }
 
 export async function getTokenIdsByProjects(projects) {
-	const res = await axios.post(
-		`${API.NFT}/fetch-project-tokens/`,
-		{ projects },
-		{
-			headers: { access_token: access_token }
-		}
-	);
-	return res.data;
+	try {
+		const res = await axios.post(
+			`${API.NFT}/fetch-project-tokens/`,
+			{ projects },
+			{
+				headers: { access_token: access_token }
+			}
+		);
+		return res.data;
+	} catch {}
 }
 
 export async function changeVendorStaus(vendorId, status) {
-	return axios.patch(
-		`${API.VENDORS}/${vendorId}/status/`,
-		{ status: status },
-		{
-			headers: { access_token: access_token }
-		}
-	);
+	try {
+		return axios.patch(
+			`${API.VENDORS}/${vendorId}/status/`,
+			{ status: status },
+			{
+				headers: { access_token: access_token }
+			}
+		);
+	} catch {}
 }
 
 export async function list(params) {
-	const res = await axios({
-		url: API.VENDORS,
-		method: 'get',
-		headers: {
-			access_token
-		},
-		params
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: API.VENDORS,
+			method: 'get',
+			headers: {
+				access_token
+			},
+			params
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function get(id) {
-	const res = await axios({
-		url: API.VENDORS + '/' + id,
-		method: 'get',
-		headers: {
-			access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: API.VENDORS + '/' + id,
+			method: 'get',
+			headers: {
+				access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function vendorTransactions(vendorId) {
-	const res = await axios({
-		url: `${API.VENDORS}/${vendorId}/transactions`,
-		method: 'get',
-		headers: { access_token }
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.VENDORS}/${vendorId}/transactions`,
+			method: 'get',
+			headers: { access_token }
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function listByAid(aid, params) {
-	const res = await axios({
-		url: API.VENDORS + `/aid/${aid}/vendor`,
-		method: 'get',
-		headers: {
-			access_token
-		},
-		params
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: API.VENDORS + `/aid/${aid}/vendor`,
+			method: 'get',
+			headers: {
+				access_token
+			},
+			params
+		});
+		return res.data;
+	} catch {}
 }
 
 export function add(payload) {
@@ -123,55 +134,63 @@ export function add(payload) {
 				}
 				reject(res.data);
 			})
-			.catch(err => {
-				reject(err);
+			.catch(() => {
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
 
 export async function updateVendor(id, body) {
-	const res = await axios({
-		url: `${API.VENDORS}/${id}`,
-		method: 'put',
-		headers: {
-			access_token
-		},
-		data: body
-	});
+	try {
+		const res = await axios({
+			url: `${API.VENDORS}/${id}`,
+			method: 'put',
+			headers: {
+				access_token
+			},
+			data: body
+		});
 
-	return res.data;
+		return res.data;
+	} catch {}
 }
 
 export async function approve({ vendorId }) {
-	const res = await axios({
-		url: API.VENDORS + `/approve`,
-		method: 'post',
-		headers: {
-			access_token
-		},
-		data: { vendorId }
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: API.VENDORS + `/approve`,
+			method: 'post',
+			headers: {
+				access_token
+			},
+			data: { vendorId }
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function addVendorToProject(vendorId, projectId) {
-	const res = await axios({
-		url: `${API.VENDORS}/${vendorId}/add-to-project`,
-		method: 'post',
-		headers: {
-			access_token
-		},
-		data: { projectId }
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.VENDORS}/${vendorId}/add-to-project`,
+			method: 'post',
+			headers: {
+				access_token
+			},
+			data: { projectId }
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function getEth({ address }) {
-	const res = await axios({
-		url: API.FAUCET,
-		method: 'post',
-		data: { address, token: faucet_auth_token }
-	});
+	try {
+		const res = await axios({
+			url: API.FAUCET,
+			method: 'post',
+			data: { address, token: faucet_auth_token }
+		});
 
-	return res.data;
+		return res.data;
+	} catch {}
 }
