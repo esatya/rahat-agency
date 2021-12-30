@@ -4,6 +4,7 @@ import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
 import { History } from '../../utils/History';
 import moment from 'moment';
+import { dottedString } from '../../utils';
 
 import {
 	Card,
@@ -184,13 +185,13 @@ const Mobilizer = () => {
 														<img src={displayPic} alt="user" className="rounded-circle" width="45" />
 													</div>
 													<div className="">
-														<h5 className="mb-0 font-16 font-medium">{e.name}</h5>
+														<h5 className="mb-0 font-16 font-medium">{dottedString(e.name)}</h5>
 														<span>{e.email ? e.email : '-'}</span>
 													</div>
 												</div>
 											</td>
 											<td>{e.phone}</td>
-											<td>{e.address}</td>
+											<td>{dottedString(e.address)}</td>
 											<td>{moment(e.created_at).format('MMM Do YYYY, hh:mm A')}</td>
 											<td className="blue-grey-text text-darken-4 font-medium">
 												<Link to={`/mobilizers/${e._id}`}>

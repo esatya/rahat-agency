@@ -9,6 +9,7 @@ import displayPic from '../../assets/images/users/user_avatar.svg';
 import { History } from '../../utils/History';
 import AdvancePagination from '../global/AdvancePagination';
 import { APP_CONSTANTS } from '../../constants';
+import { dottedString, renderSingleRole } from '../../utils';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
@@ -203,6 +204,7 @@ const Beneficiary = () => {
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
 									<th className="border-0">Registration Date</th>
+									<th className="border-0">Registered By</th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
@@ -218,14 +220,18 @@ const Beneficiary = () => {
 															<img src={displayPic} alt="user" className="rounded-circle" width="45" />
 														</div>
 														<div className="">
-															<h5 className="mb-0 font-16 font-medium">{d.name}</h5>
+															<h5 className="mb-0 font-16 font-medium">{dottedString(d.name)}</h5>
 															<span>{d.email ? d.email : '-'}</span>
 														</div>
 													</div>
 												</td>
 												<td>{d.phone}</td>
-												<td>{d.address}</td>
+												<td>{dottedString(d.address)}</td>
 												<td>{moment(d.created_at).format('MMM Do YYYY, hh:mm A')}</td>
+												<td>
+													{d.creator_name ? dottedString(d.creator_name, 15) : '-'}
+													{d.created_by && `(${renderSingleRole(d.created_by.roles)})`}
+												</td>
 												<td>
 													<Link to={`/beneficiaries/${d._id}`}>
 														<i class="fas fa-eye fa-lg"></i>

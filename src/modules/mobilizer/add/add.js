@@ -5,7 +5,7 @@ import { MobilizerContext } from '../../../contexts/MobilizerContext';
 import { History } from '../../../utils/History';
 import { TOAST } from '../../../constants';
 import WalletUnlock from '../../../modules/global/walletUnlock';
-import { blobToBase64 } from '../../../utils';
+import { blobToBase64, formatErrorMsg } from '../../../utils';
 import AvatarIcon from '../../../assets/images/download.png';
 import BreadCrumb from '../../ui_components/breadcrumb';
 
@@ -38,21 +38,32 @@ const Add = () => {
 		const base64Url = await blobToBase64(e.target.files[0]);
 		setGovtIdImg(base64Url);
 	}
+
+	const sanitizePayload = payload => {
+		if (!payload.email) delete payload.email;
+		if (!payload.address) delete payload.address;
+		if (!payload.organization) delete payload.organization;
+		return payload;
+	};
+
 	const handleFormSubmit = e => {
 		e.preventDefault();
 		const payload = { ...formData };
 		if (profileUpload) payload.photo = profileUpload;
 		if (govtIdImg) payload.govt_id_image = govtIdImg;
+		const sanitized = sanitizePayload(payload);
+		console.log({ sanitized });
 		setLoading(true);
-		addMobilizer(payload)
+		addMobilizer(sanitized)
 			.then(() => {
 				setLoading(false);
 				addToast('Mobilizer added successfully', TOAST.SUCCESS);
 				History.push('/mobilizers');
 			})
 			.catch(err => {
+				const errMessage = formatErrorMsg(err);
 				setLoading(false);
-				addToast(err.message, TOAST.ERROR);
+				addToast(errMessage, TOAST.ERROR);
 			});
 	};
 
@@ -102,27 +113,29 @@ const Add = () => {
 								</Row>
 
 								<FormGroup>
-									<Label>Address</Label>
-									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} />
-								</FormGroup>
-
-								<FormGroup>
-									<Label>Email</Label>
-									<Input type="email" value={formData.email} name="email" onChange={handleInputChange} required />
-								</FormGroup>
-
-								<FormGroup>
-									<Label>Organization</Label>
-									<Input type="text" value={formData.organization} name="organization" onChange={handleInputChange} />
-								</FormGroup>
-								<FormGroup>
 									<Label>Wallet Address</Label>
 									<Input
 										type="text"
 										value={formData.wallet_address}
 										name="wallet_address"
 										onChange={handleInputChange}
+										required
 									/>
+								</FormGroup>
+
+								<FormGroup>
+									<Label>Email (optional)</Label>
+									<Input type="email" value={formData.email} name="email" onChange={handleInputChange} />
+								</FormGroup>
+
+								<FormGroup>
+									<Label>Address (optional)</Label>
+									<Input type="text" value={formData.address} name="address" onChange={handleInputChange} />
+								</FormGroup>
+
+								<FormGroup>
+									<Label>Organization (optional)</Label>
+									<Input type="text" value={formData.organization} name="organization" onChange={handleInputChange} />
 								</FormGroup>
 
 								<FormGroup>

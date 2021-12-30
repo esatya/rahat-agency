@@ -54,12 +54,6 @@ export default (state, action) => {
 				total_tokens: action.res
 			};
 
-		case `${ACTION.GET_BALANCE}`:
-			return {
-				...state,
-				balance: result
-			};
-
 		case `${ACTION.GET_AID_SUCCESS}`:
 			return {
 				...state,
