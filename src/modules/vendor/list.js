@@ -25,6 +25,7 @@ import {
 import displayPic from '../../assets/images/users/user_avatar.svg';
 import AdvancePagination from '../global/AdvancePagination';
 import { APP_CONSTANTS } from '../../constants';
+import { dottedString } from '../../utils';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name' };
@@ -205,7 +206,7 @@ const Vendor = () => {
 														<img src={displayPic} alt="user" className="rounded-circle" width="45" />
 													</div>
 													<div className="">
-														<h5 className="mb-0 font-16 font-medium">{e.name}</h5>
+														<h5 className="mb-0 font-16 font-medium">{dottedString(e.name)}</h5>
 														<span>{e.email ? e.email : '-'}</span>
 													</div>
 												</div>
@@ -213,7 +214,7 @@ const Vendor = () => {
 											<td>{e.agencies[0].status}</td>
 											<td>{e.phone}</td>
 
-											<td>{e.address}</td>
+											<td>{dottedString(e.address)}</td>
 											<td>{moment(e.created_at).format('MMM Do YYYY, hh:mm A')}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/vendors/${e._id}`}>
