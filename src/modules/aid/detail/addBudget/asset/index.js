@@ -74,7 +74,7 @@ export default function (props) {
 									</td>
 									<td className="blue-grey-text  text-darken-4 font-medium">
 										<Link to={`/mint-package/${d._id}/project/${projectId}`}>
-											<i class="fas fa-eye fa-lg"></i>
+											<i className="fas fa-eye fa-lg"></i>
 										</Link>
 									</td>
 								</tr>
