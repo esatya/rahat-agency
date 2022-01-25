@@ -265,7 +265,7 @@ export default function NewAsset({ match }) {
 								/>
 								&nbsp;
 								<button type="button" className="btn waves-effect waves-light btn-info" onClick={handleAddItem}>
-									<i class="fas fa-plus"></i>
+									<i className="fas fa-plus"></i>
 								</button>
 							</InputGroup>
 						</FormGroup>
