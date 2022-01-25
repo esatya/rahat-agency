@@ -109,7 +109,7 @@ const List = () => {
 											<td>{renderSingleRole(d.roles)}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/${d._id}/users`}>
-													<i class="fas fa-eye fa-lg"></i>
+													<i className="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>
