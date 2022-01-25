@@ -48,27 +48,30 @@ export async function mintNft({ payload, contracts, wallet }) {
 	}
 }
 
-
 export async function listNftPackages(projectId, query) {
-	const res = await axios({
-		url: `${API.NFT}/${projectId}/list?${qs.stringify(query)}`,
-		method: 'get',
-		headers: {
-			access_token: access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.NFT}/${projectId}/list?${qs.stringify(query)}`,
+			method: 'get',
+			headers: {
+				access_token: access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function getPackageDetails(packageId) {
-	const res = await axios({
-		url: `${API.NFT}/${packageId}`,
-		method: 'get',
-		headers: {
-			access_token: access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.NFT}/${packageId}`,
+			method: 'get',
+			headers: {
+				access_token: access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function addProjectBudget(wallet, projectId, supplyToken, contract_addr) {
@@ -84,13 +87,15 @@ export async function addProjectBudget(wallet, projectId, supplyToken, contract_
 }
 
 async function tokenAllocate(projectId, tokens, txHash) {
-	return axios.patch(
-		`${API.PROJECTS}/${projectId}/token`,
-		{ amount: tokens, txhash: txHash },
-		{
-			headers: { access_token }
-		}
-	);
+	try {
+		return axios.patch(
+			`${API.PROJECTS}/${projectId}/token`,
+			{ amount: tokens, txhash: txHash },
+			{
+				headers: { access_token }
+			}
+		);
+	} catch {}
 }
 
 export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
