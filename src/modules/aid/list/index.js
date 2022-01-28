@@ -200,7 +200,7 @@ const List = () => {
 											<td>{d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/projects/${d._id}`}>
-													<i class="fas fa-eye fa-lg"></i>
+													<i className="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>
