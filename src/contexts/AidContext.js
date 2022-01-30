@@ -176,6 +176,15 @@ export const AidContextProvider = ({ children }) => {
 		[changeIsverified]
 	);
 
+	const suspendBeneficiaryToken = useCallback(
+		async (payload, wallet, contracts) => {
+			changeIsverified(false);
+			const { rahat } = contracts;
+			return Service.suspendBeneficiaryToken(wallet, payload, rahat);
+		},
+		[changeIsverified]
+	);
+
 	const getBeneficiaryById = useCallback(benfId => {
 		return BenfService.getById(benfId);
 	}, []);
@@ -243,7 +252,8 @@ export const AidContextProvider = ({ children }) => {
 				getProjectCapital,
 				listFinancialInstitutions,
 				bulkTokenIssueToBeneficiary,
-				getBeneficiaryIssuedTokens
+				getBeneficiaryIssuedTokens,
+				suspendBeneficiaryToken
 			}}
 		>
 			{children}
