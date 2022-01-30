@@ -106,6 +106,14 @@ export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
 	return d;
 }
 
+export async function suspendBeneficiaryToken(wallet, payload, contract_addr) {
+	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
+	const signerContract = contract.connect(wallet);
+	const res = await signerContract.suspendBeneficiary(payload.phone,payload.projectId);
+	let d = await res.wait();
+	return d;
+}
+
 async function updateBenfIssuedPackage(benfId, issued_packages) {
 	let res = await axios.patch(
 		`${API.BENEFICARIES}/${benfId}/update-packages`,
