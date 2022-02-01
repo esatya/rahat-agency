@@ -4,37 +4,44 @@ import API from '../constants/api';
 
 const access_token = getUserToken();
 
-export async function listBeneficiary(params) {
+export async function listAidConnectBeneficiary(aidConnectId) {
 	const res = await axios({
-		url: API.BENEFICARIES,
+		url: API.AID_CONNECT + `/${aidConnectId}/beneficiaries`,
 		method: 'get',
 		headers: {
 			access_token
-		},
-		params
+		}
 	});
 	return res.data;
 }
 
-export async function listByAid(aid, params) {
+export async function generateLink(projectId) {
 	const res = await axios({
-		url: API.PROJECTS + `/${aid}/beneficiaries`,
+		url: API.PROJECTS + `/${projectId}/aid-connect`,
 		method: 'get',
 		headers: {
 			access_token
-		},
-		params
+		}
 	});
 	return res.data;
 }
 
-// export async function changeLinkStatus(aidId, status) {
-// 	let res = await axios.patch(
-// 		`${API.PROJECTS}/${aidId}/status`,
-// 		{ status },
-// 		{
-// 			headers: { access_token }
-// 		}
-// 	);
-// 	return res.data;
-// }
+export async function changeLinkStatus(projectId, payload) {
+	let res = await axios.patch(`${API.PROJECTS}/${projectId}/aid-connect/status`, payload, {
+		headers: { access_token }
+	});
+	return res.data;
+}
+
+export async function addBeneficiaryInBulk(body) {
+	const res = await axios({
+		url: `${API.BENEFICARIES}/bulk`,
+		method: 'post',
+		headers: {
+			access_token
+		},
+		data: body
+	});
+
+	return res.data;
+}

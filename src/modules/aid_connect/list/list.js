@@ -18,35 +18,34 @@ import { dottedString } from '../../../utils';
 import { AidConnectContext } from '../../../contexts/AidConnectContext';
 import { useToasts } from 'react-toast-notifications';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
+import { AID_CONNECT_STATUS } from '../../../constants';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
-const beneficiaries = [
-	{
-		_id: 34567,
-		name: 'superman',
-		phone: 1234,
-		address: 'LA, USA',
-		project: 'Wash programme'
-	}
-];
-
 const List = () => {
 	const { addToast } = useToasts();
-	const { listProject } = useContext(AidConnectContext);
+	const { listProject, listAidConnectBeneficiary, generateLink, addBeneficiaryInBulk, changeLinkStatus } = useContext(
+		AidConnectContext
+	);
 	const [searchName, setSearchName] = useState('');
 	const [projectList, setProjectList] = useState([]);
+	const [link, setLink] = useState('');
 	const [showLink, setShowLink] = useState(false);
-	const [linkStatus, setLinkStatus] = useState(true);
+	const [linkStatus, setLinkStatus] = useState();
 	const [selectAll, setSelectAll] = useState(false);
 	const [selectedBeneficiary, setSelectedBeneficiary] = useState([]);
+	const [beneficiaries, setBeneficiaries] = useState([]);
+	const [projectId, setProjectId] = useState('');
+	const [importing, setImporting] = useState(false);
+
 	const currentPage = 1;
 
-	const handleCreateLinkClick = () => {
+	const handleCreateLinkClick = async () => {
+		const generatedData = await generateLink(projectId);
+		const link = generatedData.data.link;
+		setLink(link);
 		setShowLink(true);
 	};
-
-	const handleImportClick = () => {};
 
 	const handleSearchInputChange = e => {
 		const query = {};
@@ -57,22 +56,53 @@ const List = () => {
 
 	const handleProjectChange = () => {};
 
+	const listBeneficiary = useCallback(
+		async aidConnectId => {
+			const beneficiary = await listAidConnectBeneficiary(aidConnectId);
+			setBeneficiaries(beneficiary.data);
+		},
+		[listAidConnectBeneficiary]
+	);
+
 	const loadProjects = useCallback(async () => {
 		const projects = await listProject();
+
 		if (projects && projects.data.length) {
 			const select_options = projects.data.map(p => {
+				const pID = p._id;
+				setProjectId(pID);
 				return {
 					label: p.name,
 					value: p._id
 				};
 			});
+			const aidConnectID = projects.data.map(p => {
+				const id = p.aid_connect.id;
+				return id;
+			});
+			const aidConnectStatus = projects.data.map(p => {
+				const status = p.aid_connect;
+				return status;
+			});
+			setLinkStatus(aidConnectStatus);
 			setProjectList(select_options);
+			listBeneficiary(aidConnectID);
 		}
-	}, [listProject]);
+	}, [listProject, listBeneficiary]);
 
 	const handleStatusChange = e => {
+		const payload = {
+			isActive: e
+		};
+		changeLinkStatus(projectId, payload)
+			.then(() => {
+				addToast(`Link has been ${success_label}`, TOAST.SUCCESS);
+			})
+			.catch(err => {
+				addToast(err.message, TOAST.ERROR);
+			});
 		const _status = e === true ? 'active' : 'suspended';
-		const success_label = _status === 'suspended' ? 'Suspended' : 'Activated';
+		const success_label = _status === AID_CONNECT_STATUS.SUSPENDED ? 'Suspended' : 'Activated';
 		addToast(`Link has been ${success_label}`, TOAST.SUCCESS);
 		setLinkStatus(!linkStatus);
 	};
@@ -97,6 +127,26 @@ const List = () => {
 		} else setSelectedBeneficiary([...selectedBeneficiary, phone]);
 	};
 
+	const handleCopyClick = () => {};
+
+	const handleImportClick = () => {
+		setImporting(true);
+		const filteredData = beneficiaries.map(el => {
+			return { name: el.name, phone: el.phone, email: el.email, address: el.address, projects: projectId };
+		});
+		addBeneficiaryInBulk(filteredData)
+			.then(d => {
+				setImporting(false);
+				if (d.inserted && d.inserted.total)
+					addToast(`${d.inserted.total} Beneficiary added successfully`, TOAST.SUCCESS);
+				if (d.failed && d.failed.total) addToast(`${d.failed.total} Beneficiary Already Exists`, TOAST.WARNING);
+			})
+			.catch(e => {
+				setImporting(false);
+				addToast('Failed to import beneficiaries', TOAST.ERROR);
+			});
+	};
+
 	useEffect(() => {
 		loadProjects();
 	}, [loadProjects]);
@@ -113,7 +163,7 @@ const List = () => {
 							<FormGroup>
 								<Label>Project</Label>
 								<SelectWrapper
-									multi={true}
+									multi={false}
 									onChange={handleProjectChange}
 									maxMenuHeight={150}
 									data={projectList}
@@ -129,7 +179,7 @@ const List = () => {
 								</Button>
 								{showLink ? (
 									<BootstrapSwitchButton
-										checked={linkStatus}
+										checked={linkStatus ? false : true}
 										onlabel="Link Activated"
 										offlabel="Link Suspended"
 										width={150}
@@ -144,9 +194,11 @@ const List = () => {
 							{showLink ? (
 								<FormGroup>
 									<InputGroup>
-										<Input type="text" value="" name="link" required />
+										<Input type="text" value={link} name="link" disabled />
 										<InputGroupAddon addonType="append">
-											<Button color="info">Copy</Button>
+											<Button color="info" onClick={handleCopyClick}>
+												Copy
+											</Button>
 										</InputGroupAddon>
 									</InputGroup>
 								</FormGroup>
@@ -163,16 +215,25 @@ const List = () => {
 									onChange={handleSearchInputChange}
 									placeholder="Search by name..."
 								/>
-								<Button
-									type="button"
-									onClick={handleImportClick}
-									className="btn"
-									color="info"
-									outline={true}
-									style={{ borderRadius: '8px' }}
-								>
-									Import
-								</Button>
+
+								<div>
+									{importing ? (
+										<Button type="button" disabled={true} className="btn" color="info">
+											Importing...
+										</Button>
+									) : (
+										<Button
+											type="button"
+											onClick={handleImportClick}
+											className="btn"
+											color="info"
+											outline={true}
+											style={{ borderRadius: '8px' }}
+										>
+											Import
+										</Button>
+									)}
+								</div>
 							</div>
 						</div>
 						<div>
