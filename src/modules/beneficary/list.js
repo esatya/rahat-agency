@@ -234,7 +234,7 @@ const Beneficiary = () => {
 												</td>
 												<td>
 													<Link to={`/beneficiaries/${d._id}`}>
-														<i class="fas fa-eye fa-lg"></i>
+														<i className="fas fa-eye fa-lg"></i>
 													</Link>
 												</td>
 											</tr>

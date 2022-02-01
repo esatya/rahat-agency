@@ -38,6 +38,10 @@ module.exports = {
 		ACTIVE: 'active',
 		SUSPENDED: 'suspended'
 	},
+	AID_CONNECT_STATUS: {
+		ACTIVE: 'active',
+		SUSPENDED: 'suspended'
+	},
 	VENDOR_STATUS: {
 		ACTIVE: 'active',
 		NEW: 'new',
