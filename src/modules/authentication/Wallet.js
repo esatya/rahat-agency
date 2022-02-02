@@ -164,7 +164,7 @@ const Wallet = () => {
 							</Row>
 
 							<p className="text-instruction">
-								<i class="fa fa-qrcode" aria-hidden="true" style={{ marginRight: '10px' }}></i>
+								<i className="fa fa-qrcode" aria-hidden="true" style={{ marginRight: '10px' }}></i>
 								Open Rumsan wallet App and scan the QR code to log in
 							</p>
 
