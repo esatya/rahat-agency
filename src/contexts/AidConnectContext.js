@@ -19,8 +19,8 @@ export const AidConnectContextProvider = ({ children }) => {
 		return d;
 	}, []);
 
-	const listAidConnectBeneficiary = useCallback(async aidConnectId => {
-		return await Service.listAidConnectBeneficiary(aidConnectId);
+	const listAidConnectBeneficiary = useCallback(async (aidConnectId, params) => {
+		return await Service.listAidConnectBeneficiary(aidConnectId, params);
 	}, []);
 
 	const generateLink = useCallback(async projectId => {
