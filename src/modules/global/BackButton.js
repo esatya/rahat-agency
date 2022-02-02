@@ -9,7 +9,7 @@ export default function BackButton({ label }) {
 	return (
 		<>
 			<button type="button" className="btn waves-effect waves-light btn-dark" onClick={handleGoBackClick}>
-				<i class="fas fa-long-arrow-alt-left"></i> {label || 'Go Back'}
+				<i className="fas fa-long-arrow-alt-left"></i> {label || 'Go Back'}
 			</button>
 		</>
 	);

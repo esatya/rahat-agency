@@ -4,6 +4,7 @@ const API_PATH = SERVER_URL + '/api/v1';
 module.exports = {
 	AGENCY: API_PATH + '/agency',
 	APP: API_PATH + '/app',
+	AID_CONNECT: API_PATH + '/aid-connect',
 	BENEFICARIES: API_PATH + '/beneficiaries',
 	INSTITUTIONS: API_PATH + '/institutions',
 	METAMASK_LOGIN: API_PATH + '/auth/wallet',
