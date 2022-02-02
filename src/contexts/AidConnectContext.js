@@ -5,12 +5,8 @@ import * as AidService from '../services/aid';
 import ACTION from '../actions/aidConnect';
 
 const initialState = {
-	list: [],
 	pagination: { limit: 10, start: 0, total: 0, currentPage: 1, totalPages: 0 },
-	aid: {},
-	projectList: [],
-	beneficiary: {},
-	tokenBalance: 0
+	projectList: []
 };
 
 export const AidConnectContext = createContext(initialState);
@@ -23,16 +19,21 @@ export const AidConnectContextProvider = ({ children }) => {
 		return d;
 	}, []);
 
-	const listBeneficiary = useCallback(async params => {
-		let res = await Service.listBeneficiary(params);
-		return res;
+	const listAidConnectBeneficiary = useCallback(async aidConnectId => {
+		return await Service.listAidConnectBeneficiary(aidConnectId);
 	}, []);
 
-	// async function changeLinkStatus(aidId, status) {
-	// 	let res = await Service.changeLinkStatus(aidId, status);
-	// 	dispatch({ type: ACTION.GET_AID_SUCCESS, res });
-	// 	return res;
-	// }
+	const generateLink = useCallback(async projectId => {
+		return await Service.generateLink(projectId);
+	}, []);
+
+	async function changeLinkStatus(projectId, payload) {
+		return await Service.changeLinkStatus(projectId, payload);
+	}
+
+	const addBeneficiaryInBulk = payload => {
+		return Service.addBeneficiaryInBulk(payload);
+	};
 
 	return (
 		<AidConnectContext.Provider
@@ -44,8 +45,10 @@ export const AidConnectContextProvider = ({ children }) => {
 				tokenBalance: state.tokenBalance,
 				beneficiary: state.beneficiary,
 				listProject,
-				listBeneficiary
-				// changeLinkStatus
+				listAidConnectBeneficiary,
+				generateLink,
+				changeLinkStatus,
+				addBeneficiaryInBulk
 			}}
 		>
 			{children}
