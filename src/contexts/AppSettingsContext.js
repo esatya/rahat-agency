@@ -43,7 +43,7 @@ export const AppContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.INIT_APP, data });
 	}, [dispatch]);
 
-	function getAppSettings() {
+	const getAppSettings=useCallback(()=> {
 		return new Promise((resolve, reject) => {
 			Service.getSettings()
 				.then(res => {
@@ -52,7 +52,7 @@ export const AppContextProvider = ({ children }) => {
 				})
 				.catch(err => reject(err));
 		});
-	}
+	},[])
 
 	function setPasscodeModal(flag) {
 		dispatch({ type: ACTION.SET_PASSCODE_MODAL, data: flag });
