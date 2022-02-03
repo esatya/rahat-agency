@@ -15,5 +15,6 @@ module.exports = {
 	VENDORS: API_PATH + '/vendors',
 	FAUCET: process.env.REACT_APP_BLOCKCHAIN_FAUCET,
 	MOBILIZERS: API_PATH + '/mobilizers',
-	NFT: API_PATH + '/nft'
+	NFT: API_PATH + '/nft',
+	Notification:API_PATH+'/notifications'
 };
