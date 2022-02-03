@@ -3,6 +3,7 @@ import {
 	Button,
 	Card,
 	CardBody,
+	CustomInput,
 	CardTitle,
 	Table,
 	FormGroup,
@@ -19,26 +20,55 @@ import { AidConnectContext } from '../../../contexts/AidConnectContext';
 import { useToasts } from 'react-toast-notifications';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import { AID_CONNECT_STATUS } from '../../../constants';
+import AdvancePagination from '../../global/AdvancePagination';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
+const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name' };
 
 const List = () => {
 	const { addToast } = useToasts();
 	const { listProject, listAidConnectBeneficiary, generateLink, addBeneficiaryInBulk, changeLinkStatus } = useContext(
 		AidConnectContext
 	);
-	const [searchName, setSearchName] = useState('');
+	const [projects, setProjects] = useState();
 	const [projectList, setProjectList] = useState([]);
+
 	const [link, setLink] = useState('');
-	const [showLink, setShowLink] = useState(false);
 	const [linkStatus, setLinkStatus] = useState();
+
+	const [showLinkComponent, setShowLinkComponent] = useState(false);
+	const [showLink, setShowLink] = useState(false);
+
 	const [selectAll, setSelectAll] = useState(false);
 	const [selectedBeneficiary, setSelectedBeneficiary] = useState([]);
 	const [beneficiaries, setBeneficiaries] = useState([]);
+
 	const [projectId, setProjectId] = useState('');
+	const [aidConnectId, setAidConnectId] = useState('');
+
 	const [importing, setImporting] = useState(false);
 
-	const currentPage = 1;
+	const [filter, setFilter] = useState({
+		searchPlaceholder: 'Enter phone number...',
+		searchBy: 'phone'
+	});
+	const [searchValue, setSearchValue] = useState('');
+	const [totalRecords, setTotalRecords] = useState(null);
+	const [currentPage, setCurrentPage] = useState(1);
+
+	const loadProjects = useCallback(async () => {
+		const project = await listProject();
+		if (project && project.data.length) {
+			const select_options = project.data.map(p => {
+				return {
+					label: p.name,
+					value: p._id
+				};
+			});
+			setProjectList(select_options);
+		}
+		setProjects(project);
+	}, [listProject]);
 
 	const handleCreateLinkClick = async () => {
 		const generatedData = await generateLink(projectId);
@@ -47,48 +77,72 @@ const List = () => {
 		setShowLink(true);
 	};
 
-	const handleSearchInputChange = e => {
-		const query = {};
-		const { value } = e.target;
-		if (value) query.name = value;
-		setSearchName(value);
+	const handleFilterOptionChange = e => {
+		let { value } = e.target;
+		if (value === SEARCH_OPTIONS.NAME) {
+			setFilter({
+				searchPlaceholder: 'Enter name...',
+				searchBy: SEARCH_OPTIONS.NAME
+			});
+		}
+
+		if (value === SEARCH_OPTIONS.PHONE) {
+			setFilter({
+				searchPlaceholder: 'Enter phone number...',
+				searchBy: SEARCH_OPTIONS.PHONE
+			});
+		}
+		setSearchValue('');
+		fetchList({ start: 0, limit: PAGE_LIMIT });
 	};
 
-	const handleProjectChange = () => {};
-
-	const listBeneficiary = useCallback(
-		async aidConnectId => {
-			const beneficiary = await listAidConnectBeneficiary(aidConnectId);
-			setBeneficiaries(beneficiary.data);
-		},
-		[listAidConnectBeneficiary]
-	);
-
-	const loadProjects = useCallback(async () => {
-		const projects = await listProject();
-
-		if (projects && projects.data.length) {
-			const select_options = projects.data.map(p => {
-				const pID = p._id;
-				setProjectId(pID);
-				return {
-					label: p.name,
-					value: p._id
-				};
-			});
-			const aidConnectID = projects.data.map(p => {
-				const id = p.aid_connect.id;
-				return id;
-			});
-			const aidConnectStatus = projects.data.map(p => {
-				const status = p.aid_connect;
-				return status;
-			});
-			setLinkStatus(aidConnectStatus);
-			setProjectList(select_options);
-			listBeneficiary(aidConnectID);
+	const handleSearchInputChange = e => {
+		const { value } = e.target;
+		setSearchValue(value);
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE) {
+			return fetchList({ start: 0, limit: PAGE_LIMIT, phone: value });
 		}
-	}, [listProject, listBeneficiary]);
+		if (filter.searchBy === SEARCH_OPTIONS.NAME) {
+			return fetchList({ start: 0, limit: PAGE_LIMIT, name: value });
+		}
+		fetchList({ start: 0, limit: PAGE_LIMIT });
+	};
+
+	const fetchList = async params => {
+		if (aidConnectId) {
+			let query = { start: 0, limit: PAGE_LIMIT, ...params };
+			const data = await listAidConnectBeneficiary(aidConnectId, query);
+			setBeneficiaries(data.data);
+			setTotalRecords(data.total);
+		}
+	};
+
+	const fetchTotalRecords = useCallback(async () => {
+		if (aidConnectId) {
+			try {
+				const data = await listAidConnectBeneficiary(aidConnectId, { start: 0, limit: PAGE_LIMIT });
+				setTotalRecords(data.total);
+			} catch (err) {
+				addToast('Something went wrong!', {
+					appearance: 'error',
+					autoDismiss: true
+				});
+			}
+		}
+	}, [addToast, listAidConnectBeneficiary, aidConnectId]);
+
+	const handleProjectChange = data => {
+		const values = data.value.toString();
+		setProjectId(values);
+		if (projects && projects.data.length) {
+			const selectedProject = projects.data.find(x => x._id === values);
+			const aidConnectID = selectedProject.aid_connect.id;
+			const status = selectedProject.aid_connect.isActive;
+			setAidConnectId(aidConnectID);
+			setLinkStatus(status);
+			setShowLinkComponent(true);
+		}
+	};
 
 	const handleStatusChange = e => {
 		const payload = {
@@ -130,6 +184,14 @@ const List = () => {
 	const handleCopyClick = () => {};
 
 	const handleImportClick = () => {
+		// FILTER BEFOR IMPORTING BENEFICIRIES
+
+		// const selectedBeneficiaries = beneficiaries.find(
+		// 	el => selectedBeneficiary.map(d => el.phone === d)
+		// 	// .includes(val => selectedBeneficiaryPhones(val)
+		// );
+		// console.log({ selectedBeneficiaries });
+
 		setImporting(true);
 		const filteredData = beneficiaries.map(el => {
 			return { name: el.name, phone: el.phone, email: el.email, address: el.address, projects: projectId };
@@ -151,6 +213,32 @@ const List = () => {
 		loadProjects();
 	}, [loadProjects]);
 
+	useEffect(() => {
+		fetchTotalRecords();
+	}, [fetchTotalRecords]);
+
+	const getQueryParams = useCallback(() => {
+		const params = {};
+		if (filter.searchBy === SEARCH_OPTIONS.PHONE) params.phone = searchValue;
+		if (filter.searchBy === SEARCH_OPTIONS.NAME) params.name = searchValue;
+		return params;
+	}, [filter.searchBy, searchValue]);
+
+	const onPageChanged = useCallback(
+		async paginationData => {
+			const params = getQueryParams();
+			const { currentPage, pageLimit } = paginationData;
+			setCurrentPage(currentPage);
+			let start = (currentPage - 1) * pageLimit;
+			const query = { start, limit: PAGE_LIMIT, ...params };
+			if (aidConnectId) {
+				const data = await listAidConnectBeneficiary(aidConnectId, query);
+				setBeneficiaries(data.data);
+			}
+		},
+		[getQueryParams, listAidConnectBeneficiary, aidConnectId]
+	);
+
 	return (
 		<div className="main">
 			<div className="transaction-table-container">
@@ -171,50 +259,65 @@ const List = () => {
 								/>
 							</FormGroup>
 						</div>
-						<div className="mt-4">
-							<Label className="ml-1 mt-1 mb-2">Link</Label>
-							<FormGroup>
-								<Button type="button" onClick={handleCreateLinkClick} className="btn mr-3" color="info">
-									Create Link
-								</Button>
+						{showLinkComponent ? (
+							<div className="mt-4">
+								<Label className="ml-1 mt-1 mb-2">Link</Label>
+								<FormGroup>
+									<Button type="button" onClick={handleCreateLinkClick} className="btn mr-3" color="info">
+										Create Link
+									</Button>
+									{showLink ? (
+										<BootstrapSwitchButton
+											checked={linkStatus ? false : true}
+											onlabel="Link Activated"
+											offlabel="Link Suspended"
+											width={150}
+											height={30}
+											onstyle="success"
+											onChange={handleStatusChange}
+										/>
+									) : (
+										''
+									)}
+								</FormGroup>
 								{showLink ? (
-									<BootstrapSwitchButton
-										checked={linkStatus ? false : true}
-										onlabel="Link Activated"
-										offlabel="Link Suspended"
-										width={150}
-										height={30}
-										onstyle="success"
-										onChange={handleStatusChange}
-									/>
+									<FormGroup>
+										<InputGroup>
+											<Input type="text" value={link} name="link" disabled />
+											<InputGroupAddon addonType="append">
+												<Button color="info" onClick={handleCopyClick}>
+													Copy
+												</Button>
+											</InputGroupAddon>
+										</InputGroup>
+									</FormGroup>
 								) : (
 									''
 								)}
-							</FormGroup>
-							{showLink ? (
-								<FormGroup>
-									<InputGroup>
-										<Input type="text" value={link} name="link" disabled />
-										<InputGroupAddon addonType="append">
-											<Button color="info" onClick={handleCopyClick}>
-												Copy
-											</Button>
-										</InputGroupAddon>
-									</InputGroup>
-								</FormGroup>
-							) : (
-								''
-							)}
-						</div>
+							</div>
+						) : (
+							''
+						)}
 						<div className="mt-4 mb-0">
 							<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-								<input
-									style={{ width: '40%' }}
-									className="custom-input-box"
-									value={searchName || ''}
-									onChange={handleSearchInputChange}
-									placeholder="Search by name..."
-								/>
+								<div className="d-flex">
+									<CustomInput
+										type="select"
+										id="exampleCustomSelect"
+										name="customSelect"
+										defaultValue=""
+										style={{ width: 'auto', marginRight: '10px' }}
+										onChange={handleFilterOptionChange}
+									>
+										<option value="phone">Search By Phone</option>
+										<option value="name">By Name</option>
+									</CustomInput>
+									<Input
+										placeholder={filter.searchPlaceholder}
+										onChange={handleSearchInputChange}
+										style={{ width: '100%' }}
+									/>
+								</div>
 
 								<div>
 									{importing ? (
@@ -291,14 +394,14 @@ const List = () => {
 								</tbody>
 							</Table>
 
-							{/* {totalRecords > 0 && (
-						<AdvancePagination
-							totalRecords={totalRecords}
-							pageLimit={PAGE_LIMIT}
-							pageNeighbours={1}
-							onPageChanged={onPageChanged}
-						/>
-					)} */}
+							{totalRecords > 0 && (
+								<AdvancePagination
+									totalRecords={totalRecords}
+									pageLimit={PAGE_LIMIT}
+									pageNeighbours={1}
+									onPageChanged={onPageChanged}
+								/>
+							)}
 						</div>
 					</CardBody>
 				</Card>

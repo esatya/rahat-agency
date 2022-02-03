@@ -4,13 +4,14 @@ import API from '../constants/api';
 
 const access_token = getUserToken();
 
-export async function listAidConnectBeneficiary(aidConnectId) {
+export async function listAidConnectBeneficiary(aidConnectId, params) {
 	const res = await axios({
 		url: API.AID_CONNECT + `/${aidConnectId}/beneficiaries`,
 		method: 'get',
 		headers: {
 			access_token
-		}
+		},
+		params
 	});
 	return res.data;
 }
