@@ -21,12 +21,14 @@ import { useToasts } from 'react-toast-notifications';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import { AID_CONNECT_STATUS } from '../../../constants';
 import AdvancePagination from '../../global/AdvancePagination';
+import Swal from 'sweetalert2';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name' };
 
 const List = () => {
 	const { addToast } = useToasts();
+
 	const { listProject, listAidConnectBeneficiary, generateLink, addBeneficiaryInBulk, changeLinkStatus } = useContext(
 		AidConnectContext
 	);
@@ -42,6 +44,7 @@ const List = () => {
 	const [selectAll, setSelectAll] = useState(false);
 	const [selectedBeneficiary, setSelectedBeneficiary] = useState([]);
 	const [beneficiaries, setBeneficiaries] = useState([]);
+	const beneficiaryStatus = true;
 
 	const [projectId, setProjectId] = useState('');
 	const [aidConnectId, setAidConnectId] = useState('');
@@ -209,6 +212,22 @@ const List = () => {
 			});
 	};
 
+	const handleBeneficiaryDelete = () => {
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, delete it!'
+		}).then(result => {
+			if (result.isConfirmed) {
+				Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
+			}
+		});
+	};
+
 	useEffect(() => {
 		loadProjects();
 	}, [loadProjects]);
@@ -356,6 +375,7 @@ const List = () => {
 										<th className="border-0">Name</th>
 										<th className="border-0">Phone</th>
 										<th className="border-0">Address</th>
+										<th className="border-0">Status</th>
 										<th className="border-0">Action</th>
 									</tr>
 								</thead>
@@ -377,10 +397,14 @@ const List = () => {
 													<td>{dottedString(`${d.name}`)}</td>
 													<td>{d.phone || '-'}</td>
 													<td>{d.address}</td>
-													<td className="blue-grey-text  text-darken-4 font-medium">
+													<td>{beneficiaryStatus ? 'Imported' : 'Not Imported'}</td>
+													<td className="d-flex justify-content-around align-items-center blue-grey-text text-darken-4 font-medium">
 														<Link to={`/${d._id}/users`}>
 															<i className="fas fa-eye fa-lg"></i>
 														</Link>
+														{/* <Link> */}
+														<i className="fas fa-trash-alt fa-lg" onClick={handleBeneficiaryDelete}></i>
+														{/* </Link> */}
 													</td>
 												</tr>
 											);
