@@ -129,6 +129,7 @@ export default () => {
 		}
 	};
 
+	const redirect=(redirectUrl)=>redirectUrl&&History.push(redirectUrl)
 	const handleProfileLink = () => {
 		History.push('/profile');
 	};
@@ -195,7 +196,7 @@ export default () => {
                   {/*<!-- Message -->*/}
                   {notifications?.map((notification, index) => {
                     return (
-                      <span className="message-item" key={index}>
+                      <span className="message-item" key={index} onClick={()=>redirect(notification?.redirectUrl)} >
                         <span
                           className={
                             `btn btn-circle btn-${notification.iconBg}`
