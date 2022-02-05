@@ -77,6 +77,25 @@ export default () => {
 	},[notifications,wsNotification])
 
 
+	const handleNotificationSeen=useCallback(async(id)=>{
+		try{
+			let updatedNotification = await API_CALLS.update(id,{status:true});
+			updatedNotification=getIcons(updatedNotification)
+			console.log('reached here',updatedNotification)
+			let prevNotifications = [...notifications];
+			prevNotifications= prevNotifications&&prevNotifications.length&&prevNotifications.map((item)=>{
+				if(item._id===updatedNotification._id){
+					return{
+						...updatedNotification
+					}
+				}
+				return item
+			})
+
+			setNotifications(prevNotifications)
+		}catch(err){}
+	},[notifications])
+
 	const loadAppSettings = useCallback(() => {
 		return getAppSettings().then().catch(err=>console.log('Cannot get app setting'));
 	},[getAppSettings]);
@@ -128,6 +147,13 @@ export default () => {
 			default:
 		}
 	};
+
+	const redirect = useCallback(async(id,redirectUrl)=>{
+		const isSeen = notifications.find(item=>item._id===id)?.status;
+		 redirectUrl&&History.push(redirectUrl)
+		 if(isSeen) return;
+		 handleNotificationSeen(id)
+	},[handleNotificationSeen,notifications])
 
 	const handleProfileLink = () => {
 		History.push('/profile');
@@ -191,11 +217,11 @@ export default () => {
                     <p className="mb-0">Notifications</p>
                   </div>
                 </div>
-                <div className="message-center notifications">
+                <div className={"message-center notifications"}>
                   {/*<!-- Message -->*/}
                   {notifications?.map((notification, index) => {
                     return (
-                      <span className="message-item" key={index}>
+                      <span className={`message-item ${!notification.status&&"bg-info bg-opacity-10"}`} key={index} onClick={()=>redirect(notification._id,notification?.redirectUrl)} >
                         <span
                           className={
                             `btn btn-circle btn-${notification.iconBg}`
@@ -204,11 +230,11 @@ export default () => {
                           <i className={notification.iconClass} />
                         </span>
                         <div className="mail-contnet">
-                          <h5 className="message-title">
+                          <h5 className={`message-title ${!notification.status&&"text-white"}`}>
                             {notification.title}
                           </h5>
-                          <span className="mail-desc">{notification.message}</span>
-                          <span className="time">{notification.time}</span>
+                          <span className={`mail-desc  ${!notification.status&&"text-white"} `}>{notification.message}</span>
+                          <span className={` time   ${!notification.status&&"text-white"}` }>{notification.date}</span>
                         </div>
                       </span>
                     );
