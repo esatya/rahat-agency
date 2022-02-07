@@ -61,7 +61,6 @@ export default function PasscodeModal(props) {
 				size={size || 'xl'}
 				aria-labelledby="contained-modal-title-vcenter"
 				centered
-				className="modal-backdrop fade in"
 			>
 				<Form id="form" style={{ backgroundColor: '#2b7ec1', textAlign: 'center' }} onSubmit={handleSubmit}>
 					<ModalBody className="pt-4">

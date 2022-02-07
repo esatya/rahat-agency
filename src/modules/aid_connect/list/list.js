@@ -317,7 +317,7 @@ const List = () => {
 						) : (
 							''
 						)}
-						<div className="mt-4 mb-0">
+						<div className="mt-5 mb-0">
 							<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 								<div className="d-flex">
 									<CustomInput
