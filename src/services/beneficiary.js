@@ -3,10 +3,12 @@ import axios from 'axios';
 import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
-import { getContractByProvider } from '../blockchain/abi';
+import { getContractByProvider,generateMultiCallData } from '../blockchain/abi';
 import { calculateTotalPackageBalance } from './aid';
+import { ethers } from 'ethers';
 
 const access_token = getUserToken();
+const abiCoder = new ethers.utils.AbiCoder();
 
 // Available tokens
 export async function getBeneficiaryBalance(phone, contract_address) {
@@ -14,6 +16,20 @@ export async function getBeneficiaryBalance(phone, contract_address) {
 	const data = await contract.erc20Balance(phone);
 	if (!data) return null;
 	return data.toNumber();
+}
+
+export async function getBeneficiariesBalances(beneficiaries,contract_address) {
+	try {
+		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+		const callData = beneficiaries.map((ben) => generateMultiCallData(CONTRACT.RAHAT,"erc20Balance",[Number(ben.phone)]))
+		const data = await contract.callStatic.multicall(callData)
+		const decodedData = data.map((el) => abiCoder.decode(['uint256'],el));
+		const benBalances = decodedData.map((el) => el[0].toNumber());
+		return benBalances;
+	} catch (e) {
+		console.log(e)
+		return 0;
+	}
 }
 
 // Total tokens

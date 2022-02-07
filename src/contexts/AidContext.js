@@ -190,6 +190,15 @@ export const AidContextProvider = ({ children }) => {
 		[]
 	);
 
+	const suspendBeneficiaryToken = useCallback(
+		async (payload, wallet, contracts) => {
+			changeIsverified(false);
+			const { rahat } = contracts;
+			return Service.suspendBeneficiaryToken(wallet, payload, rahat);
+		},
+		[changeIsverified]
+	);
+
 	const getBeneficiaryById = useCallback(benfId => {
 		return BenfService.getById(benfId);
 	}, []);
@@ -217,6 +226,10 @@ export const AidContextProvider = ({ children }) => {
 	const uploadBenfToProject = (projectId, payload) => {
 		return Service.uploadBenfToProject(projectId, payload);
 	};
+
+	const getProjectsBalances = useCallback((projectIds,contract_address) => {
+		return Service.getProjectsBalances(projectIds,contract_address);
+	},[])
 
 	return (
 		<AidContext.Provider
@@ -258,7 +271,9 @@ export const AidContextProvider = ({ children }) => {
 				getProjectCapital,
 				listFinancialInstitutions,
 				bulkTokenIssueToBeneficiary,
-				getBeneficiaryIssuedTokens
+				getBeneficiaryIssuedTokens,
+				suspendBeneficiaryToken,
+				getProjectsBalances
 			}}
 		>
 			{children}
