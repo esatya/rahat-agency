@@ -20,7 +20,8 @@ const Token = ({ benfId, projectId }) => {
 		issueBenfToken,
 		getBeneficiaryById,
 		getProjectCapital,
-		getAidBalance
+		getAidBalance,
+		sendTokenIssuedSms,
 	} = useContext(AidContext);
 
 	const { wallet, isVerified, appSettings, currentBalanceTab } = useContext(AppContext);
@@ -59,6 +60,7 @@ const Token = ({ benfId, projectId }) => {
 					phone: Number(benf.phone),
 					projectId: projectId
 				};
+				await sendTokenIssuedSms(Number(benf.phone),Number(inputTokens))
 				const res = await issueBenfToken(payload, wallet, contracts);
 				if (res) {
 					setMasking(false);
@@ -82,7 +84,7 @@ const Token = ({ benfId, projectId }) => {
 		inputTokens,
 		projectId,
 		issueBenfToken,
-		history
+		history,sendTokenIssuedSms
 	]);
 
 	const fetchProjectBalance = useCallback(async () => {

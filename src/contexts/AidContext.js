@@ -5,6 +5,8 @@ import ACTION from '../actions/aid';
 import { AppContext } from './AppSettingsContext';
 import { get } from '../services/institution';
 import * as BenfService from '../services/beneficiary';
+import * as SmsService from '../services/sms';
+
 import * as MobilizerService from '../services/mobilizer';
 
 const initialState = {
@@ -175,6 +177,18 @@ export const AidContextProvider = ({ children }) => {
 		},
 		[changeIsverified]
 	);
+	const sendTokenIssuedSms = useCallback(
+		async (phone,token) => {
+			return SmsService.sendTokenIssuedSms({phone,token});
+		},
+		[]
+	);
+	const sendPackageIssuedSms = useCallback(
+		async (phone,packageName) => {
+			return SmsService.sendPackageIssuedSms({phone,packageName});
+		},
+		[]
+	);
 
 	const getBeneficiaryById = useCallback(benfId => {
 		return BenfService.getById(benfId);
@@ -219,7 +233,8 @@ export const AidContextProvider = ({ children }) => {
 				total_tokens: state.total_tokens,
 				uploadBenfToProject,
 				listMobilizersByProject,
-
+				sendTokenIssuedSms,
+				sendPackageIssuedSms,
 				getProjectPackageBalance,
 				issueBeneficiaryPackage,
 				getBeneficiaryById,
