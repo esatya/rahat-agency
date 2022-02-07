@@ -45,7 +45,8 @@ module.exports = {
 	},
 	PROJECT_STATUS: {
 		ACTIVE: 'active',
-		SUSPENDED: 'suspended'
+		SUSPENDED: 'suspended',
+		CLOSED: 'closed'
 	},
 	AID_CONNECT_STATUS: {
 		ACTIVE: 'active',
