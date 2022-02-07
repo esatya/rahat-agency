@@ -227,6 +227,10 @@ export const AidContextProvider = ({ children }) => {
 		return Service.uploadBenfToProject(projectId, payload);
 	};
 
+	const getProjectsBalances = useCallback((projectIds,contract_address) => {
+		return Service.getProjectsBalances(projectIds,contract_address);
+	},[])
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -268,7 +272,8 @@ export const AidContextProvider = ({ children }) => {
 				listFinancialInstitutions,
 				bulkTokenIssueToBeneficiary,
 				getBeneficiaryIssuedTokens,
-				suspendBeneficiaryToken
+				suspendBeneficiaryToken,
+				getProjectsBalances
 			}}
 		>
 			{children}
