@@ -32,7 +32,7 @@ export default function Index(props) {
 	const [totalFiatBalance, setTotalFiatBalance] = useState(null);
 
 	const handleStatusChange = status => {
-		const success_label = status === PROJECT_STATUS.SUSPENDED ? 'Suspended' : 'Activated';
+		const success_label = status === PROJECT_STATUS.CLOSED ? 'Closed' : 'Activated';
 		changeProjectStatus(id, status)
 			.then(d => {
 				setProjectDetails(d);

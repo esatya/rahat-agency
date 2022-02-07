@@ -172,12 +172,14 @@ const Index = ({ params }) => {
 
 	const fetchVendorPackageBalance = useCallback(
 		async (wallet_address, tokenIds) => {
-			const { rahat_erc1155 } = appSettings.agency.contracts;
+			if(!appSettings) return;
+			const {agency} = appSettings;
+			const { rahat_erc1155 } = agency.contracts;
 			const wallet_addresses = Array(tokenIds.length).fill(wallet_address);
 			const package_balance = await getVendorPackageBalance(rahat_erc1155, wallet_addresses, tokenIds);
 			setVendorPackageBalance(package_balance);
 		},
-		[appSettings.agency.contracts, getVendorPackageBalance]
+		[appSettings, getVendorPackageBalance]
 	);
 
 	const sanitizeSelectOptions = useCallback(projects => {
