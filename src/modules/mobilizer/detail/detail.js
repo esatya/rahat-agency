@@ -73,15 +73,17 @@ export default function DetailsForm(props) {
 
 	const fetchTokenAndPackageBalance = useCallback(
 		async wallet_address => {
+			if(!appSettings || !appSettings.agency) return;
+			const {agency} = appSettings;
 			setFetchingBalance(true);
-			const { rahat } = appSettings.agency.contracts;
+			const { rahat } = agency.contracts;
 			const tokenBalance = await getMobilizerBalance(rahat, wallet_address);
 			setMobilizerBalance(tokenBalance);
 			const packageBalance = await getMobilizerPackageBalance(rahat, wallet_address);
 			if (packageBalance && packageBalance.grandTotal > 0) setTotalPackageBalance(packageBalance);
 			setFetchingBalance(false);
 		},
-		[appSettings.agency.contracts, getMobilizerBalance, getMobilizerPackageBalance]
+		[appSettings, getMobilizerBalance, getMobilizerPackageBalance]
 	);
 
 	const showActiveInactiveStatus = useCallback(projects => {
@@ -293,6 +295,15 @@ export default function DetailsForm(props) {
 											Approve
 										</Button>
 									)}
+
+									{/* {mobilizerStatus && (
+										<StatusBox
+											vendorStatus={mobilizerStatus}
+											handleApproveRejectClick={handleApproveRejectClick}
+											handleSwitchChange={handleSwitchChange}
+											loading={loading}
+										/>
+									)} */}
 								</Col>
 							</Row>
 						</div>
