@@ -54,9 +54,12 @@ export default function Index(props) {
 	};
 
 	const fetchPackageAndTokenBalance = useCallback(async () => {
+		if(!appSettings) return;
+		const {agency} = appSettings;
+		if(!agency || !agency.contracts) return;
 		try {
 			setFetchingBlockchain(true);
-			const { rahat_admin } = appSettings.agency.contracts;
+			const { rahat_admin } = agency.contracts;
 			await getProjectCapital(id, rahat_admin);
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
@@ -66,7 +69,7 @@ export default function Index(props) {
 		} finally {
 			setFetchingBlockchain(false);
 		}
-	}, [addToast, appSettings.agency.contracts, getAidBalance, getProjectCapital, id, getProjectPackageBalance]);
+	}, [addToast, appSettings, getAidBalance, getProjectCapital, id, getProjectPackageBalance]);
 
 	useEffect(fetchProjectDetails, []);
 
