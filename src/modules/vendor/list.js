@@ -3,6 +3,7 @@ import { VendorContext } from '../../contexts/VendorContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
 import { History } from '../../utils/History';
+import MiniSpinner from '../global/MiniSpinner';
 import moment from 'moment';
 
 import {
@@ -42,7 +43,7 @@ const Vendor = () => {
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentPage, setCurrentPage] = useState(1);
 
-	const { listVendor, list, addVendor } = useContext(VendorContext);
+	const { listVendor, list, addVendor,fetchingVendorBalances } = useContext(VendorContext);
 
 	const toggle = () => setModel(!model);
 
@@ -192,6 +193,7 @@ const Vendor = () => {
 									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
 									<th className="border-0">Registration Date </th>
+									<th className="border-0">Balance </th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
@@ -215,7 +217,8 @@ const Vendor = () => {
 											<td>{e.phone}</td>
 
 											<td>{dottedString(e.address)}</td>
-											<td>{moment(e.created_at).format('MMM Do YYYY, hh:mm A')}</td>
+											<td>{moment(e.created_at).format('MMM Do YYYY')}</td>
+											<td>{fetchingVendorBalances ? <MiniSpinner /> : e.tokenBalance ? e.tokenBalance : '0'}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/vendors/${e._id}`}>
 													<i className="fas fa-eye fa-lg"></i>
