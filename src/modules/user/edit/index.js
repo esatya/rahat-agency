@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import { Card, CardBody, CardTitle,CardSubtitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import { Card, CardBody, CardTitle, CardSubtitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
 import { TOAST, ROLES } from '../../../constants';
 import { UserContext } from '../../../contexts/UserContext';
@@ -90,7 +90,7 @@ const UserDetails = props => {
 	};
 
 	const sanitizeAndSetRoles = roles => {
-		if(!roles) return;
+		if (!roles) return;
 		let data = roles.map(d => {
 			return { label: d, value: d };
 		});
@@ -214,40 +214,39 @@ const UserDetails = props => {
 					<Card>
 						<CardBody>
 							<CardTitle className="mb-0">User Roles</CardTitle>
-							{existingRoles.length > 0 ?(
-								existingRoles.map((roles)=>{
-									return <CardSubtitle tag="h2" className=" mt-2 text-muted">{roles.label}</CardSubtitle>
-								})
-							):(
-								''
-							)}
+							{existingRoles.length > 0
+								? existingRoles.map(roles => {
+										return (
+											<CardSubtitle tag="h2" className=" mt-2 text-muted">
+												{roles.label}
+											</CardSubtitle>
+										);
+								  })
+								: ''}
 						</CardBody>
 						<CardBody>
 							<Form onSubmit={handleSubmitRoles}>
 								<Row>
-									<Col md="6">
-										
+									<Col md="12">
 										<FormGroup>
-											
-												<SelectWrapper
-													onChange={handleRoleChange}
-													maxMenuHeight={130}
-													currentValue={existingRoles || ''}
-													data={ROLES_LIST}
-													placeholder="--Select Role--"
-												/>
-											
+											<Label>Assign role to {formData.name}</Label>
+											<SelectWrapper
+												onChange={handleRoleChange}
+												maxMenuHeight={130}
+												currentValue={existingRoles || ''}
+												data={ROLES_LIST}
+												placeholder="--Select Role--"
+											/>
 										</FormGroup>
 									</Col>
-									<Col md="6"></Col>
 								</Row>
 								<CardBody style={{ paddingLeft: 0 }}>
 									{roleProcess ? (
 										<GrowSpinner />
 									) : (
 										<div>
-											<Button type="submit" className="btn btn-secondary">
-												<i className="fa fa-check"></i> Add Role
+											<Button type="submit" className="btn btn-info">
+												<i className="fa fa-check"></i> Assign Role
 											</Button>
 										</div>
 									)}
