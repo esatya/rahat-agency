@@ -27,7 +27,8 @@ const Token = ({ benfId, projectId }) => {
 		getBeneficiaryById,
 		getProjectCapital,
 		getAidBalance,
-		sendTokenIssuedSms,
+		suspendBeneficiaryToken,
+		sendTokenIssuedSms
 	} = useContext(AidContext);
 
 	const { wallet, isVerified, appSettings, currentBalanceTab } = useContext(AppContext);

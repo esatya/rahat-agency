@@ -197,7 +197,6 @@ export async function getProjectsBalances(projectIds,contract_address) {
 	try {
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
 		const callData = projectIds.map((project) => {
-			console.log({project})
 		return generateMultiCallData(CONTRACT.RAHATADMIN,"getProjecERC20Balance",[project])
 	})
 		console.log({callData})
