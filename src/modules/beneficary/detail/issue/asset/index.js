@@ -24,7 +24,7 @@ export default function (props) {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
-	const { listNftPackages, getBeneficiaryById, issueBeneficiaryPackage, getBeneficiaryIssuedTokens } = useContext(
+	const { listNftPackages, getBeneficiaryById, issueBeneficiaryPackage, getBeneficiaryIssuedTokens,sendPackageIssuedSms} = useContext(
 		AidContext
 	);
 	const { isVerified, wallet, appSettings, currentBalanceTab } = useContext(AppContext);
@@ -123,6 +123,14 @@ export default function (props) {
 					amounts: tokenAmounts,
 					packageTokens: selectedPackages
 				};
+
+				const packageNames = selectedPackages.map(item=>{
+					const name = packageList.find(pkg=>Number(pkg.tokenId)===item)?.name
+					return name
+				}).join(' , ')
+
+				await sendPackageIssuedSms(Number(benfPhone), packageNames)
+
 				const { rahat } = appSettings.agency.contracts;
 				const res = await issueBeneficiaryPackage(wallet, payload, rahat);
 				if (res) {
@@ -147,7 +155,9 @@ export default function (props) {
 		issueBeneficiaryPackage,
 		projectId,
 		selectedPackages,
-		wallet
+		wallet,
+		packageList,
+		sendPackageIssuedSms
 	]);
 
 	useEffect(() => {
