@@ -29,7 +29,7 @@ const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name' };
 const List = () => {
 	const { addToast } = useToasts();
 
-	const { listProject, listAidConnectBeneficiary, generateLink, addBeneficiaryInBulk, changeLinkStatus } = useContext(
+	const { listProject, listAidConnectBeneficiary, generateLink, addBeneficiaryInBulk, changeLinkStatus,archiveBeneficiary } = useContext(
 		AidConnectContext
 	);
 	const [projects, setProjects] = useState();
@@ -148,6 +148,7 @@ const List = () => {
 	};
 
 	const handleStatusChange = e => {
+		console.log({e})
 		const payload = {
 			isActive: e
 		};
@@ -160,7 +161,6 @@ const List = () => {
 			});
 		const _status = e === true ? 'active' : 'suspended';
 		const success_label = _status === AID_CONNECT_STATUS.SUSPENDED ? 'Suspended' : 'Activated';
-		addToast(`Link has been ${success_label}`, TOAST.SUCCESS);
 		setLinkStatus(!linkStatus);
 	};
 
@@ -184,7 +184,12 @@ const List = () => {
 		} else setSelectedBeneficiary([...selectedBeneficiary, phone]);
 	};
 
-	const handleCopyClick = () => {};
+	const handleCopyClick = () => {
+
+		navigator.clipboard.writeText(link);
+		addToast("Link Copied",TOAST.SUCCESS)
+
+	};
 
 	const handleImportClick = () => {
 		// FILTER BEFOR IMPORTING BENEFICIRIES
@@ -212,7 +217,7 @@ const List = () => {
 			});
 	};
 
-	const handleBeneficiaryDelete = () => {
+	const handleBeneficiaryDelete = (benId) => {
 		Swal.fire({
 			title: 'Are you sure?',
 			text: "You won't be able to revert this!",
@@ -221,9 +226,11 @@ const List = () => {
 			confirmButtonColor: '#3085d6',
 			cancelButtonColor: '#d33',
 			confirmButtonText: 'Yes, delete it!'
-		}).then(result => {
+		}).then(async result => {
 			if (result.isConfirmed) {
+				await archiveBeneficiary(aidConnectId,benId)
 				Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
+				fetchTotalRecords();
 			}
 		});
 	};
@@ -403,7 +410,7 @@ const List = () => {
 															<i className="fas fa-eye fa-lg"></i>
 														</Link>
 														{/* <Link> */}
-														<i className="fas fa-trash-alt fa-lg" onClick={handleBeneficiaryDelete}></i>
+														<i className="fas fa-trash-alt fa-lg" onClick={()=>handleBeneficiaryDelete(d._id)}></i>
 														{/* </Link> */}
 													</td>
 												</tr>
