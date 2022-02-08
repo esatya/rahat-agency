@@ -27,6 +27,10 @@ export const AidConnectContextProvider = ({ children }) => {
 		return await Service.generateLink(projectId);
 	}, []);
 
+	const archiveBeneficiary  = useCallback(async (aidConnectId,benId) => {
+		return Service.removeBeneficiary(aidConnectId,benId)
+	},[])
+
 	async function changeLinkStatus(projectId, payload) {
 		return await Service.changeLinkStatus(projectId, payload);
 	}
@@ -48,7 +52,8 @@ export const AidConnectContextProvider = ({ children }) => {
 				listAidConnectBeneficiary,
 				generateLink,
 				changeLinkStatus,
-				addBeneficiaryInBulk
+				addBeneficiaryInBulk,
+				archiveBeneficiary
 			}}
 		>
 			{children}
