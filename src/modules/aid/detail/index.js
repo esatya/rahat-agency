@@ -33,7 +33,7 @@ export default function Index(props) {
 	const [totalFiatBalance, setTotalFiatBalance] = useState(null);
 
 	const handleStatusChange = status => {
-		const success_label = status === PROJECT_STATUS.SUSPENDED ? 'Suspended' : 'Activated';
+		const success_label = status === PROJECT_STATUS.CLOSED ? 'Closed' : 'Activated';
 		changeProjectStatus(id, status)
 			.then(d => {
 				setProjectDetails(d);
@@ -55,9 +55,12 @@ export default function Index(props) {
 	};
 
 	const fetchPackageAndTokenBalance = useCallback(async () => {
+		if(!appSettings) return;
+		const {agency} = appSettings;
+		if(!agency || !agency.contracts) return;
 		try {
 			setFetchingBlockchain(true);
-			const { rahat_admin } = appSettings.agency.contracts;
+			const { rahat_admin } = agency.contracts;
 			await getProjectCapital(id, rahat_admin);
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
@@ -67,7 +70,7 @@ export default function Index(props) {
 		} finally {
 			setFetchingBlockchain(false);
 		}
-	}, [addToast, appSettings.agency.contracts, getAidBalance, getProjectCapital, id, getProjectPackageBalance]);
+	}, [addToast, appSettings, getAidBalance, getProjectCapital, id, getProjectPackageBalance]);
 
 	useEffect(fetchProjectDetails, []);
 

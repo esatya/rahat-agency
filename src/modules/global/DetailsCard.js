@@ -25,7 +25,7 @@ export default function DetailsCard(props) {
 	} = props;
 
 	const handleSwitchChange = e => {
-		const _status = e === true ? PROJECT_STATUS.ACTIVE : PROJECT_STATUS.SUSPENDED;
+		const _status = e === true ? PROJECT_STATUS.ACTIVE : PROJECT_STATUS.CLOSED;
 		handleStatusChange(_status);
 	};
 
@@ -43,9 +43,9 @@ export default function DetailsCard(props) {
 							<div style={{ float: 'right' }}>
 								{title === 'Project Details' ? (
 									<BootstrapSwitchButton
-										checked={status === PROJECT_STATUS.SUSPENDED ? false : true}
+										checked={status === PROJECT_STATUS.CLOSED ? false : true}
 										onlabel="Activated"
-										offlabel="Suspended"
+										offlabel="Closed"
 										width={140}
 										height={30}
 										onstyle="success"

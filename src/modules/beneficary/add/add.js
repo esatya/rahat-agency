@@ -225,7 +225,7 @@ const Add = () => {
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
-										<FormGroup>
+										{/* <FormGroup>
 											<Label>Temporary Address</Label>
 											<Input
 												type="text"
@@ -233,7 +233,7 @@ const Add = () => {
 												name="address_temporary"
 												onChange={handleInputChange}
 											/>
-										</FormGroup>
+										</FormGroup> */}
 									</Col>
 								</Row>
 

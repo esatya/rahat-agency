@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 
 import { AidContext } from '../../../../contexts/AidContext';
 import { AppContext } from '../../../../contexts/AppSettingsContext';
+import { BeneficiaryContext } from '../../../../contexts/BeneficiaryContext';
 import { APP_CONSTANTS, TOAST } from '../../../../constants';
 import { htmlResponse } from '../../../../utils/printBeneficiary';
 import ModalWrapper from '../../../global/CustomModal';
@@ -14,6 +15,7 @@ import PasscodeModal from '../../../global/PasscodeModal';
 import UploadList from './uploadList';
 import AdvancePagination from '../../../global/AdvancePagination';
 import MaskLoader from '../../../global/MaskLoader';
+import MiniSpinner from '../../../global/MiniSpinner';
 
 const { PAGE_LIMIT, BULK_BENEFICIARY_LIMIT } = APP_CONSTANTS;
 
@@ -26,6 +28,7 @@ const List = ({ projectId }) => {
 	const { addToast } = useToasts();
 	const { beneficiaryByAid, bulkTokenIssueToBeneficiary, uploadBenfToProject } = useContext(AidContext);
 	const { loading, setLoading, wallet, isVerified, appSettings } = useContext(AppContext);
+	const { getBeneficiariesBalances } = useContext(BeneficiaryContext);
 
 	const [benList, setBenList] = useState([]);
 
@@ -43,6 +46,7 @@ const List = ({ projectId }) => {
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentAction, setCurrentAction] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
+	const [fetchingBeneficiaryTokens, setfetchingBeneficiaryTokens] = useState(true);
 
 	const hiddenFileInput = React.useRef(null);
 
@@ -57,6 +61,26 @@ const List = ({ projectId }) => {
 	const handleFileUploadClick = event => {
 		hiddenFileInput.current.click();
 	};
+
+		const appendBeneficiaryBalances = useCallback(({beneficiaries,balances}) => {
+		const beneficiariesWithTokens = beneficiaries.map((ben,i) => {
+			ben.tokenBalance = balances[i]
+			return ben;
+		})
+		setBenList(beneficiariesWithTokens);
+		setfetchingBeneficiaryTokens(false);
+
+	},[])
+
+	const fetchBeneficiariesBalances = useCallback(async({beneficiaries}) => {
+		console.log({beneficiaries})
+		if(!appSettings || !appSettings.agency || !appSettings.agency.contracts) return;
+		const { agency } = appSettings
+		setfetchingBeneficiaryTokens(true);
+		const balances = await getBeneficiariesBalances(beneficiaries,agency.contracts.rahat);
+		console.log({balances})
+		if(balances.length) await appendBeneficiaryBalances({beneficiaries,balances})
+	},[appSettings,getBeneficiariesBalances,appendBeneficiaryBalances])
 
 	const handleUploadListSubmit = async e => {
 		e.preventDefault();
@@ -138,8 +162,10 @@ const List = ({ projectId }) => {
 			const query = { start, limit: PAGE_LIMIT };
 			const data = await beneficiaryByAid(projectId, query);
 			setBenList(data.data);
+			console.log(data.data)
+			fetchBeneficiariesBalances({beneficiaries:data.data})
 		},
-		[beneficiaryByAid, projectId]
+		[beneficiaryByAid, projectId,fetchBeneficiariesBalances]
 	);
 
 	const convertQrToImg = async data => {
@@ -336,7 +362,7 @@ const List = ({ projectId }) => {
 						<th className="border-0">Name</th>
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
-						<th className="border-0">Govt. ID</th>
+						<th className="border-0">Token</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -352,7 +378,7 @@ const List = ({ projectId }) => {
 									</td>
 									<td>{d.address || '-'}</td>
 									<td>{d.phone}</td>
-									<td>{d.govt_id || '-'}</td>
+									<td>{fetchingBeneficiaryTokens ? <MiniSpinner /> : d.tokenBalance ? d.tokenBalance : '0'}</td>
 								</tr>
 							);
 						})
