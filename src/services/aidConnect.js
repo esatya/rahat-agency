@@ -34,6 +34,13 @@ export async function changeLinkStatus(projectId, payload) {
 	return res.data;
 }
 
+export async function removeBeneficiary(aidConnectID, beneficiaryId) {
+	let res = await axios.delete(`${API.AID_CONNECT}/${aidConnectID}/${beneficiaryId}`, {
+		headers: { access_token }
+	});
+	return res.data;
+}
+
 export async function addBeneficiaryInBulk(body) {
 	const res = await axios({
 		url: `${API.BENEFICARIES}/bulk`,
