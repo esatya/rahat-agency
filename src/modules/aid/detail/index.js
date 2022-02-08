@@ -6,7 +6,8 @@ import { AidContext } from '../../../contexts/AidContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import DetailsCard from '../../global/DetailsCard';
 import ProjectInfo from './projectInfo';
-import PieChart from './pieChart';
+// import PieChart from './pieChart';
+import BarChart from './barChart';
 import Tabs from './tab';
 import { TOAST, PROJECT_STATUS } from '../../../constants';
 import BreadCrumb from '../../ui_components/breadcrumb';
@@ -114,7 +115,19 @@ export default function Index(props) {
 			<Row>
 				<Col md="7">{projectDetails && <ProjectInfo projectDetails={projectDetails} />}</Col>
 				<Col md="5">
-					<PieChart fetching={fetchingBlockchain} available_tokens={available_tokens} total_tokens={total_tokens} />
+					{/* <PieChart
+						fetching={fetchingBlockchain}
+						available_tokens={available_tokens}
+						total_tokens={total_tokens}
+						total_package={totalFiatBalance}
+					/> */}
+
+					<BarChart
+						fetching={fetchingBlockchain}
+						available_tokens={available_tokens}
+						total_tokens={total_tokens}
+						total_package={totalFiatBalance}
+					/>
 				</Col>
 			</Row>
 			<Tabs projectId={id} />
