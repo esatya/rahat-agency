@@ -169,6 +169,15 @@ export async function updateRole({ userId, payload, rahat, rahat_admin, wallet }
 	}
 }
 
+export async function deleteRole(userId) {
+	const res = await axios({
+		url: `${API.USERS}/${userId}/roles`,
+		method: 'Delete',
+		headers: { access_token }
+	});
+	return res.data;
+}
+
 export async function addUser({ payload, rahat, rahat_admin, wallet }) {
 	try {
 		const { phone, email, wallet_address } = payload;

@@ -10,6 +10,7 @@ import GrowSpinner from '../../global/GrowSpinner';
 import SelectWrapper from '../../global/SelectWrapper';
 import WalletUnlock from '../../global/walletUnlock';
 import Loading from '../../global/Loading';
+import Swal from 'sweetalert2';
 
 const ROLES_LIST = [
 	{ label: ROLES.ADMIN, value: ROLES.ADMIN },
@@ -18,7 +19,7 @@ const ROLES_LIST = [
 
 const UserDetails = props => {
 	const { addToast } = useToasts();
-	const { updateUser, getUserById, updateRole } = useContext(UserContext);
+	const { updateUser, getUserById, updateRole, deleteRole } = useContext(UserContext);
 	const { wallet, appSettings, isVerified, loading, setLoading, changeIsverified } = useContext(AppContext);
 
 	const { id } = props.match.params;
@@ -60,6 +61,23 @@ const UserDetails = props => {
 	};
 
 	const handleCancelClick = () => History.push('/users');
+
+	const handleDeleteRole = () => {
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, proceed!'
+		}).then(async result => {
+			if (result.value) {
+				await deleteRole(id);
+				Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
+			}
+		});
+	};
 
 	const updateOnly = data => {
 		setLoading(true);
@@ -158,7 +176,12 @@ const UserDetails = props => {
 											existingRoles.map(roles => {
 												return (
 													<span className="badge badge-success mr-2 mt-2 mb-3" style={{ fontSize: '0.9em' }}>
-														{roles.label}
+														<div className=" d-flex justify-content-between ">
+															{roles.label}
+															<div className="ml-2" onClick={handleDeleteRole} style={{ cursor: 'pointer' }}>
+																<i className="fa fa-trash"></i>
+															</div>
+														</div>
 													</span>
 												);
 											})
@@ -184,7 +207,7 @@ const UserDetails = props => {
 												<Loading />
 											) : (
 												<div>
-													<Button type="submit" style={{ borderRadius: '8px' }} outline="true" color="info">
+													<Button type="submit" style={{ borderRadius: '8px' }} outline={true} color="info">
 														<i className="fa fa-check"></i> Assign Role
 													</Button>
 												</div>
