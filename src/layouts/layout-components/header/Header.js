@@ -81,7 +81,6 @@ export default () => {
 		try{
 			let updatedNotification = await API_CALLS.update(id,{status:true});
 			updatedNotification=getIcons(updatedNotification)
-			console.log('reached here',updatedNotification)
 			let prevNotifications = [...notifications];
 			prevNotifications= prevNotifications&&prevNotifications.length&&prevNotifications.map((item)=>{
 				if(item._id===updatedNotification._id){
@@ -154,6 +153,8 @@ export default () => {
 		 if(isSeen) return;
 		 handleNotificationSeen(id)
 	},[handleNotificationSeen,notifications])
+
+
 
 	const handleProfileLink = () => {
 		History.push('/profile');
@@ -240,7 +241,7 @@ export default () => {
                     );
                   })}
                 </div>
-                <a className="nav-link text-center mb-1 text-dark" href=";">
+                <a className="nav-link text-center mb-1 text-dark" href="/notifications" >
                   <strong>Check all notifications</strong>{" "}
                   <i className="fa fa-angle-right" />
                 </a>
