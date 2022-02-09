@@ -62,6 +62,9 @@ const EditVendor = lazy(() => import('../modules/vendor/edit'));
 const VendorAdd = lazy(() => import('../views/vendors/add'));
 const VendorDetail = lazy(() => import('../views/vendors/detail'));
 
+// ------------------------------Notification UI------------------------------------
+const NotificationList = lazy(()=>import('../modules/notification').then(module=>({default:module.NotificationList})))
+
 // --------------------------------------------------------------------------------
 
 let AppRoutes = [
@@ -270,6 +273,11 @@ let AppRoutes = [
 		path: '/aid-connect/form',
 		name: 'AidConnectCreateForm',
 		component: AidConnectCreateForm
+	},
+	{
+		path: '/notifications',
+		name: 'Notifications',
+		component: NotificationList
 	},
 	{
 		collapse: true,
