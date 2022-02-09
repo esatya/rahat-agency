@@ -130,9 +130,11 @@ const BenefDetails = ({ params }) => {
 
 	const fetchCurrentBalance = useCallback(
 		async phone => {
+			const {agency} = appSettings
+			if(!agency || !agency.contracts) return;
 			try {
 				const parsed_phone = parseInt(phone);
-				const { rahat } = appSettings.agency.contracts;
+				const { rahat } = agency.contracts;
 				setFetching(true);
 				const balance = await getBeneficiaryBalance(parsed_phone, rahat);
 				const res = await getBenfPackageBalance(parsed_phone, rahat);
@@ -146,7 +148,7 @@ const BenefDetails = ({ params }) => {
 				setFetching(false);
 			}
 		},
-		[appSettings.agency.contracts, getBeneficiaryBalance, getBenfPackageBalance, getTotalIssuedTokens]
+		[appSettings, getBeneficiaryBalance, getBenfPackageBalance, getTotalIssuedTokens]
 	);
 
 	const fetchBeneficiaryDetails = useCallback(async () => {
