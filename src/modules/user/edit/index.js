@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useToasts } from 'react-toast-notifications';
-import { Card, CardBody, CardTitle, CardSubtitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import { Card, CardBody, CardTitle, Row, Col, Form, FormGroup, Label, Input, Button } from 'reactstrap';
 
 import { TOAST, ROLES } from '../../../constants';
 import { UserContext } from '../../../contexts/UserContext';
@@ -9,6 +9,8 @@ import { History } from '../../../utils/History';
 import GrowSpinner from '../../global/GrowSpinner';
 import SelectWrapper from '../../global/SelectWrapper';
 import WalletUnlock from '../../global/walletUnlock';
+import Loading from '../../global/Loading';
+import Swal from 'sweetalert2';
 
 const ROLES_LIST = [
 	{ label: ROLES.ADMIN, value: ROLES.ADMIN },
@@ -17,7 +19,7 @@ const ROLES_LIST = [
 
 const UserDetails = props => {
 	const { addToast } = useToasts();
-	const { updateUser, getUserById, updateRole } = useContext(UserContext);
+	const { updateUser, getUserById, updateRole, deleteRole } = useContext(UserContext);
 	const { wallet, appSettings, isVerified, loading, setLoading, changeIsverified } = useContext(AppContext);
 
 	const { id } = props.match.params;
@@ -59,6 +61,25 @@ const UserDetails = props => {
 	};
 
 	const handleCancelClick = () => History.push('/users');
+
+	const handleDeleteRole = role => {
+		if (role)
+			Swal.fire({
+				title: 'Are you sure?',
+				text: "You won't be able to revert this!",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Yes, proceed!'
+			}).then(async result => {
+				if (result.value) {
+					await deleteRole(id, role);
+					Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
+					History.push('/users');
+				}
+			});
+	};
 
 	const updateOnly = data => {
 		setLoading(true);
@@ -102,7 +123,9 @@ const UserDetails = props => {
 		if (!isVerified) return;
 		if (!wallet) return addToast('Wallet not found', TOAST.ERROR);
 		setRoleProcess(true);
-		const { rahat, rahat_admin } = appSettings.agency.contracts;
+		const { agency } = appSettings;
+		if (!agency && !agency.contracts) return;
+		const { rahat, rahat_admin } = agency.contracts;
 		updateRole({
 			userId: id,
 			payload: { wallet_address: formData.wallet_address, role: selectedRole },
@@ -125,7 +148,7 @@ const UserDetails = props => {
 			});
 	}, [
 		addToast,
-		appSettings.agency.contracts,
+		appSettings,
 		changeIsverified,
 		formData.wallet_address,
 		id,
@@ -149,6 +172,58 @@ const UserDetails = props => {
 							<CardTitle className="mb-0">Edit User</CardTitle>
 						</CardBody>
 						<CardBody>
+							<Form onSubmit={handleSubmitRoles}>
+								<FormGroup className="mb-5">
+									<div>
+										<Label className="mr-2">Roles:</Label>
+										{existingRoles.length > 0 ? (
+											existingRoles.map(roles => {
+												return (
+													<span className="badge badge-success mr-2 mt-2 mb-3" style={{ fontSize: '0.9em' }}>
+														<div className=" d-flex justify-content-between ">
+															{roles.label}
+															<div
+																className="ml-2"
+																onClick={() => handleDeleteRole(roles.label)}
+																style={{ cursor: 'pointer' }}
+															>
+																<i className="fa fa-trash"></i>
+															</div>
+														</div>
+													</span>
+												);
+											})
+										) : (
+											<span className="badge bg-light text-dark mt-2" style={{ fontSize: '0.9em' }}>
+												No role
+											</span>
+										)}
+									</div>
+									<Row>
+										<Col md="10">
+											<SelectWrapper
+												onChange={handleRoleChange}
+												maxMenuHeight={130}
+												currentValue={existingRoles || ''}
+												data={ROLES_LIST}
+												placeholder="--Select Role--"
+											/>
+										</Col>
+
+										<Col md="2">
+											{roleProcess ? (
+												<Loading />
+											) : (
+												<div>
+													<Button type="submit" style={{ borderRadius: '8px' }} outline={true} color="info">
+														<i className="fa fa-check"></i> Assign Role
+													</Button>
+												</div>
+											)}
+										</Col>
+									</Row>
+								</FormGroup>
+							</Form>
 							<Form onSubmit={handleFormSubmit}>
 								<Row>
 									<Col md="6">
@@ -199,54 +274,6 @@ const UserDetails = props => {
 												className="btn btn-dark ml-2"
 											>
 												Cancel
-											</Button>
-										</div>
-									)}
-								</CardBody>
-							</Form>
-						</CardBody>
-					</Card>
-				</Col>
-			</Row>
-
-			<Row>
-				<Col md="12">
-					<Card>
-						<CardBody>
-							<CardTitle className="mb-0">User Roles</CardTitle>
-							{existingRoles.length > 0
-								? existingRoles.map(roles => {
-										return (
-											<CardSubtitle tag="h2" className=" mt-2 text-muted">
-												{roles.label}
-											</CardSubtitle>
-										);
-								  })
-								: ''}
-						</CardBody>
-						<CardBody>
-							<Form onSubmit={handleSubmitRoles}>
-								<Row>
-									<Col md="12">
-										<FormGroup>
-											<Label>Assign role to {formData.name}</Label>
-											<SelectWrapper
-												onChange={handleRoleChange}
-												maxMenuHeight={130}
-												currentValue={existingRoles || ''}
-												data={ROLES_LIST}
-												placeholder="--Select Role--"
-											/>
-										</FormGroup>
-									</Col>
-								</Row>
-								<CardBody style={{ paddingLeft: 0 }}>
-									{roleProcess ? (
-										<GrowSpinner />
-									) : (
-										<div>
-											<Button type="submit" className="btn btn-info">
-												<i className="fa fa-check"></i> Assign Role
 											</Button>
 										</div>
 									)}

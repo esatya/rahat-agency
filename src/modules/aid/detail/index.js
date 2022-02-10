@@ -7,10 +7,11 @@ import { AppContext } from '../../../contexts/AppSettingsContext';
 import DetailsCard from '../../global/DetailsCard';
 import ProjectInfo from './projectInfo';
 import PieChart from './pieChart';
+// import BarChart from './barChart';
 import Tabs from './tab';
 import { TOAST, PROJECT_STATUS } from '../../../constants';
 import BreadCrumb from '../../ui_components/breadcrumb';
-import Balance from '../../ui_components/balance';
+// import Balance from '../../ui_components/balance';
 
 export default function Index(props) {
 	const { id } = props.match.params;
@@ -25,7 +26,10 @@ export default function Index(props) {
 		getAidBalance,
 		getProjectPackageBalance
 	} = useContext(AidContext);
-	const { loading, appSettings } = useContext(AppContext);
+	const {
+		// loading,
+		appSettings
+	} = useContext(AppContext);
 
 	const [projectDetails, setProjectDetails] = useState(null);
 	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
@@ -54,15 +58,16 @@ export default function Index(props) {
 	};
 
 	const fetchPackageAndTokenBalance = useCallback(async () => {
-		if(!appSettings) return;
-		const {agency} = appSettings;
-		if(!agency || !agency.contracts) return;
+		if (!appSettings) return;
+		const { agency } = appSettings;
+		if (!agency || !agency.contracts) return;
 		try {
 			setFetchingBlockchain(true);
 			const { rahat_admin } = agency.contracts;
 			await getProjectCapital(id, rahat_admin);
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
+			console.log({ res });
 			setTotalFiatBalance(res);
 		} catch (err) {
 			addToast(err.message, TOAST.ERROR);
@@ -96,9 +101,21 @@ export default function Index(props) {
 							handleStatusChange={handleStatusChange}
 						/>
 					)}
+					{projectDetails && <ProjectInfo projectDetails={projectDetails} />}
 				</Col>
 				<Col md="5">
 					{projectDetails && (
+						<PieChart
+							fetching={fetchingBlockchain}
+							available_tokens={available_tokens}
+							total_tokens={total_tokens}
+							total_package={totalFiatBalance}
+							projectStatus={projectDetails.status}
+							projectId={id}
+						/>
+					)}
+
+					{/* {projectDetails && (
 						<Balance
 							action=""
 							title="Balance"
@@ -110,16 +127,28 @@ export default function Index(props) {
 							projectStatus={projectDetails.status}
 							projectId={id}
 						/>
-					)}
+					)} */}
 				</Col>
 			</Row>
 
-			<Row>
-				<Col md="7">{projectDetails && <ProjectInfo projectDetails={projectDetails} />}</Col>
-				<Col md="5">
-					<PieChart fetching={fetchingBlockchain} available_tokens={available_tokens} total_tokens={total_tokens} />
-				</Col>
-			</Row>
+			{/* <Row> */}
+			{/* <Col md="7">{projectDetails && <ProjectInfo projectDetails={projectDetails} />}</Col> */}
+			{/* <Col md="5"> */}
+			{/* <PieChart
+						fetching={fetchingBlockchain}
+						available_tokens={available_tokens}
+						total_tokens={total_tokens}
+						total_package={totalFiatBalance}
+					/> */}
+
+			{/* <BarChart
+						fetching={fetchingBlockchain}
+						available_tokens={available_tokens}
+						total_tokens={total_tokens}
+						total_package={totalFiatBalance}
+					/> */}
+			{/* </Col> */}
+			{/* </Row> */}
 			<Tabs projectId={id} />
 		</>
 	);

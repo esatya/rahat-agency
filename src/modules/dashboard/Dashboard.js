@@ -16,6 +16,7 @@ const Dashboard = () => {
 		totalProjects: 0,
 		totalVendors: 0,
 		totalBeneficiaries: 0,
+		totalMobilizers: 0,
 		totalAllocation: 0,
 		redeemedTokens: 0,
 		beneficiariesByProject: [],
@@ -30,7 +31,15 @@ const Dashboard = () => {
 	const fetchDashboardStats = () => {
 		getDashboardStats()
 			.then(d => {
-				const { projectCount, vendorCount, beneficiary, tokenAllocation, institutionCount, tokenRedemption } = d;
+				const {
+					projectCount,
+					vendorCount,
+					beneficiary,
+					mobilizerCount,
+					tokenAllocation,
+					institutionCount,
+					tokenRedemption
+				} = d;
 				if (beneficiary && beneficiary.project.length) setBeneficiaryByProjectExport(beneficiary.project);
 				if (tokenAllocation && tokenAllocation.projectAllocation.length)
 					setTokensByProjectExport(tokenAllocation.projectAllocation);
@@ -39,6 +48,7 @@ const Dashboard = () => {
 					totalProjects: projectCount,
 					totalVendors: vendorCount,
 					totalBeneficiaries: beneficiary.totalCount,
+					totalMobilizers: mobilizerCount,
 					totalAllocation: tokenAllocation.totalAllocation,
 					redeemedTokens: tokenRedemption.totalTokenRedemption,
 					beneficiariesByProject: beneficiary.project,
@@ -105,11 +115,11 @@ const Dashboard = () => {
 				</Col>
 				<Col md="3">
 					<StatsCard
-						title="Institutions"
+						title="Mobilizers"
 						title_color="#F7C087"
 						icon_color="#F7C087"
 						icon_name="fas fa-dollar-sign"
-						data={stats.totalInstitutions}
+						data={stats.totalMobilizers}
 					/>
 				</Col>
 			</Row>
