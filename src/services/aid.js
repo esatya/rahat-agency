@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
-import { getContractByProvider, getContractInstance } from '../blockchain/abi';
+import { getContractByProvider, getContractInstance,generateMultiCallData } from '../blockchain/abi';
 import { CURRENCY } from '../constants';
 
 const access_token = getUserToken();
@@ -48,27 +48,30 @@ export async function mintNft({ payload, contracts, wallet }) {
 	}
 }
 
-
 export async function listNftPackages(projectId, query) {
-	const res = await axios({
-		url: `${API.NFT}/${projectId}/list?${qs.stringify(query)}`,
-		method: 'get',
-		headers: {
-			access_token: access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.NFT}/${projectId}/list?${qs.stringify(query)}`,
+			method: 'get',
+			headers: {
+				access_token: access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function getPackageDetails(packageId) {
-	const res = await axios({
-		url: `${API.NFT}/${packageId}`,
-		method: 'get',
-		headers: {
-			access_token: access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.NFT}/${packageId}`,
+			method: 'get',
+			headers: {
+				access_token: access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function addProjectBudget(wallet, projectId, supplyToken, contract_addr) {
@@ -84,19 +87,29 @@ export async function addProjectBudget(wallet, projectId, supplyToken, contract_
 }
 
 async function tokenAllocate(projectId, tokens, txHash) {
-	return axios.patch(
-		`${API.PROJECTS}/${projectId}/token`,
-		{ amount: tokens, txhash: txHash },
-		{
-			headers: { access_token }
-		}
-	);
+	try {
+		return axios.patch(
+			`${API.PROJECTS}/${projectId}/token`,
+			{ amount: tokens, txhash: txHash },
+			{
+				headers: { access_token }
+			}
+		);
+	} catch {}
 }
 
 export async function issueBeneficiaryToken(wallet, payload, contract_addr) {
-	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
+	const contract = getContractByProvider(contract_addr, CONTRACT.RAHAT);
 	const signerContract = contract.connect(wallet);
 	const res = await signerContract.issueERC20ToBeneficiary(payload.projectId, payload.phone, payload.claimable);
+	let d = await res.wait();
+	return d;
+}
+
+export async function suspendBeneficiaryToken(wallet, payload, contract_addr) {
+	const contract = await getContractByProvider(contract_addr, CONTRACT.RAHAT);
+	const signerContract = contract.connect(wallet);
+	const res = await signerContract.suspendBeneficiary(payload.phone,payload.projectId);
 	let d = await res.wait();
 	return d;
 }
@@ -142,13 +155,24 @@ export async function bulkTokenIssueToBeneficiary({
 	token_amounts,
 	contract_address
 }) {
+	const callData = phone_numbers.map((phone,i) => {
+		return generateMultiCallData(CONTRACT.RAHAT,"issueERC20ToBeneficiary",[projectId,phone,token_amounts[i]])
+	})
 	try {
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
 		const signerContract = contract.connect(wallet);
-		return signerContract.issueBulkERC20(projectId, phone_numbers, token_amounts);
+		return signerContract.multicall(callData);
 	} catch (e) {
 		throw new Error(e);
 	}
+	
+	// try {
+	// 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	// 	const signerContract = contract.connect(wallet);
+	// 	return signerContract.issueBulkERC20(projectId, phone_numbers, token_amounts);
+	// } catch (e) {
+	// 	throw new Error(e);
+	// }
 }
 
 export async function calculateTotalPackageBalance(payload) {
@@ -169,6 +193,24 @@ export async function getProjectPackageBalance(aidId, contract_address) {
 	}
 }
 
+export async function getProjectsBalances(projectIds,contract_address) {
+	try {
+		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
+		const callData = projectIds.map((project) => {
+		return generateMultiCallData(CONTRACT.RAHATADMIN,"getProjecERC20Balance",[project])
+	})
+		console.log({callData})
+		const data = await contract.callStatic.multicall(callData)
+		console.log({data});
+		const projectBalances = data.map((el) => el.toNumber());
+		console.log({projectBalances})
+		return projectBalances;
+	} catch (e) {
+		console.log(e)
+		return 0;
+	}
+}
+
 // Get available balance
 export async function loadAidBalance(aidId, contract_address) {
 	try {
@@ -184,7 +226,7 @@ export async function getProjectCapital(aidId, contract_address) {
 	try {
 		const hashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
-		const data = await contract.projectERC20Capital(hashId);
+		const data = await contract.callStatic.projectERC20Capital(hashId);
 		return data.toNumber();
 	} catch {
 		return 0;

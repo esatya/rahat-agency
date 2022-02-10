@@ -1,6 +1,15 @@
+
+const API_SERVER = process.env.REACT_APP_API_SERVER
+
 module.exports = {
 	CURRENCY: {
 		NP_RUPEES: 'NPR'
+	},	
+	API_SERVER,
+	WSS_SERVER : API_SERVER.replace('http', 'ws'),
+	WSS_EVENTS:{
+		welcome:'welcome',
+		notification:'notification'
 	},
 	BALANCE_TABS: { TOKEN: 'Token', PACKAGE: 'Package' },
 	MAX_QR_GEN: 1000,
@@ -35,6 +44,11 @@ module.exports = {
 		}
 	},
 	PROJECT_STATUS: {
+		ACTIVE: 'active',
+		SUSPENDED: 'suspended',
+		CLOSED: 'closed'
+	},
+	AID_CONNECT_STATUS: {
 		ACTIVE: 'active',
 		SUSPENDED: 'suspended'
 	},

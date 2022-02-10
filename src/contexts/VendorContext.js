@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, useCallback } from 'react';
+import React, { createContext, useReducer, useContext, useCallback,useState } from 'react';
 import vendorReduce from '../reducers/vendorReducer';
 import * as Service from '../services/vendor';
 import * as AidService from '../services/aid';
@@ -22,10 +22,44 @@ export const VendorContext = createContext(initialState);
 export const VendorContextProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(vendorReduce, initialState);
 	const { wallet, appSettings, changeIsverified } = useContext(AppContext);
+	const [fetchingVendorBalances, setfetchingVendorBalances] = useState(true);
 
-	const getVendorBalance = useCallback((contract_addr, wallet_address) => {
+	const getVendorBalance = useCallback( (contract_addr, wallet_address) => {
 		return Service.getVendorBalance(contract_addr, wallet_address);
+
 	}, []);
+
+	const appendVendorBalances = (vendors,balances) => {
+		if(!vendors.length) return;
+		if(vendors.length !== balances.length) throw Error("INVALID DATA")
+		return vendors.map((vendor,i) => {
+			vendor.tokenBalance = balances[i]
+			return vendor;
+		})
+
+	}
+
+	const getVendorsBalances = useCallback(async(payload) => {
+		if(!appSettings || !appSettings.agency || !appSettings.agency.contracts) return;
+		if(!payload.data.length) return;
+		try{
+		setfetchingVendorBalances(true)
+		const { agency } = appSettings
+		const vendorAddresses = payload.data.map((vendor)=>vendor.wallet_address)
+		const vendorBalances = await Service.getVendorsBalances(agency.contracts.rahat_erc20, vendorAddresses);
+		payload.data = appendVendorBalances(payload.data,vendorBalances)
+			dispatch({
+				type: ACTION.LIST,
+				data: payload
+			});
+		setfetchingVendorBalances(false);	
+		return vendorBalances;
+		}
+		catch(e){
+			setfetchingVendorBalances(false)
+			return e;
+		}
+	}, [appSettings]);
 
 	const getVendorPackageBalance = useCallback((contract_address, wallet_addresses, tokenIds) => {
 		return Service.getVendorPackageBalance(contract_address, wallet_addresses, tokenIds);
@@ -58,7 +92,9 @@ export const VendorContextProvider = ({ children }) => {
 
 	const approveVendor = useCallback(
 		async payload => {
-			const { rahat: rahatContractAddr } = appSettings.agency.contracts;
+			const {agency} = appSettings;
+			if(!agency || !agency.contracts) return;
+			const { rahat: rahatContractAddr } = agency.contracts;
 			const res = await Service.approveVendor(wallet, payload, rahatContractAddr);
 			changeIsverified(false);
 			if (res) {
@@ -66,7 +102,7 @@ export const VendorContextProvider = ({ children }) => {
 				return res.data;
 			}
 		},
-		[appSettings.agency.contracts, changeIsverified, wallet]
+		[appSettings, changeIsverified, wallet]
 	);
 
 	// async function approveVendor(payload) {
@@ -125,9 +161,11 @@ export const VendorContextProvider = ({ children }) => {
 				type: ACTION.LIST,
 				data: res
 			});
+			getVendorsBalances(res);
 			return res;
 		}
-	}, []);
+
+	}, [getVendorsBalances]);
 
 	// async function listVendor(params) {
 	// 	let res = await Service.list(params);
@@ -175,6 +213,7 @@ export const VendorContextProvider = ({ children }) => {
 				loading: state.loading,
 				pagination: state.pagination,
 				transactionHistory: state.transactionHistory,
+				fetchingVendorBalances,
 				listProjects,
 				listVendor,
 				listAid,
@@ -192,7 +231,8 @@ export const VendorContextProvider = ({ children }) => {
 				getVendorDetails,
 				changeVendorStatus,
 				getVendorBalance,
-				getVendorTransactions
+				getVendorTransactions,
+				getVendorsBalances
 			}}
 		>
 			{children}

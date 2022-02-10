@@ -61,7 +61,6 @@ export default function PasscodeModal(props) {
 				size={size || 'xl'}
 				aria-labelledby="contained-modal-title-vcenter"
 				centered
-				class="modal-backdrop fade in"
 			>
 				<Form id="form" style={{ backgroundColor: '#2b7ec1', textAlign: 'center' }} onSubmit={handleSubmit}>
 					<ModalBody className="pt-4">
@@ -72,7 +71,7 @@ export default function PasscodeModal(props) {
 								{title || 'Verify Passcode'} &nbsp;
 								<span style={{ cursor: 'pointer' }} onClick={toggleModal}>
 									<small>
-										<i class="fa fa-times" aria-hidden="true"></i>
+										<i className="fa fa-times" aria-hidden="true"></i>
 									</small>
 								</span>
 							</h2>
