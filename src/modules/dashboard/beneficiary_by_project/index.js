@@ -3,6 +3,7 @@ import { Card, CardBody, CardTitle } from 'reactstrap';
 import { Pie } from 'react-chartjs-2';
 
 import { ExportToExcel } from '../../global/ExportToExcel';
+import { formatBalanceAndCurrency } from '../../../utils';
 
 let _data = [];
 let _labels = [];
@@ -43,13 +44,13 @@ export default function Index(props) {
 					<br />
 					<div className="flex-container">
 						<div className="flex-item">
-							<p className="token-counts">{releasedToken}</p>
+							<p className="token-counts">{formatBalanceAndCurrency(releasedToken)}</p>
 							<span className="token-label">Total released</span>
 						</div>
 						<div className="flex-item "></div>
 						<div className="flex-item v-border"></div>
 						<div className="flex-item">
-							<p className="token-counts">{redeemedTokens}</p>
+							<p className="token-counts">{formatBalanceAndCurrency(redeemedTokens)}</p>
 							<p className="token-label">Total redeem</p>
 						</div>
 					</div>

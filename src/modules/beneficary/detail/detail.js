@@ -30,7 +30,6 @@ const BenefDetails = ({ params }) => {
 		listProject,
 		getTotalIssuedTokens,
 		addBenfToProject
-
 	} = useContext(BeneficiaryContext);
 	const { loading, appSettings } = useContext(AppContext);
 
@@ -50,7 +49,6 @@ const BenefDetails = ({ params }) => {
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
 	const [totalIssuedTokens, setTotalIssuedTokens] = useState(null);
 	const [addProjectModal, setAddProjectModal] = useState(false);
-
 
 	const toggleAssignTokenModal = () => setAssignTokenModal(!assignTokenModal);
 	const toggleAddProjectModal = () => {
@@ -116,7 +114,6 @@ const BenefDetails = ({ params }) => {
 		}
 	};
 
-
 	const handleProjectChange = d => setSelectedProject(d.value);
 
 	const handleIssueToken = () => toggleProjectModal();
@@ -132,7 +129,9 @@ const BenefDetails = ({ params }) => {
 		async phone => {
 			try {
 				const parsed_phone = parseInt(phone);
-				const { rahat } = appSettings.agency.contracts;
+				const { agency } = appSettings;
+				if (!agency || !agency.contracts) return;
+				const { rahat } = agency.contracts;
 				setFetching(true);
 				const balance = await getBeneficiaryBalance(parsed_phone, rahat);
 				const res = await getBenfPackageBalance(parsed_phone, rahat);
@@ -146,7 +145,7 @@ const BenefDetails = ({ params }) => {
 				setFetching(false);
 			}
 		},
-		[appSettings.agency.contracts, getBeneficiaryBalance, getBenfPackageBalance, getTotalIssuedTokens]
+		[appSettings, getBeneficiaryBalance, getBenfPackageBalance, getTotalIssuedTokens]
 	);
 
 	const fetchBeneficiaryDetails = useCallback(async () => {
@@ -160,7 +159,6 @@ const BenefDetails = ({ params }) => {
 			setProjectList(projects);
 		}
 		await fetchCurrentBalance(details.phone);
-
 	}, [fetchCurrentBalance, getBeneficiaryDetails, id]);
 
 	const fetchAllProjects = useCallback(async () => {
