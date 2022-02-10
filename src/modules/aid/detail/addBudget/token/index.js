@@ -10,6 +10,7 @@ import PasscodeModal from '../../../../global/PasscodeModal';
 import MaskLoader from '../../../../global/MaskLoader';
 
 import { TOAST } from '../../../../../constants';
+import { formatBalanceAndCurrency } from '../../../../../utils';
 
 const Token = ({ projectId }) => {
 	const { addToast } = useToasts();
@@ -72,11 +73,11 @@ const Token = ({ projectId }) => {
 			<div className="spacing-budget">
 				<Row>
 					<Col md="6" sm="12">
-						<p className="card-font-bold">{total_tokens}</p>
+						<p className="card-font-bold">{formatBalanceAndCurrency(total_tokens)}</p>
 						<div className="sub-title">Project Token</div>
 					</Col>
 					<Col md="6" sm="12">
-						<p className="card-font-bold">{available_tokens}</p>
+						<p className="card-font-bold">{formatBalanceAndCurrency(available_tokens)}</p>
 						<div className="sub-title">Available Token</div>
 					</Col>
 				</Row>

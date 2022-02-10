@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardTitle } from 'reactstrap';
+import { formatBalanceAndCurrency } from '../../../utils';
 
 import './cards.css';
 
@@ -15,7 +16,7 @@ export default function Stats(props) {
 					<br />
 					<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 						<h2 style={{ flexBasis: '70%' }} className="card-font-medium">
-							{data || '0'}
+							{formatBalanceAndCurrency(data) || '0'}
 						</h2>
 						<h2 style={{ flexBasis: '30%' }} className="card-font-medium">
 							<i style={{ color: icon_color || '#222' }} class={icon_name}></i>

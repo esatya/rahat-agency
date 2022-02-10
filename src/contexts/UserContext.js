@@ -76,6 +76,10 @@ export const UserContextProvider = ({ children }) => {
 		return Service.updateRole({ ...data });
 	}
 
+	function deleteRole(userId, role) {
+		return Service.deleteRole({ userId, role });
+	}
+
 	function listUsersByRole(role) {
 		return Service.listUsersByRole(role);
 	}
@@ -87,6 +91,7 @@ export const UserContextProvider = ({ children }) => {
 				dashboardStats: state.dashboardStats,
 				listUsersByRole,
 				updateRole,
+				deleteRole,
 				updateUser,
 				getUserById,
 				addUser,

@@ -14,8 +14,13 @@ import { dottedString } from '../../../utils';
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
-	const { aids, listAid, addAid,getProjectsBalances } = useContext(AidContext);
-	const { appSettings  } = useContext(AppContext);
+	const {
+		aids,
+		listAid,
+		addAid
+		// getProjectsBalances
+	} = useContext(AidContext);
+	const { appSettings } = useContext(AppContext);
 	const { addToast } = useToasts();
 	const [aidModal, setaidModal] = useState(false);
 	const [aidPayload, setaidPayload] = useState({ name: '' });
@@ -52,24 +57,23 @@ const List = () => {
 		loadAidList(query);
 	};
 
-	const handleAidSubmit = e => {
+	const handleAidSubmit = async e => {
 		e.preventDefault();
-		addAid(aidPayload)
-			.then(() => {
-				toggleModal();
-				addToast('Project created successfully.', {
-					appearance: 'success',
-					autoDismiss: true
-				});
-				loadAidList({});
-				setaidPayload({ name: '' });
-			})
-			.catch(err => {
-				addToast(err, {
-					appearance: 'error',
-					autoDismiss: true
-				});
+		try {
+			await addAid(aidPayload);
+			toggleModal();
+			addToast('Project created successfully.', {
+				appearance: 'success',
+				autoDismiss: true
 			});
+			loadAidList({});
+			setaidPayload({ name: '' });
+		} catch (err) {
+			addToast(err, {
+				appearance: 'error',
+				autoDismiss: true
+			});
+		}
 	};
 
 	const onPageChanged = useCallback(
@@ -87,19 +91,11 @@ const List = () => {
 	);
 
 	const loadAidList = useCallback(
-		query => {
-			listAid(query)
-				.then(d => {
-					setTotalRecords(d.total);
-				})
-				.catch(() => {
-					addToast('Something went wrong!', {
-						appearance: 'error',
-						autoDismiss: true
-					});
-				});
+		async query => {
+			const d = await listAid(query);
+			setTotalRecords(d.total);
 		},
-		[addToast, listAid]
+		[listAid]
 	);
 
 	const fetchTotalRecords = useCallback(async () => {
@@ -114,22 +110,24 @@ const List = () => {
 		}
 	}, [addToast, listAid]);
 
-	const fetchProjectsBalances = useCallback(async ()=>{
-		if(!appSettings || !appSettings.agency) return;
-		const { agency } = appSettings
-		if(!agency && !agency.contracts) return;
-		const projectIds = aids.map((el) => el._id);
-		const balances = await getProjectsBalances(projectIds,agency.contracts.rahat_admin);
-		console.log({balances})
-	},[aids,appSettings,getProjectsBalances])
+	const fetchProjectsBalances = useCallback(async () => {
+		if (!appSettings || !appSettings.agency) return;
+		const { agency } = appSettings;
+		if (!agency && !agency.contracts) return;
+		// const projectIds = aids.map(el => el._id);
+		// const balances = await getProjectsBalances(projectIds, agency.contracts.rahat_admin);
+	}, [
+		// aids, getProjectsBalances,
+		appSettings
+	]);
 
 	useEffect(() => {
 		fetchTotalRecords();
 	}, [fetchTotalRecords]);
 
 	useEffect(() => {
-	   fetchProjectsBalances();
-	},[fetchProjectsBalances])
+		fetchProjectsBalances();
+	}, [fetchProjectsBalances]);
 
 	return (
 		<>
@@ -211,7 +209,7 @@ const List = () => {
 												{d.project_manager ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
 											</td>
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
-											<td>{d.status.toUpperCase()}</td>
+											<td>{d.status === 'closed' ? 'COMPLETED' : d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/projects/${d._id}`}>
 													<i className="fas fa-eye fa-lg"></i>
