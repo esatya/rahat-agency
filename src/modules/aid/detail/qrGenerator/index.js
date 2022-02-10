@@ -10,7 +10,7 @@ const QRGenerator = React.forwardRef(({ props }, ref) => {
 	const [data, setData] = useState([]);
 
 	function getQrData(projectVersion, amount, serialNumber) {
-		if (projectVersion > 999) throw Error('project version should be less than 1000');
+		if (projectVersion > 500) throw Error('project version should be less than 500');
 		if (serialNumber > MAX_QR_GEN) throw Error('Cannot generate more than 1000 qr codes');
 		const id = `555${String(projectVersion).padStart(3, '0')}${String(serialNumber).padStart(4, '0')}`;
 		return { qrData: `phone:${id}?amount=${amount}`, id };
@@ -35,7 +35,7 @@ const QRGenerator = React.forwardRef(({ props }, ref) => {
 		<div className="wrapper" ref={ref}>
 			{data.map((d, i) => {
 				return (
-					<div className="itemWrapper printme printQr" key={i}>
+					<div className="itemWrapper printQr" key={i}>
 						<img alt="Rahat logo" src={RahatLogo} width="190px" height="90px"></img>
 						<br />
 						<QRCode

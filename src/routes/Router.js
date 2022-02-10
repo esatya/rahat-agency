@@ -47,6 +47,10 @@ const ListKobotool = lazy(() => import('../modules/kobotool/list'));
 const KoboToolboxSetting = lazy(() => import('../modules/kobotool/settings'));
 const KoboToolboxFormDetails = lazy(() => import('../modules/kobotool/forms/details'));
 
+// Aid connect
+const AidConnectList = lazy(() => import('../modules/aid_connect/list'));
+const AidConnectCreateForm = lazy(() => import('../modules/aid_connect/create_forms'));
+
 // Vendor
 const Vendor = lazy(() => import('../modules/vendor'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
@@ -57,6 +61,9 @@ const EditVendor = lazy(() => import('../modules/vendor/edit'));
 
 const VendorAdd = lazy(() => import('../views/vendors/add'));
 const VendorDetail = lazy(() => import('../views/vendors/detail'));
+
+// ------------------------------Notification UI------------------------------------
+const NotificationList = lazy(()=>import('../modules/notification').then(module=>({default:module.NotificationList})))
 
 // --------------------------------------------------------------------------------
 
@@ -263,6 +270,16 @@ let AppRoutes = [
 		component: KoboToolboxFormDetails
 	},
 	{
+		path: '/aid-connect/form',
+		name: 'AidConnectCreateForm',
+		component: AidConnectCreateForm
+	},
+	{
+		path: '/notifications',
+		name: 'Notifications',
+		component: NotificationList
+	},
+	{
 		collapse: true,
 		path: '/dashboard',
 		name: 'Administration',
@@ -288,6 +305,12 @@ let AppRoutes = [
 				name: 'KoBoToolbox',
 				icon: 'mdi mdi-adjust',
 				component: ListKobotool
+			},
+			{
+				path: '/aid-connect',
+				name: 'Aid connect',
+				icon: 'mdi mdi-adjust',
+				component: AidConnectList
 			}
 		]
 	},

@@ -4,6 +4,7 @@ const API_PATH = SERVER_URL + '/api/v1';
 module.exports = {
 	AGENCY: API_PATH + '/agency',
 	APP: API_PATH + '/app',
+	AID_CONNECT: API_PATH + '/aid-connect',
 	BENEFICARIES: API_PATH + '/beneficiaries',
 	INSTITUTIONS: API_PATH + '/institutions',
 	METAMASK_LOGIN: API_PATH + '/auth/wallet',
@@ -15,5 +16,7 @@ module.exports = {
 	VENDORS: API_PATH + '/vendors',
 	FAUCET: process.env.REACT_APP_BLOCKCHAIN_FAUCET,
 	MOBILIZERS: API_PATH + '/mobilizers',
-	NFT: API_PATH + '/nft'
+	NFT: API_PATH + '/nft',
+	Notification:API_PATH+'/notifications',
+	Sms:API_PATH+'/sms'
 };

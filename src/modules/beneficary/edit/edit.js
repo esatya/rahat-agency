@@ -287,7 +287,7 @@ const Edit = ({ beneficiaryId }) => {
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
-										<FormGroup>
+										{/* <FormGroup>
 											<Label>Temporary Address</Label>
 											<Input
 												type="text"
@@ -295,7 +295,7 @@ const Edit = ({ beneficiaryId }) => {
 												name="address_temporary"
 												onChange={handleInputChange}
 											/>
-										</FormGroup>
+										</FormGroup> */}
 									</Col>
 								</Row>
 

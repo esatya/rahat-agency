@@ -5,6 +5,8 @@ import ACTION from '../actions/aid';
 import { AppContext } from './AppSettingsContext';
 import { get } from '../services/institution';
 import * as BenfService from '../services/beneficiary';
+import * as SmsService from '../services/sms';
+
 import * as MobilizerService from '../services/mobilizer';
 
 const initialState = {
@@ -175,6 +177,27 @@ export const AidContextProvider = ({ children }) => {
 		},
 		[changeIsverified]
 	);
+	const sendTokenIssuedSms = useCallback(
+		async (phone,token) => {
+			return SmsService.sendTokenIssuedSms({phone,token});
+		},
+		[]
+	);
+	const sendPackageIssuedSms = useCallback(
+		async (phone,packageName) => {
+			return SmsService.sendPackageIssuedSms({phone,packageName});
+		},
+		[]
+	);
+
+	const suspendBeneficiaryToken = useCallback(
+		async (payload, wallet, contracts) => {
+			changeIsverified(false);
+			const { rahat } = contracts;
+			return Service.suspendBeneficiaryToken(wallet, payload, rahat);
+		},
+		[changeIsverified]
+	);
 
 	const getBeneficiaryById = useCallback(benfId => {
 		return BenfService.getById(benfId);
@@ -204,6 +227,10 @@ export const AidContextProvider = ({ children }) => {
 		return Service.uploadBenfToProject(projectId, payload);
 	};
 
+	const getProjectsBalances = useCallback((projectIds,contract_address) => {
+		return Service.getProjectsBalances(projectIds,contract_address);
+	},[])
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -219,7 +246,8 @@ export const AidContextProvider = ({ children }) => {
 				total_tokens: state.total_tokens,
 				uploadBenfToProject,
 				listMobilizersByProject,
-
+				sendTokenIssuedSms,
+				sendPackageIssuedSms,
 				getProjectPackageBalance,
 				issueBeneficiaryPackage,
 				getBeneficiaryById,
@@ -243,7 +271,9 @@ export const AidContextProvider = ({ children }) => {
 				getProjectCapital,
 				listFinancialInstitutions,
 				bulkTokenIssueToBeneficiary,
-				getBeneficiaryIssuedTokens
+				getBeneficiaryIssuedTokens,
+				suspendBeneficiaryToken,
+				getProjectsBalances
 			}}
 		>
 			{children}

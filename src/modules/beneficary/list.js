@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { AppContext } from '../../contexts/AppSettingsContext';
 import { BeneficiaryContext } from '../../contexts/BeneficiaryContext';
 import { useToasts } from 'react-toast-notifications';
 import { Link } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { History } from '../../utils/History';
 import AdvancePagination from '../global/AdvancePagination';
 import { APP_CONSTANTS } from '../../constants';
 import { dottedString, renderSingleRole } from '../../utils';
+import MiniSpinner from '../global/MiniSpinner';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 const SEARCH_OPTIONS = { PHONE: 'phone', NAME: 'name', PROJECT: 'project' };
@@ -21,6 +23,7 @@ const Beneficiary = () => {
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [benfList, setBenfList] = useState([]);
 	const [searchValue, setSearchValue] = useState('');
+	const [fetchingBeneficiaryTokens, setfetchingBeneficiaryTokens] = useState(true);
 
 	const [filter, setFilter] = useState({
 		searchPlaceholder: 'Enter phone number...',
@@ -28,8 +31,8 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, listProject, projectList } = useContext(BeneficiaryContext);
-
+	const { listBeneficiary, listProject, projectList, getBeneficiariesBalances } = useContext(BeneficiaryContext);
+	const { appSettings } = useContext(AppContext);
 	const handleFilterOptionChange = e => {
 		let { value } = e.target;
 		if (value === SEARCH_OPTIONS.NAME) {
@@ -71,12 +74,36 @@ const Beneficiary = () => {
 		fetchList({ start: 0, limit: PAGE_LIMIT });
 	};
 
-	const fetchList = async params => {
-		let query = { start: 0, limit: PAGE_LIMIT, ...params };
-		const data = await listBeneficiary(query);
-		setBenfList(data.data);
-		setTotalRecords(data.total);
-	};
+	const appendBeneficiaryBalances = useCallback(({ beneficiaries, balances }) => {
+		const beneficiariesWithTokens = beneficiaries.map((ben, i) => {
+			ben.tokenBalance = balances[i];
+			return ben;
+		});
+		setBenfList(beneficiariesWithTokens);
+		setfetchingBeneficiaryTokens(false);
+	}, []);
+
+	const fetchBeneficiariesBalances = useCallback(
+		async ({ beneficiaries }) => {
+			if (!appSettings || !appSettings.agency || !appSettings.agency.contracts) return;
+			const { agency } = appSettings;
+			setfetchingBeneficiaryTokens(true);
+			const balances = await getBeneficiariesBalances(beneficiaries, agency.contracts.rahat);
+			if (balances.length) await appendBeneficiaryBalances({ beneficiaries, balances });
+		},
+		[appSettings, getBeneficiariesBalances, appendBeneficiaryBalances]
+	);
+
+	const fetchList = useCallback(
+		async params => {
+			let query = { start: 0, limit: PAGE_LIMIT, ...params };
+			const { data, total } = await listBeneficiary(query);
+			setBenfList(data);
+			//fetchBeneficiariesBalances({beneficiaries:data});
+			setTotalRecords(total);
+		},
+		[listBeneficiary]
+	);
 
 	const fetchTotalRecords = useCallback(async () => {
 		try {
@@ -124,8 +151,9 @@ const Beneficiary = () => {
 			const query = { start, limit: PAGE_LIMIT, ...params };
 			const data = await listBeneficiary(query);
 			setBenfList(data.data);
+			fetchBeneficiariesBalances({ beneficiaries: data.data });
 		},
-		[getQueryParams, listBeneficiary]
+		[getQueryParams, listBeneficiary, fetchBeneficiariesBalances]
 	);
 
 	const handleAddClick = () => History.push('/add-beneficiary');
@@ -201,10 +229,10 @@ const Beneficiary = () => {
 								<tr className="border-0">
 									<th className="border-0">S.N.</th>
 									<th className="border-0">Name</th>
-									<th className="border-0">Phone</th>
 									<th className="border-0">Address</th>
 									<th className="border-0">Registration Date</th>
 									<th className="border-0">Registered By</th>
+									<th className="border-0">Balance</th>
 									<th className="border-0">Action</th>
 								</tr>
 							</thead>
@@ -221,20 +249,33 @@ const Beneficiary = () => {
 														</div>
 														<div className="">
 															<h5 className="mb-0 font-16 font-medium">{dottedString(d.name)}</h5>
-															<span>{d.email ? d.email : '-'}</span>
+															<span>{d.phone ? d.phone : '-'}</span>
 														</div>
 													</div>
 												</td>
-												<td>{d.phone}</td>
 												<td>{dottedString(d.address)}</td>
-												<td>{moment(d.created_at).format('MMM Do YYYY, hh:mm A')}</td>
+												<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 												<td>
-													{d.creator_name ? dottedString(d.creator_name, 15) : '-'}
-													{d.created_by && `(${renderSingleRole(d.created_by.roles)})`}
+													{/* {d.creator_name ? dottedString(d.creator_name, 15) : '-'} */}
+													{d.created_by && `${renderSingleRole(d.created_by.roles)}`}
+												</td>
+												<td>
+													{fetchingBeneficiaryTokens ? (
+														<MiniSpinner />
+													) : d.tokenBalance || d.issued_packages ? (
+														<>
+															<span className="badge badge-success p-2 mb-1">{d.tokenBalance} Tokens</span> <br />
+															<span className="badge bg-light text-dark p-2">
+																{d.issued_packages.reduce((partialSum, a) => partialSum + a, 0)} Packages
+															</span>
+														</>
+													) : (
+														<span className="badge bg-light text-dark p-2">0 Tokens</span>
+													)}
 												</td>
 												<td>
 													<Link to={`/beneficiaries/${d._id}`}>
-														<i class="fas fa-eye fa-lg"></i>
+														<i className="fas fa-eye fa-lg"></i>
 													</Link>
 												</td>
 											</tr>

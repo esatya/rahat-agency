@@ -14,10 +14,12 @@ const mapContractToMethod = contract => ({
 });
 
 export async function dashboardStats() {
-	let res = await axios.get(`${API.APP}/dashboards`, {
-		headers: { access_token }
-	});
-	return res.data;
+	try {
+		let res = await axios.get(`${API.APP}/dashboards`, {
+			headers: { access_token }
+		});
+		return res.data;
+	} catch {}
 }
 
 export function verifyToken(token) {
@@ -37,7 +39,7 @@ export function verifyToken(token) {
 				});
 			})
 			.catch(err => {
-				reject(err.response.data);
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
@@ -56,7 +58,7 @@ export function signUp(payload) {
 				});
 			})
 			.catch(err => {
-				reject(err.response.data);
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
@@ -69,7 +71,7 @@ export function loginUsingMetamask(payload) {
 				resolve(res.data);
 			})
 			.catch(err => {
-				reject(err.response.data);
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
@@ -82,44 +84,50 @@ export function checkExistingUser(payload) {
 				resolve(res.data);
 			})
 			.catch(err => {
-				reject(err.response.data);
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
 
 export async function listUsers(params) {
-	params.hideMobilizers = true;
-	const res = await axios({
-		url: `${API.USERS}`,
-		method: 'Get',
-		headers: {
-			access_token
-		},
-		params
-	});
-	return res.data;
+	try {
+		params.hideMobilizers = true;
+		const res = await axios({
+			url: `${API.USERS}`,
+			method: 'Get',
+			headers: {
+				access_token
+			},
+			params
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function listUsersByRole(role) {
-	const res = await axios({
-		url: `${API.USERS}/roles/${role}`,
-		method: 'Get',
-		headers: {
-			access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.USERS}/roles/${role}`,
+			method: 'Get',
+			headers: {
+				access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function getUserById(userId) {
-	const res = await axios({
-		url: `${API.USERS}/${userId}`,
-		method: 'Get',
-		headers: {
-			access_token
-		}
-	});
-	return res.data;
+	try {
+		const res = await axios({
+			url: `${API.USERS}/${userId}`,
+			method: 'Get',
+			headers: {
+				access_token
+			}
+		});
+		return res.data;
+	} catch {}
 }
 
 export async function updateUser(userId, payload) {
@@ -130,8 +138,8 @@ export async function updateUser(userId, payload) {
 			.then(res => {
 				resolve(res.data);
 			})
-			.catch(err => {
-				reject(err.response.data);
+			.catch(() => {
+				reject({ statusText: 'FAIL', data: {} });
 			});
 	});
 }
@@ -159,6 +167,15 @@ export async function updateRole({ userId, payload, rahat, rahat_admin, wallet }
 	} catch (err) {
 		throw err;
 	}
+}
+
+export async function deleteRole(userId) {
+	const res = await axios({
+		url: `${API.USERS}/${userId}/roles`,
+		method: 'Delete',
+		headers: { access_token }
+	});
+	return res.data;
 }
 
 export async function addUser({ payload, rahat, rahat_admin, wallet }) {

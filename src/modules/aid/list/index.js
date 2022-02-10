@@ -3,7 +3,7 @@ import { Button, Card, CardBody, CardTitle, FormGroup, Label, Input, InputGroup,
 import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
 import moment from 'moment';
-
+import { AppContext } from '../../../contexts/AppSettingsContext';
 import { AidContext } from '../../../contexts/AidContext';
 import AidModal from '../../global/CustomModal';
 import { History } from '../../../utils/History';
@@ -14,7 +14,8 @@ import { dottedString } from '../../../utils';
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
-	const { aids, listAid, addAid } = useContext(AidContext);
+	const { aids, listAid, addAid,getProjectsBalances } = useContext(AidContext);
+	const { appSettings  } = useContext(AppContext);
 	const { addToast } = useToasts();
 	const [aidModal, setaidModal] = useState(false);
 	const [aidPayload, setaidPayload] = useState({ name: '' });
@@ -113,9 +114,22 @@ const List = () => {
 		}
 	}, [addToast, listAid]);
 
+	const fetchProjectsBalances = useCallback(async ()=>{
+		if(!appSettings || !appSettings.agency) return;
+		const { agency } = appSettings
+		if(!agency && !agency.contracts) return;
+		const projectIds = aids.map((el) => el._id);
+		const balances = await getProjectsBalances(projectIds,agency.contracts.rahat_admin);
+		console.log({balances})
+	},[aids,appSettings,getProjectsBalances])
+
 	useEffect(() => {
 		fetchTotalRecords();
 	}, [fetchTotalRecords]);
+
+	useEffect(() => {
+	   fetchProjectsBalances();
+	},[fetchProjectsBalances])
 
 	return (
 		<>
@@ -200,7 +214,7 @@ const List = () => {
 											<td>{d.status.toUpperCase()}</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/projects/${d._id}`}>
-													<i class="fas fa-eye fa-lg"></i>
+													<i className="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>
