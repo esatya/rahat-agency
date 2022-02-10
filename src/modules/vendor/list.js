@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { History } from '../../utils/History';
 import MiniSpinner from '../global/MiniSpinner';
 import moment from 'moment';
+import { formatBalanceAndCurrency } from '../../utils';
 
 import {
 	Card,
@@ -43,7 +44,7 @@ const Vendor = () => {
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentPage, setCurrentPage] = useState(1);
 
-	const { listVendor, list, addVendor,fetchingVendorBalances } = useContext(VendorContext);
+	const { listVendor, list, addVendor, fetchingVendorBalances } = useContext(VendorContext);
 
 	const toggle = () => setModel(!model);
 
@@ -218,7 +219,15 @@ const Vendor = () => {
 
 											<td>{dottedString(e.address)}</td>
 											<td>{moment(e.created_at).format('MMM Do YYYY')}</td>
-											<td>{fetchingVendorBalances ? <MiniSpinner /> : e.tokenBalance ? e.tokenBalance : '0'}</td>
+											<td>
+												{fetchingVendorBalances ? (
+													<MiniSpinner />
+												) : e.tokenBalance ? (
+													formatBalanceAndCurrency(e.tokenBalance)
+												) : (
+													'0'
+												)}
+											</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/vendors/${e._id}`}>
 													<i className="fas fa-eye fa-lg"></i>

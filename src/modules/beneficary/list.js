@@ -10,7 +10,7 @@ import displayPic from '../../assets/images/users/user_avatar.svg';
 import { History } from '../../utils/History';
 import AdvancePagination from '../global/AdvancePagination';
 import { APP_CONSTANTS } from '../../constants';
-import { dottedString, renderSingleRole } from '../../utils';
+import { dottedString, renderSingleRole, formatBalanceAndCurrency } from '../../utils';
 import MiniSpinner from '../global/MiniSpinner';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
@@ -117,16 +117,9 @@ const Beneficiary = () => {
 		}
 	}, [addToast, listBeneficiary]);
 
-	const fetchProjectList = () => {
-		listProject()
-			.then()
-			.catch(() => {
-				addToast('Something went wrong!', {
-					appearance: 'error',
-					autoDismiss: true
-				});
-			});
-	};
+	const fetchProjectList = useCallback(async () => {
+		await listProject();
+	}, [listProject]);
 
 	useEffect(() => {
 		fetchTotalRecords();
@@ -264,9 +257,15 @@ const Beneficiary = () => {
 														<MiniSpinner />
 													) : d.tokenBalance || d.issued_packages ? (
 														<>
-															<span className="badge badge-success p-2 mb-1">{d.tokenBalance} Tokens</span> <br />
+															<span className="badge badge-success p-2 mb-1">
+																{formatBalanceAndCurrency(d.tokenBalance)} Tokens
+															</span>
+															<br />
 															<span className="badge bg-light text-dark p-2">
-																{d.issued_packages.reduce((partialSum, a) => partialSum + a, 0)} Packages
+																{formatBalanceAndCurrency(
+																	d.issued_packages.reduce((partialSum, a) => partialSum + a, 0)
+																)}
+																Packages
 															</span>
 														</>
 													) : (

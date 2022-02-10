@@ -62,21 +62,23 @@ const UserDetails = props => {
 
 	const handleCancelClick = () => History.push('/users');
 
-	const handleDeleteRole = () => {
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You won't be able to revert this!",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes, proceed!'
-		}).then(async result => {
-			if (result.value) {
-				await deleteRole(id);
-				Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
-			}
-		});
+	const handleDeleteRole = role => {
+		if (role)
+			Swal.fire({
+				title: 'Are you sure?',
+				text: "You won't be able to revert this!",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Yes, proceed!'
+			}).then(async result => {
+				if (result.value) {
+					await deleteRole(id, role);
+					Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
+					History.push('/users');
+				}
+			});
 	};
 
 	const updateOnly = data => {
@@ -121,7 +123,9 @@ const UserDetails = props => {
 		if (!isVerified) return;
 		if (!wallet) return addToast('Wallet not found', TOAST.ERROR);
 		setRoleProcess(true);
-		const { rahat, rahat_admin } = appSettings.agency.contracts;
+		const { agency } = appSettings;
+		if (!agency && !agency.contracts) return;
+		const { rahat, rahat_admin } = agency.contracts;
 		updateRole({
 			userId: id,
 			payload: { wallet_address: formData.wallet_address, role: selectedRole },
@@ -144,7 +148,7 @@ const UserDetails = props => {
 			});
 	}, [
 		addToast,
-		appSettings.agency.contracts,
+		appSettings,
 		changeIsverified,
 		formData.wallet_address,
 		id,
@@ -178,7 +182,11 @@ const UserDetails = props => {
 													<span className="badge badge-success mr-2 mt-2 mb-3" style={{ fontSize: '0.9em' }}>
 														<div className=" d-flex justify-content-between ">
 															{roles.label}
-															<div className="ml-2" onClick={handleDeleteRole} style={{ cursor: 'pointer' }}>
+															<div
+																className="ml-2"
+																onClick={() => handleDeleteRole(roles.label)}
+																style={{ cursor: 'pointer' }}
+															>
 																<i className="fa fa-trash"></i>
 															</div>
 														</div>
