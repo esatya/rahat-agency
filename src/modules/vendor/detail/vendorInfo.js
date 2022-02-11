@@ -45,14 +45,7 @@ export default function VendorInfo(props) {
 								<p className="card-font-medium">{information.wallet_address || '-'}</p>
 								<div className="sub-title">Wallet address</div>
 							</div>
-							<div className="card-data">
-								<p className="card-font-medium">{information.bank_name || '-'}</p>
-								<div className="sub-title">Bank name</div>
-							</div>
-							<div className="card-data">
-								<p className="card-font-medium">{information.bank_account || '-'}</p>
-								<div className="sub-title">Bank account number</div>
-							</div>
+
 							<div className="card-data ">
 								<p className="card-font-medium">
 									{moment(information.created_at).format('MMM Do YYYY, hh:mm A') || '-'}
@@ -78,10 +71,6 @@ export default function VendorInfo(props) {
 								<p className="card-font-medium">{information.pan_number || '-'}</p>
 								<div className="sub-title">PAN number</div>
 							</div>
-							<div className="card-data">
-								<p className="card-font-medium">{information.bank_branch || '-'}</p>
-								<div className="sub-title">Bank branch</div>
-							</div>
 						</Col>
 						<Col md="4" sm="12">
 							<img
@@ -91,23 +80,12 @@ export default function VendorInfo(props) {
 										: image
 								}
 								alt="identity_photo"
-								width="90%"
-								height="130px"
+								width="80%"
+								height="120px"
 								className="card-data"
 							/>
 							<br />
-							<img
-								src={
-									information.extra_files && information.extra_files.signature_photo
-										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.signature_photo}`
-										: image
-								}
-								alt="signature_photo"
-								width="90%"
-								height="130px"
-								className="card-data"
-							/>
-							<br />
+
 							<img
 								src={
 									information.extra_files && information.extra_files.mou_file
@@ -115,8 +93,8 @@ export default function VendorInfo(props) {
 										: image
 								}
 								alt="mou_file"
-								width="90%"
-								height="130px"
+								width="80%"
+								height="120px"
 								className="card-data"
 							/>
 						</Col>
