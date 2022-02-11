@@ -27,13 +27,12 @@ const Edit = ({ vendorId }) => {
 		address: '',
 		govt_id: '',
 		pan_number: '',
-		wallet_address: '',
-		bank_branch: '',
-		bank_name: '',
-		bank_account: ''
+		wallet_address: ''
+		// bank_branch: '',
+		// bank_name: '',
+		// bank_account: ''
 	});
 	const [extras, setExtras] = useState({
-		signature_photo: '',
 		mou_file: ''
 	});
 	const [govtIdentity, setGovtIdentity] = useState('');
@@ -46,7 +45,6 @@ const Edit = ({ vendorId }) => {
 
 	const [existingProfilePhoto, setExistingProfilePhoto] = useState('');
 	const [existingIdentity, setExistingIdentity] = useState('');
-	const [existingSignature, setExistingSignature] = useState('');
 	const [existingMou, setExistingMou] = useState('');
 
 	const handleInputChange = e => {
@@ -71,11 +69,6 @@ const Edit = ({ vendorId }) => {
 	async function handleGovtIdentity(e) {
 		const base64Url = await blobToBase64(e.target.files[0]);
 		setGovtIdentity(base64Url);
-	}
-
-	async function handleSignatureUpload(e) {
-		const base64Url = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, signature_photo: base64Url });
 	}
 
 	async function handleMouUpload(e) {
@@ -131,9 +124,6 @@ const Edit = ({ vendorId }) => {
 			wallet_address,
 			shop_name,
 			pan_number,
-			bank_name,
-			bank_branch,
-			bank_account,
 			photo,
 			govt_id,
 			extra_files,
@@ -142,11 +132,9 @@ const Edit = ({ vendorId }) => {
 
 		if (photo && photo.length) setExistingProfilePhoto(photo[0]);
 		if (govt_id_image) setExistingIdentity(govt_id_image);
-		console.log('==========>', extra_files);
 
 		if (extra_files) {
-			const { signature_photo, mou_file } = extra_files;
-			if (signature_photo) setExistingSignature(signature_photo);
+			const { mou_file } = extra_files;
 			if (mou_file) setExistingMou(mou_file);
 		}
 
@@ -165,9 +153,6 @@ const Edit = ({ vendorId }) => {
 			wallet_address,
 			shop_name,
 			pan_number,
-			bank_name,
-			bank_branch,
-			bank_account,
 			govt_id
 		});
 		const { gender } = d;
@@ -331,51 +316,12 @@ const Edit = ({ vendorId }) => {
 								<Row>
 									<Col md="6" sm="12">
 										<FormGroup>
-											<label htmlFor="bank_name">Bank name</label>
-											<br />
-											<Input
-												name="bank_name"
-												type="text"
-												value={formData.bank_name}
-												className="form-field"
-												onChange={handleInputChange}
-											/>
-										</FormGroup>
-									</Col>
-									<Col md="6" sm="12">
-										<FormGroup>
-											<label htmlFor="bank_branch">Bank branch</label>
-											<br />
-											<Input
-												name="bank_branch"
-												type="text"
-												value={formData.bank_branch}
-												className="form-field"
-												onChange={handleInputChange}
-											/>
-										</FormGroup>
-									</Col>
-								</Row>
-								<FormGroup>
-									<label htmlFor="bank_account">Bank account number</label>
-									<br />
-									<Input
-										name="bank_account"
-										type="number"
-										value={formData.bank_account}
-										className="form-field"
-										onChange={handleInputChange}
-									/>
-								</FormGroup>
-								<Row>
-									<Col md="4" sm="4">
-										<FormGroup>
 											<label htmlFor="identity_photo">Identity picture</label>
 											<br />
 											{govtIdentity ? (
 												<img
 													src={govtIdentity}
-													alt="Profile"
+													alt="Identity"
 													width="200px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
@@ -383,56 +329,26 @@ const Edit = ({ vendorId }) => {
 											) : existingIdentity ? (
 												<img
 													src={`${IPFS_GATEWAY}/ipfs/${existingIdentity}`}
-													alt="Profile"
+													alt="Identity"
 													width="200px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
 											) : (
-												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
+												<img src={AvatarIcon} alt="Identity" width="100px" height="100px" />
 											)}
 											<Input id="identity_photo" type="file" onChange={handleGovtIdentity} />
 										</FormGroup>
 									</Col>
-									<Col md="4" sm="4">
-										<FormGroup>
-											<label htmlFor="mou_file">Signature upload</label>
-											<br />
-											{extras.signature_photo ? (
-												<img
-													src={extras.signature_photo}
-													alt="Profile"
-													width="200px"
-													height="200px"
-													style={{ borderRadius: '10px', marginBottom: '10px' }}
-												/>
-											) : existingSignature ? (
-												<img
-													src={`${IPFS_GATEWAY}/ipfs/${existingSignature}`}
-													alt="Profile"
-													width="200px"
-													height="200px"
-													style={{ borderRadius: '10px', marginBottom: '10px' }}
-												/>
-											) : (
-												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
-											)}
-											<Input
-												id="signature_photo"
-												type="file"
-												name="Upload signature"
-												onChange={handleSignatureUpload}
-											/>
-										</FormGroup>
-									</Col>
-									<Col md="4" sm="4">
+
+									<Col md="6" sm="12">
 										<FormGroup>
 											<label htmlFor="mou_file">MOU upload</label>
 											<br />
 											{extras.mou_file ? (
 												<img
 													src={extras.mou_file}
-													alt="Profile"
+													alt="MOU"
 													width="200px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
@@ -440,13 +356,13 @@ const Edit = ({ vendorId }) => {
 											) : existingMou ? (
 												<img
 													src={`${IPFS_GATEWAY}/ipfs/${existingMou}`}
-													alt="Profile"
+													alt="MOU"
 													width="200px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
 											) : (
-												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
+												<img src={AvatarIcon} alt="MOU" width="100px" height="100px" />
 											)}
 											<Input id="mou_file" type="file" onChange={handleMouUpload} />
 										</FormGroup>
