@@ -75,8 +75,8 @@ export default function VendorInfo(props) {
 						<Col md="4" sm="12">
 							<img
 								src={
-									information.extra_files && information.extra_files.identity_photo
-										? `${IPFS_GATEWAY}/ipfs/${information.extra_files.identity_photo}`
+									information.extra_files && information.govt_id_image
+										? `${IPFS_GATEWAY}/ipfs/${information.govt_id_image}`
 										: image
 								}
 								alt="identity_photo"
@@ -85,7 +85,6 @@ export default function VendorInfo(props) {
 								className="card-data"
 							/>
 							<br />
-
 							<img
 								src={
 									information.extra_files && information.extra_files.mou_file

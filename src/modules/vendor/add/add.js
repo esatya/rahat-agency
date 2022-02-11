@@ -226,7 +226,7 @@ const Add = () => {
 												<img
 													src={govtIdImg}
 													alt="Profile"
-													width="200px"
+													width="250px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
@@ -245,7 +245,7 @@ const Add = () => {
 												<img
 													src={extras.mou_file}
 													alt="Profile"
-													width="200px"
+													width="250px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
