@@ -23,14 +23,10 @@ const Add = () => {
 		address: '',
 		govt_id: '',
 		pan_number: '',
-		wallet_address: '',
-		bank_branch: '',
-		bank_name: '',
-		bank_account: ''
+		wallet_address: ''
 	});
 
 	const [extras, setExtras] = useState({
-		signature_photo: '',
 		mou_file: ''
 	});
 	const [loading, setLoading] = useState(false);
@@ -62,11 +58,6 @@ const Add = () => {
 	async function handleGovtIdImage(e) {
 		const base64Url = await blobToBase64(e.target.files[0]);
 		setGovtIdImg(base64Url);
-	}
-
-	async function handleSignatureUpload(e) {
-		const base64Url = await blobToBase64(e.target.files[0]);
-		setExtras({ ...extras, signature_photo: base64Url });
 	}
 
 	async function handleMouUpload(e) {
@@ -113,8 +104,6 @@ const Add = () => {
 	useEffect(() => {
 		loadProjects();
 	}, [loadProjects]);
-
-	// console.log('project list', projects);
 
 	return (
 		<div>
@@ -231,34 +220,13 @@ const Add = () => {
 								<Row>
 									<Col md="6" sm="12">
 										<FormGroup>
-											<label htmlFor="bank_name">Bank name</label>
-											<br />
-											<Input name="bank_name" type="text" className="form-field" onChange={handleInputChange} />
-										</FormGroup>
-									</Col>
-									<Col md="6" sm="12">
-										<FormGroup>
-											<label htmlFor="bank_branch">Bank branch</label>
-											<br />
-											<Input name="bank_branch" type="text" className="form-field" onChange={handleInputChange} />
-										</FormGroup>
-									</Col>
-								</Row>
-								<FormGroup>
-									<label htmlFor="bank_account">Bank account number</label>
-									<br />
-									<Input name="bank_account" type="number" className="form-field" onChange={handleInputChange} />
-								</FormGroup>
-								<Row>
-									<Col md="4" sm="4">
-										<FormGroup>
 											<label htmlFor="identity_photo">Identity picture</label>
 											<br />
 											{govtIdImg ? (
 												<img
 													src={govtIdImg}
 													alt="Profile"
-													width="200px"
+													width="250px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>
@@ -268,30 +236,8 @@ const Add = () => {
 											<Input id="identity_photo" type="file" name="file" onChange={handleGovtIdImage} />
 										</FormGroup>
 									</Col>
-									<Col md="4" sm="4">
-										<FormGroup>
-											<label htmlFor="signature_photo">Signature upload</label>
-											<br />
-											{extras.signature_photo ? (
-												<img
-													src={extras.signature_photo}
-													alt="Profile"
-													width="200px"
-													height="200px"
-													style={{ borderRadius: '10px', marginBottom: '10px' }}
-												/>
-											) : (
-												<img src={AvatarIcon} alt="Profile" width="100px" height="100px" />
-											)}
-											<Input
-												id="signature_photo"
-												type="file"
-												name="Upload signature"
-												onChange={handleSignatureUpload}
-											/>
-										</FormGroup>
-									</Col>
-									<Col md="4" sm="4">
+
+									<Col md="6" sm="12">
 										<FormGroup>
 											<label htmlFor="mou_file">MOU upload</label>
 											<br />
@@ -299,7 +245,7 @@ const Add = () => {
 												<img
 													src={extras.mou_file}
 													alt="Profile"
-													width="200px"
+													width="250px"
 													height="200px"
 													style={{ borderRadius: '10px', marginBottom: '10px' }}
 												/>

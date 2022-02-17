@@ -10,7 +10,7 @@ import ModalWrapper from '../../global/CustomModal';
 import { MAX_QR_GEN } from '../../../constants';
 
 export default function ProjectInfo({ projectDetails }) {
-	const { _id, social_mobilizer, project_manager, location, description, created_at, serial_index } = projectDetails;
+	const { _id, project_manager, location, description, created_at, serial_index } = projectDetails;
 
 	const handleEditClick = () => History.push(`/edit-project/${_id}`);
 
@@ -80,7 +80,7 @@ export default function ProjectInfo({ projectDetails }) {
 			</ModalWrapper>
 			<Card>
 				<div className="stat-card-body" style={{ minHeight: 330 }}>
-					<Row>
+					<Row className="mb-3">
 						<Col>
 							<CardTitle className="title" style={{ flexBasis: '90%' }}>
 								More Information
@@ -121,10 +121,6 @@ export default function ProjectInfo({ projectDetails }) {
 							</div>
 						</Col>
 						<Col md="6" sm="12">
-							<div style={{ marginBottom: '25px' }}>
-								<p className="card-font-medium">{social_mobilizer || '-'}</p>
-								<div className="sub-title">Social Mobilizer</div>
-							</div>
 							<div style={{ marginBottom: '25px' }}>
 								<p className="card-font-medium">{moment(created_at).format('ll')}</p>
 								<div className="sub-title">Created Date</div>
