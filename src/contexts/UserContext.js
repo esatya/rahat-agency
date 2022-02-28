@@ -76,8 +76,8 @@ export const UserContextProvider = ({ children }) => {
 		return Service.updateRole({ ...data });
 	}
 
-	function deleteRole(userId) {
-		return Service.deleteRole(userId);
+	function deleteRole(userId, role) {
+		return Service.deleteRole({ userId, role });
 	}
 
 	function listUsersByRole(role) {

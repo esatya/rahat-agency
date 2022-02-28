@@ -169,11 +169,12 @@ export async function updateRole({ userId, payload, rahat, rahat_admin, wallet }
 	}
 }
 
-export async function deleteRole(userId) {
+export async function deleteRole({ userId, role }) {
 	const res = await axios({
 		url: `${API.USERS}/${userId}/roles`,
 		method: 'Delete',
-		headers: { access_token }
+		headers: { access_token },
+		data: { role }
 	});
 	return res.data;
 }

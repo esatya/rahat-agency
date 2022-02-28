@@ -1,4 +1,4 @@
-import { CURRENCY, ROLES } from '../constants';
+import { ROLES } from '../constants';
 
 const DEF_SHOW_CHARS = 20;
 
@@ -38,7 +38,8 @@ export const generateUID = length => {
 
 export const formatBalanceAndCurrency = (amount, currency) => {
 	if (!amount) amount = 0;
-	if (!currency) currency = CURRENCY.NP_RUPEES;
+	if (!currency) return amount.toLocaleString('en-US');
+
 	return amount.toLocaleString('en-US', {
 		style: 'currency',
 		currency: currency,

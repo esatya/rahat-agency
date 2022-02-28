@@ -46,7 +46,6 @@ This repository uses eslint to enforce air-bnb coding styles.
 When you deploy Rahat for production. Please make sure you backup the server's private key securely in an offline wallet, as it will contain some Ethers to perform various server tasks tasks.
 
 # Contributing
+Everyone is very welcome to contribute on the codebase of Rahat. Please reach us in [Discord](https://discord.gg/AV5j2T94VR) in case of any query/feedback/suggestion.
 
-Everyone is very welcome to contribute on the codebase of Rahat. Please reach us in [Gitter](https://gitter.im/bockies/community?utm_source=badge&utm_medium=badge&utm_content=badge) in case of any query/feedback/suggestion.
-
-For more information on the contributing procedure, see [Contribution](https://github.com/esatya/rahat-agency/blob/master/CONTRIBUTING.md)
+For more information on the contributing procedure, see [Contribution](https://docs.rahat.io/docs/next/Contribution-Guidelines).
