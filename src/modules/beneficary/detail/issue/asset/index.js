@@ -15,6 +15,7 @@ import MaskLoader from '../../../../global/MaskLoader';
 
 import { BALANCE_TABS } from '../../../../../constants';
 import MiniSpinner from '../../../../global/MiniSpinner';
+import { formatBalanceAndCurrency } from '../../../../../utils';
 
 const TOKEN_ISSUE_AMOUNT = 1;
 const FETCH_LIMIT = 50;
@@ -24,9 +25,13 @@ export default function (props) {
 	const { addToast } = useToasts();
 	const history = useHistory();
 
-	const { listNftPackages, getBeneficiaryById, issueBeneficiaryPackage, getBeneficiaryIssuedTokens,sendPackageIssuedSms} = useContext(
-		AidContext
-	);
+	const {
+		listNftPackages,
+		getBeneficiaryById,
+		issueBeneficiaryPackage,
+		getBeneficiaryIssuedTokens,
+		sendPackageIssuedSms
+	} = useContext(AidContext);
 	const { isVerified, wallet, appSettings, currentBalanceTab } = useContext(AppContext);
 
 	const [packageList, setPackageList] = useState([]);
@@ -124,12 +129,14 @@ export default function (props) {
 					packageTokens: selectedPackages
 				};
 
-				const packageNames = selectedPackages.map(item=>{
-					const name = packageList.find(pkg=>Number(pkg.tokenId)===item)?.name
-					return name
-				}).join(' , ')
+				const packageNames = selectedPackages
+					.map(item => {
+						const name = packageList.find(pkg => Number(pkg.tokenId) === item)?.name;
+						return name;
+					})
+					.join(' , ');
 
-				await sendPackageIssuedSms(Number(benfPhone), packageNames)
+				await sendPackageIssuedSms(Number(benfPhone), packageNames);
 
 				const { rahat } = appSettings.agency.contracts;
 				const res = await issueBeneficiaryPackage(wallet, payload, rahat);
@@ -197,8 +204,10 @@ export default function (props) {
 									<td>
 										{d.name} ({d.symbol})
 									</td>
-									<td>{fetchingIssuedQty ? <MiniSpinner /> : d.issuedQty ? d.issuedQty : '0'}</td>
-									<td>{d.totalSupply}</td>
+									<td>
+										{fetchingIssuedQty ? <MiniSpinner /> : d.issuedQty ? formatBalanceAndCurrency(d.issuedQty) : '0'}
+									</td>
+									<td>{formatBalanceAndCurrency(d.totalSupply)}</td>
 									<td>
 										{d.createdBy.name.first} {d.createdBy.name.last || ''}
 									</td>

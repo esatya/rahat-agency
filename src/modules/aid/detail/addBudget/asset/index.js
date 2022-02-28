@@ -4,6 +4,7 @@ import { useHistory, Link } from 'react-router-dom';
 
 import { AidContext } from '../../../../../contexts/AidContext';
 import AdvancePagination from '../../../../global/AdvancePagination';
+import { formatBalanceAndCurrency } from '../../../../../utils';
 
 import { APP_CONSTANTS } from '../../../../../constants';
 const { PAGE_LIMIT } = APP_CONSTANTS;
@@ -68,7 +69,7 @@ export default function (props) {
 									<td>
 										{d.name} ({d.symbol})
 									</td>
-									<td>{d.totalSupply}</td>
+									<td>{formatBalanceAndCurrency(d.totalSupply)}</td>
 									<td>
 										{d.createdBy.name.first} {d.createdBy.name.last || ''}
 									</td>

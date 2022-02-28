@@ -10,12 +10,13 @@ import { TOAST } from '../../../../../constants';
 import Loading from '../../../../global/Loading';
 import { BALANCE_TABS } from '../../../../../constants';
 import MaskLoader from '../../../../global/MaskLoader';
+import { formatBalanceAndCurrency } from '../../../../../utils';
 
 const WALLET_ACTIONS = {
 	DEFAULT: null,
 	SUSPEND_TOKEN: 'suspend_token',
 	ISSUE_TOKEN: 'issue_token'
-}
+};
 
 const Token = ({ benfId, projectId }) => {
 	const history = useHistory();
@@ -39,7 +40,6 @@ const Token = ({ benfId, projectId }) => {
 
 	const [passcodeModal, setPasscodeModal] = useState(false);
 	const [walletActions, setWalletActions] = useState(WALLET_ACTIONS.DEFAULT);
-
 
 	const handleInputChange = e => {
 		let { value } = e.target;
@@ -85,8 +85,9 @@ const Token = ({ benfId, projectId }) => {
 				const errMsg = err.message ? err.message : 'Could not assign tokens to beneficiary';
 				addToast(errMsg, TOAST.ERROR);
 			}
-		}	
-	},[isVerified,
+		}
+	}, [
+		isVerified,
 		wallet,
 		currentBalanceTab,
 		getBeneficiaryById,
@@ -97,7 +98,7 @@ const Token = ({ benfId, projectId }) => {
 		projectId,
 		history,
 		suspendBeneficiaryToken
-	])
+	]);
 
 	const submitTokenRequest = useCallback(async () => {
 		if (isVerified && wallet && currentBalanceTab === BALANCE_TABS.TOKEN) {
@@ -112,7 +113,7 @@ const Token = ({ benfId, projectId }) => {
 					phone: Number(benf.phone),
 					projectId: projectId
 				};
-				await sendTokenIssuedSms(Number(benf.phone),Number(inputTokens))
+				await sendTokenIssuedSms(Number(benf.phone), Number(inputTokens));
 				const res = await issueBenfToken(payload, wallet, contracts);
 				if (res) {
 					setMasking(false);
@@ -136,7 +137,8 @@ const Token = ({ benfId, projectId }) => {
 		inputTokens,
 		projectId,
 		issueBenfToken,
-		history,sendTokenIssuedSms
+		history,
+		sendTokenIssuedSms
 	]);
 
 	const fetchProjectBalance = useCallback(async () => {
@@ -153,9 +155,9 @@ const Token = ({ benfId, projectId }) => {
 
 	// TODO: Effect called on package issue. Temporarily fixed!
 	useEffect(() => {
-		if(walletActions === WALLET_ACTIONS.ISSUE_TOKEN)  submitTokenRequest();
-		if(walletActions === WALLET_ACTIONS.SUSPEND_TOKEN)  submitTokenSuspend();
-	}, [isVerified, submitTokenRequest,walletActions,submitTokenSuspend]);
+		if (walletActions === WALLET_ACTIONS.ISSUE_TOKEN) submitTokenRequest();
+		if (walletActions === WALLET_ACTIONS.SUSPEND_TOKEN) submitTokenSuspend();
+	}, [isVerified, submitTokenRequest, walletActions, submitTokenSuspend]);
 
 	return (
 		<>
@@ -165,12 +167,20 @@ const Token = ({ benfId, projectId }) => {
 			<div className="spacing-budget">
 				<Row>
 					<Col md="5" sm="12">
-						{fetchingBlockchain ? <Loading /> : <p className="card-font-bold">{total_tokens}</p>}
+						{fetchingBlockchain ? (
+							<Loading />
+						) : (
+							<p className="card-font-bold">{formatBalanceAndCurrency(total_tokens)}</p>
+						)}
 
 						<div className="sub-title">Project Token</div>
 					</Col>
 					<Col md="5" sm="12">
-						{fetchingBlockchain ? <Loading /> : <p className="card-font-bold">{available_tokens}</p>}
+						{fetchingBlockchain ? (
+							<Loading />
+						) : (
+							<p className="card-font-bold">{formatBalanceAndCurrency(available_tokens)}</p>
+						)}
 
 						<div className="sub-title">Available Token</div>
 					</Col>

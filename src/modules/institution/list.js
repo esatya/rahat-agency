@@ -194,9 +194,9 @@ const Institution = () => {
 											</td>
 											<td>{e.phone || 'N/A'}</td>
 											<td>{e.address || 'N/A'}</td>
-											<td className="blue-grey-text  text-darken-4 font-medium">
-												<Link className="btn btn-secondary" to={`/institutions/${e._id}`}>
-													Details
+											<td className="blue-grey-text text-darken-4 font-medium">
+												<Link to={`/institutions/${e._id}`}>
+													<i className="fas fa-eye fa-lg"></i>
 												</Link>
 											</td>
 										</tr>
