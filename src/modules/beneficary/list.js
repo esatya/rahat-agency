@@ -117,15 +117,15 @@ const Beneficiary = () => {
 		}
 	}, [addToast, listBeneficiary]);
 
-	const fetchProjectList = useCallback(async () => {
-		await listProject();
-	}, [listProject]);
+	// const fetchProjectList = useCallback(async () => {
+	// 	await listProject();
+	// }, [listProject]);
 
 	useEffect(() => {
 		fetchTotalRecords();
 	}, [fetchTotalRecords]);
 
-	useEffect(fetchProjectList, []);
+	//useEffect(fetchProjectList, []);
 
 	const getQueryParams = useCallback(() => {
 		const params = {};
