@@ -184,6 +184,7 @@ export default function NewAsset({ match }) {
 									value={formData.name}
 									placeholder="Eg: Vegetables Token"
 									onChange={handleInputChange}
+									maxlength="15"
 									required
 								/>
 								<Input
@@ -192,6 +193,7 @@ export default function NewAsset({ match }) {
 									value={formData.symbol}
 									placeholder="Eg: VGT"
 									onChange={handleInputChange}
+									maxlength="5"
 									required
 								/>
 							</InputGroup>
