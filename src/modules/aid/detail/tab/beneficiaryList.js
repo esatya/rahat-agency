@@ -124,6 +124,7 @@ const List = ({ projectId }) => {
 			const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
 			/* Update state */
 			const jsonData = convertToJson(data);
+			//const sanitizedJson = jsonData.map((el) =>{return {name:el.name,address:el.address,phone:el.phone}})
 			setUploadPreview(jsonData);
 		};
 		reader.readAsBinaryString(file);
