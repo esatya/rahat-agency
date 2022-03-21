@@ -2,4 +2,6 @@ node_modules/
 .env
 /build
 coverage/
+.env.development
+.env.production
 
