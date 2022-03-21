@@ -12,6 +12,7 @@ module.exports = {
 		notification:'notification'
 	},
 	BALANCE_TABS: { TOKEN: 'Token', PACKAGE: 'Package' },
+	TRANSACTION_TABS: { TOKEN: 'Token', PACKAGE: 'Package' },
 	MAX_QR_GEN: 1000,
 	STATUS_ACTIONS: { APPROVE: 'Approve', REJECT: 'Reject' },
 	APP_CONSTANTS: {

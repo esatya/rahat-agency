@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 
 import VendorInfo from './vendorInfo';
 import ProjectInvovled from '../../ui_components/projects';
-import TransactionHistory from './transactionHistory';
+import TransactionHistory from './transactions';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import displayPic from '../../../assets/images/users/user_avatar.svg';
@@ -45,7 +45,7 @@ const Index = ({ params }) => {
 	const [transactionList, setTransactionList] = useState([]);
 	const [loading, setLoading] = useState(false);
 
-	const [fetchingBlockchain, setFetchingBlockChain] = useState(false);
+	const [fetchingTokenTransaction, setFetchingTokenTransaction] = useState(false);
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [vendorBalance, setVendorBalance] = useState(null);
 	const [passcodeModal, setPasscodeModal] = useState(false);
@@ -223,24 +223,36 @@ const Index = ({ params }) => {
 		sanitizeSelectOptions
 	]);
 
-	const fetchVendorTransactions = useCallback(async () => {
+	const fetchVendorTokenTransactions = useCallback(async () => {
 		try {
-			setFetchingBlockChain(true);
+			setFetchingTokenTransaction(true);
 			const transactions = await getVendorTransactions(id);
 			if (transactions) setTransactionList(transactions);
-			setFetchingBlockChain(false);
+			setFetchingTokenTransaction(false);
 		} catch (err) {
-			setFetchingBlockChain(false);
+			setFetchingTokenTransaction(false);
 		}
 	}, [getVendorTransactions, id]);
+
+	// const fetchVendorPackageTransactions = useCallback(async () => {
+	// 	try {
+	// 		setFetchingBlockChain(true);
+	// 		const transactions = await getVendorTransactions(id);
+	// 		if (transactions) setTransactionList(transactions);
+	// 		setFetchingBlockChain(false);
+	// 	} catch (err) {
+	// 		setFetchingBlockChain(false);
+	// 	}
+	// }, [getVendorTransactions, id]);
+
 
 	useEffect(() => {
 		fetchVendorDetails();
 	}, [fetchVendorDetails]);
 
 	useEffect(() => {
-		fetchVendorTransactions();
-	}, [fetchVendorTransactions]);
+		fetchVendorTokenTransactions();
+	}, [fetchVendorTokenTransactions]);
 
 	useEffect(() => {
 		if (isVerified && wallet) {
@@ -369,7 +381,7 @@ const Index = ({ params }) => {
 
 			<VendorInfo information={basicInfo} />
 			<ProjectInvovled projects={projectList} handleAddBtnClick={handleAddBtnClick} showAddBtn={true} />
-			<TransactionHistory fetching={fetchingBlockchain} transactions={transactionList} />
+			<TransactionHistory fetching={fetchingTokenTransaction} transactions={transactionList} vendorId={id} />
 		</>
 	);
 };
