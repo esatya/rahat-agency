@@ -15,7 +15,8 @@ const initialState = {
 	aids: [],
 	vendor: {},
 	loading: false,
-	transactionHistory: []
+	transactionHistory: [],
+	packageTxHistory:[]
 };
 
 export const VendorContext = createContext(initialState);
@@ -188,6 +189,17 @@ export const VendorContextProvider = ({ children }) => {
 			return res;
 		}
 	}, []);
+	
+	const getVendorPackageTx = useCallback(async id => {
+		let res = await Service.vendorPackagetx(id);
+		if (res) {
+			dispatch({
+				type: ACTION.PACKAGE_TX,
+				data: res
+			});
+			return res;
+		}
+	}, []);
 
 	const getTokenIdsByProjects = useCallback(projects => {
 		return Service.getTokenIdsByProjects(projects);
@@ -232,7 +244,8 @@ export const VendorContextProvider = ({ children }) => {
 				changeVendorStatus,
 				getVendorBalance,
 				getVendorTransactions,
-				getVendorsBalances
+				getVendorsBalances,
+				getVendorPackageTx
 			}}
 		>
 			{children}
