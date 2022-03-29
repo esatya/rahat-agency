@@ -18,6 +18,9 @@ export default (state, action) => {
 
     case `${ACTION.VENDOR_TX}`:
       return { ...state, transactionHistory: action.data };
+      
+    case `${ACTION.PACKAGE_TX}`:
+      return { ...state, packageTxHistory: action.data };
 
     case `${ACTION.LIST_AID}`:
       return {
