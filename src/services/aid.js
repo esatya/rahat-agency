@@ -23,6 +23,7 @@ export async function createNft(payload, contracts, wallet) {
 			const res = await axios.post(`${API.NFT}`, payload, {
 				headers: { access_token: access_token }
 			});
+			await changeProjectStatus(project, 'active');
 			if (res.data) {
 				await contractInstance.removeAllListeners();
 				resolve(res.data);

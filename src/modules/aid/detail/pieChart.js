@@ -12,10 +12,10 @@ export default function Chart({ available_tokens, total_tokens, total_package, f
 	const { addToast } = useToasts();
 
 	const pieDataToken = {
-		labels: ['Available', 'Used', 'Issued', 'Released', 'Redeemed', 'Assigned'],
+		labels: ['Available', 'Issued', 'Used', 'Redeemed',],
 		datasets: [
 			{
-				data: [available_tokens, total_tokens - available_tokens, 0, 0, 0, 0],
+				data: [available_tokens, total_tokens - available_tokens, 0, 0],
 				backgroundColor: ['#2b7ec1', '#fd7e14'],
 				hoverBackgroundColor: ['#2b7ec1', '#fd7e14']
 			}

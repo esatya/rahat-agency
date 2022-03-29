@@ -124,9 +124,8 @@ const Edit = ({ beneficiaryId }) => {
 			const select_options = createProjectSelectOptions(projects);
 			setExistingProjects(select_options);
 		}
-		setExtras(extras);
-		if (extras.group) setSelectedGroup(extras.group);
-		// delete d.extras;
+		if (extras) setExtras(extras);
+		if (extras?.group) setSelectedGroup(extras.group);
 		setFormData({ name, phone, email, address, address_temporary, govt_id });
 		const { gender } = d;
 		if (gender !== 'U') setSelectedGender(gender);
@@ -270,7 +269,7 @@ const Edit = ({ beneficiaryId }) => {
 											<br />
 											<Input
 												name="age"
-												value={extras.age}
+												value={extras.age || ''}
 												type="number"
 												className="form-field"
 												onChange={handleExtraInfoChange}
@@ -303,7 +302,7 @@ const Edit = ({ beneficiaryId }) => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Education</Label>
-											<Input type="text" value={extras.education} name="education" onChange={handleExtraInfoChange} />
+											<Input type="text" value={extras.education || ''} name="education" onChange={handleExtraInfoChange} />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
@@ -312,7 +311,7 @@ const Edit = ({ beneficiaryId }) => {
 											<br />
 											<Input
 												name="profession"
-												value={extras.profession}
+												value={extras.profession || ''}
 												type="text"
 												className="form-field"
 												onChange={handleExtraInfoChange}
@@ -330,7 +329,7 @@ const Edit = ({ beneficiaryId }) => {
 											<br />
 											<Input
 												name="govt_id"
-												value={formData.govt_id}
+												value={formData.govt_id ||''}
 												type="number"
 												className="form-field"
 												onChange={handleInputChange}
@@ -363,7 +362,7 @@ const Edit = ({ beneficiaryId }) => {
 									<br />
 									<Input
 										name="family_members"
-										value={extras.family_members}
+										value={extras.family_members || ''}
 										type="number"
 										className="form-field"
 										onChange={handleExtraInfoChange}
@@ -373,13 +372,13 @@ const Edit = ({ beneficiaryId }) => {
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Adult</Label>
-											<Input type="number" value={extras.adult} name="adult" onChange={handleExtraInfoChange} />
+											<Input type="number" value={extras.adult || ''} name="adult" onChange={handleExtraInfoChange} />
 										</FormGroup>
 									</Col>
 									<Col md="6" sm="12">
 										<FormGroup>
 											<Label>Child</Label>
-											<Input type="number" value={extras.child} name="child" onChange={handleExtraInfoChange} />
+											<Input type="number" value={extras.child || ''} name="child" onChange={handleExtraInfoChange} />
 										</FormGroup>
 									</Col>
 								</Row>
