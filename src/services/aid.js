@@ -9,6 +9,7 @@ import { getContractByProvider, getContractInstance,generateMultiCallData } from
 import { CURRENCY } from '../constants';
 
 const access_token = getUserToken();
+const abiCoder = new ethers.utils.AbiCoder();
 
 export async function createNft(payload, contracts, wallet) {
 	return new Promise(async (resolve, reject) => {
@@ -184,14 +185,21 @@ export async function calculateTotalPackageBalance(payload) {
 }
 
 export async function getProjectPackageBalance(aidId, contract_address) {
+	const aidHashId = ethers.utils.solidityKeccak256(['string'], [aidId]);
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
 	const data = await contract.getProjectERC1155Balances(aidId);
 	if (!data) return null;
-	if (data) {
-		const tokenIds = data.tokenIds.map(t => t.toNumber());
-		const tokenQtys = data.balances.map(b => b.toNumber());
-		return calculateTotalPackageBalance({ tokenIds, tokenQtys });
-	}
+	const tokenIds = data.tokenIds.map(t => t.toNumber());
+	const tokenQtys = data.balances.map(b => b.toNumber());
+	const totalCapitalCallData = tokenIds.map((el)=>generateMultiCallData(CONTRACT.RAHATADMIN,"projectERC1155Capital",[aidHashId,el]))
+	const totalCapital = await contract.callStatic.multicall(totalCapitalCallData)
+	const decodedTotalCapital = totalCapital.map((el) => {
+			const data = abiCoder.decode(['uint256'],el)
+			return data[0].toNumber();
+		});
+	const remainingBalance = await calculateTotalPackageBalance({tokenIds,tokenQtys});
+	const projectCapital = await calculateTotalPackageBalance({tokenIds,tokenQtys:decodedTotalCapital});
+	return {remainingBalance,projectCapital};	
 }
 
 export async function getProjectsBalances(projectIds,contract_address) {
