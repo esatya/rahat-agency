@@ -54,3 +54,9 @@ export const generateMultiCallData = (contractName,functionName,params) => {
 	const iface = getContractInterface(contractName);
 	return iface.encodeFunctionData(functionName,params)
 }
+
+// hri = human readable interface
+export const generateSignaturesWithInterface = (hri,functionName,params) => {
+	const iface = new ethers.utils.Interface(hri);
+	return iface.encodeFunctionData(functionName,params)
+}

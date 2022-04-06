@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
-import { getContractByProvider, getContractInstance,generateMultiCallData } from '../blockchain/abi';
+import { getContractByProvider, getContractInstance,generateMultiCallData ,generateSignaturesWithInterface} from '../blockchain/abi';
 import { CURRENCY } from '../constants';
 
 const access_token = getUserToken();
@@ -202,18 +202,37 @@ export async function getProjectPackageBalance(aidId, contract_address) {
 	return {remainingBalance,projectCapital};	
 }
 
-export async function getProjectsBalances(projectIds,contract_address) {
+
+
+export async function getProjectsBalances(projectIds,rahatAddress,rahatAdminAddress) {
 	try {
-		const contract = await getContractByProvider(contract_address, CONTRACT.RAHATADMIN);
-		const callData = projectIds.map((project) => {
-		return generateMultiCallData(CONTRACT.RAHATADMIN,"getProjecERC20Balance",[project])
-	})
-		console.log({callData})
-		const data = await contract.callStatic.multicall(callData)
-		console.log({data});
-		const projectBalances = data.map((el) => el.toNumber());
-		console.log({projectBalances})
-		return projectBalances;
+		const RahatContract = await getContractByProvider(rahatAddress, CONTRACT.RAHAT);
+		const RahatAdminContract = await getContractByProvider(rahatAdminAddress,CONTRACT.RAHATADMIN)
+		const projectIdHashs = projectIds.map((el)=>ethers.utils.solidityKeccak256(['string'], [el]))
+		const erc20BalanceCallData = projectIdHashs.map((project) => {
+		return generateSignaturesWithInterface(["function getProjectBalance(bytes32 _projectId)"],"getProjectBalance",[project])
+		})
+		const erc1155BalanceCallData = projectIds.map((project)=>{
+			return generateMultiCallData(CONTRACT.RAHATADMIN,"getProjectERC1155Balances",[project])
+		})
+		const erc1155Balance = await RahatAdminContract.callStatic.multicall(erc1155BalanceCallData);
+		const decodedErc1155Balance = erc1155Balance.map((el) => {
+			const decodedData = abiCoder.decode(['uint256[]','uint256[]'],el)
+			const tokenIds = decodedData[0].map((el)=>el.toNumber())
+			const tokenQtys = decodedData[1].map((el)=>el.toNumber())
+			
+			return {tokenIds,tokenQtys};
+		});
+		const packageBalances = await Promise.all(decodedErc1155Balance.map(async (el) => {
+			const packageBalanceTotal = await calculateTotalPackageBalance(el);
+			return packageBalanceTotal
+		}))
+		const data = await RahatContract.callStatic.multicall(erc20BalanceCallData)
+		const projectBalances = data.map((el) => {
+			const data = abiCoder.decode(['uint256'],el)
+			return data[0].toNumber();
+		});
+		return {projectBalances,packageBalances};
 	} catch (e) {
 		console.log(e)
 		return 0;

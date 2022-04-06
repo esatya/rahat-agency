@@ -227,8 +227,8 @@ export const AidContextProvider = ({ children }) => {
 		return Service.uploadBenfToProject(projectId, payload);
 	};
 
-	const getProjectsBalances = useCallback((projectIds,contract_address) => {
-		return Service.getProjectsBalances(projectIds,contract_address);
+	const getProjectsBalances = useCallback((projectIds,rahat_address,rahatAdminAddress) => {
+		return Service.getProjectsBalances(projectIds,rahat_address,rahatAdminAddress);
 	},[])
 
 	return (
