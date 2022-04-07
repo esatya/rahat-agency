@@ -7,7 +7,7 @@ import moment from 'moment'
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
 export default function MobilizerInfo(props) {
-	const { information } = props;
+	const { information,etherBalance } = props;
 	const { id } = props.information;
 	const handleEditClick = () => History.push(`/edit-mobilizer/${id}`);
 	return (
@@ -40,8 +40,8 @@ export default function MobilizerInfo(props) {
 								<div className="sub-title">Government ID</div>
 							</div>
 							<div className="card-data">
-								<p className="card-font-medium">{information.wallet_address || '-'}</p>
-								<div className="sub-title">Wallet address</div>
+								<p className="card-font-medium">{`${information.wallet_address  || '-'} (${etherBalance}) `}</p>
+								<div className="sub-title">Wallet Address</div>
 							</div>
 						</Col>
 						<Col md="4" sm="12">
