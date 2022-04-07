@@ -247,7 +247,7 @@ const List = () => {
 															</span>
 															<br />
 															<span className="badge bg-light text-dark p-2">
-															 {d.packageBalances || 0} Packages
+															 Rs. {d.packageBalances || 0} Packages
 															</span>
 														</>
 													) }

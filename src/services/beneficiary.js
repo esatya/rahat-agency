@@ -63,6 +63,25 @@ export async function getBeneficiaryIssuedTokens(phone, contract_address) {
 	}
 }
 
+export async function getBeneficiaryPackageBalances (beneficiaries,contract_address){
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const erc1155BalanceCallData = beneficiaries.map((ben)=>{
+			return generateMultiCallData(CONTRACT.RAHAT,"getTotalERC1155Balance",[Number(ben.phone)])
+		})
+	const erc1155Balance = await contract.callStatic.multicall(erc1155BalanceCallData);
+	const decodedErc1155Balance = erc1155Balance.map((el) => {
+			const decodedData = abiCoder.decode(['uint256[]','uint256[]'],el)
+			const tokenIds = decodedData[0].map((el)=>el.toNumber())
+			const tokenQtys = decodedData[1].map((el)=>el.toNumber())
+			return {tokenIds,tokenQtys};
+		});
+	const packageBalances = await Promise.all(decodedErc1155Balance.map(async (el) => {
+			const packageBalanceTotal = await calculateTotalPackageBalance(el);
+			return packageBalanceTotal
+		}))
+ 	return packageBalances; 
+}
+
 export async function listBeneficiary(params) {
 	const res = await axios({
 		url: API.BENEFICARIES,
