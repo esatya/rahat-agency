@@ -60,3 +60,11 @@ export const generateSignaturesWithInterface = (hri,functionName,params) => {
 	const iface = new ethers.utils.Interface(hri);
 	return iface.encodeFunctionData(functionName,params)
 }
+
+export const getBalance = async (walletAddress) => {
+	const provider = new ethers.providers.JsonRpcProvider(NETWORK_URL);
+	const balance = await provider.getBalance(walletAddress);
+	const etherBalance = ethers.utils.formatUnits(balance)
+	if(etherBalance.length > 5) return etherBalance.slice(0,5);
+	return etherBalance;
+}

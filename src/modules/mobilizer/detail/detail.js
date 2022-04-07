@@ -31,6 +31,7 @@ import Balance from '../../ui_components/balance';
 import { TOAST, MOBIZ_STATUS } from '../../../constants';
 import ProjectsByStatus from './projectsByStatus';
 import { formatErrorMsg } from '../../../utils';
+import {getBalance} from '../../../blockchain/abi';
 import MaskLoader from '../../global/MaskLoader';
 import StatusBox from './statusBox';
 
@@ -63,7 +64,7 @@ export default function DetailsForm(props) {
 
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [totalPackageBalance, setTotalPackageBalance] = useState(null);
-
+	const [mobilizerEtherBalance, setMobilizerEtherBalance] = useState(null);
 	const [mobilizerStatus, setMobilizerStatus] = useState(null);
 	const [mobilizerProjects, setMobilizerProjects] = useState([]);
 	const [statusInput, setStatusInput] = useState('');
@@ -77,6 +78,8 @@ export default function DetailsForm(props) {
 			const {agency} = appSettings;
 			setFetchingBalance(true);
 			const { rahat } = agency.contracts;
+			const etherBalance = await getBalance(wallet_address);
+			setMobilizerEtherBalance(etherBalance);
 			const tokenBalance = await getMobilizerBalance(rahat, wallet_address);
 			setMobilizerBalance(tokenBalance);
 			const packageBalance = await getMobilizerPackageBalance(rahat, wallet_address);
@@ -322,7 +325,7 @@ export default function DetailsForm(props) {
 				</Col>
 			</Row>
 
-			<MobilizerInfo information={mobilizer} />
+			<MobilizerInfo information={mobilizer} etherBalance={mobilizerEtherBalance}/>
 			<ProjectsByStatus mobilizerProjects={mobilizerProjects} handleApproveReject={handleApproveReject} />
 
 			<Row>
