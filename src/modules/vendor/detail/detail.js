@@ -19,6 +19,7 @@ import { VENDOR_STATUS, STATUS_ACTIONS } from '../../../constants';
 import ModalWrapper from '../../global/CustomModal';
 import SelectWrapper from '../../global/SelectWrapper';
 import StatusBox from './statusBox';
+import {getBalance} from '../../../blockchain/abi';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -58,6 +59,8 @@ const Index = ({ params }) => {
 	// WIP
 	const [vendorApproveModal, setVendorApproveModal] = useState(false);
 	const [inputStatus, setInputStatus] = useState('');
+	const [vendorEtherBalance, setVendorEtherBalance] = useState(null);
+
 
 	const toggleVendorApproveModal = () => setVendorApproveModal(!vendorApproveModal);
 	// END WIP
@@ -156,6 +159,8 @@ const Index = ({ params }) => {
 			const { rahat_erc20 } = appSettings.agency.contracts;
 			const balance = await getVendorBalance(rahat_erc20, wallet_address);
 			setVendorBalance(balance);
+			const etherBalance = await getBalance(wallet_address);
+			setVendorEtherBalance(etherBalance);
 			setFetchingBalance(false);
 		},
 		[appSettings, getVendorBalance]
@@ -379,7 +384,7 @@ const Index = ({ params }) => {
 				</Col>
 			</Row>
 
-			<VendorInfo information={basicInfo} />
+			<VendorInfo information={basicInfo} etherBalance={vendorEtherBalance} />
 			<ProjectInvovled projects={projectList} handleAddBtnClick={handleAddBtnClick} showAddBtn={true} />
 			<TransactionHistory fetching={fetchingTokenTransaction} transactions={transactionList} vendorId={id} />
 		</>
