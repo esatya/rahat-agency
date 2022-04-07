@@ -45,5 +45,6 @@ export default {
 		let wallet = await new ethers.Wallet(privateKey);
 		if (!wallet) throw Error('Wallet not found');
 		return this.connectProvider(wallet);
-	}
+	},
+
 };
