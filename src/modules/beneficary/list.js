@@ -31,7 +31,7 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, listProject, projectList, getBeneficiariesBalances } = useContext(BeneficiaryContext);
+	const { listBeneficiary, listProject, projectList, getBeneficiariesBalances,getBenfPackageBalances } = useContext(BeneficiaryContext);
 	const { appSettings } = useContext(AppContext);
 	const handleFilterOptionChange = e => {
 		let { value } = e.target;
@@ -74,9 +74,10 @@ const Beneficiary = () => {
 		fetchList({ start: 0, limit: PAGE_LIMIT });
 	};
 
-	const appendBeneficiaryBalances = useCallback(({ beneficiaries, balances }) => {
+	const appendBeneficiaryBalances = useCallback(({ beneficiaries, tokenBalances,packageBalances }) => {
 		const beneficiariesWithTokens = beneficiaries.map((ben, i) => {
-			ben.tokenBalance = balances[i];
+			ben.tokenBalance = tokenBalances[i];
+			ben.packageBalance = packageBalances[i].grandTotal
 			return ben;
 		});
 		setBenfList(beneficiariesWithTokens);
@@ -88,10 +89,11 @@ const Beneficiary = () => {
 			if (!appSettings || !appSettings.agency || !appSettings.agency.contracts) return;
 			const { agency } = appSettings;
 			setfetchingBeneficiaryTokens(true);
-			const balances = await getBeneficiariesBalances(beneficiaries, agency.contracts.rahat);
-			if (balances.length) await appendBeneficiaryBalances({ beneficiaries, balances });
+			const tokenBalances = await getBeneficiariesBalances(beneficiaries, agency.contracts.rahat);
+			const packageBalances = await getBenfPackageBalances (beneficiaries,agency.contracts.rahat);
+			if (tokenBalances.length) await appendBeneficiaryBalances({ beneficiaries, tokenBalances,packageBalances });
 		},
-		[appSettings, getBeneficiariesBalances, appendBeneficiaryBalances]
+		[appSettings, getBeneficiariesBalances, appendBeneficiaryBalances,getBenfPackageBalances]
 	);
 
 	const fetchList = useCallback(
@@ -142,9 +144,9 @@ const Beneficiary = () => {
 			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
-			const data = await listBeneficiary(query);
-			setBenfList(data.data);
-			fetchBeneficiariesBalances({ beneficiaries: data.data });
+			const {data} = await listBeneficiary(query);
+			setBenfList(data);
+			fetchBeneficiariesBalances({ beneficiaries: data });
 		},
 		[getQueryParams, listBeneficiary, fetchBeneficiariesBalances]
 	);
@@ -262,10 +264,9 @@ const Beneficiary = () => {
 															</span>
 															<br />
 															<span className="badge bg-light text-dark p-2">
-																{formatBalanceAndCurrency(
-																	d.issued_packages.reduce((partialSum, a) => partialSum + a, 0)
-																)}
-																Packages
+																Rs. {formatBalanceAndCurrency(
+																	d.packageBalance
+																)} Packages
 															</span>
 														</>
 													) : (
