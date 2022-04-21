@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardTitle, Table, Row, Col } from 'reactstrap';
-import GrowSpinner from '../../global/GrowSpinner';
+import GrowSpinner from '../../../global/GrowSpinner';
 
 const EXPLORER_URL = process.env.REACT_APP_BLOCKCHAIN_EXPLORER;
 
@@ -13,7 +13,7 @@ const TransactionHistory = props => {
 				<div className="stat-card-body" style={{ minHeight: 120 }}>
 					<CardTitle className="title">
 						<Row>
-							<Col md="6">Transaction History</Col>
+							<Col md="6">Token Transaction History</Col>
 							<Col md="6"></Col>
 						</Row>
 					</CardTitle>
@@ -24,8 +24,6 @@ const TransactionHistory = props => {
 							<thead>
 								<tr className="border-0">
 									<th className="border-0">From</th>
-									<th className="border-0">To</th>
-									<th className="border-0">Block number</th>
 									<th className="border-0">Value</th>
 									<th className="border-0">Type</th>
 									<th className="border-0">TX</th>
@@ -37,8 +35,6 @@ const TransactionHistory = props => {
 										return (
 											<tr key={i}>
 												<td>{tx.from}</td>
-												<td>{tx.to}</td>
-												<td>{tx.blockNumber}</td>
 												<td>{tx.value}</td>
 												<td>{tx.tag}</td>
 												<td>

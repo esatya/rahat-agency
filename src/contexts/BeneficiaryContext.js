@@ -49,6 +49,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryPackageBalance(phone, contract_address);
 	}, []);
 
+	const getBenfPackageBalances = useCallback((beneficiaries, contract_address) => {
+		return Service.getBeneficiaryPackageBalances(beneficiaries, contract_address);
+	}, []);
+
 	const getTotalIssuedTokens = useCallback((phone, contract_address) => {
 		return Service.getTotalIssuedTokens(phone, contract_address);
 	}, []);
@@ -138,7 +142,8 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				getAvailableBalance,
 				getBeneficiaryDetails,
 				getBeneficiaryBalance,
-				getBeneficiariesBalances
+				getBeneficiariesBalances,
+				getBenfPackageBalances
 			}}
 		>
 			{children}

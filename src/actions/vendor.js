@@ -10,4 +10,5 @@ module.exports = {
   SET_LOADING: "set_vendor_loading",
   RESET_LOADING: "reset_vendor_reset_loading",
   VENDOR_TX: "VENDOR_TX_HISTORY",
+  PACKAGE_TX: "PACKAGE_TX_HISTORY"
 };

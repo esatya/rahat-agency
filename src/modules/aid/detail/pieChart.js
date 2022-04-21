@@ -7,15 +7,15 @@ import { getUser } from '../../../utils/sessionManager';
 import { ROLES, PROJECT_STATUS, TOAST } from '../.../../../../constants';
 import { useToasts } from 'react-toast-notifications';
 
-export default function Chart({ available_tokens, total_tokens, total_package, fetching, projectStatus, projectId }) {
+export default function Chart({ available_tokens, total_tokens, total_package, available_package, fetching, projectStatus, projectId }) {
 	const history = useHistory();
 	const { addToast } = useToasts();
 
 	const pieDataToken = {
-		labels: ['Available', 'Used', 'Issued', 'Released', 'Redeemed', 'Assigned'],
+		labels: ['Available', 'Issued', 'Used', 'Redeemed',],
 		datasets: [
 			{
-				data: [available_tokens, total_tokens - available_tokens, 0, 0, 0, 0],
+				data: [available_tokens, total_tokens - available_tokens, 0, 0],
 				backgroundColor: ['#2b7ec1', '#fd7e14'],
 				hoverBackgroundColor: ['#2b7ec1', '#fd7e14']
 			}
@@ -23,12 +23,12 @@ export default function Chart({ available_tokens, total_tokens, total_package, f
 	};
 
 	const pieDataPackage = {
-		labels: ['Total package'],
+		labels: ['Available','Issued'],
 		datasets: [
 			{
-				data: [total_package],
-				backgroundColor: ['#2b7ec1'],
-				hoverBackgroundColor: ['#2b7ec1']
+				data: [available_package,total_package - available_package],
+				backgroundColor: ['#2b7ec1', '#fd7e14'],
+				hoverBackgroundColor: ['#2b7ec1', '#fd7e14']
 			}
 		]
 	};

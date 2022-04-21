@@ -35,8 +35,6 @@ const UploadList = ({ data }) => {
 						<th className="border-0">Name</th>
 						<th className="border-0">Address</th>
 						<th className="border-0">Phone number</th>
-						<th className="border-0">Email</th>
-						<th className="border-0">Shop</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -47,8 +45,6 @@ const UploadList = ({ data }) => {
 									<td>{d.name}</td>
 									<td>{d.address || '-'}</td>
 									<td>{d.phone}</td>
-									<td>{d.email}</td>
-									<td>{d.shop_name || '-'}</td>
 								</tr>
 							);
 						})

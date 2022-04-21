@@ -43,16 +43,21 @@ export const AppContextProvider = ({ children }) => {
 		dispatch({ type: ACTION.INIT_APP, data });
 	}, [dispatch]);
 
-	const getAppSettings=useCallback(()=> {
-		return new Promise((resolve, reject) => {
-			Service.getSettings()
-				.then(res => {
-					dispatch({ type: ACTION.GET_APP_SUCCESS, res });
-					resolve(res);
-				})
-				.catch(err => reject(err));
-		});
-	},[])
+	// const getAppSettings=useCallback(()=> {
+	// 	return new Promise((resolve, reject) => {
+	// 		Service.getSettings()
+	// 			.then(res => {
+	// 				dispatch({ type: ACTION.GET_APP_SUCCESS, res });
+	// 				resolve(res);
+	// 			})
+	// 			.catch(err => reject(err));
+	// 	});
+	// },[])
+
+	const getAppSettings=useCallback(async ()=> {
+		const res = await Service.getSettings();
+		dispatch({ type: ACTION.GET_APP_SUCCESS, res })
+	},[dispatch])
 
 	function setPasscodeModal(flag) {
 		dispatch({ type: ACTION.SET_PASSCODE_MODAL, data: flag });
