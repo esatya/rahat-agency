@@ -119,6 +119,17 @@ export async function vendorTransactions(vendorId) {
 	} catch {}
 }
 
+export async function vendorPackagetx(vendorId) {
+	try {
+		const res = await axios({
+			url: `${API.VENDORS}/${vendorId}/tx/packages`,
+			method: 'get',
+			headers: { access_token }
+		});
+		return res.data;
+	} catch {}
+}
+
 export async function listByAid(aid, params) {
 	try {
 		const res = await axios({

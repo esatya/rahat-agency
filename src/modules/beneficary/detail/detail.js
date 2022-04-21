@@ -127,6 +127,8 @@ const BenefDetails = ({ params }) => {
 
 	const fetchCurrentBalance = useCallback(
 		async phone => {
+			const {agency} = appSettings
+			if(!agency || !agency.contracts) return;
 			try {
 				const parsed_phone = parseInt(phone);
 				const { agency } = appSettings;

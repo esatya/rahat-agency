@@ -80,7 +80,6 @@ export default function (props) {
 					finalResult.push(packages[i]);
 				} else finalResult.push(packages[i]);
 			}
-
 			setPackageList(finalResult);
 		},
 		[checkHasIndex]

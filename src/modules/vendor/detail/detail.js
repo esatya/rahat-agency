@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 
 import VendorInfo from './vendorInfo';
 import ProjectInvovled from '../../ui_components/projects';
-import TransactionHistory from './transactionHistory';
+import TransactionHistory from './transactions';
 import { VendorContext } from '../../../contexts/VendorContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
 import displayPic from '../../../assets/images/users/user_avatar.svg';
@@ -19,6 +19,7 @@ import { VENDOR_STATUS, STATUS_ACTIONS } from '../../../constants';
 import ModalWrapper from '../../global/CustomModal';
 import SelectWrapper from '../../global/SelectWrapper';
 import StatusBox from './statusBox';
+import {getBalance} from '../../../blockchain/abi';
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY;
 
@@ -45,7 +46,7 @@ const Index = ({ params }) => {
 	const [transactionList, setTransactionList] = useState([]);
 	const [loading, setLoading] = useState(false);
 
-	const [fetchingBlockchain, setFetchingBlockChain] = useState(false);
+	const [fetchingTokenTransaction, setFetchingTokenTransaction] = useState(false);
 	const [fetchingBalance, setFetchingBalance] = useState(false);
 	const [vendorBalance, setVendorBalance] = useState(null);
 	const [passcodeModal, setPasscodeModal] = useState(false);
@@ -58,6 +59,8 @@ const Index = ({ params }) => {
 	// WIP
 	const [vendorApproveModal, setVendorApproveModal] = useState(false);
 	const [inputStatus, setInputStatus] = useState('');
+	const [vendorEtherBalance, setVendorEtherBalance] = useState(null);
+
 
 	const toggleVendorApproveModal = () => setVendorApproveModal(!vendorApproveModal);
 	// END WIP
@@ -156,6 +159,8 @@ const Index = ({ params }) => {
 			const { rahat_erc20 } = appSettings.agency.contracts;
 			const balance = await getVendorBalance(rahat_erc20, wallet_address);
 			setVendorBalance(balance);
+			const etherBalance = await getBalance(wallet_address);
+			setVendorEtherBalance(etherBalance);
 			setFetchingBalance(false);
 		},
 		[appSettings, getVendorBalance]
@@ -223,24 +228,36 @@ const Index = ({ params }) => {
 		sanitizeSelectOptions
 	]);
 
-	const fetchVendorTransactions = useCallback(async () => {
+	const fetchVendorTokenTransactions = useCallback(async () => {
 		try {
-			setFetchingBlockChain(true);
+			setFetchingTokenTransaction(true);
 			const transactions = await getVendorTransactions(id);
 			if (transactions) setTransactionList(transactions);
-			setFetchingBlockChain(false);
+			setFetchingTokenTransaction(false);
 		} catch (err) {
-			setFetchingBlockChain(false);
+			setFetchingTokenTransaction(false);
 		}
 	}, [getVendorTransactions, id]);
+
+	// const fetchVendorPackageTransactions = useCallback(async () => {
+	// 	try {
+	// 		setFetchingBlockChain(true);
+	// 		const transactions = await getVendorTransactions(id);
+	// 		if (transactions) setTransactionList(transactions);
+	// 		setFetchingBlockChain(false);
+	// 	} catch (err) {
+	// 		setFetchingBlockChain(false);
+	// 	}
+	// }, [getVendorTransactions, id]);
+
 
 	useEffect(() => {
 		fetchVendorDetails();
 	}, [fetchVendorDetails]);
 
 	useEffect(() => {
-		fetchVendorTransactions();
-	}, [fetchVendorTransactions]);
+		fetchVendorTokenTransactions();
+	}, [fetchVendorTokenTransactions]);
 
 	useEffect(() => {
 		if (isVerified && wallet) {
@@ -367,9 +384,9 @@ const Index = ({ params }) => {
 				</Col>
 			</Row>
 
-			<VendorInfo information={basicInfo} />
+			<VendorInfo information={basicInfo} etherBalance={vendorEtherBalance} />
 			<ProjectInvovled projects={projectList} handleAddBtnClick={handleAddBtnClick} showAddBtn={true} />
-			<TransactionHistory fetching={fetchingBlockchain} transactions={transactionList} />
+			<TransactionHistory fetching={fetchingTokenTransaction} transactions={transactionList} vendorId={id} />
 		</>
 	);
 };
