@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, CardBody, CardTitle, Input, Label, FormGroup, Row, Col } from 'reactstrap';
+import { Button, Card, CardBody, CardTitle, Input, Label, FormGroup } from 'reactstrap';
 import SelectWrapper from '../../global/SelectWrapper';
 
 const PROJECTLIST = ['Earthquake relief', 'Landslide relief', 'Flood relief'];
