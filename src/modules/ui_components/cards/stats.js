@@ -9,7 +9,7 @@ export default function Stats(props) {
 	return (
 		<div>
 			<Card>
-				<div className="stat-card-body" style={{ minHeight: 120 }}>
+				<div className="card-body">
 					<CardTitle style={{ color: title_color || '#222' }} className="title">
 						{title || 'No Title'}
 					</CardTitle>
@@ -19,7 +19,7 @@ export default function Stats(props) {
 							{formatBalanceAndCurrency(data) || '0'}
 						</h2>
 						<h2 style={{ flexBasis: '30%' }} className="card-font-medium">
-							<i style={{ color: icon_color || '#222' }} class={icon_name}></i>
+							<i style={{ color: icon_color || '#222' }} className={icon_name}></i>
 						</h2>
 					</div>
 					<div style={{ marginTop: 0 }} className="sub-title">
