@@ -202,7 +202,11 @@ export async function getProjectPackageBalance(aidId, contract_address) {
 	return {remainingBalance,projectCapital};	
 }
 
-
+export async function getProjectTokenBalance(aidId,contract_address) {
+	const remainingBalance = loadAidBalance(aidId,contract_address);
+	const projectCapital = getProjectCapital(aidId,contract_address);
+	return {remainingBalance,projectCapital}
+}
 
 export async function getProjectsBalances(projectIds,rahatAddress,rahatAdminAddress) {
 	try {
