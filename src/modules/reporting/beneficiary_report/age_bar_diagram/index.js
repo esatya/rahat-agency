@@ -26,12 +26,12 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data, dataLabel } = props;
+	const { data } = props;
 
 	const barChartData = {
 		datasets: [
 			{
-				label: dataLabel || '',
+				label: 'Beneficiaries',
 				backgroundColor: '#2B7EC1',
 				stack: '2'
 			}
@@ -44,8 +44,8 @@ const Index = props => {
 	if (data && data.length) {
 		bar_labels = [];
 		for (let d of data) {
-			bar_labels.push(d.name);
-			bar_data.push(d.token);
+			bar_labels.push(d.range);
+			bar_data.push(d.value);
 		}
 	}
 
