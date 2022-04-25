@@ -31,7 +31,7 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, listProject, projectList, getBeneficiariesBalances,getBenfPackageBalances } = useContext(BeneficiaryContext);
+	const { listBeneficiary, projectList, getBeneficiariesBalances,getBenfPackageBalances } = useContext(BeneficiaryContext);
 	const { appSettings } = useContext(AppContext);
 	const handleFilterOptionChange = e => {
 		let { value } = e.target;

@@ -33,10 +33,7 @@ const List = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [fetchingPackageBalances, setFetchingPackageBalances] = useState(true);
 	const [projectList,setProjectList] = useState([]);
-	const [tokenBalances,setTokenBalances] = useState(0);
-	const [packageBalances,setPackageBalances] = useState(0);
-
-
+	
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
