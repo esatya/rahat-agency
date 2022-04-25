@@ -325,6 +325,12 @@ let AppRoutes = [
 			// 	component: Settings
 			// },
 			{
+				path: '/reporting',
+				name: 'Reporting',
+				icon: 'mdi mdi-adjust',
+				component: Reporting
+			},
+			{
 				path: '/users',
 				name: 'Users',
 				icon: 'mdi mdi-adjust',
@@ -341,12 +347,6 @@ let AppRoutes = [
 				name: 'Aid connect',
 				icon: 'mdi mdi-adjust',
 				component: AidConnectList
-			},
-			{
-				path: '/reporting',
-				name: 'Reporting',
-				icon: 'mdi mdi-adjust',
-				component: Reporting
 			}
 		]
 	},

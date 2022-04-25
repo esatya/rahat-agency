@@ -3,7 +3,7 @@ import axios from 'axios';
 import { getUserToken } from '../utils/sessionManager';
 import API from '../constants/api';
 import CONTRACT from '../constants/contracts';
-import { getContractByProvider,generateMultiCallData } from '../blockchain/abi';
+import { getContractByProvider, generateMultiCallData } from '../blockchain/abi';
 import { calculateTotalPackageBalance } from './aid';
 import { ethers } from 'ethers';
 
@@ -18,16 +18,18 @@ export async function getBeneficiaryBalance(phone, contract_address) {
 	return data.toNumber();
 }
 
-export async function getBeneficiariesBalances(beneficiaries,contract_address) {
+export async function getBeneficiariesBalances(beneficiaries, contract_address) {
 	try {
 		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-		const callData = beneficiaries.map((ben) => generateMultiCallData(CONTRACT.RAHAT,"erc20Balance",[Number(ben.phone)]))
-		const data = await contract.callStatic.multicall(callData)
-		const decodedData = data.map((el) => abiCoder.decode(['uint256'],el));
-		const benBalances = decodedData.map((el) => el[0].toNumber());
+		const callData = beneficiaries.map(ben =>
+			generateMultiCallData(CONTRACT.RAHAT, 'erc20Balance', [Number(ben.phone)])
+		);
+		const data = await contract.callStatic.multicall(callData);
+		const decodedData = data.map(el => abiCoder.decode(['uint256'], el));
+		const benBalances = decodedData.map(el => el[0].toNumber());
 		return benBalances;
 	} catch (e) {
-		console.log(e)
+		console.log(e);
 		return 0;
 	}
 }
@@ -39,7 +41,6 @@ export async function getTotalIssuedTokens(phone, contract_address) {
 	if (!data) return null;
 	return data.toNumber();
 }
-
 
 export async function getBeneficiaryPackageBalance(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
@@ -63,23 +64,25 @@ export async function getBeneficiaryIssuedTokens(phone, contract_address) {
 	}
 }
 
-export async function getBeneficiaryPackageBalances (beneficiaries,contract_address){
+export async function getBeneficiaryPackageBalances(beneficiaries, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
-	const erc1155BalanceCallData = beneficiaries.map((ben)=>{
-			return generateMultiCallData(CONTRACT.RAHAT,"getTotalERC1155Balance",[Number(ben.phone)])
-		})
+	const erc1155BalanceCallData = beneficiaries.map(ben => {
+		return generateMultiCallData(CONTRACT.RAHAT, 'getTotalERC1155Balance', [Number(ben.phone)]);
+	});
 	const erc1155Balance = await contract.callStatic.multicall(erc1155BalanceCallData);
-	const decodedErc1155Balance = erc1155Balance.map((el) => {
-			const decodedData = abiCoder.decode(['uint256[]','uint256[]'],el)
-			const tokenIds = decodedData[0].map((el)=>el.toNumber())
-			const tokenQtys = decodedData[1].map((el)=>el.toNumber())
-			return {tokenIds,tokenQtys};
-		});
-	const packageBalances = await Promise.all(decodedErc1155Balance.map(async (el) => {
+	const decodedErc1155Balance = erc1155Balance.map(el => {
+		const decodedData = abiCoder.decode(['uint256[]', 'uint256[]'], el);
+		const tokenIds = decodedData[0].map(el => el.toNumber());
+		const tokenQtys = decodedData[1].map(el => el.toNumber());
+		return { tokenIds, tokenQtys };
+	});
+	const packageBalances = await Promise.all(
+		decodedErc1155Balance.map(async el => {
 			const packageBalanceTotal = await calculateTotalPackageBalance(el);
-			return packageBalanceTotal
-		}))
- 	return packageBalances; 
+			return packageBalanceTotal;
+		})
+	);
+	return packageBalances;
 }
 
 export async function listBeneficiary(params) {
@@ -178,6 +181,16 @@ export async function importBeneficiary(body) {
 			access_token
 		},
 		data: body
+	});
+	return data;
+}
+
+export async function beneficiaryReport(params) {
+	const { data } = await axios({
+		url: API.BENEFICARIES + `/reports`,
+		method: 'get',
+		headers: { access_token },
+		params
 	});
 	return data;
 }

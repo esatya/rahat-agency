@@ -24,11 +24,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return AidService.loadAidBalance(proejctId, rahatContractAddr);
 	}
 
-
 	const issueTokens = useCallback(
 		async (payload, wallet) => {
-			const {agency} = appSettings;
-			if(!agency && !agency.contracts) return;
+			const { agency } = appSettings;
+			if (!agency && !agency.contracts) return;
 			changeIsverified(false);
 			const { rahat: rahatContractAddr } = agency.contracts;
 			return AidService.issueBeneficiaryToken(wallet, payload, rahatContractAddr);
@@ -40,10 +39,9 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.getBeneficiaryBalance(phone, contract_address);
 	}, []);
 
-	const getBeneficiariesBalances = useCallback(async(phone,contract_address) => {
-		return Service.getBeneficiariesBalances(phone,contract_address)
-	},[])
-
+	const getBeneficiariesBalances = useCallback(async (phone, contract_address) => {
+		return Service.getBeneficiariesBalances(phone, contract_address);
+	}, []);
 
 	const getBenfPackageBalance = useCallback((phone, contract_address) => {
 		return Service.getBeneficiaryPackageBalance(phone, contract_address);
@@ -117,6 +115,10 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return data;
 	}, []);
 
+	const beneficiaryReport = useCallback(async params => {
+		const data = await Service.beneficiaryReport(params);
+		return data;
+	}, []);
 	return (
 		<BeneficiaryContext.Provider
 			value={{
@@ -143,7 +145,8 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				getBeneficiaryDetails,
 				getBeneficiaryBalance,
 				getBeneficiariesBalances,
-				getBenfPackageBalances
+				getBenfPackageBalances,
+				beneficiaryReport
 			}}
 		>
 			{children}
