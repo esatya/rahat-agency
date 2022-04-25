@@ -34,6 +34,47 @@ export async function getBeneficiariesBalances(beneficiaries, contract_address) 
 	}
 }
 
+export async function getBeneficiariesTokensIssued(beneficiaries,contract_address) {
+	try {
+		const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+		const callData = beneficiaries.map((ben) => generateMultiCallData(CONTRACT.RAHAT,"erc20Issued",[Number(ben.phone)]))
+		const data = await contract.callStatic.multicall(callData)
+		const decodedData = data.map((el) => abiCoder.decode(['uint256'],el));
+		const issued = decodedData.map((el) => el[0].toNumber());
+		return issued;
+	} catch (e) {
+		console.log(e)
+		return 0;
+	}
+}
+export async function getBeneficairyTokenBalances(beneficiaries,contract_address){
+	 //TODO make gasefficient calls
+	const remainingTokens = await getBeneficiariesBalances(beneficiaries,contract_address);
+	const issuedTokens = await getBeneficiariesTokensIssued(beneficiaries,contract_address);
+	return({remainingTokens,issuedTokens})
+}
+
+export async function getTotalBeneficairyTokenBalances(beneficiaries,contract_address){
+	 //TODO make gasefficient calls
+	const {remainingTokens,issuedTokens} = await getBeneficairyTokenBalances(beneficiaries,contract_address);
+	const totalTokenIssued = issuedTokens.reduce((prev,curr)=>prev+curr,0)
+	const totalRemainingTokens = remainingTokens.reduce((prev,curr)=>prev+curr,0)
+	console.log({totalTokenIssued,totalRemainingTokens})
+	return({totalTokenIssued,totalRemainingTokens})
+}
+
+export async function getBeneficiaryPackages(beneficiaries,contract_address){
+	const packageBalances = await getBeneficiaryPackageBalances(beneficiaries,contract_address)
+	return {packageBalances}
+}
+
+export async function getTotalBeneficiaryPackages(beneficiaries,contract_address){
+	const {packageBalances} = await getBeneficiaryPackages(beneficiaries,contract_address);
+	const totalRemainingPackageBalance = packageBalances.reduce((prev,curr) =>prev + curr.grandTotal,0);
+	console.log({totalRemainingPackageBalance})
+	return {totalRemainingPackageBalance};
+}
+
 // Total tokens
 export async function getTotalIssuedTokens(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
@@ -52,6 +93,20 @@ export async function getBeneficiaryPackageBalance(phone, contract_address) {
 		return calculateTotalPackageBalance({ tokenIds, tokenQtys });
 	}
 }
+
+
+export async function getBeneficiaryIssuedPackages(phone, contract_address) {
+	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
+	const data = await contract.getTotalERC1155Issued(phone);
+	if (!data) return null;
+	if (data) {
+		const tokenIds = data.tokenIds.map(t => t.toNumber());
+		const tokenQtys = data.balances.map(b => b.toNumber());
+		return { tokenIds, tokenQtys };
+	}
+	
+}
+
 
 export async function getBeneficiaryIssuedTokens(phone, contract_address) {
 	const contract = await getContractByProvider(contract_address, CONTRACT.RAHAT);
