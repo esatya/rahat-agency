@@ -12,15 +12,10 @@ import { APP_CONSTANTS } from '../../../constants';
 import { dottedString } from '../../../utils';
 import MiniSpinner from '../../global/MiniSpinner';
 
-
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
-	const {
-		listAid,
-		addAid,
-		getProjectsBalances
-	} = useContext(AidContext);
+	const { listAid, addAid, getProjectsBalances } = useContext(AidContext);
 	const { appSettings } = useContext(AppContext);
 	const { addToast } = useToasts();
 	const [aidModal, setaidModal] = useState(false);
@@ -32,8 +27,8 @@ const List = () => {
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [fetchingPackageBalances, setFetchingPackageBalances] = useState(true);
-	const [projectList,setProjectList] = useState([]);
-	
+	const [projectList, setProjectList] = useState([]);
+
 	const toggleModal = () => {
 		setaidModal(!aidModal);
 	};
@@ -79,7 +74,7 @@ const List = () => {
 		}
 	};
 
-		const appendProjectBalances = useCallback(({ projects, balances }) => {
+	const appendProjectBalances = useCallback(({ projects, balances }) => {
 		const projectsWithBalances = projects.map((el, i) => {
 			el.tokenBalance = balances.projectBalances[i];
 			el.packageBalances = balances.packageBalances[i].grandTotal;
@@ -89,18 +84,18 @@ const List = () => {
 		setFetchingPackageBalances(false);
 	}, []);
 
-	const fetchProjectsBalances = useCallback(async (projects) => {
-		if (!appSettings || !appSettings.agency) return;
-		const { agency } = appSettings;
-		if (!agency && !agency.contracts) return;
-		setFetchingPackageBalances(true);
-		const projectIds = projects.map(el => el._id);
-		const balances = await getProjectsBalances(projectIds, agency.contracts.rahat,agency.contracts.rahat_admin);
-		if(balances) await appendProjectBalances({projects,balances})
-		
-	}, [ getProjectsBalances,
-		appSettings,appendProjectBalances
-	]);
+	const fetchProjectsBalances = useCallback(
+		async projects => {
+			if (!appSettings || !appSettings.agency) return;
+			const { agency } = appSettings;
+			if (!agency && !agency.contracts) return;
+			setFetchingPackageBalances(true);
+			const projectIds = projects.map(el => el._id);
+			const balances = await getProjectsBalances(projectIds, agency.contracts.rahat, agency.contracts.rahat_admin);
+			if (balances) await appendProjectBalances({ projects, balances });
+		},
+		[getProjectsBalances, appSettings, appendProjectBalances]
+	);
 
 	const onPageChanged = useCallback(
 		async paginationData => {
@@ -111,17 +106,16 @@ const List = () => {
 			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
-			const {data}  = await listAid(query);
+			const { data } = await listAid(query);
 			setProjectList(data);
 			fetchProjectsBalances(data);
-
 		},
-		[listAid, projectStatus, searchName,fetchProjectsBalances]
+		[listAid, projectStatus, searchName, fetchProjectsBalances]
 	);
 
 	const loadAidList = useCallback(
 		async query => {
-			const {data,total} = await listAid(query);
+			const { data, total } = await listAid(query);
 			setProjectList(data);
 			setTotalRecords(total);
 		},
@@ -140,10 +134,6 @@ const List = () => {
 		}
 	}, [addToast, listAid]);
 
-
-
-
-
 	useEffect(() => {
 		fetchTotalRecords();
 	}, [fetchTotalRecords]);
@@ -151,7 +141,6 @@ const List = () => {
 	// useEffect(() => {
 	// 	fetchProjectsBalances();
 	// }, [fetchProjectsBalances]);
-
 	return (
 		<>
 			<AidModal toggle={toggleModal} open={aidModal} title="Add Project" handleSubmit={handleAidSubmit}>
@@ -235,20 +224,16 @@ const List = () => {
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status === 'closed' ? 'COMPLETED' : d.status.toUpperCase()}</td>
 											<td>
-													{fetchingPackageBalances ? (
-														<MiniSpinner />
-													) : (
-														<>
-															<span className="badge badge-success p-2 mb-1">
-																{d.tokenBalance || 0 } Tokens 
-															</span>
-															<br />
-															<span className="badge bg-light text-dark p-2">
-															 Rs. {d.packageBalances || 0} Packages
-															</span>
-														</>
-													) }
-												</td>
+												{fetchingPackageBalances ? (
+													<MiniSpinner />
+												) : (
+													<>
+														<span className="badge badge-success p-2 mb-1">{d.tokenBalance || 0} Tokens</span>
+														<br />
+														<span className="badge bg-light text-dark p-2">Rs. {d.packageBalances || 0} Packages</span>
+													</>
+												)}
+											</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/projects/${d._id}`}>
 													<i className="fas fa-eye fa-lg"></i>
