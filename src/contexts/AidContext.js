@@ -177,18 +177,12 @@ export const AidContextProvider = ({ children }) => {
 		},
 		[changeIsverified]
 	);
-	const sendTokenIssuedSms = useCallback(
-		async (phone,token) => {
-			return SmsService.sendTokenIssuedSms({phone,token});
-		},
-		[]
-	);
-	const sendPackageIssuedSms = useCallback(
-		async (phone,packageName) => {
-			return SmsService.sendPackageIssuedSms({phone,packageName});
-		},
-		[]
-	);
+	const sendTokenIssuedSms = useCallback(async (phone, token) => {
+		return SmsService.sendTokenIssuedSms({ phone, token });
+	}, []);
+	const sendPackageIssuedSms = useCallback(async (phone, packageName) => {
+		return SmsService.sendPackageIssuedSms({ phone, packageName });
+	}, []);
 
 	const suspendBeneficiaryToken = useCallback(
 		async (payload, wallet, contracts) => {
@@ -211,6 +205,10 @@ export const AidContextProvider = ({ children }) => {
 		[changeIsverified]
 	);
 
+	const getProjectTokenBalance = useCallback((aidId, contract_address) => {
+		return Service.getProjectTokenBalance(aidId, contract_address);
+	}, []);
+
 	const getProjectPackageBalance = useCallback((aidId, contract_address) => {
 		return Service.getProjectPackageBalance(aidId, contract_address);
 	}, []);
@@ -227,9 +225,9 @@ export const AidContextProvider = ({ children }) => {
 		return Service.uploadBenfToProject(projectId, payload);
 	};
 
-	const getProjectsBalances = useCallback((projectIds,rahat_address,rahatAdminAddress) => {
-		return Service.getProjectsBalances(projectIds,rahat_address,rahatAdminAddress);
-	},[])
+	const getProjectsBalances = useCallback((projectIds, rahat_address, rahatAdminAddress) => {
+		return Service.getProjectsBalances(projectIds, rahat_address, rahatAdminAddress);
+	}, []);
 
 	return (
 		<AidContext.Provider
@@ -273,7 +271,8 @@ export const AidContextProvider = ({ children }) => {
 				bulkTokenIssueToBeneficiary,
 				getBeneficiaryIssuedTokens,
 				suspendBeneficiaryToken,
-				getProjectsBalances
+				getProjectsBalances,
+				getProjectTokenBalance
 			}}
 		>
 			{children}

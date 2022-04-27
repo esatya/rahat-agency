@@ -3,17 +3,13 @@ import { Button, Card, CardBody, CardTitle, Input, FormGroup, Label } from 'reac
 import AgeBarDiagram from './age_bar_diagram';
 import ProjectBarDiagram from './project_bar_diagram';
 import GenderPieChart from './gender_pie_chart';
-import { useToasts } from 'react-toast-notifications';
 import SelectWrapper from '../../global/SelectWrapper';
-import { TOAST } from '../../../constants';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 
 const BeneficiaryReport = () => {
-	const { addToast } = useToasts();
-
 	const { beneficiaryReport, listProject } = useContext(BeneficiaryContext);
 
-	// const [projectId, setProjectId] = useState('');
+	const [projectId, setProjectId] = useState('');
 	// const [projects, setProjects] = useState();
 	const [projectList, setProjectList] = useState([]);
 
@@ -25,20 +21,17 @@ const BeneficiaryReport = () => {
 		beneficiaryByAge: []
 	});
 
-	const fetchBeneficiaryData = () => {
-		beneficiaryReport()
-			.then(data => {
-				const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
-				setBeneficiaryData({
-					beneficiaryByGender: beneficiaryByGender.beneficiaries,
-					beneficiaryByProject: beneficiaryByProject.project,
-					beneficiaryByAge: beneficiaryByAge.beneficiaries
-				});
-			})
-			.catch(() => {
-				addToast('Internal server error!', TOAST.ERROR);
+	const fetchBeneficiaryData = useCallback(async () => {
+		if (projectId) {
+			const data = await beneficiaryReport({ projectId });
+			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+			setBeneficiaryData({
+				beneficiaryByGender: beneficiaryByGender.beneficiaries,
+				beneficiaryByProject: beneficiaryByProject.project,
+				beneficiaryByAge: beneficiaryByAge.beneficiaries
 			});
-	};
+		}
+	}, [beneficiaryReport, projectId]);
 
 	const [formData, setFormData] = useState({
 		from: '',
@@ -66,10 +59,13 @@ const BeneficiaryReport = () => {
 
 	const handleProjectChange = data => {
 		const values = data.value.toString();
-		// setProjectId(values);
+		setProjectId(values);
 	};
 
-	useEffect(fetchBeneficiaryData, []);
+	useEffect(() => {
+		fetchBeneficiaryData();
+	}, [fetchBeneficiaryData]);
+
 	useEffect(() => {
 		loadProjects();
 	}, [loadProjects]);
