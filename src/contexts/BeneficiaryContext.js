@@ -69,6 +69,14 @@ export const BeneficiaryContextProvider = ({ children }) => {
 		return Service.addBeneficiaryToProject(benfId, projectId);
 	};
 
+	const getTotalBeneficairyTokenBalances = useCallback((beneficiaries, contract_address) => {
+		return Service.getTotalBeneficairyTokenBalances(beneficiaries, contract_address);
+	}, []);
+
+	const getTotalBeneficiaryPackages = useCallback((beneficiaries, contract_address) => {
+		return Service.getTotalBeneficiaryPackages(beneficiaries, contract_address);
+	}, []);
+
 	function clear() {
 		dispatch({
 			type: ACTION.LIST,
@@ -146,7 +154,9 @@ export const BeneficiaryContextProvider = ({ children }) => {
 				getBeneficiaryBalance,
 				getBeneficiariesBalances,
 				getBenfPackageBalances,
-				beneficiaryReport
+				beneficiaryReport,
+				getTotalBeneficairyTokenBalances,
+				getTotalBeneficiaryPackages
 			}}
 		>
 			{children}

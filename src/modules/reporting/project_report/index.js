@@ -1,43 +1,80 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Button, Card, CardBody, CardTitle, Input, Label, FormGroup } from 'reactstrap';
 import SelectWrapper from '../../global/SelectWrapper';
-import { useToasts } from 'react-toast-notifications';
-import { TOAST } from '../../../constants';
 import { AidContext } from '../../../contexts/AidContext';
-import { UserContext } from '../../../contexts/UserContext';
+import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
+import { AppContext } from '../../../contexts/AppSettingsContext';
 
+import BudgetChart from './budget/budget_chart';
 import TokenChart from './budget/token_chart';
+import BeneficiaryByProject from './beneficiary';
 
 const ProjectReport = () => {
-	const { addToast } = useToasts();
-	const { listAid } = useContext(AidContext);
-	const { getDashboardStats } = useContext(UserContext);
+	const { listAid, getProjectTokenBalance, getProjectPackageBalance } = useContext(AidContext);
+	const {
+		listBeneficiary,
+		beneficiaryReport,
+		getTotalBeneficairyTokenBalances,
+		getTotalBeneficiaryPackages
+	} = useContext(BeneficiaryContext);
+	const { appSettings } = useContext(AppContext);
 
 	const [importing, setImporting] = useState(false);
 	const [projectList, setProjectList] = useState([]);
+	const [projectId, setProjectId] = useState('');
 
 	const [formData, setFormData] = useState({
 		from: '',
 		to: ''
 	});
 
-	const [stats, setStats] = useState({
-		totalProjects: 0,
-		totalVendors: 0,
-		totalBeneficiaries: 0,
-		totalMobilizers: 0,
-		totalAllocation: 0,
-		redeemedTokens: 0,
-		beneficiariesByProject: [],
-		tokensByProject: [],
-		totalInstitutions: 0
+	const [projectBalance, setProjectBalance] = useState({
+		projectCapital: 0,
+		remainingBalance: 0
 	});
+
+	const [beneficiaryTokenBalance, setBeneficiaryTokenBalance] = useState({
+		totalRemainingTokens: 0,
+		totalTokenIssued: 0,
+		totalUsedTokens: 0
+	});
+
+	const [beneficiaryData, setBeneficiaryData] = useState({
+		beneficiaryByGender: [],
+		beneficiaryByProject: [],
+		beneficiaryByAge: []
+	});
+	const [beneficiaries, setBeneficiaries] = useState([]);
+
+	const TOTAL_BUDGET = [
+		{
+			name: 'Total Budget',
+			count: projectBalance.projectCapital
+		},
+		{
+			name: 'Remaining Budget',
+			count: projectBalance.remainingBalance
+		}
+	];
+
+	const TOTAL_BENEFICIARY_TOKEN_BALANCE = [
+		{
+			name: 'Tokens Used',
+			count: beneficiaryTokenBalance.totalUsedTokens
+		},
+		{
+			name: 'Tokens Remaining',
+			count: beneficiaryTokenBalance.totalRemainingTokens
+		}
+	];
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-	const handleProjectChange = () => {};
-	const handleExportClick = () => {};
+	const handleProjectChange = data => {
+		const values = data.value.toString();
+		setProjectId(values);
+	};
 
 	const loadProjects = useCallback(async () => {
 		const project = await listAid();
@@ -50,47 +87,94 @@ const ProjectReport = () => {
 			});
 			setProjectList(select_options);
 		}
-		// setProjects(project);
 	}, [listAid]);
 
-	const fetchDashboardStats = () => {
-		getDashboardStats()
-			.then(d => {
-				// console.log({ d });
-				const {
-					projectCount,
-					vendorCount,
-					beneficiary,
-					mobilizerCount,
-					tokenAllocation,
-					institutionCount,
-					tokenRedemption
-				} = d;
+	const fetchProjectTokenBalance = useCallback(async () => {
+		const { contracts } = appSettings.agency;
+		if (projectId) {
+			const projectTokenBalance = await getProjectTokenBalance(projectId, contracts.rahat);
+			const { projectCapital, remainingBalance } = projectTokenBalance;
+			setProjectBalance(prevState => ({
+				...prevState,
+				projectCapital: projectCapital,
+				remainingBalance: remainingBalance
+			}));
+		}
+	}, [projectId, getProjectTokenBalance, appSettings.agency]);
 
-				setStats(prevState => ({
-					...prevState,
-					totalProjects: projectCount,
-					totalVendors: vendorCount,
-					totalBeneficiaries: beneficiary.totalCount,
-					totalMobilizers: mobilizerCount,
-					totalAllocation: tokenAllocation.totalAllocation,
-					redeemedTokens: tokenRedemption.totalTokenRedemption,
-					beneficiariesByProject: beneficiary.project,
-					tokensByProject: tokenAllocation.projectAllocation,
-					totalInstitutions: institutionCount
-				}));
-			})
-			.catch(() => {
-				addToast('Internal server error!', TOAST.ERROR);
+	const fetchProjectPackageBalance = useCallback(async () => {
+		const { contracts } = appSettings.agency;
+		if (projectId) {
+			const projectPackageBalance = await getProjectPackageBalance(projectId, contracts.rahat);
+			console.log({ projectPackageBalance });
+		}
+	}, [projectId, getProjectPackageBalance, appSettings.agency]);
+
+	const fetchBeneficiaryList = useCallback(async () => {
+		const res = await listBeneficiary();
+		setBeneficiaries(res.data);
+	}, [listBeneficiary]);
+
+	const fetchTotalBeneficairyTokenBalances = useCallback(async () => {
+		const { contracts } = appSettings.agency;
+		const totalBeneficairyTokenBalances = await getTotalBeneficairyTokenBalances(beneficiaries, contracts.rahat);
+		const { totalRemainingTokens, totalTokenIssued, totalUsedTokens } = totalBeneficairyTokenBalances;
+		setBeneficiaryTokenBalance(prevState => ({
+			...prevState,
+			totalRemainingTokens: totalRemainingTokens,
+			totalTokenIssued: totalTokenIssued,
+			totalUsedTokens: totalUsedTokens
+		}));
+	}, [getTotalBeneficairyTokenBalances, appSettings.agency, beneficiaries]);
+
+	const fetchTotalBeneficiaryPackages = useCallback(async () => {
+		const { contracts } = appSettings.agency;
+		const totalBeneficiaryPackages = await getTotalBeneficiaryPackages(beneficiaries, contracts.rahat);
+		// const { totalRemainingPackageBalance, totalPackageBalance } = totalBeneficiaryPackages;
+		console.log({ totalBeneficiaryPackages });
+	}, [getTotalBeneficiaryPackages, appSettings.agency, beneficiaries]);
+
+	const fetchBeneficiaryData = useCallback(async () => {
+		if (projectId) {
+			const data = await beneficiaryReport({ projectId });
+			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+			setBeneficiaryData({
+				beneficiaryByGender: beneficiaryByGender.beneficiaries,
+				beneficiaryByProject: beneficiaryByProject.project,
+				beneficiaryByAge: beneficiaryByAge.beneficiaries
 			});
-	};
+		}
+	}, [beneficiaryReport, projectId]);
+
+	const handleExportClick = () => {};
 
 	useEffect(() => {
 		loadProjects();
 	}, [loadProjects]);
 
-	useEffect(fetchDashboardStats, []);
-	// console.log({ projectList });
+	useEffect(() => {
+		fetchBeneficiaryList();
+	}, [fetchBeneficiaryList]);
+
+	useEffect(() => {
+		fetchBeneficiaryData();
+	}, [fetchBeneficiaryData]);
+
+	useEffect(() => {
+		fetchProjectTokenBalance();
+	}, [fetchProjectTokenBalance]);
+
+	useEffect(() => {
+		fetchProjectPackageBalance();
+	}, [fetchProjectPackageBalance]);
+
+	useEffect(() => {
+		fetchTotalBeneficairyTokenBalances();
+	}, [fetchTotalBeneficairyTokenBalances]);
+
+	useEffect(() => {
+		fetchTotalBeneficiaryPackages();
+	}, [fetchTotalBeneficiaryPackages]);
 
 	return (
 		<div className="main">
@@ -150,9 +234,17 @@ const ProjectReport = () => {
 									)}
 								</div>
 							</div>
-							{/* <div className="p-4">
-								<TokenChart data={''} />
-							</div> */}
+							<div className="row p-4">
+								<div className="col-md-8 sm-12">
+									<BudgetChart data={TOTAL_BUDGET} />
+								</div>
+								<div className="col-md-4 sm-12">
+									<TokenChart data={TOTAL_BENEFICIARY_TOKEN_BALANCE} />
+								</div>
+							</div>
+							<div>
+								<BeneficiaryByProject beneficiary={beneficiaryData} />
+							</div>
 						</div>
 					</CardBody>
 				</Card>
