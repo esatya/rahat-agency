@@ -213,7 +213,7 @@ export async function getProjectPackageBalance(aidId, contract_address) {
 export async function getProjectTokenBalance(aidId, contract_address) {
 	const remainingBalance = await loadAidBalance(aidId, contract_address);
 	const projectCapital = await getProjectCapital(aidId, contract_address);
-	return { remainingBalance, projectCapital };
+	return { remainingBalance, projectCapital,allocatedBudget:projectCapital-remainingBalance };
 }
 
 export async function getProjectsBalances(projectIds, rahatAddress, rahatAdminAddress) {

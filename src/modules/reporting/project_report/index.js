@@ -8,6 +8,8 @@ import { AppContext } from '../../../contexts/AppSettingsContext';
 import BudgetChart from './budget/budget_chart';
 import TokenChart from './budget/token_chart';
 import BeneficiaryByProject from './beneficiary';
+//TODO; Packages chart same as token chart
+//TODO: project selector in the middle if project is not selected
 
 const ProjectReport = () => {
 	const { listAid, getProjectTokenBalance, getProjectPackageBalance } = useContext(AidContext);
@@ -21,7 +23,7 @@ const ProjectReport = () => {
 
 	const [importing, setImporting] = useState(false);
 	const [projectList, setProjectList] = useState([]);
-	const [projectId, setProjectId] = useState('');
+	const [projectId, setProjectId] = useState(null);
 
 	const [formData, setFormData] = useState({
 		from: '',
@@ -30,7 +32,8 @@ const ProjectReport = () => {
 
 	const [projectBalance, setProjectBalance] = useState({
 		projectCapital: 0,
-		remainingBalance: 0
+		remainingBalance: 0,
+		allocatedBudget:0
 	});
 
 	const [beneficiaryTokenBalance, setBeneficiaryTokenBalance] = useState({
@@ -63,8 +66,12 @@ const ProjectReport = () => {
 			count: beneficiaryTokenBalance.totalUsedTokens
 		},
 		{
-			name: 'Tokens Remaining',
+			name: 'Tokens Unused',
 			count: beneficiaryTokenBalance.totalRemainingTokens
+		},
+		{
+			name: 'Total Allocated',
+			count: projectBalance.allocatedBudget
 		}
 	];
 
@@ -90,33 +97,40 @@ const ProjectReport = () => {
 	}, [listAid]);
 
 	const fetchProjectTokenBalance = useCallback(async () => {
-		const { contracts } = appSettings.agency;
+		const {agency} = appSettings
+		if(!agency || !agency.contracts) return;
+		const {contracts} = agency;
 		if (projectId) {
-			const projectTokenBalance = await getProjectTokenBalance(projectId, contracts.rahat);
-			const { projectCapital, remainingBalance } = projectTokenBalance;
+			const projectTokenBalance = await getProjectTokenBalance(projectId, contracts.rahat_admin);
+			const { projectCapital, remainingBalance,allocatedBudget } = projectTokenBalance;
 			setProjectBalance(prevState => ({
 				...prevState,
-				projectCapital: projectCapital,
-				remainingBalance: remainingBalance
+				projectCapital,
+				remainingBalance,
+				allocatedBudget,
 			}));
 		}
-	}, [projectId, getProjectTokenBalance, appSettings.agency]);
+	}, [projectId, getProjectTokenBalance, appSettings]);
 
 	const fetchProjectPackageBalance = useCallback(async () => {
-		const { contracts } = appSettings.agency;
-		if (projectId) {
-			const projectPackageBalance = await getProjectPackageBalance(projectId, contracts.rahat);
-			console.log({ projectPackageBalance });
-		}
-	}, [projectId, getProjectPackageBalance, appSettings.agency]);
+			const {agency} = appSettings
+			if(!agency || !agency.contracts) return;
+			const {contracts} = agency;
+		if (!projectId) return;
+			const projectPackageBalance = await getProjectPackageBalance(projectId, contracts.rahat_admin);
+		
+	}, [projectId, getProjectPackageBalance, appSettings]);
 
 	const fetchBeneficiaryList = useCallback(async () => {
-		const res = await listBeneficiary();
+		if(!projectId) return;
+		const res = await listBeneficiary({projectId});
 		setBeneficiaries(res.data);
-	}, [listBeneficiary]);
+	}, [listBeneficiary,projectId]);
 
 	const fetchTotalBeneficairyTokenBalances = useCallback(async () => {
-		const { contracts } = appSettings.agency;
+		const {agency} = appSettings
+		if(!agency || !agency.contracts) return;
+		const {contracts} = agency;
 		const totalBeneficairyTokenBalances = await getTotalBeneficairyTokenBalances(beneficiaries, contracts.rahat);
 		const { totalRemainingTokens, totalTokenIssued, totalUsedTokens } = totalBeneficairyTokenBalances;
 		setBeneficiaryTokenBalance(prevState => ({
@@ -125,17 +139,17 @@ const ProjectReport = () => {
 			totalTokenIssued: totalTokenIssued,
 			totalUsedTokens: totalUsedTokens
 		}));
-	}, [getTotalBeneficairyTokenBalances, appSettings.agency, beneficiaries]);
+	}, [getTotalBeneficairyTokenBalances, appSettings, beneficiaries]);
 
 	const fetchTotalBeneficiaryPackages = useCallback(async () => {
-		const { contracts } = appSettings.agency;
+		const {agency} = appSettings
+		if(!agency || !agency.contracts) return;
+		const {contracts} = agency;
 		const totalBeneficiaryPackages = await getTotalBeneficiaryPackages(beneficiaries, contracts.rahat);
 		// const { totalRemainingPackageBalance, totalPackageBalance } = totalBeneficiaryPackages;
-		console.log({ totalBeneficiaryPackages });
-	}, [getTotalBeneficiaryPackages, appSettings.agency, beneficiaries]);
+	}, [getTotalBeneficiaryPackages, appSettings, beneficiaries]);
 
 	const fetchBeneficiaryData = useCallback(async () => {
-		if (projectId) {
 			const data = await beneficiaryReport({ projectId });
 			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
 			setBeneficiaryData({
@@ -143,7 +157,7 @@ const ProjectReport = () => {
 				beneficiaryByProject: beneficiaryByProject.project,
 				beneficiaryByAge: beneficiaryByAge.beneficiaries
 			});
-		}
+		
 	}, [beneficiaryReport, projectId]);
 
 	const handleExportClick = () => {};
@@ -179,6 +193,7 @@ const ProjectReport = () => {
 	return (
 		<div className="main">
 			<div className="transaction-table-container">
+				
 				<Card>
 					<CardTitle className="mb-0 ml-3 pt-3">
 						<span>Project report</span>
@@ -234,7 +249,10 @@ const ProjectReport = () => {
 									)}
 								</div>
 							</div>
-							<div className="row p-4">
+
+							{!projectId?(<span style={{display: 'flex', justifyContent: 'center'}}>Please select project to get reports </span>):(<div>
+								<div className="row p-4">
+								
 								<div className="col-md-8 sm-12">
 									<BudgetChart data={TOTAL_BUDGET} />
 								</div>
@@ -245,6 +263,8 @@ const ProjectReport = () => {
 							<div>
 								<BeneficiaryByProject beneficiary={beneficiaryData} />
 							</div>
+							</div>)}
+							
 						</div>
 					</CardBody>
 				</Card>
