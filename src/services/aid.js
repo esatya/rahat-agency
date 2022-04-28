@@ -206,14 +206,21 @@ export async function getProjectPackageBalance(aidId, contract_address) {
 		return data[0].toNumber();
 	});
 	const remainingBalance = await calculateTotalPackageBalance({ tokenIds, tokenQtys });
+	const remainingPackageBalance = remainingBalance.grandTotal;
 	const projectCapital = await calculateTotalPackageBalance({ tokenIds, tokenQtys: decodedTotalCapital });
-	return { remainingBalance, projectCapital };
+	const projectPackageCapital = projectCapital.grandTotal;
+
+	return {
+		remainingPackageBalance,
+		projectPackageCapital,
+		allocatedPackageBudget: projectPackageCapital - remainingPackageBalance
+	};
 }
 
 export async function getProjectTokenBalance(aidId, contract_address) {
 	const remainingBalance = await loadAidBalance(aidId, contract_address);
 	const projectCapital = await getProjectCapital(aidId, contract_address);
-	return { remainingBalance, projectCapital,allocatedBudget:projectCapital-remainingBalance };
+	return { remainingBalance, projectCapital, allocatedBudget: projectCapital - remainingBalance };
 }
 
 export async function getProjectsBalances(projectIds, rahatAddress, rahatAdminAddress) {
