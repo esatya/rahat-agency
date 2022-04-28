@@ -19,6 +19,7 @@ const Reporting = () => {
 	});
 
 	const fetchDashboardStats = () => {
+		
 		getDashboardStats()
 			.then(data => {
 				const { projectCount, mobilizerCount, vendorCount, beneficiary } = data;

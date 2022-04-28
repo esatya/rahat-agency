@@ -29,8 +29,12 @@ export async function getVendorsBalances(contract_address, vendorAddresses) {
 	const data = await contract.callStatic.multicall(callData);
     const decodedData = data.map((el) => abiCoder.decode(['uint256'],el));
 	const vendorBalances = decodedData.map((el) => el[0].toNumber());
-
 	return vendorBalances
+}
+
+export async function getTotalVendorsBalances(contract_address,vendorAddresses){
+	const balances = await getVendorsBalances(contract_address,vendorAddresses);
+	return balances.reduce((prev,curr) => prev+curr,0);
 }
 
 export async function getVendorPackageBalance(contract_address, wallet_addresses, tokenIds) {
