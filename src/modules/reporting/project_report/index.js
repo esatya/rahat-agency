@@ -1,15 +1,21 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Button, Card, CardBody, CardTitle, Input, Label, FormGroup } from 'reactstrap';
 import SelectWrapper from '../../global/SelectWrapper';
+import { APP_CONSTANTS } from '../../../constants';
+
 import { AidContext } from '../../../contexts/AidContext';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import { AppContext } from '../../../contexts/AppSettingsContext';
+import { VendorContext } from '../../../contexts/VendorContext';
 
 import BudgetChart from './budget/budget_chart';
 import TokenChart from './budget/token_chart';
 import BeneficiaryByProject from './beneficiary';
-//TODO; Packages chart same as token chart
+import PackageChart from './budget/package_chart';
+import VendorChart from './vendor';
 //TODO: project selector in the middle if project is not selected
+
+const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const ProjectReport = () => {
 	const { listAid, getProjectTokenBalance, getProjectPackageBalance } = useContext(AidContext);
@@ -20,6 +26,7 @@ const ProjectReport = () => {
 		getTotalBeneficiaryPackages
 	} = useContext(BeneficiaryContext);
 	const { appSettings } = useContext(AppContext);
+	const { getTotalVendorsBalances, getVendorDetails, listVendor } = useContext(VendorContext);
 
 	const [importing, setImporting] = useState(false);
 	const [projectList, setProjectList] = useState([]);
@@ -33,7 +40,13 @@ const ProjectReport = () => {
 	const [projectBalance, setProjectBalance] = useState({
 		projectCapital: 0,
 		remainingBalance: 0,
-		allocatedBudget:0
+		allocatedBudget: 0
+	});
+
+	const [projectPackageBalance, setProjectPackageBalance] = useState({
+		projectPackageCapital: 0,
+		remainingPackageBalance: 0,
+		allocatedPackageBudget: 0
 	});
 
 	const [beneficiaryTokenBalance, setBeneficiaryTokenBalance] = useState({
@@ -70,8 +83,23 @@ const ProjectReport = () => {
 			count: beneficiaryTokenBalance.totalRemainingTokens
 		},
 		{
-			name: 'Total Allocated',
+			name: 'Tokens Allocated',
 			count: projectBalance.allocatedBudget
+		}
+	];
+
+	const TOTAL_BENEFICIARY_PACKAGE_BALANCE = [
+		{
+			name: 'Total Package',
+			count: projectPackageBalance.projectPackageCapital
+		},
+		{
+			name: 'Remaining Package',
+			count: projectPackageBalance.remainingPackageBalance
+		},
+		{
+			name: 'Allocated Package',
+			count: projectPackageBalance.allocatedPackageBudget
 		}
 	];
 
@@ -97,40 +125,46 @@ const ProjectReport = () => {
 	}, [listAid]);
 
 	const fetchProjectTokenBalance = useCallback(async () => {
-		const {agency} = appSettings
-		if(!agency || !agency.contracts) return;
-		const {contracts} = agency;
+		const { agency } = appSettings;
+		if (!agency || !agency.contracts) return;
+		const { contracts } = agency;
 		if (projectId) {
 			const projectTokenBalance = await getProjectTokenBalance(projectId, contracts.rahat_admin);
-			const { projectCapital, remainingBalance,allocatedBudget } = projectTokenBalance;
+			const { projectCapital, remainingBalance, allocatedBudget } = projectTokenBalance;
 			setProjectBalance(prevState => ({
 				...prevState,
 				projectCapital,
 				remainingBalance,
-				allocatedBudget,
+				allocatedBudget
 			}));
 		}
 	}, [projectId, getProjectTokenBalance, appSettings]);
 
 	const fetchProjectPackageBalance = useCallback(async () => {
-			const {agency} = appSettings
-			if(!agency || !agency.contracts) return;
-			const {contracts} = agency;
+		const { agency } = appSettings;
+		if (!agency || !agency.contracts) return;
+		const { contracts } = agency;
 		if (!projectId) return;
-			const projectPackageBalance = await getProjectPackageBalance(projectId, contracts.rahat_admin);
-		
+		const projectPackageBalance = await getProjectPackageBalance(projectId, contracts.rahat_admin);
+		const { projectPackageCapital, remainingPackageBalance, allocatedPackageBudget } = projectPackageBalance;
+		setProjectPackageBalance(prevState => ({
+			...prevState,
+			projectPackageCapital,
+			remainingPackageBalance,
+			allocatedPackageBudget
+		}));
 	}, [projectId, getProjectPackageBalance, appSettings]);
 
 	const fetchBeneficiaryList = useCallback(async () => {
-		if(!projectId) return;
-		const res = await listBeneficiary({projectId});
+		if (!projectId) return;
+		const res = await listBeneficiary({ projectId });
 		setBeneficiaries(res.data);
-	}, [listBeneficiary,projectId]);
+	}, [listBeneficiary, projectId]);
 
 	const fetchTotalBeneficairyTokenBalances = useCallback(async () => {
-		const {agency} = appSettings
-		if(!agency || !agency.contracts) return;
-		const {contracts} = agency;
+		const { agency } = appSettings;
+		if (!agency || !agency.contracts) return;
+		const { contracts } = agency;
 		const totalBeneficairyTokenBalances = await getTotalBeneficairyTokenBalances(beneficiaries, contracts.rahat);
 		const { totalRemainingTokens, totalTokenIssued, totalUsedTokens } = totalBeneficairyTokenBalances;
 		setBeneficiaryTokenBalance(prevState => ({
@@ -141,24 +175,35 @@ const ProjectReport = () => {
 		}));
 	}, [getTotalBeneficairyTokenBalances, appSettings, beneficiaries]);
 
-	const fetchTotalBeneficiaryPackages = useCallback(async () => {
-		const {agency} = appSettings
-		if(!agency || !agency.contracts) return;
-		const {contracts} = agency;
-		const totalBeneficiaryPackages = await getTotalBeneficiaryPackages(beneficiaries, contracts.rahat);
-		// const { totalRemainingPackageBalance, totalPackageBalance } = totalBeneficiaryPackages;
-	}, [getTotalBeneficiaryPackages, appSettings, beneficiaries]);
+	// const fetchTotalBeneficiaryPackages = useCallback(async () => {
+	// 	const { agency } = appSettings;
+	// 	if (!agency || !agency.contracts) return;
+	// 	const { contracts } = agency;
+	// 	const totalBeneficiaryPackages = await getTotalBeneficiaryPackages(beneficiaries, contracts.rahat);
+	// 	// const { totalRemainingPackageBalance, totalPackageBalance } = totalBeneficiaryPackages;
+	// }, [getTotalBeneficiaryPackages, appSettings, beneficiaries]);
 
 	const fetchBeneficiaryData = useCallback(async () => {
-			const data = await beneficiaryReport({ projectId });
-			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
-			setBeneficiaryData({
-				beneficiaryByGender: beneficiaryByGender.beneficiaries,
-				beneficiaryByProject: beneficiaryByProject.project,
-				beneficiaryByAge: beneficiaryByAge.beneficiaries
-			});
-		
+		const data = await beneficiaryReport({ projectId });
+		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+		setBeneficiaryData({
+			beneficiaryByGender: beneficiaryByGender.beneficiaries,
+			beneficiaryByProject: beneficiaryByProject.project,
+			beneficiaryByAge: beneficiaryByAge.beneficiaries
+		});
 	}, [beneficiaryReport, projectId]);
+
+	const fetchVendorList = useCallback(async () => {
+		const vendors = await listVendor({ start: 0, limit: PAGE_LIMIT });
+		console.log({ vendors });
+	}, [listVendor]);
+
+	// const fetchTotalVendorsBalances = useCallback(async () => {
+	// 	const { agency } = appSettings;
+	// 	if (!agency || !agency.contracts) return;
+	// 	const { rahat_erc20 } = agency.contracts;
+	// 	const vendorTokenStatus = await getTotalVendorsBalances(rahat_erc20);
+	// }, []);
 
 	const handleExportClick = () => {};
 
@@ -187,13 +232,15 @@ const ProjectReport = () => {
 	}, [fetchTotalBeneficairyTokenBalances]);
 
 	useEffect(() => {
-		fetchTotalBeneficiaryPackages();
-	}, [fetchTotalBeneficiaryPackages]);
+		fetchVendorList();
+	}, [fetchVendorList]);
+	// useEffect(() => {
+	// 	fetchTotalBeneficiaryPackages();
+	// }, [fetchTotalBeneficiaryPackages]);
 
 	return (
 		<div className="main">
 			<div className="transaction-table-container">
-				
 				<Card>
 					<CardTitle className="mb-0 ml-3 pt-3">
 						<span>Project report</span>
@@ -250,21 +297,29 @@ const ProjectReport = () => {
 								</div>
 							</div>
 
-							{!projectId?(<span style={{display: 'flex', justifyContent: 'center'}}>Please select project to get reports </span>):(<div>
-								<div className="row p-4">
-								
-								<div className="col-md-8 sm-12">
-									<BudgetChart data={TOTAL_BUDGET} />
+							{!projectId ? (
+								<span style={{ display: 'flex', justifyContent: 'center' }}>Please select project to get reports </span>
+							) : (
+								<div>
+									<div className="row p-4">
+										<div className="col-md-4 sm-12">
+											<BudgetChart data={TOTAL_BUDGET} />
+										</div>
+										<div className="col-md-4 sm-12">
+											<TokenChart data={TOTAL_BENEFICIARY_TOKEN_BALANCE} />
+										</div>
+										<div className="col-md-4 sm-12">
+											<PackageChart data={TOTAL_BENEFICIARY_PACKAGE_BALANCE} />
+										</div>
+									</div>
+									<div>
+										<BeneficiaryByProject beneficiary={beneficiaryData} />
+									</div>
+									<div>
+										<VendorChart data={''} />
+									</div>
 								</div>
-								<div className="col-md-4 sm-12">
-									<TokenChart data={TOTAL_BENEFICIARY_TOKEN_BALANCE} />
-								</div>
-							</div>
-							<div>
-								<BeneficiaryByProject beneficiary={beneficiaryData} />
-							</div>
-							</div>)}
-							
+							)}
 						</div>
 					</CardBody>
 				</Card>
