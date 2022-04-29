@@ -31,9 +31,9 @@ const TransactionHistory = props => {
 							</thead>
 							<tbody>
 								{transactions.length > 0 ? (
-									transactions.map(tx => {
+									transactions.map((tx,i) => {
 										return (
-											<tr>
+											<tr key={i}>
 												<td>{tx.from}</td>
 												<td>{tx.value}</td>
 												<td>{tx.tag}</td>

@@ -33,7 +33,8 @@ export default function Index(props) {
 
 	const [projectDetails, setProjectDetails] = useState(null);
 	const [fetchingBlockchain, setFetchingBlockchain] = useState(false);
-	const [totalFiatBalance, setTotalFiatBalance] = useState(null);
+	const [totalFiatBalance, setTotalFiatBalance] = useState(0);
+	const [totalRemainingFiatBalance,setTotalRemainingFiatBalance] = useState(0)
 
 	const handleStatusChange = status => {
 		const success_label = status === PROJECT_STATUS.CLOSED ? 'Closed' : 'Activated';
@@ -68,8 +69,10 @@ export default function Index(props) {
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
 			console.log({ res });
-			setTotalFiatBalance(res.grandTotal || 0);
+			setTotalFiatBalance(res.projectCapital.grandTotal || 0);
+			setTotalRemainingFiatBalance(res.remainingBalance.grandTotal || 0)
 		} catch (err) {
+			console.log(err);
 			addToast(err.message, TOAST.ERROR);
 		} finally {
 			setFetchingBlockchain(false);
@@ -110,6 +113,7 @@ export default function Index(props) {
 							available_tokens={available_tokens}
 							total_tokens={total_tokens}
 							total_package={totalFiatBalance}
+							available_package = {totalRemainingFiatBalance}
 							projectStatus={projectDetails.status}
 							projectId={id}
 						/>

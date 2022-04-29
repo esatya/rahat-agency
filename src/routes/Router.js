@@ -51,6 +51,13 @@ const KoboToolboxFormDetails = lazy(() => import('../modules/kobotool/forms/deta
 const AidConnectList = lazy(() => import('../modules/aid_connect/list'));
 const AidConnectCreateForm = lazy(() => import('../modules/aid_connect/create_forms'));
 
+// Reporting
+const Reporting = lazy(() => import('../modules/reporting'));
+const ReportProject = lazy(() => import('../modules/reporting/project_report'));
+const ReportBeneficiary = lazy(() => import('../modules/reporting/beneficiary_report'));
+const ReportMobilizer = lazy(() => import('../modules/reporting/mobilizer_report'));
+const ReportVendor = lazy(() => import('../modules/reporting/vendor_report'));
+
 // Vendor
 const Vendor = lazy(() => import('../modules/vendor'));
 const VendorDetails = lazy(() => import('../modules/vendor/detail/index'));
@@ -63,7 +70,9 @@ const VendorAdd = lazy(() => import('../views/vendors/add'));
 const VendorDetail = lazy(() => import('../views/vendors/detail'));
 
 // ------------------------------Notification UI------------------------------------
-const NotificationList = lazy(()=>import('../modules/notification').then(module=>({default:module.NotificationList})))
+const NotificationList = lazy(() =>
+	import('../modules/notification').then(module => ({ default: module.NotificationList }))
+);
 
 // --------------------------------------------------------------------------------
 
@@ -280,6 +289,27 @@ let AppRoutes = [
 		component: NotificationList
 	},
 	{
+		path: '/report-project',
+		name: 'ReportProject',
+		component: ReportProject
+	},
+	{
+		path: '/report-beneficiary',
+		name: 'ReportBeneficiary',
+		component: ReportBeneficiary
+	},
+	{
+		path: '/report-mobilizer',
+		name: 'ReportMobilizer',
+		component: ReportMobilizer
+	},
+	{
+		path: '/report-vendor',
+		name: 'ReportVendor',
+		component: ReportVendor
+	},
+
+	{
 		collapse: true,
 		path: '/dashboard',
 		name: 'Administration',
@@ -294,6 +324,12 @@ let AppRoutes = [
 			// 	icon: 'mdi mdi-adjust',
 			// 	component: Settings
 			// },
+			{
+				path: '/reporting',
+				name: 'Reporting',
+				icon: 'mdi mdi-adjust',
+				component: Reporting
+			},
 			{
 				path: '/users',
 				name: 'Users',
