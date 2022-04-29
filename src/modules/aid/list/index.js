@@ -10,16 +10,12 @@ import { History } from '../../../utils/History';
 import AdvancePagination from '../../global/AdvancePagination';
 import { APP_CONSTANTS } from '../../../constants';
 import { dottedString } from '../../../utils';
+import MiniSpinner from '../../global/MiniSpinner';
 
 const { PAGE_LIMIT } = APP_CONSTANTS;
 
 const List = () => {
-	const {
-		aids,
-		listAid,
-		addAid
-		// getProjectsBalances
-	} = useContext(AidContext);
+	const { listAid, addAid, getProjectsBalances } = useContext(AidContext);
 	const { appSettings } = useContext(AppContext);
 	const { addToast } = useToasts();
 	const [aidModal, setaidModal] = useState(false);
@@ -30,6 +26,8 @@ const List = () => {
 
 	const [totalRecords, setTotalRecords] = useState(null);
 	const [currentPage, setCurrentPage] = useState(1);
+	const [fetchingPackageBalances, setFetchingPackageBalances] = useState(true);
+	const [projectList, setProjectList] = useState([]);
 
 	const toggleModal = () => {
 		setaidModal(!aidModal);
@@ -76,6 +74,29 @@ const List = () => {
 		}
 	};
 
+	const appendProjectBalances = useCallback(({ projects, balances }) => {
+		const projectsWithBalances = projects.map((el, i) => {
+			el.tokenBalance = balances.projectBalances[i];
+			el.packageBalances = balances.packageBalances[i].grandTotal;
+			return el;
+		});
+		setProjectList(projectsWithBalances);
+		setFetchingPackageBalances(false);
+	}, []);
+
+	const fetchProjectsBalances = useCallback(
+		async projects => {
+			if (!appSettings || !appSettings.agency) return;
+			const { agency } = appSettings;
+			if (!agency && !agency.contracts) return;
+			setFetchingPackageBalances(true);
+			const projectIds = projects.map(el => el._id);
+			const balances = await getProjectsBalances(projectIds, agency.contracts.rahat, agency.contracts.rahat_admin);
+			if (balances) await appendProjectBalances({ projects, balances });
+		},
+		[getProjectsBalances, appSettings, appendProjectBalances]
+	);
+
 	const onPageChanged = useCallback(
 		async paginationData => {
 			const params = {};
@@ -85,15 +106,18 @@ const List = () => {
 			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
-			await listAid(query);
+			const { data } = await listAid(query);
+			setProjectList(data);
+			fetchProjectsBalances(data);
 		},
-		[listAid, projectStatus, searchName]
+		[listAid, projectStatus, searchName, fetchProjectsBalances]
 	);
 
 	const loadAidList = useCallback(
 		async query => {
-			const d = await listAid(query);
-			setTotalRecords(d.total);
+			const { data, total } = await listAid(query);
+			setProjectList(data);
+			setTotalRecords(total);
 		},
 		[listAid]
 	);
@@ -110,25 +134,13 @@ const List = () => {
 		}
 	}, [addToast, listAid]);
 
-	const fetchProjectsBalances = useCallback(async () => {
-		if (!appSettings || !appSettings.agency) return;
-		const { agency } = appSettings;
-		if (!agency && !agency.contracts) return;
-		// const projectIds = aids.map(el => el._id);
-		// const balances = await getProjectsBalances(projectIds, agency.contracts.rahat_admin);
-	}, [
-		// aids, getProjectsBalances,
-		appSettings
-	]);
-
 	useEffect(() => {
 		fetchTotalRecords();
 	}, [fetchTotalRecords]);
 
-	useEffect(() => {
-		fetchProjectsBalances();
-	}, [fetchProjectsBalances]);
-
+	// useEffect(() => {
+	// 	fetchProjectsBalances();
+	// }, [fetchProjectsBalances]);
 	return (
 		<>
 			<AidModal toggle={toggleModal} open={aidModal} title="Add Project" handleSubmit={handleAidSubmit}>
@@ -194,12 +206,13 @@ const List = () => {
 								<th className="border-0">Project Manager</th>
 								<th className="border-0">Created Date</th>
 								<th className="border-0">Status</th>
+								<th className="border-0">Balance</th>
 								<th className="border-0">Action</th>
 							</tr>
 						</thead>
 						<tbody>
-							{aids.length ? (
-								aids.map((d, i) => {
+							{projectList.length ? (
+								projectList.map((d, i) => {
 									return (
 										<tr key={d._id}>
 											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
@@ -210,6 +223,17 @@ const List = () => {
 											</td>
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status === 'closed' ? 'COMPLETED' : d.status.toUpperCase()}</td>
+											<td>
+												{fetchingPackageBalances ? (
+													<MiniSpinner />
+												) : (
+													<>
+														<span className="badge badge-success p-2 mb-1">{d.tokenBalance || 0} Tokens</span>
+														<br />
+														<span className="badge bg-light text-dark p-2">Rs. {d.packageBalances || 0} Packages</span>
+													</>
+												)}
+											</td>
 											<td className="blue-grey-text  text-darken-4 font-medium">
 												<Link to={`/projects/${d._id}`}>
 													<i className="fas fa-eye fa-lg"></i>

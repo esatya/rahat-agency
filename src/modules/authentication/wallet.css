@@ -55,11 +55,22 @@
 	font-size: 14px;
 	cursor: pointer;
 }
-.text-copyright {
+.text-privacy {
 	color: #fff;
 	position: absolute;
 	bottom: 1vh;
 	width: 100%;
 	text-align: center;
 	font-size: 12px;
+}
+.text-copyright {
+	color: #3f9eeb;
+	position: absolute;
+	bottom: 1vh;
+	width: 100%;
+	text-align: center;
+	font-size: 12px;
+}
+.privacy-policy {
+	color: #3f9eeb;
 }

@@ -9,10 +9,11 @@
 	text-align: left;
 }
 
-.stat-card-body {
+.card-body {
 	background: #ffffff;
 	border-radius: 10px !important;
 	padding: 20px 30px;
+	min-height: 120px;
 }
 
 .card-font-medium {
@@ -25,4 +26,16 @@
 	color: #9b9b9b;
 	font-size: 14px;
 	margin: 0;
+}
+
+/* report */
+
+.report-title {
+	margin-top: 1.5rem;
+	color: #6b6c72;
+}
+
+.report-data {
+	margin-top: 0.5rem;
+	color: #9b9b9b;
 }

@@ -130,6 +130,7 @@ const Wallet = () => {
 							</p>
 						</div>
 					</div>
+					<p className="text-copyright">Copyright © 2021 Rumsan Group of Companies | All Rights Reserved.</p>
 				</Col>
 				<Col className="right-content">
 					{/* <p className="text-signup">
@@ -173,7 +174,13 @@ const Wallet = () => {
 							{/* </a> */}
 						</div>
 					</div>
-					<p className="text-copyright">Copyright © 2021 Rumsan Group of Companies | All Rights Reserved.</p>
+					<p className="text-privacy">
+						By signing up you acknowledge the{' '}
+						<a href="https://docs.rahat.io/privacy-policy" className="privacy-policy">
+							Privacy Policy
+						</a>{' '}
+						.
+					</p>
 				</Col>
 			</Row>
 		</>
