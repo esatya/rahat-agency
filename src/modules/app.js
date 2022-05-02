@@ -9,6 +9,7 @@ import { AppContextProvider } from '../contexts/AppSettingsContext';
 import { UserContextProvider } from '../contexts/UserContext';
 import { AidContextProvider } from '../contexts/AidContext';
 import { BeneficiaryContextProvider } from '../contexts/BeneficiaryContext';
+import { MobilizerContextProvider } from '../contexts/MobilizerContext';
 
 import AgencyRegistration from '../modules/agency/register';
 import AuthWallet from '../modules/authentication/Wallet';
@@ -24,6 +25,7 @@ const App = () => {
 				<AidContextProvider>
 					<BeneficiaryContextProvider>
 						<VendorContextProvider>
+							<MobilizerContextProvider>
 							<UserContextProvider>
 								<Router history={History}>
 									<Switch>
@@ -38,6 +40,7 @@ const App = () => {
 									</Switch>
 								</Router>
 							</UserContextProvider>
+							</MobilizerContextProvider>
 						</VendorContextProvider>
 					</BeneficiaryContextProvider>
 				</AidContextProvider>

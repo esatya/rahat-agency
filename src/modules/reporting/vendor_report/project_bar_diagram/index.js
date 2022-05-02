@@ -45,7 +45,7 @@ const Index = props => {
 		bar_labels = [];
 		for (let d of data) {
 			bar_labels.push(d.name);
-			bar_data.push(d.token);
+			bar_data.push(d.count);
 		}
 	}
 
