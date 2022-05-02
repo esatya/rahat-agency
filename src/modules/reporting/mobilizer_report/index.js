@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState,useContext,useEffect,useCallback } from 'react';
 import { Button, Card, CardBody, CardTitle, Input, Label } from 'reactstrap';
+import { MobilizerContext } from '../../../contexts/MobilizerContext';
 import ProjectBarDiagram from './project_bar_diagram';
 
 const MobilizerReport = () => {
+	const {getMobilizerReport} = useContext(MobilizerContext);
 	const [importing, setImporting] = useState(false);
-
+	const [mobilizerData, setMobilizerData] = useState({
+		mobilizerByProject: [],
+	});
 	const [formData, setFormData] = useState({
 		from: '',
 		to: ''
 	});
+	const fetchMobilizerData = useCallback(async() => {
+		const {mobilizerByProject} = await getMobilizerReport();
+		setMobilizerData({mobilizerByProject:mobilizerByProject.project})
+	},[getMobilizerReport])
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 	const handleExportClick = () => {};
+
+	useEffect(() => {
+		fetchMobilizerData();
+	}, [fetchMobilizerData]);
 
 	return (
 		<div className="main">
@@ -57,7 +69,7 @@ const MobilizerReport = () => {
 								</div>
 							</div>
 							<div className="p-4 mt-4">
-								<ProjectBarDiagram data={''} dataLabel="Project" />
+								<ProjectBarDiagram data={mobilizerData.mobilizerByProject} dataLabel="Project" />
 							</div>
 						</div>
 					</CardBody>

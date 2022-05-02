@@ -165,3 +165,13 @@ export async function getEth({ address }) {
 
 	return res.data;
 }
+
+export async function getMobilizerReport(params) {
+	const { data } = await axios({
+		url: API.MOBILIZERS + `/reports`,
+		method: 'get',
+		headers: { access_token },
+		params
+	});
+	return data;
+}
