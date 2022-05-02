@@ -37,7 +37,7 @@ export default function Index(props) {
 
 	return (
 		<div>
-			<CardTitle>Token</CardTitle>
+			<CardTitle>Token Issued</CardTitle>
 			<div
 				className="chart-wrapper"
 				style={{
