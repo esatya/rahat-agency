@@ -133,6 +133,10 @@ export const MobilizerContextProvider = ({ children }) => {
 	const changeMobStatusInProject = useCallback((mobId, payload) => {
 		return Service.changeMobStatusInProject(mobId, payload);
 	}, []);
+	const getMobilizerReport = useCallback(async params => {
+		const data = await Service.getMobilizerReport();
+		return data;
+	}, []);
 
 	return (
 		<MobilizerContext.Provider
@@ -160,7 +164,8 @@ export const MobilizerContextProvider = ({ children }) => {
 				getMobilizerTransactions,
 				getMobilizerPackageBalance,
 				getAvailableBalance,
-				changeMobStatusInProject
+				changeMobStatusInProject,
+				getMobilizerReport
 			}}
 		>
 			{children}

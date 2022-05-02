@@ -219,6 +219,10 @@ export const VendorContextProvider = ({ children }) => {
 	const getTotalVendorsBalances = useCallback((contract_address, vendorAddresses) => {
 		return Service.getTotalVendorsBalances(contract_address, vendorAddresses);
 	}, []);
+	const getVendorReport = async params => {
+		const data = await Service.getVendorReport();
+		return data;
+	};
 
 	return (
 		<VendorContext.Provider
@@ -251,7 +255,8 @@ export const VendorContextProvider = ({ children }) => {
 				getVendorTransactions,
 				getVendorsBalances,
 				getVendorPackageTx,
-				getTotalVendorsBalances
+				getTotalVendorsBalances,
+				getVendorReport
 			}}
 		>
 			{children}
