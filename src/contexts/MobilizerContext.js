@@ -134,7 +134,7 @@ export const MobilizerContextProvider = ({ children }) => {
 		return Service.changeMobStatusInProject(mobId, payload);
 	}, []);
 	const getMobilizerReport = useCallback(async params => {
-		const data = await Service.getMobilizerReport();
+		const data = await Service.getMobilizerReport(params);
 		return data;
 	}, []);
 
