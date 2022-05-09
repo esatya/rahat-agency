@@ -10,33 +10,47 @@ const BeneficiaryReport = () => {
 	const { beneficiaryReport, listProject } = useContext(BeneficiaryContext);
 
 	const [projectId, setProjectId] = useState('');
-	// const [projects, setProjects] = useState();
 	const [projectList, setProjectList] = useState([]);
 
-	const [importing, setImporting] = useState(false);
+	const [fetchingBeneficiaryData, setFetchingBeneficiaryData] = useState(false);
+
+	const [exporting, setExporting] = useState(false);
 
 	const [beneficiaryData, setBeneficiaryData] = useState({
 		beneficiaryByGender: [],
 		beneficiaryByProject: [],
 		beneficiaryByAge: []
 	});
-
-	const fetchBeneficiaryData = useCallback(async () => {
-		if (projectId) {
-			const data = await beneficiaryReport({ projectId });
-			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
-			setBeneficiaryData({
-				beneficiaryByGender: beneficiaryByGender.beneficiaries,
-				beneficiaryByProject: beneficiaryByProject.project,
-				beneficiaryByAge: beneficiaryByAge.beneficiaries
-			});
-		}
-	}, [beneficiaryReport, projectId]);
-
 	const [formData, setFormData] = useState({
 		from: '',
 		to: ''
 	});
+
+	const fetchBeneficiaryData = useCallback(async () => {
+		setFetchingBeneficiaryData(true);
+		if (projectId && formData.from && formData.to) {
+			const fromDate = new Date(formData.from);
+			const toDate = new Date(formData.to);
+
+			const data = await beneficiaryReport({ projectId, from: fromDate, to: toDate });
+			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+			setBeneficiaryData(prevState => ({
+				...prevState,
+				beneficiaryByGender: beneficiaryByGender.beneficiaries,
+				beneficiaryByProject: beneficiaryByProject.project,
+				beneficiaryByAge: beneficiaryByAge.beneficiaries
+			}));
+		}
+		const data = await beneficiaryReport();
+		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+		setBeneficiaryData(prevState => ({
+			...prevState,
+			beneficiaryByGender: beneficiaryByGender.beneficiaries,
+			beneficiaryByProject: beneficiaryByProject.project,
+			beneficiaryByAge: beneficiaryByAge.beneficiaries
+		}));
+		setFetchingBeneficiaryData(false);
+	}, [beneficiaryReport, projectId, formData.from, formData.to]);
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -54,7 +68,6 @@ const BeneficiaryReport = () => {
 			});
 			setProjectList(select_options);
 		}
-		// setProjects(project);
 	}, [listProject]);
 
 	const handleProjectChange = data => {
@@ -104,7 +117,7 @@ const BeneficiaryReport = () => {
 									</div>
 								</div>
 								<div className="col-md-2 sm-12">
-									{importing ? (
+									{exporting ? (
 										<Button type="button" disabled={true} className="btn" color="info">
 											Exporting...
 										</Button>
@@ -123,13 +136,13 @@ const BeneficiaryReport = () => {
 								</div>
 							</div>
 							<div className="p-4 mt-4">
-								<ProjectBarDiagram data={beneficiaryData.beneficiaryByProject} />
+								<ProjectBarDiagram data={beneficiaryData.beneficiaryByProject} fetching={fetchingBeneficiaryData} />
 							</div>
 							<div className="p-4">
-								<AgeBarDiagram data={beneficiaryData.beneficiaryByAge} />
+								<AgeBarDiagram data={beneficiaryData.beneficiaryByAge} fetching={fetchingBeneficiaryData} />
 							</div>
 							<div className="p-4">
-								<GenderPieChart data={beneficiaryData.beneficiaryByGender} />
+								<GenderPieChart data={beneficiaryData.beneficiaryByGender} fetching={fetchingBeneficiaryData} />
 							</div>
 						</div>
 					</CardBody>
