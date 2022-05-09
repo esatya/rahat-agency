@@ -130,8 +130,12 @@ export const MobilizerContextProvider = ({ children }) => {
 		return Service.getMobilizersIssuedTokens(contract_addr, wallet_address);
 	}, []);
 
-	const getTotalMobilizerIssuedTokens = useCallback((contract_addr, wallet_address) => {
-		return Service.getTotalMobilizerIssuedTokens(contract_addr, wallet_address);
+	const getMobilizerIssuedPackages = useCallback((contract_addr, wallet_address) => {
+		return Service.getMobilizersIssuedPackages(contract_addr, wallet_address);
+	}, []);
+
+	const getTotalMobilizerIssuedTokens = useCallback((contract_addr, wallet_address,projectId) => {
+		return Service.getTotalMobilizerIssuedTokens(contract_addr, wallet_address,projectId);
 	}, []);
 
 	
@@ -177,6 +181,7 @@ export const MobilizerContextProvider = ({ children }) => {
 				changeMobStatusInProject,
 				getMobilizerIssuedTokens,
 				getTotalMobilizerIssuedTokens,
+				getMobilizerIssuedPackages,
 				getMobilizerReport
 			}}
 		>
