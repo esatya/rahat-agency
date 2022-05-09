@@ -1,7 +1,6 @@
 import React from 'react';
 import { CardTitle } from 'reactstrap';
 import { Pie } from 'react-chartjs-2';
-import Loading from '../../../global/Loading';
 
 let _data = [];
 let _labels = [];
@@ -21,7 +20,7 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { data, fetching } = props;
+	const { data } = props;
 
 	if (data && data.length) {
 		_labels = [];
@@ -33,38 +32,25 @@ export default function Index(props) {
 		pieData.labels = _labels;
 		pieData.datasets[0].data = _data;
 	}
-	const sum = _data.reduce((a, b) => a + b, 0);
 
 	return (
 		<div>
-			<CardTitle>Token</CardTitle>
+			<CardTitle>Package</CardTitle>
 			<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 230 }}>
-				{fetching ? (
-					<Loading />
-				) : sum > 0 ? (
-					<Pie
-						data={pieData}
-						options={{
-							maintainAspectRatio: false,
-							legend: {
-								display: true,
-								position: 'bottom',
-								labels: {
-									fontFamily: 'Be Vietnam',
-									fontColor: '#9B9B9B'
-								}
+				<Pie
+					data={pieData}
+					options={{
+						maintainAspectRatio: false,
+						legend: {
+							display: true,
+							position: 'bottom',
+							labels: {
+								fontFamily: 'Be Vietnam',
+								fontColor: '#9B9B9B'
 							}
-						}}
-					/>
-				) : (
-					<span
-						style={{
-							color: '#F7C087'
-						}}
-					>
-						No data
-					</span>
-				)}
+						}
+					}}
+				/>
 			</div>
 		</div>
 	);

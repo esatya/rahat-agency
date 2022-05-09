@@ -35,7 +35,7 @@ export default function Index(props) {
 
 	return (
 		<div>
-			<CardTitle>Project Budget</CardTitle>
+			<CardTitle>Token</CardTitle>
 			<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 230 }}>
 				<Pie
 					data={pieData}
