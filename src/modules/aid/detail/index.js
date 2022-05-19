@@ -69,8 +69,8 @@ export default function Index(props) {
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
 			console.log({ res });
-			setTotalFiatBalance(res.projectCapital.grandTotal || 0);
-			setTotalRemainingFiatBalance(res.remainingBalance.grandTotal || 0)
+			setTotalFiatBalance(res.projectPackageCapital || 0);
+			setTotalRemainingFiatBalance(res.remainingPackageBalance || 0)
 		} catch (err) {
 			console.log(err);
 			addToast(err.message, TOAST.ERROR);
