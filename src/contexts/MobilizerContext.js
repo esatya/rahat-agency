@@ -126,12 +126,30 @@ export const MobilizerContextProvider = ({ children }) => {
 		return Service.getMobilizerBalance(contract_addr, wallet_address);
 	}, []);
 
+	const getMobilizerIssuedTokens = useCallback((contract_addr, wallet_address) => {
+		return Service.getMobilizersIssuedTokens(contract_addr, wallet_address);
+	}, []);
+
+	const getMobilizerIssuedPackages = useCallback((contract_addr, wallet_address) => {
+		return Service.getMobilizersIssuedPackages(contract_addr, wallet_address);
+	}, []);
+
+	const getTotalMobilizerIssuedTokens = useCallback((contract_addr, wallet_address,projectId) => {
+		return Service.getTotalMobilizerIssuedTokens(contract_addr, wallet_address,projectId);
+	}, []);
+
+	
+
 	const getMobilizerPackageBalance = useCallback((contract_addr, wallet_address) => {
 		return Service.getMobilizerPackageBalance(contract_addr, wallet_address);
 	}, []);
 
 	const changeMobStatusInProject = useCallback((mobId, payload) => {
 		return Service.changeMobStatusInProject(mobId, payload);
+	}, []);
+	const getMobilizerReport = useCallback(async params => {
+		const data = await Service.getMobilizerReport(params);
+		return data;
 	}, []);
 
 	return (
@@ -160,7 +178,11 @@ export const MobilizerContextProvider = ({ children }) => {
 				getMobilizerTransactions,
 				getMobilizerPackageBalance,
 				getAvailableBalance,
-				changeMobStatusInProject
+				changeMobStatusInProject,
+				getMobilizerIssuedTokens,
+				getTotalMobilizerIssuedTokens,
+				getMobilizerIssuedPackages,
+				getMobilizerReport
 			}}
 		>
 			{children}
