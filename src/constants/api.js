@@ -1,7 +1,11 @@
 const SERVER_URL = process.env.REACT_APP_API_SERVER;
+const FUNDRAISER_SERVER_URL = process.env.REACT_APP_API_FUNDRAISER;
+const FUNDRAISER_URL = process.env.REACT_APP_API_FUNDRAISER_SERVER;
 const API_PATH = SERVER_URL + '/api/v1';
 
 module.exports = {
+	FUNDRAISER_CAMPAIGN: FUNDRAISER_SERVER_URL+'/api/campaign',
+	FUNDRAISER_FUNDRAISE:FUNDRAISER_URL +'/fundraise',
 	AGENCY: API_PATH + '/agency',
 	APP: API_PATH + '/app',
 	AID_CONNECT: API_PATH + '/aid-connect',

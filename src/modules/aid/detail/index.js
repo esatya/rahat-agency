@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { Row, Col } from 'reactstrap';
+import {Row, Col} from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
 import { AidContext } from '../../../contexts/AidContext';
@@ -9,13 +9,17 @@ import ProjectInfo from './projectInfo';
 import PieChart from './pieChart';
 // import BarChart from './barChart';
 import Tabs from './tab';
-import { TOAST, PROJECT_STATUS } from '../../../constants';
+import {TOAST, PROJECT_STATUS, ROLES} from '../../../constants';
 import BreadCrumb from '../../ui_components/breadcrumb';
+import {getUser} from "../../../utils/sessionManager";
+import {useHistory} from "react-router-dom";
+import API from "../../../constants/api";
 // import Balance from '../../ui_components/balance';
+
 
 export default function Index(props) {
 	const { id } = props.match.params;
-
+	const history = useHistory();
 	const { addToast } = useToasts();
 	const {
 		total_tokens,
@@ -85,10 +89,39 @@ export default function Index(props) {
 		fetchPackageAndTokenBalance();
 	}, [fetchPackageAndTokenBalance]);
 
+	const handleCampaignClick = () => {
+		window.open(`${API.FUNDRAISER_FUNDRAISE}/${projectDetails.campaignId}/edit`, '_blank');
+		}
+	const handleClick = () => {
+		const currentUser = getUser();
+		const isManager = currentUser && currentUser.roles.includes(ROLES.MANAGER);
+		if (isManager || projectDetails.status === PROJECT_STATUS.SUSPENDED)
+			return addToast('Access denied for this operation!', TOAST.ERROR);
+		history.push(`/add-campaign/${id}`);
+	};
 	return (
 		<>
-			<p className="page-heading">Projects</p>
-			<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Details" />
+			<Row>
+				<Col md="9">
+					<p className="page-heading">Projects</p>
+					<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Details"/>
+				</Col>
+
+				<Col md="3">
+					{projectDetails && projectDetails.campaignId &&
+						(
+							<button onClick={handleCampaignClick} type="button"
+										   className="btn waves-effect waves-light btn-outline-info"
+										   style={{borderRadius: '8px', minWidth:'12px'}}>{projectDetails.campaignTitle}
+						</button>)}
+					{projectDetails && projectDetails.campaignId == null &&
+						<button onClick={handleClick} type="button"
+								className="btn waves-effect waves-light btn-outline-info"
+								style={{borderRadius: '8px'}}> Add Campaign
+						</button>
+					}
+				</Col>
+			</Row>
 			<Row>
 				<Col md="7">
 					{projectDetails && (

@@ -19,7 +19,6 @@ const Reporting = () => {
 	});
 
 	const fetchDashboardStats = () => {
-		
 		getDashboardStats()
 			.then(data => {
 				const { projectCount, mobilizerCount, vendorCount, beneficiary } = data;
@@ -31,7 +30,6 @@ const Reporting = () => {
 					totalVendor: vendorCount,
 					beneficiaryByProject: beneficiary.project
 				}));
-				console.log({ data });
 			})
 			.catch(() => {
 				addToast('Internal server error!', TOAST.ERROR);
