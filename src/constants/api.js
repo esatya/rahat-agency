@@ -22,5 +22,7 @@ module.exports = {
 	MOBILIZERS: API_PATH + '/mobilizers',
 	NFT: API_PATH + '/nft',
 	Notification:API_PATH+'/notifications',
-	Sms:API_PATH+'/sms'
+	Sms:API_PATH+'/sms',
+    CheckUserExistsURL: FUNDRAISER_SERVER_URL+"api/user/checkUserExists",
+	CreateUserFundraiserURL: FUNDRAISER_SERVER_URL+"api/user/register"
 };
