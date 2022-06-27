@@ -26,6 +26,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import {getAidDetails} from "../../../../services/aid";
 
 import web3 from 'web3';
+import ModalWrapper from "../../../global/CustomModal";
 
 
 
@@ -66,6 +67,26 @@ export default function AddCampaign({match}) {
         setWallets(newWallets);
     };
 
+    const checkUserExists = async (token) => {
+        return new Promise((resolve, reject) => {
+            const checkUserUrl = API.CheckUserExistsURL;
+            const requestBody = {
+                "email": agencyUserEmail
+            }
+            const checkUserResponse = axios.post(checkUserUrl, requestBody,{headers: {authorization: `Bearer ${token}`}} )
+                .then(res => {
+                    if (res.statusText === 'OK') {
+                        resolve(res.data);
+                    }
+                    reject(res.data);
+                })
+                    .catch(err => {
+                        reject(err);
+                    });
+            return checkUserResponse;
+        });
+    }
+
     const handleWalletSave = (event) => {
         event.preventDefault();
         const isValidAddress = web3.utils.isAddress(value.walletAddress);
@@ -104,6 +125,7 @@ export default function AddCampaign({match}) {
 
     useEffect(()=>{
         fetchProjectDetails()
+        fetchAgencyUserDetails()
     }, [])
 
     const handleFormSubmit = async (e) => {
@@ -116,6 +138,61 @@ export default function AddCampaign({match}) {
         e.preventDefault();
         registerFundraise(1);
     };
+
+    const [agencyUserEmail, setAgencyUserEmail] = useState(null);
+    function fetchAgencyDetails() {
+        return new Promise((resolve, reject) => {
+            const agencyDetailsUrl = "http://localhost:3601/api/v1/app/settings";
+            const agencyDetailsResponse = axios.get(agencyDetailsUrl).then(res => {
+                if (res.statusText === 'OK') {
+                    resolve(res.data);
+                }
+                reject(res.data);
+            })
+                .catch(err => {
+                    reject(err);
+                });
+            return agencyDetailsResponse;
+        })
+    }
+
+    const fetchAgencyUserDetails =() => {
+        try{
+            fetchAgencyDetails().then(agencyDetails => {
+                console.log('The AgencyDetails are:: ', agencyDetails);
+                setAgencyUserEmail(agencyDetails.agency.email);
+            });
+        }catch(error){
+            console.log("Exception while fetchAgencyUserDetails, ",error);
+        }
+    };
+
+    async function createCampaign(formData, token) {
+        try {
+
+            setLoading(false);
+            const resData = await axios.post(`${API.FUNDRAISER_CAMPAIGN}/add`,
+                formData, {headers: {Authorization: `Bearer ${token.data}`}});
+
+            const campaignToProject = await axios.post(`${API.PROJECTS}/${projectId}/addCampaign`,
+                {
+                    'campaignId': resData.data.data.id,
+                    'campaignTitle': resData.data.data.title
+                },
+                {headers: {access_token: access_token}})
+
+            if (campaignToProject) {
+                setLoading(false);
+                addToast("Campaign Added Successfully", TOAST.SUCCESS);
+                history.goBack();
+            }
+
+        } catch (e) {
+            setLoading(false);
+            addToast(e.message, TOAST.ERROR);
+        }
+    }
+
     const registerFundraise = async (saveAsDraft) => {
         if (wallets?.length <= 0) {
             addToast("Please add at least one wallet.", TOAST.WARNING);
@@ -146,7 +223,6 @@ export default function AddCampaign({match}) {
             addToast("Please enter the title",TOAST.WARNING);
             return;
         }
-        setLoading(true);
 
         const formData = new FormData();
         formData.append('title', value.title);
@@ -160,31 +236,55 @@ export default function AddCampaign({match}) {
         formData.append('image', image);
         formData.append('wallets', JSON.stringify(wallets));
         formData.append('status', saveAsDraft ? 'DRAFT' : 'PUBLISHED');
-        try{
-            const token = await axios.get(`${API.PROJECTS}/${projectId}/token`,{
-                headers: {access_token: access_token}
+
+        const tokenResponse = await axios.post(`${API.PROJECTS}/${projectId}/token`,{"email": agencyUserEmail},{
+            headers: {access_token: access_token}
+        });
+        if(tokenResponse){
+            setToken(tokenResponse);
+            checkUserExists(tokenResponse.data).then((userDetails) =>{
+                if (userDetails && userDetails.userExists) {
+                    createCampaign(formData, tokenResponse).then(campaignCreated =>{
+                        console.log(campaignCreated)
+                    });
+                }else{
+                    setFormDataModal(formData);
+                    setAddUserModal(true);
+
+                }
             });
-            const resData = await axios.post(`${API.FUNDRAISER_CAMPAIGN}/add`,
-                formData,{headers:{Authorization: `Bearer ${token.data}`}});
-
-            const campaignToProject = await axios.post(`${API.PROJECTS}/${projectId}/addCampaign`,
-                {
-                    'campaignId':resData.data.data.id,
-                    'campaignTitle':resData.data.data.title
-                },
-                {headers: {access_token: access_token}})
-
-            if (campaignToProject){
-                setLoading(false);
-                addToast("Campaign Added Successfully", TOAST.SUCCESS);
-                history.goBack();
-            }
-
-        }catch(e){
+        }else{
+            addToast("Error while connecting to Server");
             setLoading(false);
-            addToast(e.message, TOAST.ERROR);
         }
+
     }
+    const [token, setToken] = useState(null);
+    const [formDataModal, setFormDataModal] = useState(null);
+    const handleCreateAgencyUser = async e =>{
+        e.preventDefault();
+        setLoading(true);
+        setAddUserModal(false);
+        const createUser = API.CreateUserFundraiserURL;
+        axios.post(createUser, {
+            email: agencyUserEmail,
+            alias: agencyUserEmail.slice(0,4),
+            isAgency: true
+        }).then(userCreated =>{
+            if(userCreated) {
+                addToast("User created in fundraiser", TOAST.SUCCESS);
+                createCampaign(formDataModal, token).then(campaignCreated => {
+                    console.log(campaignCreated)
+                });
+            }
+            else addToast("Error while creating an user", TOAST.ERROR)
+        }).catch(error=>{
+            addToast("Error while registering User, "+ error, TOAST.ERROR );
+            setLoading(false);
+        })
+    }
+    const [addUserModal, setAddUserModal] = useState(false);
+    const toggleAddUserModal = () => setAddUserModal(!addUserModal);
     const handleInputChange = e => {
         setValue({ ...value, [e.target.name]: e.target.value });
     };
@@ -362,6 +462,21 @@ export default function AddCampaign({match}) {
                                             >
                                                 Save as draft
                                             </Button>
+
+                                            <ModalWrapper
+                                                toggle={toggleAddUserModal}
+                                                open={addUserModal}
+                                                title= "Create Agency User in Fundraiser"
+                                                handleSubmit={handleCreateAgencyUser}
+                                                loading={false}
+                                                size="l"
+                                            >
+                                                <>
+                                                    <p> Create an agency user in fundraiser? </p>
+                                                    <p>Email: </p>
+                                                <p>${agencyUserEmail}</p>
+                                                </>
+                                            </ModalWrapper>
                                         </div>
                                     )}
                                 </CardBody>
@@ -371,7 +486,6 @@ export default function AddCampaign({match}) {
                    </Col>
                </Row>
            </FormGroup>
-
        </>
     );
 }
