@@ -7,7 +7,7 @@ module.exports = {
 	FUNDRAISER_CAMPAIGN: FUNDRAISER_SERVER_URL+'/api/campaign',
 	FUNDRAISER_FUNDRAISE:FUNDRAISER_URL +'/fundraise',
 	AGENCY: API_PATH + '/agency',
-	SETTINGS: API_PATH + '/settings',
+	SETTINGS: API_PATH + '/app/settings',
 	APP: API_PATH + '/app',
 	AID_CONNECT: API_PATH + '/aid-connect',
 	BENEFICARIES: API_PATH + '/beneficiaries',
