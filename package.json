@@ -53,7 +53,7 @@
 		"axios": "^0.21.1",
 		"bootstrap-switch-button-react": "^1.2.0",
 		"chart.js": "^2.9.3",
-		"dexie": "^3.0.3",
+		"dexie": "^3.2.2",
 		"eth-crypto": "^1.9.0",
 		"ethers": "^5.0.13",
 		"feather-icons-react": "^0.4.1",
