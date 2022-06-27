@@ -29,13 +29,6 @@ import web3 from 'web3';
 import ModalWrapper from "../../../global/CustomModal";
 
 
-
-
-
-
-
-
-
 export default function AddCampaign({match}) {
     const { addToast } = useToasts();
     const { loading, setLoading } = useContext(AppContext);
@@ -142,7 +135,7 @@ export default function AddCampaign({match}) {
     const [agencyUserEmail, setAgencyUserEmail] = useState(null);
     function fetchAgencyDetails() {
         return new Promise((resolve, reject) => {
-            const agencyDetailsUrl = "http://localhost:3601/api/v1/app/settings";
+            const agencyDetailsUrl = API.SETTINGS;
             const agencyDetailsResponse = axios.get(agencyDetailsUrl).then(res => {
                 if (res.statusText === 'OK') {
                     resolve(res.data);
