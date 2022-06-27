@@ -90,7 +90,7 @@ export default function Index(props) {
 	}, [fetchPackageAndTokenBalance]);
 
 	const handleCampaignClick = () => {
-		window.open(`${API.FUNDRAISER_FUNDRAISE}/${projectDetails.campaignId}/edit`, '_blank');
+		window.open(`${API.FUNDRAISER_FUNDRAISE}/${projectDetails.campaignId}`, '_blank');
 		}
 	const handleClick = () => {
 		const currentUser = getUser();
