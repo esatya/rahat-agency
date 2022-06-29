@@ -52,6 +52,8 @@ const KoboToolboxFormDetails = lazy(() => import('../modules/kobotool/forms/deta
 const AidConnectList = lazy(() => import('../modules/aid_connect/list'));
 const AidConnectCreateForm = lazy(() => import('../modules/aid_connect/create_forms'));
 
+const CampaignList = lazy(() => import ('../modules/campaign'));
+
 // Reporting
 const Reporting = lazy(() => import('../modules/reporting'));
 const ReportProject = lazy(() => import('../modules/reporting/project_report'));
@@ -335,6 +337,12 @@ let AppRoutes = [
 				name: 'Reporting',
 				icon: 'mdi mdi-adjust',
 				component: Reporting
+			},
+			{
+				path: '/campaigns',
+				name: 'Campaigns',
+				icon: 'mdi mdi-adjust',
+				component: CampaignList
 			},
 			{
 				path: '/users',

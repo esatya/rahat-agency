@@ -6,6 +6,7 @@ const API_PATH = SERVER_URL + '/api/v1';
 module.exports = {
 	FUNDRAISER_CAMPAIGN: FUNDRAISER_SERVER_URL+'/api/campaign',
 	FUNDRAISER_FUNDRAISE:FUNDRAISER_URL +'/fundraise',
+	FUNDRAISER_DONATION:FUNDRAISER_SERVER_URL +'/api/donation',
 	AGENCY: API_PATH + '/agency',
 	APP: API_PATH + '/app',
 	AID_CONNECT: API_PATH + '/aid-connect',
