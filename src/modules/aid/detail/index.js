@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import {Row, Col} from 'reactstrap';
+import {Row, Col, Tooltip} from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
 import { AidContext } from '../../../contexts/AidContext';
@@ -73,8 +73,8 @@ export default function Index(props) {
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
 			console.log({ res });
-			setTotalFiatBalance(res.projectPackageCapital || 0);
-			setTotalRemainingFiatBalance(res.remainingPackageBalance || 0)
+			setTotalFiatBalance(res.projectCapital.grandTotal || 0);
+			setTotalRemainingFiatBalance(res.remainingBalance.grandTotal || 0)
 		} catch (err) {
 			console.log(err);
 			addToast(err.message, TOAST.ERROR);
@@ -99,6 +99,11 @@ export default function Index(props) {
 			return addToast('Access denied for this operation!', TOAST.ERROR);
 		history.push(`/add-campaign/${id}`);
 	};
+
+	const [toolTipOpen, setToolTipOpen] = useState(false);
+	const toggleToolTip = ()  =>{
+		setToolTipOpen(!toolTipOpen);
+	}
 	return (
 		<>
 			<Row>
@@ -109,11 +114,15 @@ export default function Index(props) {
 
 				<Col md="3">
 					{projectDetails && projectDetails.campaignId &&
-						(
-							<button onClick={handleCampaignClick} type="button"
-										   className="btn waves-effect waves-light btn-outline-info"
-										   style={{borderRadius: '8px', minWidth:'12px'}}>{projectDetails.campaignTitle}
-						</button>)}
+						(<>
+								<Tooltip placement="right" isOpen={toolTipOpen} toggle={toggleToolTip} target="viewCampaignFundraiser">{projectDetails.campaignTitle}</Tooltip>
+								<button id = "viewCampaignFundraiser" onClick={handleCampaignClick} type="button"
+										className="btn waves-effect waves-light btn-outline-info"
+										style={{borderRadius: '8px', minWidth:'12px'}}>View Campaign
+								</button>
+						</>
+
+							)}
 					{projectDetails && projectDetails.campaignId == null &&
 						<button onClick={handleClick} type="button"
 								className="btn waves-effect waves-light btn-outline-info"

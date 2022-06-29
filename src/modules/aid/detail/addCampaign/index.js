@@ -26,6 +26,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import {getAidDetails} from "../../../../services/aid";
 
 import web3 from 'web3';
+import UploadList from "../tab/uploadList";
 import ModalWrapper from "../../../global/CustomModal";
 
 
@@ -132,10 +133,12 @@ export default function AddCampaign({match}) {
         registerFundraise(1);
     };
 
+    const [currentPage, setCurrentPage] = useState(1);
     const [agencyUserEmail, setAgencyUserEmail] = useState(null);
     function fetchAgencyDetails() {
         return new Promise((resolve, reject) => {
             const agencyDetailsUrl = API.SETTINGS;
+
             const agencyDetailsResponse = axios.get(agencyDetailsUrl).then(res => {
                 if (res.statusText === 'OK') {
                     resolve(res.data);
@@ -152,7 +155,6 @@ export default function AddCampaign({match}) {
     const fetchAgencyUserDetails =() => {
         try{
             fetchAgencyDetails().then(agencyDetails => {
-                console.log('The AgencyDetails are:: ', agencyDetails);
                 setAgencyUserEmail(agencyDetails.agency.email);
             });
         }catch(error){
@@ -230,7 +232,7 @@ export default function AddCampaign({match}) {
         formData.append('wallets', JSON.stringify(wallets));
         formData.append('status', saveAsDraft ? 'DRAFT' : 'PUBLISHED');
 
-        const tokenResponse = await axios.post(`${API.PROJECTS}/${projectId}/token`,{"email": agencyUserEmail},{
+        const tokenResponse = await axios.get(`${API.USERS}/token?email=${agencyUserEmail}`,{
             headers: {access_token: access_token}
         });
         if(tokenResponse){
@@ -258,7 +260,7 @@ export default function AddCampaign({match}) {
         e.preventDefault();
         setLoading(true);
         setAddUserModal(false);
-        const createUser = API.CreateUserFundraiserURL;
+        const createUser = API.CreateUserFundraiserURL
         axios.post(createUser, {
             email: agencyUserEmail,
             alias: agencyUserEmail.slice(0,4),
@@ -447,14 +449,14 @@ export default function AddCampaign({match}) {
                                             onClick={handleFormSubmit}>
                                                 <i className="fa fa-check"></i> Publish Campaign
                                             </Button>
-                                            <Button
-                                                type="button"
-                                                onClick={RegisterAsDraft}
-                                                style={{ borderRadius: 8 }}
-                                                className="btn btn-info ml-2"
-                                            >
-                                                Save as draft
-                                            </Button>
+                                            {/*<Button*/}
+                                            {/*    type="button"*/}
+                                            {/*    onClick={RegisterAsDraft}*/}
+                                            {/*    style={{ borderRadius: 8 }}*/}
+                                            {/*    className="btn btn-info ml-2"*/}
+                                            {/*>*/}
+                                            {/*    Save as draft*/}
+                                            {/*</Button>*/}
 
                                             <ModalWrapper
                                                 toggle={toggleAddUserModal}
