@@ -30,13 +30,6 @@ import UploadList from "../tab/uploadList";
 import ModalWrapper from "../../../global/CustomModal";
 
 
-
-
-
-
-
-
-
 export default function AddCampaign({match}) {
     const { addToast } = useToasts();
     const { loading, setLoading } = useContext(AppContext);
@@ -144,7 +137,8 @@ export default function AddCampaign({match}) {
     const [agencyUserEmail, setAgencyUserEmail] = useState(null);
     function fetchAgencyDetails() {
         return new Promise((resolve, reject) => {
-            const agencyDetailsUrl = API.APP+"/settings";
+            const agencyDetailsUrl = API.SETTINGS;
+
             const agencyDetailsResponse = axios.get(agencyDetailsUrl).then(res => {
                 if (res.statusText === 'OK') {
                     resolve(res.data);
