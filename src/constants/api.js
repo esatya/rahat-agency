@@ -8,6 +8,7 @@ module.exports = {
 	FUNDRAISER_FUNDRAISE:FUNDRAISER_URL +'/fundraise',
 	FUNDRAISER_DONATION:FUNDRAISER_SERVER_URL +'/api/donation',
 	AGENCY: API_PATH + '/agency',
+	SETTINGS: API_PATH + '/app/settings',
 	APP: API_PATH + '/app',
 	AID_CONNECT: API_PATH + '/aid-connect',
 	BENEFICARIES: API_PATH + '/beneficiaries',
@@ -24,6 +25,6 @@ module.exports = {
 	NFT: API_PATH + '/nft',
 	Notification:API_PATH+'/notifications',
 	Sms:API_PATH+'/sms',
-    CheckUserExistsURL: FUNDRAISER_SERVER_URL+"api/user/checkUserExists",
-	CreateUserFundraiserURL: FUNDRAISER_SERVER_URL+"api/user/register"
+    CheckUserExistsURL: FUNDRAISER_SERVER_URL+"/api/user/checkUserExists",
+	CreateUserFundraiserURL: FUNDRAISER_SERVER_URL+"/api/user/register"
 };
