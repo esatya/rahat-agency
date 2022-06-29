@@ -122,7 +122,7 @@ return (
                                     <td>{dottedString(d.status.toUpperCase())}</td>
                                     <td>{moment(d.expiryDate).format('MMM Do YYYY')}</td>
                                     <td className="blue-grey-text  text-darken-4 font-medium">
-                                        <Link  to={{ pathname: API.FUNDRAISER_FUNDRAISE+d.id }} target="_blank">
+                                        <Link  to={{ pathname: `${API.FUNDRAISER_FUNDRAISE}/${d.id}` }} target="_blank">
                                             <i className="fas fa-eye fa-lg"></i>
                                         </Link>
                                     </td>
