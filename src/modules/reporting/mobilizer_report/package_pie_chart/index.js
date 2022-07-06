@@ -20,7 +20,7 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { data } = props;
+	const { data,projectId } = props;
 
 	if (data && data.length) {
 		_labels = [];
@@ -35,9 +35,9 @@ export default function Index(props) {
 
 	return (
 		<div>
-			<CardTitle>Project Budget</CardTitle>
+			<CardTitle>Package</CardTitle>
 			<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 230 }}>
-				<Pie
+				{projectId?(<Pie
 					data={pieData}
 					options={{
 						maintainAspectRatio: false,
@@ -50,7 +50,14 @@ export default function Index(props) {
 							}
 						}
 					}}
-				/>
+				/>):(<span
+						style={{
+							color: '#F7C087'
+						}}
+					>
+						Please select Project
+					</span>)}
+				
 			</div>
 		</div>
 	);

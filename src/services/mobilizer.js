@@ -1,11 +1,12 @@
 import axios from 'axios';
-
+import {ethers} from 'ethers';
 import API from '../constants/api';
 import { getUserToken } from '../utils/sessionManager';
 import CONTRACT from '../constants/contracts';
-import { getContractByProvider } from '../blockchain/abi';
+import { getContractByProvider,generateMultiCallData } from '../blockchain/abi';
 import { calculateTotalPackageBalance } from './aid';
-
+import {dashboardStats} from './users';
+const abiCoder = new ethers.utils.AbiCoder();
 const access_token = getUserToken();
 const faucet_auth_token = process.env.REACT_APP_BLOCKCHAIN_FAUCET_AUTH_TOKEN;
 
@@ -15,6 +16,46 @@ export async function getMobilizerBalance(contract_address, wallet_addr) {
 	const data = await contract.erc20IssuedBy(wallet_addr);
 	if (!data) return null;
 	return data.toNumber();
+}
+
+export async function getMobilizersIssuedTokens(contract_address, mobilizerAddresses) {
+	const contract  = await getContractByProvider(contract_address,CONTRACT.RAHAT);
+	const callData = mobilizerAddresses.map((address) => generateMultiCallData(CONTRACT.RAHAT,"erc20IssuedBy",[address]))
+	const data = await contract.callStatic.multicall(callData);
+    const decodedData = data.map((el) => abiCoder.decode(['uint256'],el));
+	const mobilizerIssuedTokens = decodedData.map((el) => el[0].toNumber());
+	return mobilizerIssuedTokens
+}
+
+export async function getMobilizersIssuedPackages(contract_address,mobilizerAddresses){
+	const contract  = await getContractByProvider(contract_address,CONTRACT.RAHAT);
+	const callData = mobilizerAddresses.map((address) => generateMultiCallData(CONTRACT.RAHAT,"getTotalERC1155IssuedBy",[address]))
+	const data = await contract.callStatic.multicall(callData);
+	const decodedErc1155Balance = data.map((el) => {
+		const balances =  abiCoder.decode(['uint256[]', 'uint256[]'],el)
+		const tokenIds = balances[0].map(el => el.toNumber());
+		const tokenQtys = balances[1].map(el => el.toNumber());
+		return({tokenIds,tokenQtys})	
+	});
+	const packageBalances = await Promise.all(
+			decodedErc1155Balance.map(async (el,i) => {
+				const packageBalanceTotal = await calculateTotalPackageBalance(el);
+				packageBalanceTotal.mobilizer = mobilizerAddresses[i]
+				return packageBalanceTotal;
+			})
+		);
+	return packageBalances;
+
+}
+
+export async function getTotalMobilizerIssuedTokens(contract_address,mobilizerAddresses,projectId){
+	const {tokenAllocation} = await dashboardStats();
+	const t = tokenAllocation.projectAllocation.find((el)=> el._id === '6256924888649f66d2af2bdc');
+	const totalTokens = projectId? tokenAllocation.projectAllocation.find((el)=> el._id === projectId).token : tokenAllocation.totalAllocation;
+	const moblizerIssuedTokens = await getMobilizersIssuedTokens(contract_address,mobilizerAddresses);
+	const totalMobilizerIssuedTokens = moblizerIssuedTokens.reduce((prev,curr) => prev+curr,0);
+	return {totalTokens, totalMobilizerIssuedTokens}
+
 }
 
 export async function getMobilizerPackageBalance(contract_address, wallet_addr) {
@@ -164,4 +205,14 @@ export async function getEth({ address }) {
 	});
 
 	return res.data;
+}
+
+export async function getMobilizerReport(params) {
+	const { data } = await axios({
+		url: API.MOBILIZERS + `/reports`,
+		method: 'get',
+		headers: { access_token },
+		params
+	});
+	return data;
 }

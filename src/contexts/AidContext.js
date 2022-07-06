@@ -178,10 +178,10 @@ export const AidContextProvider = ({ children }) => {
 		[changeIsverified]
 	);
 	const sendTokenIssuedSms = useCallback(async (phone, token) => {
-		return SmsService.sendTokenIssuedSms({ phone, token });
+		return SmsService.sendTokenIssuedSms({ phone:phone.toString(), token:token.toString() });
 	}, []);
 	const sendPackageIssuedSms = useCallback(async (phone, packageName) => {
-		return SmsService.sendPackageIssuedSms({ phone, packageName });
+		return SmsService.sendPackageIssuedSms({ phone:phone.toString(), packageName });
 	}, []);
 
 	const suspendBeneficiaryToken = useCallback(
