@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { CardTitle } from 'reactstrap';
+import Loading from '../../../global/Loading';
 
 const barChartOptions = {
 	maintainAspectRatio: false,
@@ -26,7 +27,7 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data } = props;
+	const { data, fetching } = props;
 
 	const barChartData = {
 		datasets: [
@@ -52,12 +53,36 @@ const Index = props => {
 	barChartData.labels = bar_labels;
 	barChartData.datasets[0].data = bar_data;
 
+	const sum = bar_data.reduce((a, b) => a + b, 0);
+
 	return (
 		<div>
 			<CardTitle>Beneficiary by project</CardTitle>
 			<br />
-			<div className="chart-wrapper" style={{ width: '100%', margin: '0 auto', height: 420 }}>
-				<Bar data={barChartData} options={barChartOptions} />
+			<div
+				className="chart-wrapper"
+				style={{
+					width: '100%',
+					margin: '0 auto',
+					height: 420,
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center'
+				}}
+			>
+				{fetching ? (
+					<Loading />
+				) : sum > 0 ? (
+					<Bar data={barChartData} options={barChartOptions} />
+				) : (
+					<span
+						style={{
+							color: '#F7C087'
+						}}
+					>
+						No data
+					</span>
+				)}
 			</div>
 		</div>
 	);

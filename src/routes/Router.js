@@ -32,6 +32,7 @@ const AidDetails = lazy(() => import('../modules/aid/detail'));
 const AddProject = lazy(() => import('../modules/aid/add'));
 const EditProject = lazy(() => import('../modules/aid/edit'));
 const addBudget = lazy(() => import('../modules/aid/detail/addBudget'));
+const addCampaign = lazy(()=> import('../modules/aid/detail/addCampaign'));
 
 // Assets
 const AddAsset = lazy(() => import('../modules/asset/add'));
@@ -50,6 +51,8 @@ const KoboToolboxFormDetails = lazy(() => import('../modules/kobotool/forms/deta
 // Aid connect
 const AidConnectList = lazy(() => import('../modules/aid_connect/list'));
 const AidConnectCreateForm = lazy(() => import('../modules/aid_connect/create_forms'));
+
+const CampaignList = lazy(() => import ('../modules/campaign'));
 
 // Reporting
 const Reporting = lazy(() => import('../modules/reporting'));
@@ -166,6 +169,11 @@ let AppRoutes = [
 		path: '/add-budget/:projectId',
 		name: 'addBudget',
 		component: addBudget
+	},
+	{
+		path: '/add-campaign/:projectId',
+		name: 'addCampaign',
+		component: addCampaign
 	},
 
 	{
@@ -329,6 +337,12 @@ let AppRoutes = [
 				name: 'Reporting',
 				icon: 'mdi mdi-adjust',
 				component: Reporting
+			},
+			{
+				path: '/campaigns',
+				name: 'Campaigns',
+				icon: 'mdi mdi-adjust',
+				component: CampaignList
 			},
 			{
 				path: '/users',
