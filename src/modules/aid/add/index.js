@@ -42,8 +42,9 @@ const AddProject = () => {
 		setSelectedInstitutions(institution_values);
 	};
 
-	const handleProjectManagerChange = e => {
-		setSelectedManager(e.value);
+	const handleProjectManagerChange = data => {
+		const project_values = data.map(d => d.value);
+		setSelectedManager(project_values);
 	};
 
 	const handleFormSubmit = e => {
@@ -76,7 +77,7 @@ const AddProject = () => {
 		}
 		if (selectedInstitutions.length) form_data.append('financial_institutions', selectedInstitutions.toString());
 		if (benefUploadFile) form_data.append('file', benefUploadFile);
-		form_data.append('project_manager', selectedManager);
+		form_data.append('project_manager', selectedManager.toString());
 		return form_data;
 	};
 
@@ -131,6 +132,7 @@ const AddProject = () => {
 										currentValue={[]}
 										data={projectManagers}
 										placeholder="--Select Manager--"
+										multi = {true}
 									/>
 								</FormGroup>
 
