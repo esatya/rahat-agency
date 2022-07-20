@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useRef} from 'react';
 import { Bar } from 'react-chartjs-2';
 import { CardTitle } from 'reactstrap';
 import Loading from '../../../global/Loading';
@@ -27,7 +27,7 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data, fetching } = props;
+	const { data, fetching,ageBarRef } = props;
 
 	const barChartData = {
 		datasets: [
@@ -73,7 +73,7 @@ const Index = props => {
 				{fetching ? (
 					<Loading />
 				) : sum > 0 ? (
-					<Bar data={barChartData} options={barChartOptions} />
+						<Bar ref={ageBarRef} data={barChartData} options={barChartOptions} />
 				) : (
 					<span
 						style={{

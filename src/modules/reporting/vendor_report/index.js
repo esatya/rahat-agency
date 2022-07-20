@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, {useState, useContext, useEffect, useCallback, useRef} from 'react';
 import { Button, Card, CardBody, CardTitle, FormGroup } from 'reactstrap';
 
 import ProjectBarDiagram from './project_bar_diagram';
@@ -6,6 +6,7 @@ import TokenChart from './token_pie_chart';
 import PackageChart from './package_pie_chart';
 import { VendorContext } from '../../../contexts/VendorContext';
 import SelectWrapper from '../../global/SelectWrapper';
+import {ExportToExcel} from "../../global/ExportToExcel";
 
 const DUMMY_TOKEN_DATA = [
 	{ count: 100, name: 'Total token', id: '1' },
@@ -23,16 +24,47 @@ const VendorReport = () => {
 	const [projectList, setProjectList] = useState([]);
 
 	const [fetchingVendorData, setFetchingVendorData] = useState(false);
+	const [vendorExportData, setVendorExportData] = useState(null);
 
 	const [vendorData, setVendorData] = useState({
 		vendorByProject: []
 	});
 
+	const vendorPackagePieRef = useRef(null);
+	const vendorProjectBarRef = useRef(null);
+	const vendorTokenPieRef = useRef(null);
+
+	const downloadImage = useCallback(()=>{
+		downloadProjectBar();
+		downloadPackagePie();
+		downloadTokenPie();
+	},[]);
+
+	const downloadPackagePie=()=>{
+		const link = document.createElement("a");
+		link.download = "vendor_pie__diagram.png";
+		link.href = vendorPackagePieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadProjectBar=()=>{
+		const link = document.createElement("a");
+		link.download = "vendor_pie_diagram.png";
+		link.href = vendorProjectBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadTokenPie=()=>{
+		const link = document.createElement("a");
+		link.download = "vendor_bar_diagram.png";
+		link.href = vendorTokenPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+
 	const fetchVendorData = useCallback(async () => {
 		setFetchingVendorData(true);
-		const { vendorByProject } = await getVendorReport();
+		const { vendorByProject, vendorExportData } = await getVendorReport();
 		setVendorData({ vendorByProject: vendorByProject.project });
 		setFetchingVendorData(false);
+		setVendorExportData(vendorExportData);
 	}, [getVendorReport]);
 
 	const handleProjectChange = data => {
@@ -54,7 +86,9 @@ const VendorReport = () => {
 		// setProjects(project);
 	}, [listAid]);
 
-	const handleExportClick = () => {};
+	const handleExportClick = () => {
+		downloadImage();
+	};
 
 	useEffect(() => {
 		fetchVendorData();
@@ -92,31 +126,31 @@ const VendorReport = () => {
 											Exporting...
 										</Button>
 									) : (
-										<Button
-											type="button"
+										<a
 											onClick={handleExportClick}
 											className="btn"
 											color="info"
-											outline={true}
 											style={{ borderRadius: '8px' }}
 										>
-											Export
-										</Button>
+											<ExportToExcel apiData={vendorExportData} fileName="Vendors-report.xlsx" />
+
+										</a>
 									)}
 								</div>
 							</div>
 							<div className="p-4 mt-4">
 								<div className="row">
 									<div className="col-md-6 sm-12">
-										<TokenChart data={DUMMY_TOKEN_DATA} fetching={fetchingVendorData} />
+										<TokenChart vendorTokenPieRef={vendorTokenPieRef} data={DUMMY_TOKEN_DATA} fetching={fetchingVendorData} />
 									</div>
 									<div className="col-md-6 sm-12">
-										<PackageChart data={DUMMY_PACKAGE_DATA} fetching={fetchingVendorData} />
+										<PackageChart data={DUMMY_PACKAGE_DATA} fetching={fetchingVendorData} vendorPackagePieRef={vendorPackagePieRef} />
 									</div>
 								</div>
 							</div>
 							<div className="p-4">
 								<ProjectBarDiagram
+									vendorProjectBarRef={vendorProjectBarRef}
 									data={vendorData.vendorByProject}
 									dataLabel="Project"
 									fetching={fetchingVendorData}

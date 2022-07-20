@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
 import { Button, Card, CardBody, CardTitle, Input, FormGroup, Label } from 'reactstrap';
 import AgeBarDiagram from './age_bar_diagram';
 import ProjectBarDiagram from './project_bar_diagram';
 import GenderPieChart from './gender_pie_chart';
 import SelectWrapper from '../../global/SelectWrapper';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
+import {ExportToExcel} from "../../global/ExportToExcel";
 
 const BeneficiaryReport = () => {
 	const { beneficiaryReport, listProject } = useContext(BeneficiaryContext);
@@ -15,6 +16,33 @@ const BeneficiaryReport = () => {
 	const [fetchingBeneficiaryData, setFetchingBeneficiaryData] = useState(false);
 
 	const [exporting, setExporting] = useState(false);
+	const [beneficiaryExportData, setBeneficiaryExportData] = useState(null);
+    const ageBarRef = useRef(null);
+	const genderPieRef = useRef(null);
+	const projectBarRef = useRef(null);
+	const downloadImage = useCallback(()=>{
+		downloadProjectBar();
+		downloadAgeBar();
+		downloadGenderPie();
+	},[]);
+	const downloadAgeBar=()=>{
+		const link = document.createElement("a");
+		link.download = "age_bar_diagram.png";
+		link.href = ageBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadGenderPie=()=>{
+		const link = document.createElement("a");
+		link.download = "gender_pie_diagram.png";
+		link.href = genderPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadProjectBar=()=>{
+		const link = document.createElement("a");
+		link.download = "project_bar_diagram.png";
+		link.href = projectBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
 
 	const [beneficiaryData, setBeneficiaryData] = useState({
 		beneficiaryByGender: [],
@@ -42,7 +70,7 @@ const BeneficiaryReport = () => {
 			}));
 		}
 		const data = await beneficiaryReport();
-		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge, beneficiaryExportData } = data;
 		setBeneficiaryData(prevState => ({
 			...prevState,
 			beneficiaryByGender: beneficiaryByGender.beneficiaries,
@@ -50,12 +78,16 @@ const BeneficiaryReport = () => {
 			beneficiaryByAge: beneficiaryByAge.beneficiaries
 		}));
 		setFetchingBeneficiaryData(false);
+		setBeneficiaryExportData(beneficiaryExportData);
 	}, [beneficiaryReport, projectId, formData.from, formData.to]);
 
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-	const handleExportClick = () => {};
+	const handleExportClick = () => {
+		downloadImage();
+
+	};
 
 	const loadProjects = useCallback(async () => {
 		const project = await listProject();
@@ -122,27 +154,27 @@ const BeneficiaryReport = () => {
 											Exporting...
 										</Button>
 									) : (
-										<Button
-											type="button"
+										<a
+											// type="button"
 											onClick={handleExportClick}
-											className="btn"
-											color="info"
-											outline={true}
+											// className="btn"
+											// color="info"
+											// outline={true}
 											style={{ borderRadius: '8px' }}
 										>
-											Export
-										</Button>
+											<ExportToExcel apiData={beneficiaryExportData} fileName="Beneficiaries-report.xlsx" />
+										</a>
 									)}
 								</div>
 							</div>
 							<div className="p-4 mt-4">
-								<ProjectBarDiagram data={beneficiaryData.beneficiaryByProject} fetching={fetchingBeneficiaryData} />
+								<ProjectBarDiagram projectBarRef={projectBarRef}  data={beneficiaryData.beneficiaryByProject} fetching={fetchingBeneficiaryData} />
 							</div>
 							<div className="p-4">
-								<AgeBarDiagram data={beneficiaryData.beneficiaryByAge} fetching={fetchingBeneficiaryData} />
+								<AgeBarDiagram data={beneficiaryData.beneficiaryByAge} fetching={fetchingBeneficiaryData} ageBarRef={ageBarRef} />
 							</div>
 							<div className="p-4">
-								<GenderPieChart data={beneficiaryData.beneficiaryByGender} fetching={fetchingBeneficiaryData} />
+								<GenderPieChart genderPieRef={genderPieRef} data={beneficiaryData.beneficiaryByGender} fetching={fetchingBeneficiaryData} />
 							</div>
 						</div>
 					</CardBody>
