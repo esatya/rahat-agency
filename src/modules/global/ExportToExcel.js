@@ -6,7 +6,7 @@ import { useToasts } from 'react-toast-notifications';
 
 import { TOAST } from '../../constants';
 
-export const ExportToExcel = ({ apiData, fileName }) => {
+export const ExportToExcel = ({ apiData, fileName, disabled }) => {
 	const { addToast } = useToasts();
 
 	const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
@@ -23,7 +23,7 @@ export const ExportToExcel = ({ apiData, fileName }) => {
 	};
 
 	return (
-		<Button type="button" onClick={exportToCSV} className="btn" color="info">
+		<Button type="button" onClick={exportToCSV} className="btn" color="info" disabled={disabled}>
 			<i className="fas fa-arrow-circle-right"></i> &nbsp; Export
 		</Button>
 	);

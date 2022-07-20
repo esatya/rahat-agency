@@ -20,7 +20,7 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { data,projectId } = props;
+	const { data,projectId, mobilizerPackagePieRef } = props;
 
 	if (data && data.length) {
 		_labels = [];
@@ -38,6 +38,7 @@ export default function Index(props) {
 			<CardTitle>Package</CardTitle>
 			<div className="chart-wrapper" style={{ width: '100%', margin: 10, height: 230 }}>
 				{projectId?(<Pie
+					ref={mobilizerPackagePieRef}
 					data={pieData}
 					options={{
 						maintainAspectRatio: false,
@@ -57,7 +58,7 @@ export default function Index(props) {
 					>
 						Please select Project
 					</span>)}
-				
+
 			</div>
 		</div>
 	);

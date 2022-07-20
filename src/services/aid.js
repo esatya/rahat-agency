@@ -339,10 +339,14 @@ export function getAidDetails(aidId) {
 }
 
 export async function uploadBenfToProject(projectId, payload) {
-	let res = await axios.post(`${API.PROJECTS}/${projectId}/upload-beneficiaries`, payload, {
-		headers: { access_token }
-	});
-	return res.data;
+	try{
+		let res = await axios.post(`${API.PROJECTS}/${projectId}/upload-beneficiaries`, payload, {
+			headers: {access_token}
+		});
+		return res.data;
+	}catch(error){
+		throw new Error(error.response.data.message.toString());
+	}
 }
 
 export function addAid(payload) {

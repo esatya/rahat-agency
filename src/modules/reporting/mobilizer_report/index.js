@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, {useState, useContext, useEffect, useCallback, useRef} from 'react';
 import { Button, Card, CardBody, CardTitle, FormGroup } from 'reactstrap';
 
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
@@ -8,6 +8,7 @@ import ProjectBarDiagram from './project_bar_diagram';
 import SelectWrapper from '../../global/SelectWrapper';
 import TokenChart from './token_pie_chart';
 import PackageChart from './package_pie_chart';
+import {ExportToExcel} from "../../global/ExportToExcel";
 
 // const DUMMY_TOKEN_DATA = [
 // 	{ count: 100, name: 'Total token', id: '1' },
@@ -31,15 +32,46 @@ const MobilizerReport = () => {
 		mobilizerByProject: []
 	});
 	const [fetchingMobilizerData, setFetchingMobilizerData] = useState(false);
+	const [mobilizerExportData, setMobilizerExportData] = useState(null);
 
 	const [projectId, setProjectId] = useState(null);
 	const [projectList, setProjectList] = useState([]);
+	const mobilizerPackagePieRef = useRef(null);
+	const mobilizerProjectBarRef = useRef(null);
+	const mobilizerTokenPieRef = useRef(null);
+
+	const downloadImage = useCallback(()=>{
+		downloadProjectBar();
+		downloadPackagePie();
+		downloadTokenPie();
+	},[]);
+
+	const downloadPackagePie=()=>{
+		const link = document.createElement("a");
+		link.download = "package_pie__diagram.png";
+		link.href = mobilizerPackagePieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadProjectBar=()=>{
+		const link = document.createElement("a");
+		link.download = "gender_pie_diagram.png";
+		link.href = mobilizerProjectBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadTokenPie=()=>{
+		const link = document.createElement("a");
+		link.download = "project_bar_diagram.png";
+		link.href = mobilizerTokenPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+
 
 	const fetchMobilizerData = useCallback(async () => {
 		setFetchingMobilizerData(true);
-		const { mobilizerByProject } = await getMobilizerReport();
+		const { mobilizerByProject, mobilizerExportData } = await getMobilizerReport();
 		setMobilizerData({ mobilizerByProject: mobilizerByProject.project });
 		setFetchingMobilizerData(false);
+		setMobilizerExportData(mobilizerExportData);
 	}, [getMobilizerReport]);
 
 	const handleProjectChange = data => {
@@ -47,7 +79,7 @@ const MobilizerReport = () => {
 		setProjectId(values);
 	};
 
-	
+
 
 	const fetchMobilizers= useCallback(async ()=>{
 		const mobilizers = await listMobilizer({projectId});
@@ -95,9 +127,12 @@ const MobilizerReport = () => {
 			setProjectList(select_options);
 		}
 		// setProjects(project);
-	}, [listAid]);
+	}, []);
 
-	const handleExportClick = () => {};
+	const handleExportClick = () => {
+
+		downloadImage();
+	};
 
 	useEffect(() => {
 		fetchMobilizerData();
@@ -140,31 +175,31 @@ const MobilizerReport = () => {
 											Exporting...
 										</Button>
 									) : (
-										<Button
-											type="button"
+										<a
 											onClick={handleExportClick}
 											className="btn"
 											color="info"
-											outline={true}
 											style={{ borderRadius: '8px' }}
 										>
-											Export
-										</Button>
+											<ExportToExcel apiData={mobilizerExportData} fileName="Vendors-report.xlsx" />
+
+										</a>
 									)}
 								</div>
 							</div>
 							<div className="p-4 mt-4">
 								<div className="row">
 									<div className="col-md-6 sm-12">
-										<TokenChart data={mobilizerTokens} fetching={fetchingMobilizerData} projectId={projectId} />
+										<TokenChart data={mobilizerTokens} fetching={fetchingMobilizerData} projectId={projectId} mobilizerTokenPieRef={mobilizerTokenPieRef} />
 									</div>
 									<div className="col-md-6 sm-12">
-										<PackageChart data={mobilizerPackages} fetching={fetchingMobilizerData} projectId={projectId}/>
+										<PackageChart data={mobilizerPackages} fetching={fetchingMobilizerData} projectId={projectId} mobilizerPackagePieRef={mobilizerPackagePieRef}/>
 									</div>
 								</div>
 							</div>
 							<div className="p-4">
 								<ProjectBarDiagram
+									mobilizerProjectBarRef={mobilizerProjectBarRef}
 									data={mobilizerData.mobilizerByProject}
 									fetching={fetchingMobilizerData}
 									dataLabel="Project"

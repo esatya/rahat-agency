@@ -21,7 +21,7 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { data, fetching } = props;
+	const { data, fetching, mobilizerTokenPieRef } = props;
 
 	if (data && data.length) {
 		_labels = [];
@@ -53,6 +53,7 @@ export default function Index(props) {
 					<Loading />
 				) : sum > 0 ? (
 					<Pie
+						ref={mobilizerTokenPieRef}
 						data={pieData}
 						options={{
 							maintainAspectRatio: false,

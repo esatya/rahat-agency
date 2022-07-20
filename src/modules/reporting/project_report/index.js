@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, {useState, useEffect, useCallback, useContext, useRef} from 'react';
 import { Button, Card, CardBody, CardTitle, Input, Label, FormGroup } from 'reactstrap';
 import SelectWrapper from '../../global/SelectWrapper';
 import { APP_CONSTANTS } from '../../../constants';
@@ -15,6 +15,7 @@ import VendorChart from './vendor';
 import BeneficiaryOnBoarded from './mobilizer/beneficiary_onboarded';
 import TokenIssuedByMobilizer from './mobilizer/token_issued';
 import BeneficiaryOnBoardedFromAidConnect from './aid_connect/index';
+import {ExportToExcel} from "../../global/ExportToExcel";
 
 //TODO: project selector in the middle if project is not selected
 
@@ -65,7 +66,8 @@ const DUMMY_TOKEN_ISSUED_DATA = [
 ];
 
 const ProjectReport = () => {
-	const { listAid, getProjectTokenBalance, getProjectPackageBalance } = useContext(AidContext);
+	const { listAid, getProjectTokenBalance, getProjectPackageBalance,getAidBalance, available_tokens
+		} = useContext(AidContext);
 	const {
 		listBeneficiary,
 		beneficiaryReport,
@@ -83,6 +85,9 @@ const ProjectReport = () => {
 		from: '',
 		to: ''
 	});
+
+	const [exportButtonDisabled, setExportButtonDisabled] = useState(true);
+
 	const [fetchingTokenData, setFetchingTokenData] = useState(false);
 	const [fetchingPackageData, setFetchingPackageData] = useState(false);
 	const [fetchingBeneficiaryData, setFetchingBeneficiaryData] = useState(false);
@@ -92,6 +97,85 @@ const ProjectReport = () => {
 	const [fetchingBeneficiaryOnBoardedFromAidConnectData, setFetchingBeneficiaryOnBoardedFromAidConnectData] = useState(
 		false
 	);
+	const [projectExportData,setProjectExportData] = useState(null);
+
+	useEffect(()=>{
+		if(projectId && !(fetchingBeneficiaryData || fetchingTokenData || fetchingPackageData)){
+			setExportButtonDisabled(false);
+		}else
+		setExportButtonDisabled(true);
+	},[fetchingTokenData,fetchingPackageData,fetchingBeneficiaryData]);
+
+	const ageBarRef = useRef(null);
+	const genderPieRef = useRef(null);
+	const vendorPieRef = useRef(null);
+	const mobilizerProjectBarRef = useRef(null);
+	const vendorProjectBarRef = useRef(null);
+	const mobilizerPackagePieRef = useRef(null);
+	const mobilizerTokenPieRef = useRef(null);
+	const aidConnectRef = useRef(null);
+
+
+	const downloadImage = useCallback(()=>{
+		downloadAgeBar();
+		downloadGenderPie();
+		downloadProjectBar();
+		downloadVendorProjectBar();
+		downloadTokenPie();
+		downloadAidConnectRef();
+		downloadVendorTokenBar();
+		downloadPackagePie();
+	},[]);
+
+	const downloadVendorProjectBar=()=>{
+		const link = document.createElement("a");
+		link.download = "vendor_pie_diagram.png";
+		link.href = vendorProjectBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadPackagePie=()=>{
+		const link = document.createElement("a");
+		link.download = "package_pie__diagram.png";
+		link.href = mobilizerPackagePieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadAidConnectRef=()=>{
+		console.log("downloadAidConnectRef")
+		const link = document.createElement("a");
+		link.download = "aid_connect_pie__diagram.png";
+		link.href = aidConnectRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadProjectBar=()=>{
+		const link = document.createElement("a");
+		link.download = "gender_pie_diagram.png";
+		link.href = mobilizerProjectBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadTokenPie=()=>{
+		const link = document.createElement("a");
+		link.download = "project_bar_diagram.png";
+		link.href = mobilizerTokenPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadAgeBar=()=>{
+		const link = document.createElement("a");
+		link.download = "beneficiaries_by_age_bar_diagram.png";
+		link.href = ageBarRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadVendorTokenBar=()=>{
+		const link = document.createElement("a");
+		link.download = "vendors_by_token_pie_diagram.png";
+		link.href = vendorPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
+	const downloadGenderPie=()=>{
+		const link = document.createElement("a");
+		link.download = "beneficiaries_by_gender_pie_diagram.png";
+		link.href = genderPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
 
 	const [projectBalance, setProjectBalance] = useState({
 		projectCapital: 0,
@@ -239,16 +323,26 @@ const ProjectReport = () => {
 			const toDate = new Date(formData.to);
 
 			const data = await beneficiaryReport({ projectId, from: fromDate, to: toDate });
-			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge, projectExportData } = data;
 			setBeneficiaryData(prevState => ({
 				...prevState,
 				beneficiaryByGender: beneficiaryByGender.beneficiaries,
 				beneficiaryByProject: beneficiaryByProject.project,
 				beneficiaryByAge: beneficiaryByAge.beneficiaries
 			}));
+			for (let i=0; i<projectExportData.length; i++){
+				let data=projectExportData[i];
+					data["Available Token"]=available_tokens;
+				    delete data["id"];
+
+			}
+
+			setProjectExportData(projectExportData);
+			setFetchingBeneficiaryData(false);
+			return;
 		}
 		const data = await beneficiaryReport();
-		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge,projectExportData } = data;
 		setBeneficiaryData(prevState => ({
 			...prevState,
 			beneficiaryByGender: beneficiaryByGender.beneficiaries,
@@ -256,6 +350,17 @@ const ProjectReport = () => {
 			beneficiaryByAge: beneficiaryByAge.beneficiaries
 		}));
 		setFetchingBeneficiaryData(false);
+		for (let i=0; i<projectExportData.length; i++){
+			let data=projectExportData[i];
+			data["Available Token"]=available_tokens;
+			delete data["id"];
+
+		}
+		// projectExportData.map(data=>{
+		// 	data["Total Token"]= total_tokens;
+		// 	data["Available Token"]=available_tokens
+		// })
+		setProjectExportData(projectExportData);
 	}, [beneficiaryReport, projectId, formData.from, formData.to]);
 
 	const fetchVendorList = useCallback(async () => {
@@ -270,7 +375,10 @@ const ProjectReport = () => {
 	// 	const vendorTokenStatus = await getTotalVendorsBalances(rahat_erc20);
 	// }, []);
 
-	const handleExportClick = () => {};
+	const handleExportClick = () => {
+		if(!exportButtonDisabled)
+			downloadImage();
+	};
 
 	useEffect(() => {
 		loadProjects();
@@ -348,16 +456,15 @@ const ProjectReport = () => {
 											Exporting...
 										</Button>
 									) : (
-										<Button
-											type="button"
+										<a
+											disabled={exportButtonDisabled}
 											onClick={handleExportClick}
 											className="btn"
 											color="info"
-											outline={true}
 											style={{ borderRadius: '8px' }}
 										>
-											Export
-										</Button>
+											<ExportToExcel disabled={exportButtonDisabled} apiData={projectExportData} fileName="Projects-report.xlsx" />
+										</a>
 									)}
 								</div>
 							</div>
@@ -389,12 +496,12 @@ const ProjectReport = () => {
 									</div>
 									<div className="mt-4">
 										<h4>Beneficiaries</h4>
-										<BeneficiaryByProject beneficiary={beneficiaryData} fetching={fetchingBeneficiaryData} />
+										<BeneficiaryByProject beneficiary={beneficiaryData} fetching={fetchingBeneficiaryData} ageBarRef={ageBarRef} genderPieRef={genderPieRef}   />
 									</div>
 									<div className="mt-4">
 										<h4>Vendors</h4>
 										<div className="p-4">
-											<VendorChart data={DUMMY_VENDOR_DATA} fetching={fetchingVendorData} />
+											<VendorChart vendorProjectBarRef={vendorProjectBarRef} data={DUMMY_VENDOR_DATA} fetching={fetchingVendorData} vendorPieRef={vendorPieRef} />
 										</div>
 									</div>
 									<div className="mt-4">
@@ -402,12 +509,14 @@ const ProjectReport = () => {
 										<div className="row p-4">
 											<div className="col-md-6 sm-12">
 												<BeneficiaryOnBoarded
+													mobilizerProjectBarRef={mobilizerProjectBarRef}
 													data={DUMMY_BENEFICIARY_ONBOARDED_DATA}
 													fetching={fetchingBeneficiaryOnBoardedData}
 												/>
 											</div>
 											<div className="col-md-6 sm-12">
 												<TokenIssuedByMobilizer
+													mobilizerTokenPieRef={mobilizerTokenPieRef}
 													data={DUMMY_TOKEN_ISSUED_DATA}
 													fetching={fetchingTokenIssuedByMobilizerData}
 												/>
@@ -418,6 +527,7 @@ const ProjectReport = () => {
 										<h4>Aid connect</h4>
 										<div className="p-4">
 											<BeneficiaryOnBoardedFromAidConnect
+												aidConnectRef={aidConnectRef}
 												data={DUMMY_AID_CONNECT_DATA}
 												fetching={fetchingBeneficiaryOnBoardedFromAidConnectData}
 											/>

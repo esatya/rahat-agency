@@ -27,7 +27,7 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data, fetching } = props;
+	const { data, fetching, projectBarRef } = props;
 
 	const barChartData = {
 		datasets: [
@@ -73,7 +73,7 @@ const Index = props => {
 				{fetching ? (
 					<Loading />
 				) : sum > 0 ? (
-					<Bar data={barChartData} options={barChartOptions} />
+					<Bar ref={projectBarRef} data={barChartData} options={barChartOptions} />
 				) : (
 					<span
 						style={{

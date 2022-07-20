@@ -26,7 +26,7 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data, dataLabel } = props;
+	const { data, dataLabel, mobilizerProjectBarRef } = props;
 
 	const barChartData = {
 		datasets: [
@@ -57,7 +57,7 @@ const Index = props => {
 			<CardTitle>Mobilizers by project</CardTitle>
 			<br />
 			<div className="chart-wrapper" style={{ width: '100%', margin: '0 auto', height: 420 }}>
-				<Bar data={barChartData} options={barChartOptions} />
+				<Bar ref={mobilizerProjectBarRef} data={barChartData} options={barChartOptions} />
 			</div>
 		</div>
 	);
