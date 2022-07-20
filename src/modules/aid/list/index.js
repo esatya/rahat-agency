@@ -77,7 +77,7 @@ const List = () => {
 	const appendProjectBalances = useCallback(({ projects, balances }) => {
 		const projectsWithBalances = projects.map((el, i) => {
 			el.tokenBalance = balances.projectBalances[i];
-			el.packageBalances = balances.packageBalances[i].grandTotal;
+			el.packageBalances = balances.packageBalances[i].grandTotal || 0;
 			return el;
 		});
 		setProjectList(projectsWithBalances);
@@ -217,6 +217,9 @@ const List = () => {
 											<td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
 											<td>{dottedString(d.name)}</td>
 											<td>{dottedString(d.location)}</td>
+											<td>
+												{d?.project_manager?.name ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
+											</td>
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status === 'closed' ? 'COMPLETED' : d.status.toUpperCase()}</td>
 											<td>
