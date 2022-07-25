@@ -23,7 +23,7 @@
 			"name": "eSatya Team"
 		}
 	],
-	"license": "TBD",
+	"license": "AGPL-3.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/esatya/rahat-agency.git"
