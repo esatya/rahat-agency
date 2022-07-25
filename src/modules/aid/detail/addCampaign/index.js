@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { Button, Card,
+import {
+    Button, Card,
     CardBody,
     Col,
     Form,
@@ -7,30 +8,30 @@ import { Button, Card,
     Input,
     Row
 } from 'reactstrap';
-import {useHistory} from "react-router-dom";
-import {API_SERVER, TOAST} from "../../../../constants";
+import { useHistory } from "react-router-dom";
+import { API_SERVER, TOAST } from "../../../../constants";
 import axios from "axios";
-import {getUserToken} from "../../../../utils/sessionManager";
-import API, {FUNDRAISER_CAMPAIGN} from "../../../../constants/api";
+import { getUserToken } from "../../../../utils/sessionManager";
+import API, { FUNDRAISER_CAMPAIGN } from "../../../../constants/api";
 
 import BreadCrumb from '../../../ui_components/breadcrumb';
-import {AppContext} from "../../../../contexts/AppSettingsContext";
+import { AppContext } from "../../../../contexts/AppSettingsContext";
 import GrowSpinner from "../../../global/GrowSpinner";
-import {useToasts} from "react-toast-notifications";
+import { useToasts } from "react-toast-notifications";
 import moment from "moment";
 import SelectWrapper from "../../../global/SelectWrapper";
 import { Editor } from 'react-draft-wysiwyg';
-import {EditorState, convertToRaw} from "draft-js";
+import { EditorState, convertToRaw } from "draft-js";
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import {getAidDetails} from "../../../../services/aid";
+import { getAidDetails } from "../../../../services/aid";
 
 import web3 from 'web3';
 import UploadList from "../tab/uploadList";
 import ModalWrapper from "../../../global/CustomModal";
 
 
-export default function AddCampaign({match}) {
+export default function AddCampaign({ match }) {
     const { addToast } = useToasts();
     const { loading, setLoading } = useContext(AppContext);
     const access_token = getUserToken();
@@ -64,19 +65,20 @@ export default function AddCampaign({match}) {
     const checkUserExists = async (token) => {
         return new Promise((resolve, reject) => {
             const checkUserUrl = API.CheckUserExistsURL;
+            console.log({ checkUserUrl })
             const requestBody = {
                 "email": agencyUserEmail
             }
-            const checkUserResponse = axios.post(checkUserUrl, requestBody,{headers: {authorization: `Bearer ${token}`}} )
+            const checkUserResponse = axios.post(checkUserUrl, requestBody, { headers: { authorization: `Bearer ${token}` } })
                 .then(res => {
                     if (res.statusText === 'OK') {
                         resolve(res.data);
                     }
                     reject(res.data);
                 })
-                    .catch(err => {
-                        reject(err);
-                    });
+                .catch(err => {
+                    reject(err);
+                });
             return checkUserResponse;
         });
     }
@@ -117,7 +119,7 @@ export default function AddCampaign({match}) {
             });
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchProjectDetails()
         fetchAgencyUserDetails()
     }, [])
@@ -152,13 +154,13 @@ export default function AddCampaign({match}) {
         })
     }
 
-    const fetchAgencyUserDetails =() => {
-        try{
+    const fetchAgencyUserDetails = () => {
+        try {
             fetchAgencyDetails().then(agencyDetails => {
                 setAgencyUserEmail(agencyDetails.agency.email);
             });
-        }catch(error){
-            console.log("Exception while fetchAgencyUserDetails, ",error);
+        } catch (error) {
+            console.log("Exception while fetchAgencyUserDetails, ", error);
         }
     };
 
@@ -166,15 +168,16 @@ export default function AddCampaign({match}) {
         try {
 
             setLoading(false);
+            console.log(`${API.FUNDRAISER_CAMPAIGN}/add`)
             const resData = await axios.post(`${API.FUNDRAISER_CAMPAIGN}/add`,
-                formData, {headers: {Authorization: `Bearer ${token.data}`}});
+                formData, { headers: { Authorization: `Bearer ${token.data}` } });
 
             const campaignToProject = await axios.post(`${API.PROJECTS}/${projectId}/addCampaign`,
                 {
                     'campaignId': resData.data.data.id,
                     'campaignTitle': resData.data.data.title
                 },
-                {headers: {access_token: access_token}})
+                { headers: { access_token: access_token } })
 
             if (campaignToProject) {
                 setLoading(false);
@@ -193,19 +196,20 @@ export default function AddCampaign({match}) {
             addToast("Please add at least one wallet.", TOAST.WARNING);
             return;
         }
-        if (value.title.length <= 0){addToast("Title cannot be blank", TOAST.WARNING);
+        if (value.title.length <= 0) {
+            addToast("Title cannot be blank", TOAST.WARNING);
             return
         }
-        if (value.excerpt.length <= 0){
+        if (value.excerpt.length <= 0) {
             addToast("Tagline cannot be blank", TOAST.WARNING);
             return
         }
-        if (value.target.length <= 0){
+        if (value.target.length <= 0) {
             addToast("Target Amount cannot be blank", TOAST.WARNING);
             return
         }
 
-        if (value.expiryDate.length <= 0){
+        if (value.expiryDate.length <= 0) {
             addToast("Campaign End Date cannot be blank", TOAST.WARNING);
             return
         }
@@ -215,7 +219,7 @@ export default function AddCampaign({match}) {
         }
 
         if (value.title?.length <= 0) {
-            addToast("Please enter the title",TOAST.WARNING);
+            addToast("Please enter the title", TOAST.WARNING);
             return;
         }
 
@@ -231,24 +235,26 @@ export default function AddCampaign({match}) {
         formData.append('image', image);
         formData.append('wallets', JSON.stringify(wallets));
         formData.append('status', saveAsDraft ? 'DRAFT' : 'PUBLISHED');
-
-        const tokenResponse = await axios.get(`${API.USERS}/token?email=${agencyUserEmail}`,{
-            headers: {access_token: access_token}
+        console.log("heer")
+        const tokenResponse = await axios.get(`${API.USERS}/token?email=${agencyUserEmail}`, {
+            headers: { access_token: access_token }
         });
-        if(tokenResponse){
+        console.log({ tokenResponse })
+        if (tokenResponse) {
             setToken(tokenResponse);
-            checkUserExists(tokenResponse.data).then((userDetails) =>{
+            checkUserExists(tokenResponse.data).then((userDetails) => {
+                console.log("userDetails", userDetails);
                 if (userDetails && userDetails.userExists) {
-                    createCampaign(formData, tokenResponse).then(campaignCreated =>{
+                    createCampaign(formData, tokenResponse).then(campaignCreated => {
                         console.log(campaignCreated)
                     });
-                }else{
+                } else {
                     setFormDataModal(formData);
                     setAddUserModal(true);
 
                 }
             });
-        }else{
+        } else {
             addToast("Error while connecting to Server");
             setLoading(false);
         }
@@ -256,25 +262,25 @@ export default function AddCampaign({match}) {
     }
     const [token, setToken] = useState(null);
     const [formDataModal, setFormDataModal] = useState(null);
-    const handleCreateAgencyUser = async e =>{
+    const handleCreateAgencyUser = async e => {
         e.preventDefault();
         setLoading(true);
         setAddUserModal(false);
         const createUser = API.CreateUserFundraiserURL
         axios.post(createUser, {
             email: agencyUserEmail,
-            alias: agencyUserEmail.slice(0,4),
+            alias: agencyUserEmail.slice(0, 4),
             isAgency: true
-        }).then(userCreated =>{
-            if(userCreated) {
+        }).then(userCreated => {
+            if (userCreated) {
                 addToast("User created in fundraiser", TOAST.SUCCESS);
                 createCampaign(formDataModal, token).then(campaignCreated => {
                     console.log(campaignCreated)
                 });
             }
             else addToast("Error while creating an user", TOAST.ERROR)
-        }).catch(error=>{
-            addToast("Error while registering User, "+ error, TOAST.ERROR );
+        }).catch(error => {
+            addToast("Error while registering User, " + error, TOAST.ERROR);
             setLoading(false);
         })
     }
@@ -284,8 +290,8 @@ export default function AddCampaign({match}) {
         setValue({ ...value, [e.target.name]: e.target.value });
     };
 
-    const handleWalletTypeChange = e =>{
-        setValue({...value, ["walletType"]: e.value})
+    const handleWalletTypeChange = e => {
+        setValue({ ...value, ["walletType"]: e.value })
     }
 
     const handleFileChange = (event) => {
@@ -293,194 +299,194 @@ export default function AddCampaign({match}) {
     };
 
     return (
-       <>
-           <FormGroup>
-               <p className="page-heading">Create your fundraising campaign</p>
-               <BreadCrumb redirect_path="projects" root_label = "Projects" current_label="Enter your Details" />
-               <Row>
-                   <Col md="10">
-                       <Card>
-                           <CardBody>
-                            <Form style={{color: '#6B6C72'}}>
-                                <FormGroup>
-                                    <label htmlFor="fname" className="form-label"><strong>Title</strong></label>
-                                    <Input type="text" value={value.title} name="title" placeholder = "Max 50 letters" onChange={handleInputChange} required />
-                                </FormGroup>
+        <>
+            <FormGroup>
+                <p className="page-heading">Create your fundraising campaign</p>
+                <BreadCrumb redirect_path="projects" root_label="Projects" current_label="Enter your Details" />
+                <Row>
+                    <Col md="10">
+                        <Card>
+                            <CardBody>
+                                <Form style={{ color: '#6B6C72' }}>
+                                    <FormGroup>
+                                        <label htmlFor="fname" className="form-label"><strong>Title</strong></label>
+                                        <Input type="text" value={value.title} name="title" placeholder="Max 50 letters" onChange={handleInputChange} required />
+                                    </FormGroup>
 
-                                <FormGroup>
-                                    <label htmlFor="fname" className="form-label"><strong>Tagline</strong></label>
-                                    <Input type="text" value={value.excerpt} name="excerpt" placeholder = "Max 100 letters" onChange={handleInputChange} required />
-                                </FormGroup>
+                                    <FormGroup>
+                                        <label htmlFor="fname" className="form-label"><strong>Tagline</strong></label>
+                                        <Input type="text" value={value.excerpt} name="excerpt" placeholder="Max 100 letters" onChange={handleInputChange} required />
+                                    </FormGroup>
 
-                                <FormGroup>
-                                    <label htmlFor="fname" className="form-label"><strong>Share Your Story</strong></label>
-                                    <Editor
-                                        editorState={value?.story}
-                                        wrapperClassName="border border-1 p-2"
-                                        editorClassName="editer-content"
-                                        onEditorStateChange={(editorState) => {
-                                            setValue((previous) => {
-                                                return {
-                                                    ...previous,
-                                                    story: editorState,
-                                                };
-                                            });
-                                        }}
-                                    />
-                                </FormGroup><FormGroup>
-                                    <label htmlFor="formFileSm" className="form-label mt-3">
-                                        Upload photo that best defines your fundraiser
-                                        campaign
-                                    </label>
-                                    <Input
-                                        className="form-control form-control-sm"
-                                        id="formFileSm"
-                                        type="file"
-                                        accept=".jpg,.jpeg,.png"
-                                        onChange={handleFileChange}
-                                    />
-                                </FormGroup>
-                                <FormGroup>
+                                    <FormGroup>
+                                        <label htmlFor="fname" className="form-label"><strong>Share Your Story</strong></label>
+                                        <Editor
+                                            editorState={value?.story}
+                                            wrapperClassName="border border-1 p-2"
+                                            editorClassName="editer-content"
+                                            onEditorStateChange={(editorState) => {
+                                                setValue((previous) => {
+                                                    return {
+                                                        ...previous,
+                                                        story: editorState,
+                                                    };
+                                                });
+                                            }}
+                                        />
+                                    </FormGroup><FormGroup>
+                                        <label htmlFor="formFileSm" className="form-label mt-3">
+                                            Upload photo that best defines your fundraiser
+                                            campaign
+                                        </label>
+                                        <Input
+                                            className="form-control form-control-sm"
+                                            id="formFileSm"
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={handleFileChange}
+                                        />
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Row>
+                                            <Col>
+                                                <FormGroup>
+                                                    <label htmlFor="fname" className="form-label">
+                                                        <strong>Your blockchain network</strong>
+                                                    </label>
+                                                    <SelectWrapper
+                                                        id="project_manager"
+                                                        onChange={handleWalletTypeChange}
+                                                        maxMenuHeight={200}
+                                                        currentValue={[{ value: 'Binance', label: 'Binance' }]}
+                                                        data={[{ value: 'Binance', label: 'Binance' }]}
+                                                        placeholder="Select WalletType"
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+
+                                            <Col>
+                                                <label htmlFor="fname" className="form-label">
+                                                    <strong>Your Wallet address</strong>
+                                                </label>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Wallet address"
+                                                    className=" my-auto"
+                                                    name="walletAddress"
+                                                    value={value?.walletAddress}
+                                                    onChange={handleInputChange}
+                                                    style={{ height: 35 }}
+                                                />
+                                            </Col>
+                                            <Col>
+                                                <Button
+                                                    style={{ "margin": "30px" }}
+                                                    type="button"
+                                                    className="btn btn-primary submit-btn"
+                                                    onClick={handleWalletSave}
+                                                >Add
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <label> <strong>Linked Wallets</strong> </label>
+                                        {wallets?.map((wallet, index) => (
+                                            <p className="mb-0" key={index}>
+                                                <small>
+                                                    {' '}
+                                                    <img
+                                                        // src={bnbImage}
+                                                        height={20}
+                                                        style={{ marginTop: '-0.3rem' }}
+                                                    />
+                                                    &nbsp;{wallet?.name}: {wallet?.walletAddress}
+                                                </small>
+                                                <span
+                                                    className="text-danger c-p"
+                                                    onClick={() => removeWallet(index)}
+                                                >
+                                                    &nbsp; <i className="fa fa-trash"></i>
+                                                </span>
+                                            </p>
+                                        ))}
+                                    </FormGroup>
                                     <Row>
                                         <Col>
                                             <FormGroup>
-                                                <label htmlFor="fname" className="form-label">
-                                                    <strong>Your blockchain network</strong>
+                                                <label>
+                                                    <strong>How much do you want to raise?</strong>
                                                 </label>
-                                                <SelectWrapper
-                                                    id="project_manager"
-                                                    onChange={handleWalletTypeChange}
-                                                    maxMenuHeight={200}
-                                                    currentValue={[{ value: 'Binance', label: 'Binance' }]}
-                                                    data={[{ value: 'Binance', label: 'Binance' }]}
-                                                    placeholder="Select WalletType"
+                                                <Input
+                                                    type="number"
+                                                    className="form-control"
+                                                    name="target"
+                                                    id="fname"
+                                                    placeholder="Enter amount in BNB"
+                                                    onChange={handleInputChange}
+                                                    required
                                                 />
                                             </FormGroup>
                                         </Col>
 
                                         <Col>
-                                            <label htmlFor="fname" className="form-label">
-                                                <strong>Your Wallet address</strong>
-                                            </label>
-                                            <Input
-                                                type="text"
-                                                placeholder="Wallet address"
-                                                className=" my-auto"
-                                                name="walletAddress"
-                                                value={value?.walletAddress}
-                                                onChange={handleInputChange}
-                                                style={{ height: 35 }}
-                                            />
-                                        </Col>
-                                        <Col>
-                                            <Button
-                                                style={{"margin": "30px"}}
-                                                type="button"
-                                                className="btn btn-primary submit-btn"
-                                                onClick={handleWalletSave}
-                                            >Add
-                                            </Button>
+                                            <FormGroup>
+                                                <label>
+                                                    Campaign End Date
+                                                </label>
+                                                <Input
+                                                    type="date"
+                                                    min={moment().add('1', 'day').format('YYYY-MM-DD')}
+                                                    className="form-control"
+                                                    name="expiryDate"
+                                                    id="expiryDate"
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+                                            </FormGroup>
                                         </Col>
                                     </Row>
-                                </FormGroup>
-                                <FormGroup>
-                                    <label> <strong>Linked Wallets</strong> </label>
-                                    {wallets?.map((wallet, index) => (
-                                        <p className="mb-0" key={index}>
-                                            <small>
-                                                {' '}
-                                                <img
-                                                    // src={bnbImage}
-                                                    height={20}
-                                                    style={{ marginTop: '-0.3rem' }}
-                                                />
-                                                &nbsp;{wallet?.name}: {wallet?.walletAddress}
-                                            </small>
-                                            <span
-                                                className="text-danger c-p"
-                                                onClick={() => removeWallet(index)}
-                                            >
-                              &nbsp; <i className="fa fa-trash"></i>
-                            </span>
-                                        </p>
-                                    ))}
-                                </FormGroup>
-                                <Row>
-                                    <Col>
-                                        <FormGroup>
-                                            <label>
-                                                <strong>How much do you want to raise?</strong>
-                                            </label>
-                                            <Input
-                                                type="number"
-                                                className="form-control"
-                                                name="target"
-                                                id="fname"
-                                                placeholder="Enter amount in BNB"
-                                                onChange={handleInputChange}
-                                                required
-                                            />
-                                        </FormGroup>
-                                    </Col>
+                                    <CardBody style={{ paddingLeft: 0 }}>
+                                        {loading ? (
+                                            <GrowSpinner />
+                                        ) : (
+                                            <div>
+                                                <Button className="btn btn-info"
+                                                    onClick={handleFormSubmit}>
+                                                    <i className="fa fa-check"></i> Publish Campaign
+                                                </Button>
+                                                {/*<Button*/}
+                                                {/*    type="button"*/}
+                                                {/*    onClick={RegisterAsDraft}*/}
+                                                {/*    style={{ borderRadius: 8 }}*/}
+                                                {/*    className="btn btn-info ml-2"*/}
+                                                {/*>*/}
+                                                {/*    Save as draft*/}
+                                                {/*</Button>*/}
 
-                                    <Col>
-                                        <FormGroup>
-                                            <label>
-                                                Campaign End Date
-                                            </label>
-                                            <Input
-                                                type="date"
-                                                min={moment().add('1', 'day').format('YYYY-MM-DD')}
-                                                className="form-control"
-                                                name="expiryDate"
-                                                id="expiryDate"
-                                                onChange={handleInputChange}
-                                                required
-                                            />
-                                        </FormGroup>
-                                    </Col>
-                                </Row>
-                                <CardBody style={{ paddingLeft: 0 }}>
-                                    {loading ? (
-                                        <GrowSpinner />
-                                    ) : (
-                                        <div>
-                                            <Button  className="btn btn-info"
-                                            onClick={handleFormSubmit}>
-                                                <i className="fa fa-check"></i> Publish Campaign
-                                            </Button>
-                                            {/*<Button*/}
-                                            {/*    type="button"*/}
-                                            {/*    onClick={RegisterAsDraft}*/}
-                                            {/*    style={{ borderRadius: 8 }}*/}
-                                            {/*    className="btn btn-info ml-2"*/}
-                                            {/*>*/}
-                                            {/*    Save as draft*/}
-                                            {/*</Button>*/}
-
-                                            <ModalWrapper
-                                                toggle={toggleAddUserModal}
-                                                open={addUserModal}
-                                                title= "Create Agency User in Fundraiser"
-                                                handleSubmit={handleCreateAgencyUser}
-                                                loading={false}
-                                                size="l"
-                                            >
-                                                <>
-                                                    <p> Create an agency user in fundraiser? </p>
-                                                    <p>Email: </p>
-                                                <p>${agencyUserEmail}</p>
-                                                </>
-                                            </ModalWrapper>
-                                        </div>
-                                    )}
-                                </CardBody>
-                            </Form>
-                           </CardBody>
-                       </Card>
-                   </Col>
-               </Row>
-           </FormGroup>
-       </>
+                                                <ModalWrapper
+                                                    toggle={toggleAddUserModal}
+                                                    open={addUserModal}
+                                                    title="Create Agency User in Fundraiser"
+                                                    handleSubmit={handleCreateAgencyUser}
+                                                    loading={false}
+                                                    size="l"
+                                                >
+                                                    <>
+                                                        <p> Create an agency user in fundraiser? </p>
+                                                        <p>Email: </p>
+                                                        <p>${agencyUserEmail}</p>
+                                                    </>
+                                                </ModalWrapper>
+                                            </div>
+                                        )}
+                                    </CardBody>
+                                </Form>
+                            </CardBody>
+                        </Card>
+                    </Col>
+                </Row>
+            </FormGroup>
+        </>
     );
 }
