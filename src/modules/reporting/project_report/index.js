@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback, useContext, useRef} from 'react';
+import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import { Button, Card, CardBody, CardTitle, Input, Label, FormGroup } from 'reactstrap';
 import SelectWrapper from '../../global/SelectWrapper';
 import { APP_CONSTANTS } from '../../../constants';
@@ -15,7 +15,7 @@ import VendorChart from './vendor';
 import BeneficiaryOnBoarded from './mobilizer/beneficiary_onboarded';
 import TokenIssuedByMobilizer from './mobilizer/token_issued';
 import BeneficiaryOnBoardedFromAidConnect from './aid_connect/index';
-import {ExportToExcel} from "../../global/ExportToExcel";
+import { ExportToExcel } from "../../global/ExportToExcel";
 
 //TODO: project selector in the middle if project is not selected
 
@@ -66,8 +66,8 @@ const DUMMY_TOKEN_ISSUED_DATA = [
 ];
 
 const ProjectReport = () => {
-	const { listAid, getProjectTokenBalance, getProjectPackageBalance,getAidBalance, available_tokens
-		} = useContext(AidContext);
+	const { listAid, getProjectTokenBalance, getProjectPackageBalance, getAidBalance, available_tokens
+	} = useContext(AidContext);
 	const {
 		listBeneficiary,
 		beneficiaryReport,
@@ -97,14 +97,14 @@ const ProjectReport = () => {
 	const [fetchingBeneficiaryOnBoardedFromAidConnectData, setFetchingBeneficiaryOnBoardedFromAidConnectData] = useState(
 		false
 	);
-	const [projectExportData,setProjectExportData] = useState(null);
+	const [projectExportData, setProjectExportData] = useState(null);
 
-	useEffect(()=>{
-		if(projectId && !(fetchingBeneficiaryData || fetchingTokenData || fetchingPackageData)){
+	useEffect(() => {
+		if (projectId && !(fetchingBeneficiaryData || fetchingTokenData || fetchingPackageData)) {
 			setExportButtonDisabled(false);
-		}else
-		setExportButtonDisabled(true);
-	},[fetchingTokenData,fetchingPackageData,fetchingBeneficiaryData]);
+		} else
+			setExportButtonDisabled(true);
+	}, [fetchingTokenData, fetchingPackageData, fetchingBeneficiaryData]);
 
 	const ageBarRef = useRef(null);
 	const genderPieRef = useRef(null);
@@ -116,7 +116,7 @@ const ProjectReport = () => {
 	const aidConnectRef = useRef(null);
 
 
-	const downloadImage = useCallback(()=>{
+	const downloadImage = useCallback(() => {
 		downloadAgeBar();
 		downloadGenderPie();
 		downloadProjectBar();
@@ -125,52 +125,52 @@ const ProjectReport = () => {
 		downloadAidConnectRef();
 		downloadVendorTokenBar();
 		downloadPackagePie();
-	},[]);
+	}, []);
 
-	const downloadVendorProjectBar=()=>{
+	const downloadVendorProjectBar = () => {
 		const link = document.createElement("a");
 		link.download = "vendor_pie_diagram.png";
 		link.href = vendorProjectBarRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadPackagePie=()=>{
+	const downloadPackagePie = () => {
 		const link = document.createElement("a");
 		link.download = "package_pie__diagram.png";
 		link.href = mobilizerPackagePieRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadAidConnectRef=()=>{
+	const downloadAidConnectRef = () => {
 		console.log("downloadAidConnectRef")
 		const link = document.createElement("a");
 		link.download = "aid_connect_pie__diagram.png";
 		link.href = aidConnectRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadProjectBar=()=>{
+	const downloadProjectBar = () => {
 		const link = document.createElement("a");
 		link.download = "gender_pie_diagram.png";
 		link.href = mobilizerProjectBarRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadTokenPie=()=>{
+	const downloadTokenPie = () => {
 		const link = document.createElement("a");
 		link.download = "project_bar_diagram.png";
 		link.href = mobilizerTokenPieRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadAgeBar=()=>{
+	const downloadAgeBar = () => {
 		const link = document.createElement("a");
 		link.download = "beneficiaries_by_age_bar_diagram.png";
 		link.href = ageBarRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadVendorTokenBar=()=>{
+	const downloadVendorTokenBar = () => {
 		const link = document.createElement("a");
 		link.download = "vendors_by_token_pie_diagram.png";
 		link.href = vendorPieRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadGenderPie=()=>{
+	const downloadGenderPie = () => {
 		const link = document.createElement("a");
 		link.download = "beneficiaries_by_gender_pie_diagram.png";
 		link.href = genderPieRef.current.chartInstance.toBase64Image();
@@ -235,10 +235,11 @@ const ProjectReport = () => {
 	const handleInputChange = e => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-	const handleProjectChange = data => {
-		const values = data.value.toString();
-		setProjectId(values);
-	};
+	const
+		handleProjectChange = data => {
+			const values = data.value.toString();
+			setProjectId(values);
+		};
 
 	const loadProjects = useCallback(async () => {
 		const project = await listAid();
@@ -250,6 +251,7 @@ const ProjectReport = () => {
 				};
 			});
 			setProjectList(select_options);
+			setProjectId(select_options[0].value);
 		}
 	}, [listAid]);
 
@@ -330,10 +332,10 @@ const ProjectReport = () => {
 				beneficiaryByProject: beneficiaryByProject.project,
 				beneficiaryByAge: beneficiaryByAge.beneficiaries
 			}));
-			for (let i=0; i<projectExportData.length; i++){
-				let data=projectExportData[i];
-					data["Available Token"]=available_tokens;
-				    delete data["id"];
+			for (let i = 0; i < projectExportData.length; i++) {
+				let data = projectExportData[i];
+				data["Available Token"] = available_tokens;
+				delete data["id"];
 
 			}
 
@@ -342,7 +344,7 @@ const ProjectReport = () => {
 			return;
 		}
 		const data = await beneficiaryReport();
-		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge,projectExportData } = data;
+		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge, projectExportData } = data;
 		setBeneficiaryData(prevState => ({
 			...prevState,
 			beneficiaryByGender: beneficiaryByGender.beneficiaries,
@@ -350,9 +352,9 @@ const ProjectReport = () => {
 			beneficiaryByAge: beneficiaryByAge.beneficiaries
 		}));
 		setFetchingBeneficiaryData(false);
-		for (let i=0; i<projectExportData.length; i++){
-			let data=projectExportData[i];
-			data["Available Token"]=available_tokens;
+		for (let i = 0; i < projectExportData.length; i++) {
+			let data = projectExportData[i];
+			data["Available Token"] = available_tokens;
 			delete data["id"];
 
 		}
@@ -376,7 +378,7 @@ const ProjectReport = () => {
 	// }, []);
 
 	const handleExportClick = () => {
-		if(!exportButtonDisabled)
+		if (!exportButtonDisabled)
 			downloadImage();
 	};
 
@@ -428,7 +430,7 @@ const ProjectReport = () => {
 											onChange={handleProjectChange}
 											maxMenuHeight={150}
 											data={projectList}
-											placeholder="--Select Project--"
+											placeholder={projectList[0]?.label || "--Select Project--"}
 										/>
 									</FormGroup>
 								</div>
@@ -496,7 +498,7 @@ const ProjectReport = () => {
 									</div>
 									<div className="mt-4">
 										<h4>Beneficiaries</h4>
-										<BeneficiaryByProject beneficiary={beneficiaryData} fetching={fetchingBeneficiaryData} ageBarRef={ageBarRef} genderPieRef={genderPieRef}   />
+										<BeneficiaryByProject beneficiary={beneficiaryData} fetching={fetchingBeneficiaryData} ageBarRef={ageBarRef} genderPieRef={genderPieRef} />
 									</div>
 									<div className="mt-4">
 										<h4>Vendors</h4>

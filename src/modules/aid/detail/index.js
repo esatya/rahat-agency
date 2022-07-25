@@ -24,6 +24,7 @@ export default function Index(props) {
 	const {
 		total_tokens,
 		available_tokens,
+		used_tokens,
 		getAidDetails,
 		changeProjectStatus,
 		getProjectCapital,
@@ -68,9 +69,9 @@ export default function Index(props) {
 		if (!agency || !agency.contracts) return;
 		try {
 			setFetchingBlockchain(true);
-			const { rahat_admin } = agency.contracts;
+			const { rahat_admin, rahat } = agency.contracts;
 			await getProjectCapital(id, rahat_admin);
-			await getAidBalance(id, rahat_admin);
+			await getAidBalance(id, rahat_admin, rahat);
 			const res = await getProjectPackageBalance(id, rahat_admin);
 			console.log({ res });
 			setTotalFiatBalance(res?.projectCapital?.grandTotal || 0);
@@ -82,6 +83,7 @@ export default function Index(props) {
 			setFetchingBlockchain(false);
 		}
 	}, [addToast, appSettings, getAidBalance, getProjectCapital, id, getProjectPackageBalance]);
+
 
 	useEffect(fetchProjectDetails, []);
 
@@ -154,6 +156,7 @@ export default function Index(props) {
 							fetching={fetchingBlockchain}
 							available_tokens={available_tokens}
 							total_tokens={total_tokens}
+							used_tokens={used_tokens}
 							total_package={totalFiatBalance}
 							available_package={totalRemainingFiatBalance}
 							projectStatus={projectDetails.status}
