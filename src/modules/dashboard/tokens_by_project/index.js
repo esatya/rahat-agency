@@ -44,11 +44,11 @@ const barChartOptions = {
 };
 
 const Index = props => {
-	const { data, exportData } = props;
+	let { data, exportData } = props;
 
 	let bar_labels = [];
 	let bar_data = [];
-
+	if (data.length > 5) data = data.slice(0, 5)
 	if (data && data.length) {
 		bar_labels = [];
 		for (let d of data) {

@@ -23,8 +23,9 @@ let pieData = {
 };
 
 export default function Index(props) {
-	const { releasedToken, redeemedTokens, data, exportData } = props;
-
+	const { releasedToken, redeemedTokens, exportData } = props;
+	let { data } = props;
+	if (data.length > 5) data = data.slice(0, 5)
 	if (data && data.length) {
 		_labels = [];
 		_data = [];
