@@ -79,15 +79,17 @@ export const AidContextProvider = ({ children }) => {
 			type: ACTION.SET_AVAILABLE_TOKENS,
 			res: _available
 		});
-		const projectBeneficiaries = await BenfService.listBeneficiaryPhones({ projectId: aidId });
-		const projectBeneficiariesBalances = await BenfService.getBeneficairyTokenBalances(projectBeneficiaries, rahat_contract);
-		const totalIssued = projectBeneficiariesBalances.issuedTokens.reduce((a, b) => a + b, 0);
-		const totalRemaining = projectBeneficiariesBalances.remainingTokens.reduce((a, b) => a + b, 0);
-		const usedTokens = Math.abs(totalIssued - totalRemaining);
-		dispatch({
-			type: ACTION.SET_USED_TOKENS,
-			res: usedTokens
-		});
+		if (rahat_contract) {
+			const projectBeneficiaries = await BenfService.listBeneficiaryPhones({ projectId: aidId });
+			const projectBeneficiariesBalances = await BenfService.getBeneficairyTokenBalances(projectBeneficiaries, rahat_contract);
+			const totalIssued = projectBeneficiariesBalances.issuedTokens.reduce((a, b) => a + b, 0);
+			const totalRemaining = projectBeneficiariesBalances.remainingTokens.reduce((a, b) => a + b, 0);
+			const usedTokens = Math.abs(totalIssued - totalRemaining);
+			dispatch({
+				type: ACTION.SET_USED_TOKENS,
+				res: usedTokens
+			});
+		}
 
 		return _available;
 	}, []);

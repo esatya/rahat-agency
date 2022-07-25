@@ -142,12 +142,15 @@ const Token = ({ benfId, projectId }) => {
 	]);
 
 	const fetchProjectBalance = useCallback(async () => {
+		if (!appSettings) return;
+		const { agency } = appSettings;
+		if (!agency || !agency.contracts) return;
+		const { rahat_admin } = agency.contracts;
 		setFetchingBlockchain(true);
-		const { rahat_admin } = appSettings.agency && appSettings.agency.contracts;
 		await getProjectCapital(projectId, rahat_admin);
 		await getAidBalance(projectId, rahat_admin);
 		setFetchingBlockchain(false);
-	}, [appSettings.agency, getAidBalance, getProjectCapital, projectId]);
+	}, [appSettings, getAidBalance, getProjectCapital, projectId]);
 
 	useEffect(() => {
 		fetchProjectBalance();

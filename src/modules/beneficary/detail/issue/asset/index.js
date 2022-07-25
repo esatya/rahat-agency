@@ -87,13 +87,16 @@ export default function (props) {
 
 	const fetchIssuedQtys = useCallback(
 		async packages => {
+			if (!appSettings) return;
+			const { agency } = appSettings;
+			if (!agency || !agency.contracts) return;
+			const { rahat } = agency.contracts;
 			setFetchingIssuedQty(true);
-			const { rahat } = appSettings.agency.contracts;
 			const { tokenIds, tokenQtys } = await getBeneficiaryIssuedTokens(Number(benfPhone), rahat);
 			if (packages.length && tokenQtys.length) await appendIssuedQtyToList({ packages, tokenIds, tokenQtys });
 			setFetchingIssuedQty(false);
 		},
-		[appSettings.agency.contracts, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
+		[appSettings, appendIssuedQtyToList, benfPhone, getBeneficiaryIssuedTokens]
 	);
 
 	const fetchPackageList = useCallback(async () => {
@@ -114,6 +117,10 @@ export default function (props) {
 	}, [getBeneficiaryById, benfId]);
 
 	const submitBenfPackageRequest = useCallback(async () => {
+		if (!appSettings) return;
+		const { agency } = appSettings;
+		if (!agency || !agency.contracts) return;
+		const { rahat } = agency.contracts;
 		if (isVerified && wallet && currentBalanceTab === BALANCE_TABS.PACKAGE) {
 			try {
 				if (!benfPhone) return addToast('Beneficiary phone is required', TOAST.ERROR);
@@ -137,7 +144,6 @@ export default function (props) {
 
 				await sendPackageIssuedSms(Number(benfPhone), packageNames);
 
-				const { rahat } = appSettings.agency.contracts;
 				const res = await issueBeneficiaryPackage(wallet, payload, rahat);
 				if (res) {
 					setMasking(false);
@@ -152,7 +158,7 @@ export default function (props) {
 		}
 	}, [
 		addToast,
-		appSettings.agency.contracts,
+		appSettings,
 		benfId,
 		benfPhone,
 		currentBalanceTab,
