@@ -30,6 +30,7 @@ const initialState = {
 	},
 	total_tokens: 0,
 	available_tokens: 0,
+	used_tokens: 0,
 	aid_details: null,
 	loading: false
 };
@@ -72,12 +73,22 @@ export const AidContextProvider = ({ children }) => {
 		return res;
 	}, []);
 
-	const getAidBalance = useCallback(async (aidId, rahat_contract) => {
-		let _available = await Service.loadAidBalance(aidId, rahat_contract);
+	const getAidBalance = useCallback(async (aidId, rahat_admin_contract, rahat_contract) => {
+		let _available = await Service.loadAidBalance(aidId, rahat_admin_contract);
 		dispatch({
 			type: ACTION.SET_AVAILABLE_TOKENS,
 			res: _available
 		});
+		const projectBeneficiaries = await BenfService.listBeneficiaryPhones({ projectId: aidId });
+		const projectBeneficiariesBalances = await BenfService.getBeneficairyTokenBalances(projectBeneficiaries, rahat_contract);
+		const totalIssued = projectBeneficiariesBalances.issuedTokens.reduce((a, b) => a + b, 0);
+		const totalRemaining = projectBeneficiariesBalances.remainingTokens.reduce((a, b) => a + b, 0);
+		const usedTokens = Math.abs(totalIssued - totalRemaining);
+		dispatch({
+			type: ACTION.SET_USED_TOKENS,
+			res: usedTokens
+		});
+
 		return _available;
 	}, []);
 
@@ -178,10 +189,10 @@ export const AidContextProvider = ({ children }) => {
 		[changeIsverified]
 	);
 	const sendTokenIssuedSms = useCallback(async (phone, token) => {
-		return SmsService.sendTokenIssuedSms({ phone:phone.toString(), token:token.toString() });
+		return SmsService.sendTokenIssuedSms({ phone: phone.toString(), token: token.toString() });
 	}, []);
 	const sendPackageIssuedSms = useCallback(async (phone, packageName) => {
-		return SmsService.sendPackageIssuedSms({ phone:phone.toString(), packageName });
+		return SmsService.sendPackageIssuedSms({ phone: phone.toString(), packageName });
 	}, []);
 
 	const suspendBeneficiaryToken = useCallback(
@@ -229,6 +240,11 @@ export const AidContextProvider = ({ children }) => {
 		return Service.getProjectsBalances(projectIds, rahat_address, rahatAdminAddress);
 	}, []);
 
+	const getBeneficairyTokenBalances = (beneficiaries, contract_address) => {
+		const beneficiaryBalances = BenfService.getBeneficairyTokenBalances(beneficiaries, contract_address);
+		console.log({ beneficiaryBalances })
+	};
+
 	return (
 		<AidContext.Provider
 			value={{
@@ -242,6 +258,7 @@ export const AidContextProvider = ({ children }) => {
 				aid_details: state.aid_details,
 				available_tokens: state.available_tokens,
 				total_tokens: state.total_tokens,
+				used_tokens: state.used_tokens,
 				uploadBenfToProject,
 				listMobilizersByProject,
 				sendTokenIssuedSms,

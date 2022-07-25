@@ -31,7 +31,7 @@ const Beneficiary = () => {
 	});
 	const [selectedProject, setSelectedProject] = useState('');
 
-	const { listBeneficiary, projectList, getBeneficiariesBalances,getBenfPackageBalances } = useContext(BeneficiaryContext);
+	const { listBeneficiary, projectList, getBeneficiariesBalances, getBenfPackageBalances } = useContext(BeneficiaryContext);
 	const { appSettings } = useContext(AppContext);
 	const handleFilterOptionChange = e => {
 		let { value } = e.target;
@@ -74,7 +74,7 @@ const Beneficiary = () => {
 		fetchList({ start: 0, limit: PAGE_LIMIT });
 	};
 
-	const appendBeneficiaryBalances = useCallback(({ beneficiaries, tokenBalances,packageBalances }) => {
+	const appendBeneficiaryBalances = useCallback(({ beneficiaries, tokenBalances, packageBalances }) => {
 		const beneficiariesWithTokens = beneficiaries.map((ben, i) => {
 			ben.tokenBalance = tokenBalances[i];
 			ben.packageBalance = packageBalances[i].grandTotal
@@ -90,10 +90,10 @@ const Beneficiary = () => {
 			const { agency } = appSettings;
 			setfetchingBeneficiaryTokens(true);
 			const tokenBalances = await getBeneficiariesBalances(beneficiaries, agency.contracts.rahat);
-			const packageBalances = await getBenfPackageBalances (beneficiaries,agency.contracts.rahat);
-			if (tokenBalances.length) await appendBeneficiaryBalances({ beneficiaries, tokenBalances,packageBalances });
+			const packageBalances = await getBenfPackageBalances(beneficiaries, agency.contracts.rahat);
+			if (tokenBalances.length) await appendBeneficiaryBalances({ beneficiaries, tokenBalances, packageBalances });
 		},
-		[appSettings, getBeneficiariesBalances, appendBeneficiaryBalances,getBenfPackageBalances]
+		[appSettings, getBeneficiariesBalances, appendBeneficiaryBalances, getBenfPackageBalances]
 	);
 
 	const fetchList = useCallback(
@@ -144,7 +144,7 @@ const Beneficiary = () => {
 			setCurrentPage(currentPage);
 			let start = (currentPage - 1) * pageLimit;
 			const query = { start, limit: PAGE_LIMIT, ...params };
-			const {data} = await listBeneficiary(query);
+			const { data } = await listBeneficiary(query);
 			setBenfList(data);
 			fetchBeneficiariesBalances({ beneficiaries: data });
 		},
@@ -252,7 +252,7 @@ const Beneficiary = () => {
 												<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 												<td>
 													{/* {d.creator_name ? dottedString(d.creator_name, 15) : '-'} */}
-													{d.created_by && `${renderSingleRole(d.created_by.roles)}`}
+													{d.created_by ? `${renderSingleRole(d.created_by.roles)}` : 'Aid-Connect'}
 												</td>
 												<td>
 													{fetchingBeneficiaryTokens ? (

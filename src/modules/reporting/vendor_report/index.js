@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect, useCallback, useRef} from 'react';
+import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { Button, Card, CardBody, CardTitle, FormGroup } from 'reactstrap';
 
 import ProjectBarDiagram from './project_bar_diagram';
@@ -6,7 +6,7 @@ import TokenChart from './token_pie_chart';
 import PackageChart from './package_pie_chart';
 import { VendorContext } from '../../../contexts/VendorContext';
 import SelectWrapper from '../../global/SelectWrapper';
-import {ExportToExcel} from "../../global/ExportToExcel";
+import { ExportToExcel } from "../../global/ExportToExcel";
 
 const DUMMY_TOKEN_DATA = [
 	{ count: 100, name: 'Total token', id: '1' },
@@ -34,25 +34,25 @@ const VendorReport = () => {
 	const vendorProjectBarRef = useRef(null);
 	const vendorTokenPieRef = useRef(null);
 
-	const downloadImage = useCallback(()=>{
+	const downloadImage = useCallback(() => {
 		downloadProjectBar();
 		downloadPackagePie();
 		downloadTokenPie();
-	},[]);
+	}, []);
 
-	const downloadPackagePie=()=>{
+	const downloadPackagePie = () => {
 		const link = document.createElement("a");
 		link.download = "vendor_pie__diagram.png";
 		link.href = vendorPackagePieRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadProjectBar=()=>{
+	const downloadProjectBar = () => {
 		const link = document.createElement("a");
 		link.download = "vendor_pie_diagram.png";
 		link.href = vendorProjectBarRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadTokenPie=()=>{
+	const downloadTokenPie = () => {
 		const link = document.createElement("a");
 		link.download = "vendor_bar_diagram.png";
 		link.href = vendorTokenPieRef.current.chartInstance.toBase64Image();
@@ -103,22 +103,12 @@ const VendorReport = () => {
 			<div className="transaction-table-container">
 				<Card>
 					<CardTitle className="mb-0 ml-3 pt-3">
-						<span>Vendor report</span>
+						<span>Vendor Report</span>
 					</CardTitle>
 					<CardBody>
 						<div className="mt-3 mb-0">
 							<div className="row">
-								<div className="col-md-10 sm-12">
-									<FormGroup>
-										<SelectWrapper
-											multi={false}
-											onChange={handleProjectChange}
-											maxMenuHeight={150}
-											data={projectList}
-											placeholder="--Select Project--"
-										/>
-									</FormGroup>
-								</div>
+								{/*  */}
 
 								<div className="col-md-2 sm-12">
 									{exporting ? (
@@ -138,7 +128,7 @@ const VendorReport = () => {
 									)}
 								</div>
 							</div>
-							<div className="p-4 mt-4">
+							{/* <div className="p-4 mt-4">
 								<div className="row">
 									<div className="col-md-6 sm-12">
 										<TokenChart vendorTokenPieRef={vendorTokenPieRef} data={DUMMY_TOKEN_DATA} fetching={fetchingVendorData} />
@@ -147,7 +137,7 @@ const VendorReport = () => {
 										<PackageChart data={DUMMY_PACKAGE_DATA} fetching={fetchingVendorData} vendorPackagePieRef={vendorPackagePieRef} />
 									</div>
 								</div>
-							</div>
+							</div> */}
 							<div className="p-4">
 								<ProjectBarDiagram
 									vendorProjectBarRef={vendorProjectBarRef}

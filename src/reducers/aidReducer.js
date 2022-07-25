@@ -48,6 +48,12 @@ export default (state, action) => {
 				available_tokens: action.res
 			};
 
+		case ACTION.SET_USED_TOKENS:
+			return {
+				...state,
+				used_tokens: action.res
+			};
+
 		case ACTION.SET_TOTAL_TOKENS:
 			return {
 				...state,

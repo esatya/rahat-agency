@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect, useCallback, useRef} from 'react';
+import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { Button, Card, CardBody, CardTitle, FormGroup } from 'reactstrap';
 
 import { MobilizerContext } from '../../../contexts/MobilizerContext';
@@ -8,7 +8,7 @@ import ProjectBarDiagram from './project_bar_diagram';
 import SelectWrapper from '../../global/SelectWrapper';
 import TokenChart from './token_pie_chart';
 import PackageChart from './package_pie_chart';
-import {ExportToExcel} from "../../global/ExportToExcel";
+import { ExportToExcel } from "../../global/ExportToExcel";
 
 // const DUMMY_TOKEN_DATA = [
 // 	{ count: 100, name: 'Total token', id: '1' },
@@ -23,10 +23,10 @@ const MobilizerReport = () => {
 	const { appSettings } = useContext(AppContext);
 	const [importing, setImporting] = useState(false);
 
-	const [mobilizerTokens,setMobilizerTokens] = useState({})
-	const [mobilizerPackages,setMobilizerPackages] = useState({})
-	const { getMobilizerReport,getTotalMobilizerIssuedTokens, getMobilizerIssuedPackages,listMobilizer, listAid } = useContext(MobilizerContext);
-	const {getProjectPackageBalance} = useContext(AidContext);
+	const [mobilizerTokens, setMobilizerTokens] = useState({})
+	const [mobilizerPackages, setMobilizerPackages] = useState({})
+	const { getMobilizerReport, getTotalMobilizerIssuedTokens, getMobilizerIssuedPackages, listMobilizer, listAid } = useContext(MobilizerContext);
+	const { getProjectPackageBalance } = useContext(AidContext);
 	const [exporting, setExporting] = useState(false);
 	const [mobilizerData, setMobilizerData] = useState({
 		mobilizerByProject: []
@@ -40,25 +40,25 @@ const MobilizerReport = () => {
 	const mobilizerProjectBarRef = useRef(null);
 	const mobilizerTokenPieRef = useRef(null);
 
-	const downloadImage = useCallback(()=>{
+	const downloadImage = useCallback(() => {
 		downloadProjectBar();
 		downloadPackagePie();
 		downloadTokenPie();
-	},[]);
+	}, []);
 
-	const downloadPackagePie=()=>{
+	const downloadPackagePie = () => {
 		const link = document.createElement("a");
 		link.download = "package_pie__diagram.png";
 		link.href = mobilizerPackagePieRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadProjectBar=()=>{
+	const downloadProjectBar = () => {
 		const link = document.createElement("a");
 		link.download = "gender_pie_diagram.png";
 		link.href = mobilizerProjectBarRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
-	const downloadTokenPie=()=>{
+	const downloadTokenPie = () => {
 		const link = document.createElement("a");
 		link.download = "project_bar_diagram.png";
 		link.href = mobilizerTokenPieRef.current.chartInstance.toBase64Image();
@@ -81,38 +81,40 @@ const MobilizerReport = () => {
 
 
 
-	const fetchMobilizers= useCallback(async ()=>{
-		const mobilizers = await listMobilizer({projectId});
+	const fetchMobilizers = useCallback(async () => {
+		const mobilizers = await listMobilizer({ projectId });
 		return mobilizers;
-	},[listMobilizer,projectId])
+	}, [listMobilizer, projectId])
 
-	const fetchMobilizerIssuedTokens = useCallback(async()=>{
-		if(!projectId) return;
+	const fetchMobilizerIssuedTokens = useCallback(async () => {
+		if (!projectId) return;
 		const { agency } = appSettings;
 		if (!agency || !agency.contracts) return;
 		const { contracts } = agency;
-		const {data} = await fetchMobilizers();
+		const { data } = await fetchMobilizers();
 		const mobilizers = data.map((el) => el.wallet_address);
-		const mobilizerIssuedTokens = await getTotalMobilizerIssuedTokens(contracts.rahat,mobilizers,projectId);
-		setMobilizerTokens([{name:'Total Tokens',count:mobilizerIssuedTokens.totalTokens},
-							{name:'Mobilizer Issued Tokens',count:mobilizerIssuedTokens.totalMobilizerIssuedTokens
-						}]);
-	},[appSettings,fetchMobilizers,getTotalMobilizerIssuedTokens,projectId])
+		const mobilizerIssuedTokens = await getTotalMobilizerIssuedTokens(contracts.rahat, mobilizers, projectId);
+		setMobilizerTokens([{ name: 'Total Tokens', count: mobilizerIssuedTokens.totalTokens },
+		{
+			name: 'Mobilizer Issued Tokens', count: mobilizerIssuedTokens.totalMobilizerIssuedTokens
+		}]);
+	}, [appSettings, fetchMobilizers, getTotalMobilizerIssuedTokens, projectId])
 
-	const fetchMobilizerIssuedPackages = useCallback(async()=>{
-		if(!projectId) return;
+	const fetchMobilizerIssuedPackages = useCallback(async () => {
+		if (!projectId) return;
 		const { agency } = appSettings;
 		if (!agency || !agency.contracts) return;
 		const { contracts } = agency;
-		const {data} = await fetchMobilizers();
+		const { data } = await fetchMobilizers();
 		const mobilizers = data.map((el) => el.wallet_address);
-		const totalPackage = await getProjectPackageBalance(projectId,contracts.rahat_admin);
-		const issuedPackages = await getMobilizerIssuedPackages(contracts.rahat,mobilizers);
-		const totalIssuesPackages = issuedPackages.reduce((prev,curr)=>prev+curr.grandTotal,0);
-		setMobilizerPackages([{name:'Total Package',count:totalPackage.projectPackageCapital},
-							{name:'Mobilizer Issued Tokens',count:totalIssuesPackages
-						}])
-	},[appSettings,fetchMobilizers,getMobilizerIssuedPackages,projectId,getProjectPackageBalance])
+		const totalPackage = await getProjectPackageBalance(projectId, contracts.rahat_admin);
+		const issuedPackages = await getMobilizerIssuedPackages(contracts.rahat, mobilizers);
+		const totalIssuesPackages = issuedPackages.reduce((prev, curr) => prev + curr.grandTotal, 0);
+		setMobilizerPackages([{ name: 'Total Package', count: totalPackage.projectPackageCapital },
+		{
+			name: 'Mobilizer Issued Tokens', count: totalIssuesPackages
+		}])
+	}, [appSettings, fetchMobilizers, getMobilizerIssuedPackages, projectId, getProjectPackageBalance])
 
 
 	const loadProjects = useCallback(async () => {
@@ -137,15 +139,15 @@ const MobilizerReport = () => {
 	useEffect(() => {
 		fetchMobilizerData();
 	}, [fetchMobilizerData]);
-	useEffect(() => {
-		fetchMobilizerIssuedTokens();
-	}, [fetchMobilizerIssuedTokens]);
+	// useEffect(() => {
+	// 	fetchMobilizerIssuedTokens();
+	// }, [fetchMobilizerIssuedTokens]);
 
-	useEffect(()=>{fetchMobilizerIssuedPackages()},[fetchMobilizerIssuedPackages])
+	// useEffect(() => { fetchMobilizerIssuedPackages() }, [fetchMobilizerIssuedPackages])
 
-	useEffect(() => {
-		loadProjects();
-	}, [loadProjects]);
+	// useEffect(() => {
+	// 	loadProjects();
+	// }, [loadProjects]);
 
 	return (
 		<div className="main">
@@ -157,7 +159,7 @@ const MobilizerReport = () => {
 					<CardBody>
 						<div className="mt-3">
 							<div className="row">
-								<div className="col-md-10 sm-12">
+								{/* <div className="col-md-10 sm-12">
 									<FormGroup>
 										<SelectWrapper
 											multi={false}
@@ -167,9 +169,9 @@ const MobilizerReport = () => {
 											placeholder="--Select Project--"
 										/>
 									</FormGroup>
-								</div>
+								</div> */}
 
-								<div className="col-md-2 sm-12">
+								<div className="float-right">
 									{exporting ? (
 										<Button type="button" disabled={true} className="btn" color="info">
 											Exporting...
@@ -187,16 +189,16 @@ const MobilizerReport = () => {
 									)}
 								</div>
 							</div>
-							<div className="p-4 mt-4">
+							{/* <div className="p-4 mt-4">
 								<div className="row">
 									<div className="col-md-6 sm-12">
 										<TokenChart data={mobilizerTokens} fetching={fetchingMobilizerData} projectId={projectId} mobilizerTokenPieRef={mobilizerTokenPieRef} />
 									</div>
 									<div className="col-md-6 sm-12">
-										<PackageChart data={mobilizerPackages} fetching={fetchingMobilizerData} projectId={projectId} mobilizerPackagePieRef={mobilizerPackagePieRef}/>
+										<PackageChart data={mobilizerPackages} fetching={fetchingMobilizerData} projectId={projectId} mobilizerPackagePieRef={mobilizerPackagePieRef} />
 									</div>
 								</div>
-							</div>
+							</div> */}
 							<div className="p-4">
 								<ProjectBarDiagram
 									mobilizerProjectBarRef={mobilizerProjectBarRef}

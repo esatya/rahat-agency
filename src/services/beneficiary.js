@@ -59,8 +59,8 @@ export async function getBeneficairyTokenBalances(beneficiaries, contract_addres
 export async function getTotalBeneficairyTokenBalances(beneficiaries, contract_address) {
 	//TODO make gasefficient calls
 	const { remainingTokens, issuedTokens } = await getBeneficairyTokenBalances(beneficiaries, contract_address);
-	const totalTokenIssued =issuedTokens? issuedTokens.reduce((prev, curr) => prev + curr, 0):0;
-	const totalRemainingTokens =remainingTokens? remainingTokens.reduce((prev, curr) => prev + curr, 0):0;
+	const totalTokenIssued = issuedTokens ? issuedTokens.reduce((prev, curr) => prev + curr, 0) : 0;
+	const totalRemainingTokens = remainingTokens ? remainingTokens.reduce((prev, curr) => prev + curr, 0) : 0;
 	const totalUsedTokens = totalTokenIssued - totalRemainingTokens;
 	return { totalTokenIssued, totalRemainingTokens, totalUsedTokens };
 }
@@ -150,6 +150,18 @@ export async function listBeneficiary(params) {
 	return res.data;
 }
 
+export async function listBeneficiaryPhones(params) {
+	const res = await axios({
+		url: `${API.BENEFICARIES}/phones`,
+		method: 'get',
+		headers: {
+			access_token
+		},
+		params
+	});
+	return res.data;
+}
+
 export async function getById(id) {
 	const res = await axios({
 		url: API.BENEFICARIES + '/' + id,
@@ -174,20 +186,20 @@ export async function listByAid(aid, params) {
 }
 
 export async function addBeneficiaryToProject(benfId, projectId) {
-		const res = await axios({
-			url: `${API.BENEFICARIES}/${benfId}/add-to-project`,
-			method: 'post',
-			headers: {
-				access_token
-			},
-			data: {projectId}
-		});
-		return res.data;
+	const res = await axios({
+		url: `${API.BENEFICARIES}/${benfId}/add-to-project`,
+		method: 'post',
+		headers: {
+			access_token
+		},
+		data: { projectId }
+	});
+	return res.data;
 }
 
 export async function addBeneficiary(body) {
 	if (!body.wallet_address) body.wallet_address = body.phone;
-	try{
+	try {
 		const res = await axios({
 			url: API.BENEFICARIES,
 			method: 'post',
@@ -198,7 +210,7 @@ export async function addBeneficiary(body) {
 		});
 
 		return res.data;
-	}catch (error){
+	} catch (error) {
 		throw new Error(error.response.data.message.toString());
 	}
 }
