@@ -338,6 +338,22 @@ export function getAidDetails(aidId) {
 	});
 }
 
+export function fetchCounts (id) {
+	return new Promise((resolve, reject) => {
+		const projectsAPI = API.PROJECTS;
+		axios.get(projectsAPI+`/${id}/countDetails`,{
+			headers: { access_token: access_token }}).then(res => {
+			if (res.statusText === 'OK') {
+				resolve(res.data);
+			}
+			reject(res.data);
+		})
+			.catch(err => {
+				reject(err);
+			});
+	})
+};
+
 export async function uploadBenfToProject(projectId, payload) {
 	try{
 		let res = await axios.post(`${API.PROJECTS}/${projectId}/upload-beneficiaries`, payload, {

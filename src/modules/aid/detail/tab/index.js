@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Card, Row, Col } from 'reactstrap';
 import classnames from 'classnames';
 
@@ -6,7 +6,7 @@ import BeneficiaryList from './beneficiaryList';
 import VendorList from './vendorList';
 import MobilizersList from './mobilizersList';
 
-const Tabs = ({ projectId }) => {
+const Tabs = ({ projectId, benefCount, vendorCount, mobilizerCount }) => {
 	const [activeTab, setActiveTab] = useState('1');
 
 	const toggle = tab => {
@@ -25,7 +25,7 @@ const Tabs = ({ projectId }) => {
 									toggle('1');
 								}}
 							>
-								Beneficiaries
+								Beneficiaries {benefCount}
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -35,7 +35,7 @@ const Tabs = ({ projectId }) => {
 									toggle('2');
 								}}
 							>
-								Vendors
+								Vendors {vendorCount}
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -45,7 +45,7 @@ const Tabs = ({ projectId }) => {
 									toggle('3');
 								}}
 							>
-								Mobilizers
+								Mobilizers {mobilizerCount}
 							</NavLink>
 						</NavItem>
 					</Nav>

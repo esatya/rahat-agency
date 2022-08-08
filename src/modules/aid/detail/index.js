@@ -11,7 +11,7 @@ import PieChart from './pieChart';
 import Tabs from './tab';
 import { TOAST, PROJECT_STATUS, ROLES } from '../../../constants';
 import BreadCrumb from '../../ui_components/breadcrumb';
-import { getUser } from "../../../utils/sessionManager";
+import {getUser, getUserToken} from "../../../utils/sessionManager";
 import { useHistory } from "react-router-dom";
 import API from "../../../constants/api";
 // import Balance from '../../ui_components/balance';
@@ -26,6 +26,7 @@ export default function Index(props) {
 		available_tokens,
 		used_tokens,
 		getAidDetails,
+		fetchCounts,
 		changeProjectStatus,
 		getProjectCapital,
 		getAidBalance,
@@ -41,6 +42,21 @@ export default function Index(props) {
 	const [totalFiatBalance, setTotalFiatBalance] = useState(0);
 	const [totalRemainingFiatBalance, setTotalRemainingFiatBalance] = useState(0)
 
+	const [benefCount, setBenefCount] = useState(null);
+	const [vendorCount, setVendorCount] = useState(null);
+	const [mobilizerCount, setMobilizerCount] = useState(null);
+
+
+
+
+	useEffect(()=>{
+		fetchCounts(id).then(data =>{
+			console.log('Data',data);
+			setBenefCount(data.benefCount);
+			setMobilizerCount(data.mobCount);
+			setVendorCount(data.vendorCount);
+		});
+	},[]);
 	const handleStatusChange = status => {
 		const success_label = status === PROJECT_STATUS.CLOSED ? 'Closed' : 'Activated';
 		changeProjectStatus(id, status)
@@ -198,7 +214,7 @@ export default function Index(props) {
 					/> */}
 			{/* </Col> */}
 			{/* </Row> */}
-			<Tabs projectId={id} />
+			<Tabs projectId={id} benefCount={benefCount} vendorCount={vendorCount} mobilizerCount={mobilizerCount}/>
 		</>
 	);
 }
