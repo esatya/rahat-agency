@@ -21,6 +21,7 @@ const Donation = (props) =>{
         getAidDetails
     } = useContext(AidContext);
     const [donationList, setDonationList] = useState(null);
+    const [totalDonation, setTotalDonation] = useState(null);
 
     const [agencyUserEmail, setAgencyUserEmail] = useState(null);
 
@@ -70,6 +71,12 @@ const Donation = (props) =>{
                 headers: {Authorisation: `Bearer ${token.data}`}
             }).then(donationList=>{
                 setDonationList(donationList.data.data);
+                let totalDonations = 0;
+                for (let i=0; i<donationList.data.data.length; i++){
+                    const donation = donationList.data.data[i];
+                    totalDonations += donation.amount;
+                }
+                setTotalDonation(totalDonations);
             })
         });
     }
@@ -82,7 +89,7 @@ const Donation = (props) =>{
         <>
             <Card>
                 <CardTitle >
-                    Donations
+                    Donations {totalDonation} BNB
                 </CardTitle>
 
                 <CardBody>

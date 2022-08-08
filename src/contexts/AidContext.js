@@ -48,6 +48,9 @@ export const AidContextProvider = ({ children }) => {
 	function updateAid(projectId, payload) {
 		return Service.updateAid(projectId, payload);
 	}
+	function fetchCounts(id){
+		return Service.fetchCounts(id);
+	}
 
 	function getInstitution(institutionId) {
 		return get(institutionId);
@@ -274,6 +277,7 @@ export const AidContextProvider = ({ children }) => {
 				listNftPackages,
 				getPackageDetails,
 				updateAid,
+				fetchCounts,
 				addAid,
 				listAid,
 				setLoading,
