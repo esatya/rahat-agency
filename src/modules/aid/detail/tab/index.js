@@ -25,7 +25,7 @@ const Tabs = ({ projectId, benefCount, vendorCount, mobilizerCount }) => {
 									toggle('1');
 								}}
 							>
-								Beneficiaries {benefCount}
+								Beneficiaries ({benefCount})
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -35,7 +35,7 @@ const Tabs = ({ projectId, benefCount, vendorCount, mobilizerCount }) => {
 									toggle('2');
 								}}
 							>
-								Vendors {vendorCount}
+								Vendors ({vendorCount})
 							</NavLink>
 						</NavItem>
 						<NavItem>
@@ -45,7 +45,7 @@ const Tabs = ({ projectId, benefCount, vendorCount, mobilizerCount }) => {
 									toggle('3');
 								}}
 							>
-								Mobilizers {mobilizerCount}
+								Mobilizers ({mobilizerCount})
 							</NavLink>
 						</NavItem>
 					</Nav>

@@ -89,7 +89,7 @@ const Donation = (props) =>{
         <>
             <Card>
                 <CardTitle >
-                    Donations {totalDonation} BNB
+                    Donations ({totalDonation? totalDonation: 0}{totalDonation? 'BNB': ''})
                 </CardTitle>
 
                 <CardBody>
