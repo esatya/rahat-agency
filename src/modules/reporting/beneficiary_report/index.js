@@ -3,6 +3,7 @@ import { Button, Card, CardBody, CardTitle, Input, FormGroup, Label } from 'reac
 import AgeBarDiagram from './age_bar_diagram';
 import ProjectBarDiagram from './project_bar_diagram';
 import GenderPieChart from './gender_pie_chart';
+import GroupPieChart from './group_pie_chart';
 import SelectWrapper from '../../global/SelectWrapper';
 import { BeneficiaryContext } from '../../../contexts/BeneficiaryContext';
 import {ExportToExcel} from "../../global/ExportToExcel";
@@ -19,11 +20,13 @@ const BeneficiaryReport = () => {
 	const [beneficiaryExportData, setBeneficiaryExportData] = useState(null);
     const ageBarRef = useRef(null);
 	const genderPieRef = useRef(null);
+	const groupPieRef = useRef(null);
 	const projectBarRef = useRef(null);
 	const downloadImage = useCallback(()=>{
 		downloadProjectBar();
 		downloadAgeBar();
 		downloadGenderPie();
+		downloadGroupPie();
 	},[]);
 	const downloadAgeBar=()=>{
 		const link = document.createElement("a");
@@ -37,6 +40,12 @@ const BeneficiaryReport = () => {
 		link.href = genderPieRef.current.chartInstance.toBase64Image();
 		link.click();
 	}
+	const downloadGroupPie=()=>{
+		const link = document.createElement("a");
+		link.download = "group_pie_diagram.png";
+		link.href = groupPieRef.current.chartInstance.toBase64Image();
+		link.click();
+	}
 	const downloadProjectBar=()=>{
 		const link = document.createElement("a");
 		link.download = "project_bar_diagram.png";
@@ -46,6 +55,7 @@ const BeneficiaryReport = () => {
 
 	const [beneficiaryData, setBeneficiaryData] = useState({
 		beneficiaryByGender: [],
+		beneficiaryByGroup: [],
 		beneficiaryByProject: [],
 		beneficiaryByAge: []
 	});
@@ -61,19 +71,21 @@ const BeneficiaryReport = () => {
 			const toDate = new Date(formData.to);
 
 			const data = await beneficiaryReport({ projectId, from: fromDate, to: toDate });
-			const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge } = data;
+			const { beneficiaryByGender, beneficiaryByGroup, beneficiaryByProject, beneficiaryByAge } = data;
 			setBeneficiaryData(prevState => ({
 				...prevState,
 				beneficiaryByGender: beneficiaryByGender.beneficiaries,
+				beneficiaryByGroup: beneficiaryByGroup.beneficiaries,
 				beneficiaryByProject: beneficiaryByProject.project,
 				beneficiaryByAge: beneficiaryByAge.beneficiaries
 			}));
 		}
 		const data = await beneficiaryReport();
-		const { beneficiaryByGender, beneficiaryByProject, beneficiaryByAge, beneficiaryExportData } = data;
+		const { beneficiaryByGender, beneficiaryByGroup, beneficiaryByProject, beneficiaryByAge, beneficiaryExportData } = data;
 		setBeneficiaryData(prevState => ({
 			...prevState,
 			beneficiaryByGender: beneficiaryByGender.beneficiaries,
+			beneficiaryByGroup: beneficiaryByGroup.beneficiaries,
 			beneficiaryByProject: beneficiaryByProject.project,
 			beneficiaryByAge: beneficiaryByAge.beneficiaries
 		}));
@@ -175,6 +187,9 @@ const BeneficiaryReport = () => {
 							</div>
 							<div className="p-4">
 								<GenderPieChart genderPieRef={genderPieRef} data={beneficiaryData.beneficiaryByGender} fetching={fetchingBeneficiaryData} />
+							</div>
+							<div className="p-4">
+								<GroupPieChart groupPieRef={groupPieRef} data={beneficiaryData.beneficiaryByGroup} fetching={fetchingBeneficiaryData} />
 							</div>
 						</div>
 					</CardBody>
