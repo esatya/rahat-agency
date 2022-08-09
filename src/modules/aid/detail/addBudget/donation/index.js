@@ -8,11 +8,12 @@ import {APP_CONSTANTS, TOAST} from "../../../../../constants";
 import API from "../../../../../constants/api";
 import {getUserToken} from "../../../../../utils/sessionManager";
 import {AidContext} from "../../../../../contexts/AidContext";
+import {useToasts} from "react-toast-notifications";
 
 const Donation = (props) =>{
     // const { projectId} = props.projectId;
     const access_token = getUserToken();
-
+    const { addToast } = useToasts();
     const [currentPage, setCurrentPage] = useState(1);
     const { PAGE_LIMIT } = APP_CONSTANTS;
 
@@ -80,6 +81,10 @@ const Donation = (props) =>{
             })
         });
     }
+    const copyAddress = (address) => {
+        navigator.clipboard.writeText(address);
+        addToast(`Copied to Clipboard`, TOAST.SUCCESS);
+    };
 
     useEffect(()=>{
         fetchAgencyUserDetails(props.projectId);
@@ -89,7 +94,7 @@ const Donation = (props) =>{
         <>
             <Card>
                 <CardTitle >
-                    Donations ({totalDonation? totalDonation: 0}{totalDonation? 'BNB': ''})
+                    Donations ({totalDonation? totalDonation : 0}{totalDonation? ' BNB': ''})
                 </CardTitle>
 
                 <CardBody>
@@ -109,10 +114,30 @@ const Donation = (props) =>{
                                 return (
                                     <tr key={d.id}>
                                         <td>{(currentPage - 1) * PAGE_LIMIT + i + 1}</td>
-                                        <td>{dottedString(d.walletAddress)}</td>
+                                        <td>
+                                        <span
+                                            onClick={() =>
+                                                copyAddress(d.walletAddress)
+                                            }
+                                            className="c-p-primary"
+                                        >
+                                      {dottedString(d.walletAddress)}
+                                            <span className=" ps-1">
+                                        <i className="fa fa-copy "></i>
+                                      </span>
+                                    </span>
+                                        </td>
                                         <td>{dottedString(d.amount)} {d.amount ? 'BNB':''}</td>
                                         <td>{moment(d.createdDate).format('YYYY-MM-DD')}</td>
-                                        <td>{dottedString(d.transactionId)}</td>
+                                        <td><a target="_blank"
+                                               rel="noopener noreferrer"
+                                               className="text-decoration-underline text-default"
+                                               href={`https://testnet.bscscan.com/tx/${d.transactionId}`}>
+                                            {dottedString(d.transactionId)}
+                                            <span className=" ps-1">
+                                        <i className="fa fa-paperclip"></i>
+                                      </span>
+                                        </a></td>
                                     </tr>
                                 );
                             })
