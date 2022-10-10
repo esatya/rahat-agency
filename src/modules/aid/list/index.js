@@ -219,7 +219,7 @@ const List = () => {
 											<td>{dottedString(d.name)}</td>
 											<td>{dottedString(d.location)}</td>
 											<td>
-												{d.project_manager ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
+												{d?.project_manager?.name ? `${d.project_manager.name.first} ${d.project_manager.name.last}` : '-'}
 											</td>
 											<td>{moment(d.created_at).format('MMM Do YYYY')}</td>
 											<td>{d.status === 'closed' ? 'COMPLETED' : d.status.toUpperCase()}</td>

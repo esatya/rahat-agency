@@ -327,7 +327,7 @@ export function getAidDetails(aidId) {
 				headers: { access_token: access_token }
 			})
 			.then(res => {
-				if (res.statusText === 'OK') {
+				if (res.data) {
 					resolve(res.data);
 				}
 				reject(res.data);
