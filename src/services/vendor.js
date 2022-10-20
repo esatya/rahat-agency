@@ -220,3 +220,13 @@ export async function getEth({ address }) {
 		return res.data;
 	} catch {}
 }
+
+export async function getVendorReport(params) {
+	const { data } = await axios({
+		url: API.VENDORS + `/reports`,
+		method: 'get',
+		headers: { access_token },
+		params
+	});
+	return data;
+}

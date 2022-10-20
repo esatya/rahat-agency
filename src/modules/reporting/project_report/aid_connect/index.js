@@ -1,7 +1,7 @@
 import React from 'react';
 import { CardTitle } from 'reactstrap';
 import { Pie } from 'react-chartjs-2';
-import Loading from '../../../../global/Loading';
+import Loading from '../../../global/Loading';
 
 let _data = [];
 let _labels = [];
@@ -37,7 +37,7 @@ export default function Index(props) {
 
 	return (
 		<div>
-			<CardTitle>Token</CardTitle>
+			<CardTitle>Beneficiaries On Boarded</CardTitle>
 			<div
 				className="chart-wrapper"
 				style={{

@@ -7,6 +7,7 @@ import '../../../../assets/css/project.css';
 import BreadCrumb from '../../../ui_components/breadcrumb';
 import TokenTab from './token/index';
 import AssetTab from './asset/index';
+import Donation from "./donation";
 
 export default function BudgetAdd({ match }) {
 	// const urlSearchParams = new URLSearchParams(window.location.search);
@@ -66,6 +67,7 @@ export default function BudgetAdd({ match }) {
 					</TabContent>
 				</div>
 			</Card>
+				<Donation projectId={projectId}/>
 		</div>
 	);
 }

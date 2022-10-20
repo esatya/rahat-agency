@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { Row, Col } from 'reactstrap';
+import {Row, Col, Tooltip} from 'reactstrap';
 import { useToasts } from 'react-toast-notifications';
 
 import { AidContext } from '../../../contexts/AidContext';
@@ -9,13 +9,17 @@ import ProjectInfo from './projectInfo';
 import PieChart from './pieChart';
 // import BarChart from './barChart';
 import Tabs from './tab';
-import { TOAST, PROJECT_STATUS } from '../../../constants';
+import {TOAST, PROJECT_STATUS, ROLES} from '../../../constants';
 import BreadCrumb from '../../ui_components/breadcrumb';
+import {getUser} from "../../../utils/sessionManager";
+import {useHistory} from "react-router-dom";
+import API from "../../../constants/api";
 // import Balance from '../../ui_components/balance';
+
 
 export default function Index(props) {
 	const { id } = props.match.params;
-
+	const history = useHistory();
 	const { addToast } = useToasts();
 	const {
 		total_tokens,
@@ -49,11 +53,14 @@ export default function Index(props) {
 	};
 
 	const fetchProjectDetails = () => {
+
 		getAidDetails(id)
 			.then(res => {
+
 				setProjectDetails(res);
 			})
 			.catch(err => {
+				
 				addToast(err.message, TOAST.ERROR);
 			});
 	};
@@ -69,8 +76,8 @@ export default function Index(props) {
 			await getAidBalance(id, rahat_admin);
 			const res = await getProjectPackageBalance(id, rahat_admin);
 			console.log({ res });
-			setTotalFiatBalance(res.projectCapital.grandTotal || 0);
-			setTotalRemainingFiatBalance(res.remainingBalance.grandTotal || 0)
+			setTotalFiatBalance(0);
+			setTotalRemainingFiatBalance(0)
 		} catch (err) {
 			console.log(err);
 			addToast(err.message, TOAST.ERROR);
@@ -85,10 +92,48 @@ export default function Index(props) {
 		fetchPackageAndTokenBalance();
 	}, [fetchPackageAndTokenBalance]);
 
+	const handleCampaignClick = () => {
+		window.open(`${API.FUNDRAISER_FUNDRAISE}/${projectDetails.campaignId}`, '_blank');
+		}
+	const handleClick = () => {
+		const currentUser = getUser();
+		const isManager = currentUser && currentUser.roles.includes(ROLES.MANAGER);
+		if (isManager || projectDetails.status === PROJECT_STATUS.SUSPENDED)
+			return addToast('Access denied for this operation!', TOAST.ERROR);
+		history.push(`/add-campaign/${id}`);
+	};
+
+	const [toolTipOpen, setToolTipOpen] = useState(false);
+	const toggleToolTip = ()  =>{
+		setToolTipOpen(!toolTipOpen);
+	}
 	return (
 		<>
-			<p className="page-heading">Projects</p>
-			<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Details" />
+			<Row>
+				<Col md="9">
+					<p className="page-heading">Projects</p>
+					<BreadCrumb redirect_path="projects" root_label="Projects" current_label="Details"/>
+				</Col>
+
+				<Col md="3">
+					{projectDetails && projectDetails.campaignId &&
+						(<>
+								<Tooltip placement="right" isOpen={toolTipOpen} toggle={toggleToolTip} target="viewCampaignFundraiser">{projectDetails.campaignTitle}</Tooltip>
+								<button id = "viewCampaignFundraiser" onClick={handleCampaignClick} type="button"
+										className="btn waves-effect waves-light btn-outline-info"
+										style={{borderRadius: '8px', minWidth:'12px'}}>View Campaign
+								</button>
+						</>
+
+							)}
+					{projectDetails && projectDetails.campaignId == null &&
+						<button onClick={handleClick} type="button"
+								className="btn waves-effect waves-light btn-outline-info"
+								style={{borderRadius: '8px'}}> Add Campaign
+						</button>
+					}
+				</Col>
+			</Row>
 			<Row>
 				<Col md="7">
 					{projectDetails && (
